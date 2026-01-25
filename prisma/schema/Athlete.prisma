@@ -1,0 +1,103 @@
+model Athlete {
+  id                   String                      @id @default(uuid())
+  athleteId            String                      @unique @map("athlete_id")
+  firstName            String                      @map("first_name")
+  lastName             String                      @map("last_name")
+  email                String?                     @unique
+  phoneNumber          String?                     @map("phone_number")
+  dateOfBirth          String                      @map("date_of_birth")
+  profilePIcture       String?                     @map("profile_picture")
+  createdAt            DateTime                    @default(now()) @map("created_at")
+  updatedAt            DateTime                    @updatedAt @map("updated_at")
+  middleName           String?                     @map("middle_name")
+  nextBillingDate      DateTime?
+  status               ATHLETE_ACCOUNT_STATUS      @default(PENDING)
+  batchesId            String                      @map("batches_id")
+  height               String
+  weight               String
+  foot                 String
+  hand                 String
+  positions            String[]
+  birthCertificate     String?                     @map("bith_certificate")
+  nationalIdFront      String?                     @map("national_id_front")
+  nationalIdBack       String?                     @map("national_id_back")
+  passportCover        String?                     @map("passport_cover")
+  passportBioData      String?                     @map("passport_bio_data")
+  batches              Batches?                    @relation(fields: [batchesId], references: [id])
+  address              AthleteAddress?
+  emergencyContacts    AthleteEmergencyContact[]
+  guardians            AthleteGuardian[]
+  medical              AthleteMedicalAndEmergency?
+  finances             Finance[]
+  trainings            training[]                  @relation("TrainingToAthletes")
+  attendances          attendance[]
+  invoices             Invoice[]
+  assessments          Assessment[]
+  isArchived           Boolean                     @default(false)
+  ArchiveDate          DateTime?
+  athleteSubscriptions AthleteSubscription[]
+
+  @@map("athlete")
+}
+
+model AthleteSequence {
+  id      Int @id @default(1)
+  current Int
+
+  @@map("athlete_sequence")
+}
+
+model AthleteGuardian {
+  id           String  @id @default(uuid())
+  fullNames    String  @map("full_names")
+  relationship String
+  email        String
+  phoneNumber  String  @map("phone_number")
+  athleteId    String  @map("athlete_id")
+  athlete      Athlete @relation(fields: [athleteId], references: [athleteId], onDelete: Cascade)
+
+  @@index([athleteId])
+  @@map("athlete_guardian")
+}
+
+model AthleteMedicalAndEmergency {
+  id                String   @id @default(uuid())
+  bloogGroup        String   @map("blood_group")
+  allergies         String[] @default([])
+  medicalConditions String[] @default([])
+  athleteId         String   @unique @map("athlete_id")
+  athlete           Athlete  @relation(fields: [athleteId], references: [athleteId], onDelete: Cascade)
+
+  @@map("athlete_medical_and_emrgency")
+}
+
+model AthleteAddress {
+  id           String  @id @default(uuid())
+  country      String
+  subCounty    String  @map("sub_county")
+  addressLine1 String  @map("address_line_1")
+  addressLine2 String  @map("address_line_2")
+  athleteId    String  @unique @map("athlete_id")
+  county       String  @default("null")
+  athlete      Athlete @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+
+  @@map("athlete_address")
+}
+
+model AthleteEmergencyContact {
+  id           String  @id @default(uuid())
+  name         String
+  phoneNumber  String  @map("phone_number")
+  relationship String
+  athleteId    String  @map("athlete_id")
+  athlete      Athlete @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+
+  @@map("athlete_emergency_contact")
+}
+
+enum ATHLETE_ACCOUNT_STATUS {
+  ACTIVE
+  PENDING
+  DEACTIVATED
+  DEFAULT
+}

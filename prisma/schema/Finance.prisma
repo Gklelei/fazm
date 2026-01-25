@@ -1,0 +1,223 @@
+// ===== ENUMS =====
+enum PAYMENT_TYPE {
+  CASH
+  BANK_TRANSFER
+  MPESA_SEND_MONEY
+  MPESA_PAYBILL
+}
+
+enum INVOICE_STATUS {
+  PENDING
+  PARTIAL
+  PAID
+  CANCELED
+  OVERDUE
+}
+
+enum INVOICE_TYPE {
+  SUBSCRIPTION
+  MANUAL
+  LATE_FEE
+  ITEM_PURCHASE
+}
+
+enum SUBSCRIPTION_STATUS {
+  ACTIVE
+  PAUSED
+  CANCELED
+  EXPIRED
+  INACTIVE
+}
+
+enum SUB_FREQUENCY {
+  YEARLY
+  MONTHLY
+  DAILY
+  WEEKLY
+  ONCE
+}
+
+// ===== MODELS =====
+
+model SubscriptionPlan {
+  id          String        @id @default(uuid())
+  name        String
+  code        String        @unique
+  amount      Float
+  interval    SUB_FREQUENCY
+  description String?
+  isActive    Boolean       @default(true)
+  isArchived  Boolean       @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  activeSubscriptions AthleteSubscription[]
+  invoices            Invoice[]
+
+  @@map("subscription_plans")
+}
+
+// Athlete's active subscription instance
+model AthleteSubscription {
+  id String @id @default(uuid())
+
+  // Links
+  athleteId          String
+  athlete            Athlete          @relation(fields: [athleteId], references: [athleteId])
+  subscriptionPlanId String
+  subscriptionPlan   SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id])
+
+  // Subscription instance details
+  startDate DateTime            @default(now())
+  endDate   DateTime? // Null if ongoing
+  status    SUBSCRIPTION_STATUS @default(ACTIVE)
+
+  // Auto-renew settings
+  autoRenew         Boolean @default(true)
+  cancelAtPeriodEnd Boolean @default(false)
+
+  // Current billing period
+  currentPeriodStart DateTime
+  currentPeriodEnd   DateTime
+
+  // Trial period (if applicable)
+  trialStart DateTime?
+  trialEnd   DateTime?
+
+  // Payment method reference (if you have payment method table)
+  paymentMethodId String?
+
+  // Invoices generated for this subscription
+  invoices Invoice[]
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  updatedBy String? // Track who updated this subscription
+  finances  Finance[]
+
+  // Ensure an athlete can't have multiple active subscriptions of same plan
+  @@unique([athleteId, subscriptionPlanId, status])
+  @@index([athleteId, status])
+  @@index([currentPeriodEnd])
+  @@index([endDate])
+  @@map("athlete_subscriptions")
+}
+
+// Invoice (connects athlete to subscription plan/instance)
+model Invoice {
+  id            String @id @default(uuid())
+  invoiceNumber String @unique
+
+  // Athlete
+  athleteId String
+  athlete   Athlete @relation(fields: [athleteId], references: [athleteId])
+
+  // Subscription plan (for subscription invoices)
+  subscriptionPlanId String?
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+
+  // Active subscription instance (if applicable)
+  athleteSubscriptionId String?
+  athleteSubscription   AthleteSubscription? @relation(fields: [athleteSubscriptionId], references: [id])
+
+  // Invoice details
+  type        INVOICE_TYPE @default(SUBSCRIPTION)
+  description String?
+
+  // Pricing
+  unitAmount Float
+  quantity   Int   @default(1)
+  amountDue  Float
+
+  // Payment status
+  amountPaid Float          @default(0)
+  status     INVOICE_STATUS @default(PENDING)
+  dueDate    DateTime
+
+  // For recurring invoices
+  isRecurring     Boolean   @default(false)
+  billingCycle    String? // e.g., "2024-12" for December 2024
+  periodStart     DateTime? // Billing period start
+  periodEnd       DateTime? // Billing period end
+  nextBillingDate DateTime?
+
+  // Metadata
+  issuedBy String? // Who created the invoice
+  notes    String?
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  finances  Finance[]
+
+  @@index([athleteId])
+  @@index([subscriptionPlanId])
+  @@index([athleteSubscriptionId])
+  @@index([status])
+  @@index([dueDate])
+  @@map("invoices")
+}
+
+// Payment records
+model Finance {
+  id    String  @id @default(uuid())
+  notes String?
+
+  // Links
+  athleteId String
+  athlete   Athlete  @relation(fields: [athleteId], references: [athleteId], onDelete: Restrict)
+  invoiceId String?
+  invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+
+  // Payment details
+  amountPaid    Float        @map("amount_paid")
+  collectedBy   String       @map("collected_by")
+  paymentDate   DateTime     @default(now()) @map("payment_date")
+  paymentType   PAYMENT_TYPE @default(CASH) @map("payment_type")
+  receiptNumber String       @unique @map("receipt_number")
+
+  // Reference to subscription (optional)
+  athleteSubscriptionId String?
+  athleteSubscription   AthleteSubscription? @relation(fields: [athleteSubscriptionId], references: [id])
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([athleteId])
+  @@index([invoiceId])
+  @@index([athleteSubscriptionId])
+  @@index([paymentDate])
+  @@map("finance")
+}
+
+model Expenses {
+  id            String            @id @default(cuid())
+  expenseNumber String            @unique @map("expense_number")
+  description   String?           @map("Description")
+  amount        String
+  date          DateTime
+  status        String? /* EXPENSE_STATUS    @default(PENDING) */
+  categoryId    String            @map("category_id")
+  category      ExpenseCategories @relation(fields: [categoryId], references: [id])
+  createdAt     DateTime          @default(now()) @map("created_at")
+  updatedAt     DateTime          @updatedAt @map("updated_at")
+
+  @@map("expenses")
+}
+
+model ExpenseCategories {
+  id          String                  @id @default(cuid())
+  name        String
+  status      EXPENSECATGORIES_STATUS
+  description String?
+  expenses    Expenses[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("expense_categories")
+}
+
+enum EXPENSECATGORIES_STATUS {
+  ACTIVE
+  INACTIVE
+}

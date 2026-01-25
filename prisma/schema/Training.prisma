@@ -1,0 +1,93 @@
+model training {
+  id                  String            @id @default(cuid())
+  batchesId           String
+  date                DateTime
+  description         String
+  name                String
+  note                String?
+  status              TRAINING_STATUS   @default(SCHEDULED)
+  duration            Int
+  isArchived          Boolean           @default(false)
+  trainingLocationsId String
+  staffId             String
+  batch               Batches           @relation(fields: [batchesId], references: [id])
+  coach               staff             @relation(fields: [staffId], references: [staffId])
+  location            TrainingLocations @relation(fields: [trainingLocationsId], references: [id])
+
+  drills drills[] @relation("TrainingToDrills")
+
+  athletes    Athlete[]    @relation("TrainingToAthletes")
+  attendances attendance[]
+  assessments Assessment[]
+}
+
+model attendance {
+  id         String           @id @default(cuid())
+  trainingId String
+  athleteId  String
+  coachId    String
+  status     AttendanceStatus @default(ABSENT)
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  training training                     @relation(fields: [trainingId], references: [id])
+  athlete  Athlete                      @relation(fields: [athleteId], references: [athleteId])
+  coach    staff                        @relation(fields: [coachId], references: [staffId])
+  reason   TRAINING_ATTENDANCE_REASONS? @relation(fields: [reasonId], references: [id])
+  reasonId String?
+
+  @@unique([trainingId, athleteId])
+  @@map("attendance")
+}
+
+model Batches {
+  id          String     @id @default(cuid())
+  name        String
+  description String?
+  athletes    Athlete[]
+  sessions    training[]
+
+  @@map("batches")
+}
+
+model drills {
+  id          String     @id @default(cuid())
+  value       String
+  name        String
+  description String?
+  trainings   training[] @relation("TrainingToDrills")
+
+  @@map("drills")
+}
+
+model TrainingLocations {
+  id        String     @id @default(cuid())
+  name      String
+  value     String
+  trainings training[]
+
+  @@map("training_locations")
+}
+
+model TRAINING_ATTENDANCE_REASONS {
+  id          String           @id @default(cuid())
+  status      AttendanceStatus
+  label       String?
+  attendances attendance[]
+
+  @@map("training_attendance_reasons")
+}
+
+enum TRAINING_STATUS {
+  COMPLETED
+  CANCELLED
+  SCHEDULED
+  IN_PROGRESS
+}
+
+enum AttendanceStatus {
+  PRESENT
+  ABSENT
+  LATE
+  EXCUSED
+}
