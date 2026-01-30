@@ -1023,20 +1023,6 @@ export type AthleteUncheckedUpdateManyWithoutTrainingsNestedInput = {
   deleteMany?: Prisma.AthleteScalarWhereInput | Prisma.AthleteScalarWhereInput[]
 }
 
-export type AthleteCreateNestedOneWithoutAttendancesInput = {
-  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAttendancesInput, Prisma.AthleteUncheckedCreateWithoutAttendancesInput>
-  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAttendancesInput
-  connect?: Prisma.AthleteWhereUniqueInput
-}
-
-export type AthleteUpdateOneRequiredWithoutAttendancesNestedInput = {
-  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAttendancesInput, Prisma.AthleteUncheckedCreateWithoutAttendancesInput>
-  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAttendancesInput
-  upsert?: Prisma.AthleteUpsertWithoutAttendancesInput
-  connect?: Prisma.AthleteWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.AthleteUpdateToOneWithWhereWithoutAttendancesInput, Prisma.AthleteUpdateWithoutAttendancesInput>, Prisma.AthleteUncheckedUpdateWithoutAttendancesInput>
-}
-
 export type AthleteCreateNestedManyWithoutBatchesInput = {
   create?: Prisma.XOR<Prisma.AthleteCreateWithoutBatchesInput, Prisma.AthleteUncheckedCreateWithoutBatchesInput> | Prisma.AthleteCreateWithoutBatchesInput[] | Prisma.AthleteUncheckedCreateWithoutBatchesInput[]
   connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutBatchesInput | Prisma.AthleteCreateOrConnectWithoutBatchesInput[]
@@ -1077,6 +1063,20 @@ export type AthleteUncheckedUpdateManyWithoutBatchesNestedInput = {
   update?: Prisma.AthleteUpdateWithWhereUniqueWithoutBatchesInput | Prisma.AthleteUpdateWithWhereUniqueWithoutBatchesInput[]
   updateMany?: Prisma.AthleteUpdateManyWithWhereWithoutBatchesInput | Prisma.AthleteUpdateManyWithWhereWithoutBatchesInput[]
   deleteMany?: Prisma.AthleteScalarWhereInput | Prisma.AthleteScalarWhereInput[]
+}
+
+export type AthleteCreateNestedOneWithoutAttendancesInput = {
+  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAttendancesInput, Prisma.AthleteUncheckedCreateWithoutAttendancesInput>
+  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAttendancesInput
+  connect?: Prisma.AthleteWhereUniqueInput
+}
+
+export type AthleteUpdateOneRequiredWithoutAttendancesNestedInput = {
+  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAttendancesInput, Prisma.AthleteUncheckedCreateWithoutAttendancesInput>
+  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAttendancesInput
+  upsert?: Prisma.AthleteUpsertWithoutAttendancesInput
+  connect?: Prisma.AthleteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AthleteUpdateToOneWithWhereWithoutAttendancesInput, Prisma.AthleteUpdateWithoutAttendancesInput>, Prisma.AthleteUncheckedUpdateWithoutAttendancesInput>
 }
 
 export type AthleteCreateWithoutAssessmentsInput = {
@@ -2552,6 +2552,108 @@ export type AthleteScalarWhereInput = {
   ArchiveDate?: Prisma.DateTimeNullableFilter<"Athlete"> | Date | string | null
 }
 
+export type AthleteCreateWithoutBatchesInput = {
+  id?: string
+  athleteId: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  phoneNumber?: string | null
+  dateOfBirth: string
+  profilePIcture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  middleName?: string | null
+  nextBillingDate?: Date | string | null
+  status?: $Enums.ATHLETE_ACCOUNT_STATUS
+  height: string
+  weight: string
+  foot: string
+  hand: string
+  positions?: Prisma.AthleteCreatepositionsInput | string[]
+  birthCertificate?: string | null
+  nationalIdFront?: string | null
+  nationalIdBack?: string | null
+  passportCover?: string | null
+  passportBioData?: string | null
+  isArchived?: boolean
+  ArchiveDate?: Date | string | null
+  address?: Prisma.AthleteAddressCreateNestedOneWithoutAthleteInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactCreateNestedManyWithoutAthleteInput
+  guardians?: Prisma.AthleteGuardianCreateNestedManyWithoutAthleteInput
+  medical?: Prisma.AthleteMedicalAndEmergencyCreateNestedOneWithoutAthleteInput
+  finances?: Prisma.FinanceCreateNestedManyWithoutAthleteInput
+  trainings?: Prisma.trainingCreateNestedManyWithoutAthletesInput
+  attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
+  assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+}
+
+export type AthleteUncheckedCreateWithoutBatchesInput = {
+  id?: string
+  athleteId: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  phoneNumber?: string | null
+  dateOfBirth: string
+  profilePIcture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  middleName?: string | null
+  nextBillingDate?: Date | string | null
+  status?: $Enums.ATHLETE_ACCOUNT_STATUS
+  height: string
+  weight: string
+  foot: string
+  hand: string
+  positions?: Prisma.AthleteCreatepositionsInput | string[]
+  birthCertificate?: string | null
+  nationalIdFront?: string | null
+  nationalIdBack?: string | null
+  passportCover?: string | null
+  passportBioData?: string | null
+  isArchived?: boolean
+  ArchiveDate?: Date | string | null
+  address?: Prisma.AthleteAddressUncheckedCreateNestedOneWithoutAthleteInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactUncheckedCreateNestedManyWithoutAthleteInput
+  guardians?: Prisma.AthleteGuardianUncheckedCreateNestedManyWithoutAthleteInput
+  medical?: Prisma.AthleteMedicalAndEmergencyUncheckedCreateNestedOneWithoutAthleteInput
+  finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteInput
+  trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutAthletesInput
+  attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
+  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+}
+
+export type AthleteCreateOrConnectWithoutBatchesInput = {
+  where: Prisma.AthleteWhereUniqueInput
+  create: Prisma.XOR<Prisma.AthleteCreateWithoutBatchesInput, Prisma.AthleteUncheckedCreateWithoutBatchesInput>
+}
+
+export type AthleteCreateManyBatchesInputEnvelope = {
+  data: Prisma.AthleteCreateManyBatchesInput | Prisma.AthleteCreateManyBatchesInput[]
+  skipDuplicates?: boolean
+}
+
+export type AthleteUpsertWithWhereUniqueWithoutBatchesInput = {
+  where: Prisma.AthleteWhereUniqueInput
+  update: Prisma.XOR<Prisma.AthleteUpdateWithoutBatchesInput, Prisma.AthleteUncheckedUpdateWithoutBatchesInput>
+  create: Prisma.XOR<Prisma.AthleteCreateWithoutBatchesInput, Prisma.AthleteUncheckedCreateWithoutBatchesInput>
+}
+
+export type AthleteUpdateWithWhereUniqueWithoutBatchesInput = {
+  where: Prisma.AthleteWhereUniqueInput
+  data: Prisma.XOR<Prisma.AthleteUpdateWithoutBatchesInput, Prisma.AthleteUncheckedUpdateWithoutBatchesInput>
+}
+
+export type AthleteUpdateManyWithWhereWithoutBatchesInput = {
+  where: Prisma.AthleteScalarWhereInput
+  data: Prisma.XOR<Prisma.AthleteUpdateManyMutationInput, Prisma.AthleteUncheckedUpdateManyWithoutBatchesInput>
+}
+
 export type AthleteCreateWithoutAttendancesInput = {
   id?: string
   athleteId: string
@@ -2718,108 +2820,6 @@ export type AthleteUncheckedUpdateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
-}
-
-export type AthleteCreateWithoutBatchesInput = {
-  id?: string
-  athleteId: string
-  firstName: string
-  lastName: string
-  email?: string | null
-  phoneNumber?: string | null
-  dateOfBirth: string
-  profilePIcture?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  middleName?: string | null
-  nextBillingDate?: Date | string | null
-  status?: $Enums.ATHLETE_ACCOUNT_STATUS
-  height: string
-  weight: string
-  foot: string
-  hand: string
-  positions?: Prisma.AthleteCreatepositionsInput | string[]
-  birthCertificate?: string | null
-  nationalIdFront?: string | null
-  nationalIdBack?: string | null
-  passportCover?: string | null
-  passportBioData?: string | null
-  isArchived?: boolean
-  ArchiveDate?: Date | string | null
-  address?: Prisma.AthleteAddressCreateNestedOneWithoutAthleteInput
-  emergencyContacts?: Prisma.AthleteEmergencyContactCreateNestedManyWithoutAthleteInput
-  guardians?: Prisma.AthleteGuardianCreateNestedManyWithoutAthleteInput
-  medical?: Prisma.AthleteMedicalAndEmergencyCreateNestedOneWithoutAthleteInput
-  finances?: Prisma.FinanceCreateNestedManyWithoutAthleteInput
-  trainings?: Prisma.trainingCreateNestedManyWithoutAthletesInput
-  attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
-  invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
-  assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
-  athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
-}
-
-export type AthleteUncheckedCreateWithoutBatchesInput = {
-  id?: string
-  athleteId: string
-  firstName: string
-  lastName: string
-  email?: string | null
-  phoneNumber?: string | null
-  dateOfBirth: string
-  profilePIcture?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  middleName?: string | null
-  nextBillingDate?: Date | string | null
-  status?: $Enums.ATHLETE_ACCOUNT_STATUS
-  height: string
-  weight: string
-  foot: string
-  hand: string
-  positions?: Prisma.AthleteCreatepositionsInput | string[]
-  birthCertificate?: string | null
-  nationalIdFront?: string | null
-  nationalIdBack?: string | null
-  passportCover?: string | null
-  passportBioData?: string | null
-  isArchived?: boolean
-  ArchiveDate?: Date | string | null
-  address?: Prisma.AthleteAddressUncheckedCreateNestedOneWithoutAthleteInput
-  emergencyContacts?: Prisma.AthleteEmergencyContactUncheckedCreateNestedManyWithoutAthleteInput
-  guardians?: Prisma.AthleteGuardianUncheckedCreateNestedManyWithoutAthleteInput
-  medical?: Prisma.AthleteMedicalAndEmergencyUncheckedCreateNestedOneWithoutAthleteInput
-  finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteInput
-  trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutAthletesInput
-  attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
-  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
-  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
-  athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
-}
-
-export type AthleteCreateOrConnectWithoutBatchesInput = {
-  where: Prisma.AthleteWhereUniqueInput
-  create: Prisma.XOR<Prisma.AthleteCreateWithoutBatchesInput, Prisma.AthleteUncheckedCreateWithoutBatchesInput>
-}
-
-export type AthleteCreateManyBatchesInputEnvelope = {
-  data: Prisma.AthleteCreateManyBatchesInput | Prisma.AthleteCreateManyBatchesInput[]
-  skipDuplicates?: boolean
-}
-
-export type AthleteUpsertWithWhereUniqueWithoutBatchesInput = {
-  where: Prisma.AthleteWhereUniqueInput
-  update: Prisma.XOR<Prisma.AthleteUpdateWithoutBatchesInput, Prisma.AthleteUncheckedUpdateWithoutBatchesInput>
-  create: Prisma.XOR<Prisma.AthleteCreateWithoutBatchesInput, Prisma.AthleteUncheckedCreateWithoutBatchesInput>
-}
-
-export type AthleteUpdateWithWhereUniqueWithoutBatchesInput = {
-  where: Prisma.AthleteWhereUniqueInput
-  data: Prisma.XOR<Prisma.AthleteUpdateWithoutBatchesInput, Prisma.AthleteUncheckedUpdateWithoutBatchesInput>
-}
-
-export type AthleteUpdateManyWithWhereWithoutBatchesInput = {
-  where: Prisma.AthleteScalarWhereInput
-  data: Prisma.XOR<Prisma.AthleteUpdateManyMutationInput, Prisma.AthleteUncheckedUpdateManyWithoutBatchesInput>
 }
 
 export type AthleteUpdateWithoutTrainingsInput = {

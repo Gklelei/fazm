@@ -401,9 +401,10 @@ export const ModelName = {
   Expenses: 'Expenses',
   ExpenseCategories: 'ExpenseCategories',
   training: 'training',
-  attendance: 'attendance',
   Batches: 'Batches',
+  BatchSchedule: 'BatchSchedule',
   drills: 'drills',
+  attendance: 'attendance',
   TrainingLocations: 'TrainingLocations',
   TRAINING_ATTENDANCE_REASONS: 'TRAINING_ATTENDANCE_REASONS',
   User: 'User',
@@ -427,7 +428,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "expenses" | "expenseCategories" | "training" | "attendance" | "batches" | "drills" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
+    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "expenses" | "expenseCategories" | "training" | "batches" | "batchSchedule" | "drills" | "attendance" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1689,80 +1690,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    attendance: {
-      payload: Prisma.$attendancePayload<ExtArgs>
-      fields: Prisma.attendanceFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.attendanceFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.attendanceFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        findFirst: {
-          args: Prisma.attendanceFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.attendanceFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        findMany: {
-          args: Prisma.attendanceFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
-        }
-        create: {
-          args: Prisma.attendanceCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        createMany: {
-          args: Prisma.attendanceCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.attendanceCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
-        }
-        delete: {
-          args: Prisma.attendanceDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        update: {
-          args: Prisma.attendanceUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        deleteMany: {
-          args: Prisma.attendanceDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.attendanceUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.attendanceUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
-        }
-        upsert: {
-          args: Prisma.attendanceUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
-        }
-        aggregate: {
-          args: Prisma.AttendanceAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateAttendance>
-        }
-        groupBy: {
-          args: Prisma.attendanceGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AttendanceGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.attendanceCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AttendanceCountAggregateOutputType> | number
-        }
-      }
-    }
     Batches: {
       payload: Prisma.$BatchesPayload<ExtArgs>
       fields: Prisma.BatchesFieldRefs
@@ -1837,6 +1764,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    BatchSchedule: {
+      payload: Prisma.$BatchSchedulePayload<ExtArgs>
+      fields: Prisma.BatchScheduleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.BatchScheduleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.BatchScheduleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        findFirst: {
+          args: Prisma.BatchScheduleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.BatchScheduleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        findMany: {
+          args: Prisma.BatchScheduleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>[]
+        }
+        create: {
+          args: Prisma.BatchScheduleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        createMany: {
+          args: Prisma.BatchScheduleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.BatchScheduleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>[]
+        }
+        delete: {
+          args: Prisma.BatchScheduleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        update: {
+          args: Prisma.BatchScheduleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        deleteMany: {
+          args: Prisma.BatchScheduleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.BatchScheduleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.BatchScheduleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>[]
+        }
+        upsert: {
+          args: Prisma.BatchScheduleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$BatchSchedulePayload>
+        }
+        aggregate: {
+          args: Prisma.BatchScheduleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateBatchSchedule>
+        }
+        groupBy: {
+          args: Prisma.BatchScheduleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchScheduleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.BatchScheduleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.BatchScheduleCountAggregateOutputType> | number
+        }
+      }
+    }
     drills: {
       payload: Prisma.$drillsPayload<ExtArgs>
       fields: Prisma.drillsFieldRefs
@@ -1908,6 +1909,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.drillsCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.DrillsCountAggregateOutputType> | number
+        }
+      }
+    }
+    attendance: {
+      payload: Prisma.$attendancePayload<ExtArgs>
+      fields: Prisma.attendanceFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.attendanceFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.attendanceFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        findFirst: {
+          args: Prisma.attendanceFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.attendanceFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        findMany: {
+          args: Prisma.attendanceFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
+        }
+        create: {
+          args: Prisma.attendanceCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        createMany: {
+          args: Prisma.attendanceCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.attendanceCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
+        }
+        delete: {
+          args: Prisma.attendanceDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        update: {
+          args: Prisma.attendanceUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        deleteMany: {
+          args: Prisma.attendanceDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.attendanceUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.attendanceUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>[]
+        }
+        upsert: {
+          args: Prisma.attendanceUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$attendancePayload>
+        }
+        aggregate: {
+          args: Prisma.AttendanceAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAttendance>
+        }
+        groupBy: {
+          args: Prisma.attendanceGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AttendanceGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.attendanceCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AttendanceCountAggregateOutputType> | number
         }
       }
     }
@@ -2802,6 +2877,40 @@ export const TrainingScalarFieldEnum = {
 export type TrainingScalarFieldEnum = (typeof TrainingScalarFieldEnum)[keyof typeof TrainingScalarFieldEnum]
 
 
+export const BatchesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BatchesScalarFieldEnum = (typeof BatchesScalarFieldEnum)[keyof typeof BatchesScalarFieldEnum]
+
+
+export const BatchScheduleScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  dayOfWeek: 'dayOfWeek',
+  time: 'time',
+  createdAt: 'createdAt'
+} as const
+
+export type BatchScheduleScalarFieldEnum = (typeof BatchScheduleScalarFieldEnum)[keyof typeof BatchScheduleScalarFieldEnum]
+
+
+export const DrillsScalarFieldEnum = {
+  id: 'id',
+  value: 'value',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type DrillsScalarFieldEnum = (typeof DrillsScalarFieldEnum)[keyof typeof DrillsScalarFieldEnum]
+
+
 export const AttendanceScalarFieldEnum = {
   id: 'id',
   trainingId: 'trainingId',
@@ -2814,25 +2923,6 @@ export const AttendanceScalarFieldEnum = {
 } as const
 
 export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
-
-
-export const BatchesScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description'
-} as const
-
-export type BatchesScalarFieldEnum = (typeof BatchesScalarFieldEnum)[keyof typeof BatchesScalarFieldEnum]
-
-
-export const DrillsScalarFieldEnum = {
-  id: 'id',
-  value: 'value',
-  name: 'name',
-  description: 'description'
-} as const
-
-export type DrillsScalarFieldEnum = (typeof DrillsScalarFieldEnum)[keyof typeof DrillsScalarFieldEnum]
 
 
 export const TrainingLocationsScalarFieldEnum = {
@@ -3165,6 +3255,20 @@ export type ListEnumTRAINING_STATUSFieldRefInput<$PrismaModel> = FieldRefInputTy
 
 
 /**
+ * Reference to a field of type 'DayOfWeek'
+ */
+export type EnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayOfWeek'>
+    
+
+
+/**
+ * Reference to a field of type 'DayOfWeek[]'
+ */
+export type ListEnumDayOfWeekFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DayOfWeek[]'>
+    
+
+
+/**
  * Reference to a field of type 'AttendanceStatus'
  */
 export type EnumAttendanceStatusFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'AttendanceStatus'>
@@ -3303,9 +3407,10 @@ export type GlobalOmitConfig = {
   expenses?: Prisma.ExpensesOmit
   expenseCategories?: Prisma.ExpenseCategoriesOmit
   training?: Prisma.trainingOmit
-  attendance?: Prisma.attendanceOmit
   batches?: Prisma.BatchesOmit
+  batchSchedule?: Prisma.BatchScheduleOmit
   drills?: Prisma.drillsOmit
+  attendance?: Prisma.attendanceOmit
   trainingLocations?: Prisma.TrainingLocationsOmit
   tRAINING_ATTENDANCE_REASONS?: Prisma.TRAINING_ATTENDANCE_REASONSOmit
   user?: Prisma.UserOmit

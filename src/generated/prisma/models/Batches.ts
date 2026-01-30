@@ -28,18 +28,30 @@ export type BatchesMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BatchesMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date | null
+  updatedAt: Date | null
 }
 
 export type BatchesCountAggregateOutputType = {
   id: number
   name: number
   description: number
+  startDate: number
+  endDate: number
+  createdAt: number
+  updatedAt: number
   _all: number
 }
 
@@ -48,18 +60,30 @@ export type BatchesMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  startDate?: true
+  endDate?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BatchesMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  startDate?: true
+  endDate?: true
+  createdAt?: true
+  updatedAt?: true
 }
 
 export type BatchesCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
+  startDate?: true
+  endDate?: true
+  createdAt?: true
+  updatedAt?: true
   _all?: true
 }
 
@@ -139,6 +163,10 @@ export type BatchesGroupByOutputType = {
   id: string
   name: string
   description: string | null
+  startDate: Date | null
+  endDate: Date | null
+  createdAt: Date
+  updatedAt: Date
   _count: BatchesCountAggregateOutputType | null
   _min: BatchesMinAggregateOutputType | null
   _max: BatchesMaxAggregateOutputType | null
@@ -166,16 +194,26 @@ export type BatchesWhereInput = {
   id?: Prisma.StringFilter<"Batches"> | string
   name?: Prisma.StringFilter<"Batches"> | string
   description?: Prisma.StringNullableFilter<"Batches"> | string | null
+  startDate?: Prisma.DateTimeNullableFilter<"Batches"> | Date | string | null
+  endDate?: Prisma.DateTimeNullableFilter<"Batches"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Batches"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Batches"> | Date | string
   athletes?: Prisma.AthleteListRelationFilter
   sessions?: Prisma.TrainingListRelationFilter
+  schedules?: Prisma.BatchScheduleListRelationFilter
 }
 
 export type BatchesOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  startDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   athletes?: Prisma.AthleteOrderByRelationAggregateInput
   sessions?: Prisma.trainingOrderByRelationAggregateInput
+  schedules?: Prisma.BatchScheduleOrderByRelationAggregateInput
 }
 
 export type BatchesWhereUniqueInput = Prisma.AtLeast<{
@@ -185,14 +223,23 @@ export type BatchesWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BatchesWhereInput | Prisma.BatchesWhereInput[]
   name?: Prisma.StringFilter<"Batches"> | string
   description?: Prisma.StringNullableFilter<"Batches"> | string | null
+  startDate?: Prisma.DateTimeNullableFilter<"Batches"> | Date | string | null
+  endDate?: Prisma.DateTimeNullableFilter<"Batches"> | Date | string | null
+  createdAt?: Prisma.DateTimeFilter<"Batches"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Batches"> | Date | string
   athletes?: Prisma.AthleteListRelationFilter
   sessions?: Prisma.TrainingListRelationFilter
+  schedules?: Prisma.BatchScheduleListRelationFilter
 }, "id">
 
 export type BatchesOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  startDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  endDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
   _count?: Prisma.BatchesCountOrderByAggregateInput
   _max?: Prisma.BatchesMaxOrderByAggregateInput
   _min?: Prisma.BatchesMinOrderByAggregateInput
@@ -205,56 +252,92 @@ export type BatchesScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Batches"> | string
   name?: Prisma.StringWithAggregatesFilter<"Batches"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"Batches"> | string | null
+  startDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Batches"> | Date | string | null
+  endDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Batches"> | Date | string | null
+  createdAt?: Prisma.DateTimeWithAggregatesFilter<"Batches"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Batches"> | Date | string
 }
 
 export type BatchesCreateInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesCreateManyInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
 }
 
 export type BatchesUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BatchesUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type BatchesNullableScalarRelationFilter = {
@@ -271,18 +354,30 @@ export type BatchesCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
+  endDate?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BatchesMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
+  endDate?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BatchesMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  startDate?: Prisma.SortOrder
+  endDate?: Prisma.SortOrder
+  createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
 }
 
 export type BatchesCreateNestedOneWithoutAthletesInput = {
@@ -315,18 +410,42 @@ export type BatchesUpdateOneRequiredWithoutSessionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BatchesUpdateToOneWithWhereWithoutSessionsInput, Prisma.BatchesUpdateWithoutSessionsInput>, Prisma.BatchesUncheckedUpdateWithoutSessionsInput>
 }
 
+export type BatchesCreateNestedOneWithoutSchedulesInput = {
+  create?: Prisma.XOR<Prisma.BatchesCreateWithoutSchedulesInput, Prisma.BatchesUncheckedCreateWithoutSchedulesInput>
+  connectOrCreate?: Prisma.BatchesCreateOrConnectWithoutSchedulesInput
+  connect?: Prisma.BatchesWhereUniqueInput
+}
+
+export type BatchesUpdateOneRequiredWithoutSchedulesNestedInput = {
+  create?: Prisma.XOR<Prisma.BatchesCreateWithoutSchedulesInput, Prisma.BatchesUncheckedCreateWithoutSchedulesInput>
+  connectOrCreate?: Prisma.BatchesCreateOrConnectWithoutSchedulesInput
+  upsert?: Prisma.BatchesUpsertWithoutSchedulesInput
+  connect?: Prisma.BatchesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BatchesUpdateToOneWithWhereWithoutSchedulesInput, Prisma.BatchesUpdateWithoutSchedulesInput>, Prisma.BatchesUncheckedUpdateWithoutSchedulesInput>
+}
+
 export type BatchesCreateWithoutAthletesInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateWithoutAthletesInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesCreateOrConnectWithoutAthletesInput = {
@@ -349,28 +468,48 @@ export type BatchesUpdateWithoutAthletesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateWithoutAthletesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesCreateWithoutSessionsInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
+  schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateWithoutSessionsInput = {
   id?: string
   name: string
   description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
+  schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesCreateOrConnectWithoutSessionsInput = {
@@ -393,14 +532,88 @@ export type BatchesUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
+  schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateWithoutSessionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
+  schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+export type BatchesCreateWithoutSchedulesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
+  sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
+}
+
+export type BatchesUncheckedCreateWithoutSchedulesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
+  sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type BatchesCreateOrConnectWithoutSchedulesInput = {
+  where: Prisma.BatchesWhereUniqueInput
+  create: Prisma.XOR<Prisma.BatchesCreateWithoutSchedulesInput, Prisma.BatchesUncheckedCreateWithoutSchedulesInput>
+}
+
+export type BatchesUpsertWithoutSchedulesInput = {
+  update: Prisma.XOR<Prisma.BatchesUpdateWithoutSchedulesInput, Prisma.BatchesUncheckedUpdateWithoutSchedulesInput>
+  create: Prisma.XOR<Prisma.BatchesCreateWithoutSchedulesInput, Prisma.BatchesUncheckedCreateWithoutSchedulesInput>
+  where?: Prisma.BatchesWhereInput
+}
+
+export type BatchesUpdateToOneWithWhereWithoutSchedulesInput = {
+  where?: Prisma.BatchesWhereInput
+  data: Prisma.XOR<Prisma.BatchesUpdateWithoutSchedulesInput, Prisma.BatchesUncheckedUpdateWithoutSchedulesInput>
+}
+
+export type BatchesUpdateWithoutSchedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
+  sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
+}
+
+export type BatchesUncheckedUpdateWithoutSchedulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
+  sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 
@@ -411,11 +624,13 @@ export type BatchesUncheckedUpdateWithoutSessionsInput = {
 export type BatchesCountOutputType = {
   athletes: number
   sessions: number
+  schedules: number
 }
 
 export type BatchesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athletes?: boolean | BatchesCountOutputTypeCountAthletesArgs
   sessions?: boolean | BatchesCountOutputTypeCountSessionsArgs
+  schedules?: boolean | BatchesCountOutputTypeCountSchedulesArgs
 }
 
 /**
@@ -442,13 +657,25 @@ export type BatchesCountOutputTypeCountSessionsArgs<ExtArgs extends runtime.Type
   where?: Prisma.trainingWhereInput
 }
 
+/**
+ * BatchesCountOutputType without action
+ */
+export type BatchesCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BatchScheduleWhereInput
+}
+
 
 export type BatchesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   description?: boolean
+  startDate?: boolean
+  endDate?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
   athletes?: boolean | Prisma.Batches$athletesArgs<ExtArgs>
   sessions?: boolean | Prisma.Batches$sessionsArgs<ExtArgs>
+  schedules?: boolean | Prisma.Batches$schedulesArgs<ExtArgs>
   _count?: boolean | Prisma.BatchesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["batches"]>
 
@@ -456,24 +683,37 @@ export type BatchesSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   id?: boolean
   name?: boolean
   description?: boolean
+  startDate?: boolean
+  endDate?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["batches"]>
 
 export type BatchesSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   description?: boolean
+  startDate?: boolean
+  endDate?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }, ExtArgs["result"]["batches"]>
 
 export type BatchesSelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
+  startDate?: boolean
+  endDate?: boolean
+  createdAt?: boolean
+  updatedAt?: boolean
 }
 
-export type BatchesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description", ExtArgs["result"]["batches"]>
+export type BatchesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "startDate" | "endDate" | "createdAt" | "updatedAt", ExtArgs["result"]["batches"]>
 export type BatchesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athletes?: boolean | Prisma.Batches$athletesArgs<ExtArgs>
   sessions?: boolean | Prisma.Batches$sessionsArgs<ExtArgs>
+  schedules?: boolean | Prisma.Batches$schedulesArgs<ExtArgs>
   _count?: boolean | Prisma.BatchesCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BatchesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -484,11 +724,16 @@ export type $BatchesPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     athletes: Prisma.$AthletePayload<ExtArgs>[]
     sessions: Prisma.$trainingPayload<ExtArgs>[]
+    schedules: Prisma.$BatchSchedulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
     description: string | null
+    startDate: Date | null
+    endDate: Date | null
+    createdAt: Date
+    updatedAt: Date
   }, ExtArgs["result"]["batches"]>
   composites: {}
 }
@@ -885,6 +1130,7 @@ export interface Prisma__BatchesClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   athletes<T extends Prisma.Batches$athletesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$athletesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AthletePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.Batches$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$trainingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  schedules<T extends Prisma.Batches$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BatchSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -917,6 +1163,10 @@ export interface BatchesFieldRefs {
   readonly id: Prisma.FieldRef<"Batches", 'String'>
   readonly name: Prisma.FieldRef<"Batches", 'String'>
   readonly description: Prisma.FieldRef<"Batches", 'String'>
+  readonly startDate: Prisma.FieldRef<"Batches", 'DateTime'>
+  readonly endDate: Prisma.FieldRef<"Batches", 'DateTime'>
+  readonly createdAt: Prisma.FieldRef<"Batches", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Batches", 'DateTime'>
 }
     
 
@@ -1350,6 +1600,30 @@ export type Batches$sessionsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.TrainingScalarFieldEnum | Prisma.TrainingScalarFieldEnum[]
+}
+
+/**
+ * Batches.schedules
+ */
+export type Batches$schedulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BatchSchedule
+   */
+  select?: Prisma.BatchScheduleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BatchSchedule
+   */
+  omit?: Prisma.BatchScheduleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BatchScheduleInclude<ExtArgs> | null
+  where?: Prisma.BatchScheduleWhereInput
+  orderBy?: Prisma.BatchScheduleOrderByWithRelationInput | Prisma.BatchScheduleOrderByWithRelationInput[]
+  cursor?: Prisma.BatchScheduleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BatchScheduleScalarFieldEnum | Prisma.BatchScheduleScalarFieldEnum[]
 }
 
 /**

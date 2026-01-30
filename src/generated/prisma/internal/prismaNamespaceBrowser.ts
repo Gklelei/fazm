@@ -68,9 +68,10 @@ export const ModelName = {
   Expenses: 'Expenses',
   ExpenseCategories: 'ExpenseCategories',
   training: 'training',
-  attendance: 'attendance',
   Batches: 'Batches',
+  BatchSchedule: 'BatchSchedule',
   drills: 'drills',
+  attendance: 'attendance',
   TrainingLocations: 'TrainingLocations',
   TRAINING_ATTENDANCE_REASONS: 'TRAINING_ATTENDANCE_REASONS',
   User: 'User',
@@ -357,6 +358,40 @@ export const TrainingScalarFieldEnum = {
 export type TrainingScalarFieldEnum = (typeof TrainingScalarFieldEnum)[keyof typeof TrainingScalarFieldEnum]
 
 
+export const BatchesScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BatchesScalarFieldEnum = (typeof BatchesScalarFieldEnum)[keyof typeof BatchesScalarFieldEnum]
+
+
+export const BatchScheduleScalarFieldEnum = {
+  id: 'id',
+  batchId: 'batchId',
+  dayOfWeek: 'dayOfWeek',
+  time: 'time',
+  createdAt: 'createdAt'
+} as const
+
+export type BatchScheduleScalarFieldEnum = (typeof BatchScheduleScalarFieldEnum)[keyof typeof BatchScheduleScalarFieldEnum]
+
+
+export const DrillsScalarFieldEnum = {
+  id: 'id',
+  value: 'value',
+  name: 'name',
+  description: 'description'
+} as const
+
+export type DrillsScalarFieldEnum = (typeof DrillsScalarFieldEnum)[keyof typeof DrillsScalarFieldEnum]
+
+
 export const AttendanceScalarFieldEnum = {
   id: 'id',
   trainingId: 'trainingId',
@@ -369,25 +404,6 @@ export const AttendanceScalarFieldEnum = {
 } as const
 
 export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof typeof AttendanceScalarFieldEnum]
-
-
-export const BatchesScalarFieldEnum = {
-  id: 'id',
-  name: 'name',
-  description: 'description'
-} as const
-
-export type BatchesScalarFieldEnum = (typeof BatchesScalarFieldEnum)[keyof typeof BatchesScalarFieldEnum]
-
-
-export const DrillsScalarFieldEnum = {
-  id: 'id',
-  value: 'value',
-  name: 'name',
-  description: 'description'
-} as const
-
-export type DrillsScalarFieldEnum = (typeof DrillsScalarFieldEnum)[keyof typeof DrillsScalarFieldEnum]
 
 
 export const TrainingLocationsScalarFieldEnum = {

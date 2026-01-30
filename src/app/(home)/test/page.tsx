@@ -1,14 +1,9 @@
-import { db } from "@/lib/prisma";
+import BatchWithSessionsForm from "@/Modules/Settings/Batches/Ui/CreateBatch";
 
 const page = async () => {
-  const assesments = await db.assessment.findMany({
-    include: {
-      responses: true,
-    },
-  });
   return (
     <div>
-      <pre>{JSON.stringify(assesments, null, 2)}</pre>
+      <BatchWithSessionsForm />
     </div>
   );
 };

@@ -91,6 +91,19 @@ export const EXPENSECATGORIES_STATUS = {
 export type EXPENSECATGORIES_STATUS = (typeof EXPENSECATGORIES_STATUS)[keyof typeof EXPENSECATGORIES_STATUS]
 
 
+export const DayOfWeek = {
+  MONDAY: 'MONDAY',
+  TUESDAY: 'TUESDAY',
+  WEDNESDAY: 'WEDNESDAY',
+  THURSDAY: 'THURSDAY',
+  FRIDAY: 'FRIDAY',
+  SATURDAY: 'SATURDAY',
+  SUNDAY: 'SUNDAY'
+} as const
+
+export type DayOfWeek = (typeof DayOfWeek)[keyof typeof DayOfWeek]
+
+
 export const TRAINING_STATUS = {
   COMPLETED: 'COMPLETED',
   CANCELLED: 'CANCELLED',

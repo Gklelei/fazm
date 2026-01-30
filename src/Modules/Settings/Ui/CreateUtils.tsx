@@ -1,9 +1,9 @@
 import { TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Tabs } from "@radix-ui/react-tabs";
 import React from "react";
-import Batches from "./Batches";
 import TrainingLocations from "./TrainingLocations";
 import Drills from "./Drills";
+import BatchWithSessionsForm from "../Batches/Ui/CreateBatch";
 
 const CreateUtils = () => {
   return (
@@ -23,7 +23,7 @@ const CreateUtils = () => {
         </TabsList>
 
         <TabsContent value="batch" className="pt-4">
-          <Batches />
+          <BatchWithSessionsForm />
         </TabsContent>
 
         <TabsContent value="training_location" className="pt-4">

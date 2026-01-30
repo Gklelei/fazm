@@ -103,20 +103,25 @@ export type ExpenseCategories = Prisma.ExpenseCategoriesModel
  */
 export type training = Prisma.trainingModel
 /**
- * Model attendance
- * 
- */
-export type attendance = Prisma.attendanceModel
-/**
  * Model Batches
  * 
  */
 export type Batches = Prisma.BatchesModel
 /**
+ * Model BatchSchedule
+ * 
+ */
+export type BatchSchedule = Prisma.BatchScheduleModel
+/**
  * Model drills
  * 
  */
 export type drills = Prisma.drillsModel
+/**
+ * Model attendance
+ * 
+ */
+export type attendance = Prisma.attendanceModel
 /**
  * Model TrainingLocations
  * 

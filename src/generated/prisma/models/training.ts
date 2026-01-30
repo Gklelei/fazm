@@ -586,20 +586,6 @@ export type EnumTRAINING_STATUSFieldUpdateOperationsInput = {
   set?: $Enums.TRAINING_STATUS
 }
 
-export type trainingCreateNestedOneWithoutAttendancesInput = {
-  create?: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
-  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAttendancesInput
-  connect?: Prisma.trainingWhereUniqueInput
-}
-
-export type trainingUpdateOneRequiredWithoutAttendancesNestedInput = {
-  create?: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
-  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAttendancesInput
-  upsert?: Prisma.trainingUpsertWithoutAttendancesInput
-  connect?: Prisma.trainingWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.trainingUpdateToOneWithWhereWithoutAttendancesInput, Prisma.trainingUpdateWithoutAttendancesInput>, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
-}
-
 export type trainingCreateNestedManyWithoutBatchInput = {
   create?: Prisma.XOR<Prisma.trainingCreateWithoutBatchInput, Prisma.trainingUncheckedCreateWithoutBatchInput> | Prisma.trainingCreateWithoutBatchInput[] | Prisma.trainingUncheckedCreateWithoutBatchInput[]
   connectOrCreate?: Prisma.trainingCreateOrConnectWithoutBatchInput | Prisma.trainingCreateOrConnectWithoutBatchInput[]
@@ -678,6 +664,20 @@ export type trainingUncheckedUpdateManyWithoutDrillsNestedInput = {
   update?: Prisma.trainingUpdateWithWhereUniqueWithoutDrillsInput | Prisma.trainingUpdateWithWhereUniqueWithoutDrillsInput[]
   updateMany?: Prisma.trainingUpdateManyWithWhereWithoutDrillsInput | Prisma.trainingUpdateManyWithWhereWithoutDrillsInput[]
   deleteMany?: Prisma.trainingScalarWhereInput | Prisma.trainingScalarWhereInput[]
+}
+
+export type trainingCreateNestedOneWithoutAttendancesInput = {
+  create?: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
+  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAttendancesInput
+  connect?: Prisma.trainingWhereUniqueInput
+}
+
+export type trainingUpdateOneRequiredWithoutAttendancesNestedInput = {
+  create?: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
+  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAttendancesInput
+  upsert?: Prisma.trainingUpsertWithoutAttendancesInput
+  connect?: Prisma.trainingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.trainingUpdateToOneWithWhereWithoutAttendancesInput, Prisma.trainingUpdateWithoutAttendancesInput>, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
 }
 
 export type trainingCreateNestedManyWithoutLocationInput = {
@@ -920,90 +920,6 @@ export type trainingScalarWhereInput = {
   staffId?: Prisma.StringFilter<"training"> | string
 }
 
-export type trainingCreateWithoutAttendancesInput = {
-  id?: string
-  date: Date | string
-  description: string
-  name: string
-  note?: string | null
-  status?: $Enums.TRAINING_STATUS
-  duration: number
-  isArchived?: boolean
-  batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
-  coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
-  location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
-  drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
-  athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
-  assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
-}
-
-export type trainingUncheckedCreateWithoutAttendancesInput = {
-  id?: string
-  batchesId: string
-  date: Date | string
-  description: string
-  name: string
-  note?: string | null
-  status?: $Enums.TRAINING_STATUS
-  duration: number
-  isArchived?: boolean
-  trainingLocationsId: string
-  staffId: string
-  drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
-  athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
-  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
-}
-
-export type trainingCreateOrConnectWithoutAttendancesInput = {
-  where: Prisma.trainingWhereUniqueInput
-  create: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
-}
-
-export type trainingUpsertWithoutAttendancesInput = {
-  update: Prisma.XOR<Prisma.trainingUpdateWithoutAttendancesInput, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
-  create: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
-  where?: Prisma.trainingWhereInput
-}
-
-export type trainingUpdateToOneWithWhereWithoutAttendancesInput = {
-  where?: Prisma.trainingWhereInput
-  data: Prisma.XOR<Prisma.trainingUpdateWithoutAttendancesInput, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
-}
-
-export type trainingUpdateWithoutAttendancesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
-  duration?: Prisma.IntFieldUpdateOperationsInput | number
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
-  coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
-  location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
-  drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
-  athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
-  assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
-}
-
-export type trainingUncheckedUpdateWithoutAttendancesInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  batchesId?: Prisma.StringFieldUpdateOperationsInput | string
-  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
-  duration?: Prisma.IntFieldUpdateOperationsInput | number
-  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
-  staffId?: Prisma.StringFieldUpdateOperationsInput | string
-  drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
-  athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
-  assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
-}
-
 export type trainingCreateWithoutBatchInput = {
   id?: string
   date: Date | string
@@ -1117,6 +1033,90 @@ export type trainingUpdateWithWhereUniqueWithoutDrillsInput = {
 export type trainingUpdateManyWithWhereWithoutDrillsInput = {
   where: Prisma.trainingScalarWhereInput
   data: Prisma.XOR<Prisma.trainingUpdateManyMutationInput, Prisma.trainingUncheckedUpdateManyWithoutDrillsInput>
+}
+
+export type trainingCreateWithoutAttendancesInput = {
+  id?: string
+  date: Date | string
+  description: string
+  name: string
+  note?: string | null
+  status?: $Enums.TRAINING_STATUS
+  duration: number
+  isArchived?: boolean
+  batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
+  coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
+  location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
+  drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
+  athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
+  assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+}
+
+export type trainingUncheckedCreateWithoutAttendancesInput = {
+  id?: string
+  batchesId: string
+  date: Date | string
+  description: string
+  name: string
+  note?: string | null
+  status?: $Enums.TRAINING_STATUS
+  duration: number
+  isArchived?: boolean
+  trainingLocationsId: string
+  staffId: string
+  drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
+  athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
+  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+}
+
+export type trainingCreateOrConnectWithoutAttendancesInput = {
+  where: Prisma.trainingWhereUniqueInput
+  create: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
+}
+
+export type trainingUpsertWithoutAttendancesInput = {
+  update: Prisma.XOR<Prisma.trainingUpdateWithoutAttendancesInput, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
+  create: Prisma.XOR<Prisma.trainingCreateWithoutAttendancesInput, Prisma.trainingUncheckedCreateWithoutAttendancesInput>
+  where?: Prisma.trainingWhereInput
+}
+
+export type trainingUpdateToOneWithWhereWithoutAttendancesInput = {
+  where?: Prisma.trainingWhereInput
+  data: Prisma.XOR<Prisma.trainingUpdateWithoutAttendancesInput, Prisma.trainingUncheckedUpdateWithoutAttendancesInput>
+}
+
+export type trainingUpdateWithoutAttendancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
+  coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
+  location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
+  drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
+  athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
+  assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+}
+
+export type trainingUncheckedUpdateWithoutAttendancesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  batchesId?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
+  athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
+  assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingCreateWithoutLocationInput = {
