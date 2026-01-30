@@ -13,6 +13,13 @@ export const getInvoicesQuery = {
         middleName: true,
       },
     },
+    subscriptionPlan: {
+      select: {
+        name: true,
+        code: true,
+        description: true,
+      },
+    },
   },
 } satisfies Prisma.InvoiceFindManyArgs;
 
@@ -29,6 +36,13 @@ export const ViewInvoiceQuery = (id: string) =>
           lastName: true,
           email: true,
           phoneNumber: true,
+        },
+      },
+      subscriptionPlan: {
+        select: {
+          code: true,
+          name: true,
+          description: true,
         },
       },
     },

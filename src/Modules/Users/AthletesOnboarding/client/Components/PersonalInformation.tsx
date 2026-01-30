@@ -18,7 +18,10 @@ import {
 } from "@/components/ui/card";
 import { GenericSelect } from "@/utils/ReusableSelect";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
-import { CloudinaryUpload } from "@/components/ImageUploader";
+// import { CloudinaryUpload } from "@/components/ImageUploader";
+import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
+// import { ChangeEvent } from "react";
+// import { file } from "zod";
 
 const PersonalInformation = () => {
   const { control } = useFormContext();
@@ -152,9 +155,13 @@ const PersonalInformation = () => {
             <FormItem>
               <FormLabel>Profile Picture</FormLabel>
               <FormControl>
-                <CloudinaryUpload
-                  onChange={field.onChange}
-                  value={field.value}
+                <LocalFsUpload
+                  onChange={(url: string) => {
+                    field.onChange(url);
+                  }}
+                  value={field.value || ""}
+                  folder="PROFILE"
+                  maxSizeMB={2}
                 />
               </FormControl>
               <FormDescription>

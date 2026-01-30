@@ -160,6 +160,7 @@ const EditInvoice = ({ data }: props) => {
                               {...field}
                               placeholder="e.g. Term 1 Fees"
                               className="h-11"
+                              disabled
                             />
                           </FormControl>
                           <FormMessage />
@@ -183,6 +184,7 @@ const EditInvoice = ({ data }: props) => {
                             onValueChange={field.onChange}
                             value={field.value}
                             className="h-11"
+                            disabled
                           />
                           <FormMessage />
                         </FormItem>

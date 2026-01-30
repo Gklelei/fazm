@@ -1,4 +1,4 @@
-import { CloudinaryUpload } from "@/components/ImageUploader";
+// import { CloudinaryUpload } from "@/components/ImageUploader";
 import {
   Card,
   CardContent,
@@ -23,6 +23,7 @@ import {
   Info,
   CheckCircle2,
 } from "lucide-react";
+import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
 
 const AthleteDoccumnets = () => {
   const { control } = useFormContext();
@@ -86,11 +87,19 @@ const AthleteDoccumnets = () => {
                 <FormItem>
                   <FormLabel>Birth Certificate Image</FormLabel>
                   <FormControl>
-                    <CloudinaryUpload
+                    {/* <CloudinaryUpload
                       onChange={field.onChange}
                       value={field.value}
                       maxSizeMB={4}
                       folder="fazam/documents"
+                    /> */}
+                    <LocalFsUpload
+                      onChange={(url: string) => {
+                        field.onChange(url);
+                      }}
+                      value={field.value || ""}
+                      folder="BIRTH_CERTIFICATES"
+                      maxSizeMB={2}
                     />
                   </FormControl>
                   <FormMessage />
@@ -134,11 +143,19 @@ const AthleteDoccumnets = () => {
                   <FormItem>
                     <FormLabel>National ID - Front Side</FormLabel>
                     <FormControl>
-                      <CloudinaryUpload
+                      {/* <CloudinaryUpload
                         onChange={field.onChange}
                         value={field.value}
                         maxSizeMB={4}
                         folder="fazam/documents"
+                      /> */}
+                      <LocalFsUpload
+                        onChange={(url: string) => {
+                          field.onChange(url);
+                        }}
+                        value={field.value || ""}
+                        folder="NATIONAL_IDENTIFICATIONS"
+                        maxSizeMB={2}
                       />
                     </FormControl>
                     <FormMessage />
@@ -153,11 +170,20 @@ const AthleteDoccumnets = () => {
                   <FormItem>
                     <FormLabel>National ID - Back Side</FormLabel>
                     <FormControl>
-                      <CloudinaryUpload
+                      {/* <CloudinaryUpload
                         onChange={field.onChange}
                         value={field.value}
                         maxSizeMB={4}
                         folder="fazam/documents"
+                      /> */}
+
+                      <LocalFsUpload
+                        onChange={(url: string) => {
+                          field.onChange(url);
+                        }}
+                        value={field.value || ""}
+                        folder="NATIONAL_IDENTIFICATIONS"
+                        maxSizeMB={2}
                       />
                     </FormControl>
                     <FormMessage />
@@ -202,11 +228,19 @@ const AthleteDoccumnets = () => {
                   <FormItem>
                     <FormLabel>Passport Bio-Data Page</FormLabel>
                     <FormControl>
-                      <CloudinaryUpload
+                      {/* <CloudinaryUpload
                         onChange={field.onChange}
                         value={field.value}
                         maxSizeMB={4}
                         folder="fazam/documents"
+                      /> */}
+                      <LocalFsUpload
+                        onChange={(url: string) => {
+                          field.onChange(url);
+                        }}
+                        value={field.value || ""}
+                        folder="PASSPORTS"
+                        maxSizeMB={2}
                       />
                     </FormControl>
                     <FormMessage />
@@ -221,11 +255,19 @@ const AthleteDoccumnets = () => {
                   <FormItem>
                     <FormLabel>Passport Front Cover</FormLabel>
                     <FormControl>
-                      <CloudinaryUpload
+                      {/* <CloudinaryUpload
                         onChange={field.onChange}
                         value={field.value}
                         maxSizeMB={4}
                         folder="fazam/documents"
+                      /> */}
+                      <LocalFsUpload
+                        onChange={(url: string) => {
+                          field.onChange(url);
+                        }}
+                        value={field.value || ""}
+                        folder="PASSPORTS"
+                        maxSizeMB={2}
                       />
                     </FormControl>
                     <FormMessage />

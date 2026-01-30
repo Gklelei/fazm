@@ -148,6 +148,11 @@ export type Account = Prisma.AccountModel
  */
 export type Verification = Prisma.VerificationModel
 /**
+ * Model academy
+ * 
+ */
+export type academy = Prisma.academyModel
+/**
  * Model staff
  * 
  */

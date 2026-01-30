@@ -148,14 +148,17 @@ const ViewInvoicePage = ({ data }: Props) => {
                 </div>
               </div>
 
-              {data.description && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                    Notes
-                  </h3>
-                  <p className="text-sm leading-relaxed">{data.description}</p>
-                </div>
-              )}
+              {data.description ||
+                (data.subscriptionPlan?.description && (
+                  <div className="space-y-3">
+                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                      Notes
+                    </h3>
+                    <p className="text-sm leading-relaxed">
+                      {data.subscriptionPlan.description || data.description}
+                    </p>
+                  </div>
+                ))}
             </section>
 
             {/* Line Items */}
@@ -175,7 +178,9 @@ const ViewInvoicePage = ({ data }: Props) => {
                   <TableRow>
                     <TableCell>1</TableCell>
                     <TableCell className="font-medium">
-                      {data.description || "General Services"}
+                      {data.subscriptionPlan?.description ||
+                        data.description ||
+                        "General Services"}
                     </TableCell>
                     <TableCell className="text-center">1</TableCell>
                     <TableCell className="text-right">

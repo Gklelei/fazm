@@ -32,6 +32,7 @@ import {
   AthleteOnBoardingType,
 } from "../../validation";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { useQueryClient } from "@tanstack/react-query";
 
 const STEPS = [
   {
@@ -102,6 +103,7 @@ const STEPS = [
 const AthletesOnboardingForm = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
+  const queryClient = useQueryClient();
 
   const form = useForm<AthleteOnBoardingType>({
     resolver: zodResolver(AthleteOnBoardingSchema),
@@ -148,6 +150,7 @@ const AthletesOnboardingForm = () => {
   const nextStep = async () => {
     const currentStepFields = STEPS[currentStep - 1].fields;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const isValid = await form.trigger(currentStepFields as any);
 
     if (isValid) {
@@ -189,25 +192,28 @@ const AthletesOnboardingForm = () => {
 
     const result = await AthleteOnboardingAction(data);
     if (result.status === "SUCCESS") {
+      await queryClient.invalidateQueries({
+        queryKey: ["all-athletes"],
+      });
       Sweetalert({
         icon: "success",
         text: result.successMessage,
         title: "Success!",
       });
+      router.push("/users/players");
     } else {
       Sweetalert({ icon: "error", text: result.errorMessage, title: "Error" });
     }
   };
 
-  // Get validation status for each step
   const getStepStatus = (stepId: number) => {
     const stepFields = STEPS.find((step) => step.id === stepId)?.fields || [];
     const hasErrors = stepFields.some(
-      (field) => form.formState.errors[field as keyof AthleteOnBoardingType]
+      (field) => form.formState.errors[field as keyof AthleteOnBoardingType],
     );
     const isTouched = stepFields.some(
       (field) =>
-        form.formState.touchedFields[field as keyof AthleteOnBoardingType]
+        form.formState.touchedFields[field as keyof AthleteOnBoardingType],
     );
 
     if (stepId < currentStep) return "completed";
@@ -288,7 +294,7 @@ const AthletesOnboardingForm = () => {
                       <li key={field}>
                         <strong>{field}:</strong> {error.message}
                       </li>
-                    )
+                    ),
                   )}
                 </ul>
               </div>

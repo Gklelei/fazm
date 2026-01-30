@@ -1,18 +1,27 @@
 "use client";
 
+import { useEffect, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
-import { ExpenseCategorySchema, ExpenseCategoryType } from "../Validators";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { ExpenseCategorySchema, ExpenseCategoryType } from "../Validators";
+import { EditExpenseCategory } from "../Server/CreateExpenseCategory";
+import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { useRouter } from "next/navigation";
+
 import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+
 import { Button } from "@/components/ui/button";
-import { Loader2Icon, PlusIcon } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+
 import {
   Form,
   FormControl,
@@ -21,7 +30,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
+
 import {
   Select,
   SelectContent,
@@ -29,27 +38,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { useTransition } from "react";
-import { CreateExpenseCategoryAction } from "../Server/CreateExpenseCategory";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
-import { useRouter } from "next/navigation";
 
-const CreateExpenseCategory = () => {
-  const [isPending, startTransistion] = useTransition();
+import { Loader2Icon, PenBoxIcon } from "lucide-react";
+import { GetExpenseCategoriesQuery } from "../Types";
+
+interface Props {
+  category: GetExpenseCategoriesQuery;
+}
+
+const EditExpenseCategoryDialog = ({ category }: Props) => {
+  const [open, setOpen] = useState(false);
+  const [isPending, startTransition] = useTransition();
   const router = useRouter();
+
   const form = useForm<ExpenseCategoryType>({
     resolver: zodResolver(ExpenseCategorySchema),
     defaultValues: {
-      description: "",
-      name: "",
-      status: "INACTIVE",
+      name: category.name ?? "",
+      description: category.description ?? "",
+      status: (category.status as "ACTIVE" | "INACTIVE") ?? "INACTIVE",
     },
+    mode: "onSubmit",
   });
 
-  const handleSubmit = async (values: ExpenseCategoryType) => {
-    startTransistion(async () => {
-      const result = await CreateExpenseCategoryAction(values);
+  useEffect(() => {
+    if (!open) return;
+
+    form.reset({
+      name: category.name ?? "",
+      description: category.description ?? "",
+      status: (category.status as "ACTIVE" | "INACTIVE") ?? "INACTIVE",
+    });
+  }, [open, category, form]);
+
+  const handleSubmit = (values: ExpenseCategoryType) => {
+    startTransition(async () => {
+      const result = await EditExpenseCategory(values, category.id);
 
       if (result.success) {
         Sweetalert({
@@ -57,6 +81,8 @@ const CreateExpenseCategory = () => {
           text: result.message,
           title: "Success!",
         });
+
+        setOpen(false);
         router.refresh();
       } else {
         Sweetalert({
@@ -69,30 +95,27 @@ const CreateExpenseCategory = () => {
   };
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
-        <Button className="gap-2">
-          <PlusIcon className="h-4 w-4" />
-          Add Category
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="icon" aria-label="Edit category">
+          <PenBoxIcon className="h-4 w-4" />
         </Button>
-      </SheetTrigger>
-      <SheetContent className="flex flex-col">
-        <SheetHeader className="border-b pb-4">
-          <SheetTitle className="text-lg font-semibold">
-            Create New Category
-          </SheetTitle>
-          <SheetDescription className="text-sm">
-            Define a new category to organize your expenses effectively.
-          </SheetDescription>
-        </SheetHeader>
+      </DialogTrigger>
 
-        <div className="flex-1 py-4 overflow-y-auto">
+      <DialogContent className="max-w-xl p-0 overflow-hidden">
+        <DialogHeader className="px-6 pt-6 pb-3">
+          <DialogTitle>Edit Category</DialogTitle>
+          <DialogDescription>
+            Update category details. Changes apply immediately.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="px-6 pb-6">
           <Form {...form}>
             <form
               onSubmit={form.handleSubmit(handleSubmit)}
               className="space-y-5"
             >
-              {/* Name Field */}
               <FormField
                 name="name"
                 control={form.control}
@@ -104,7 +127,7 @@ const CreateExpenseCategory = () => {
                     <FormControl>
                       <Input
                         {...field}
-                        placeholder="e.g., Office Supplies, Travel Expenses"
+                        placeholder="e.g., Office Supplies"
                         autoComplete="off"
                         className="h-9"
                       />
@@ -114,7 +137,6 @@ const CreateExpenseCategory = () => {
                 )}
               />
 
-              {/* Status Field */}
               <FormField
                 name="status"
                 control={form.control}
@@ -123,10 +145,7 @@ const CreateExpenseCategory = () => {
                     <FormLabel className="text-sm font-medium">
                       Status
                     </FormLabel>
-                    <Select
-                      onValueChange={field.onChange}
-                      defaultValue={field.value}
-                    >
+                    <Select onValueChange={field.onChange} value={field.value}>
                       <FormControl className="w-full">
                         <SelectTrigger className="h-9">
                           <SelectValue placeholder="Select status" />
@@ -145,6 +164,7 @@ const CreateExpenseCategory = () => {
                   </FormItem>
                 )}
               />
+
               <FormField
                 name="description"
                 control={form.control}
@@ -158,25 +178,41 @@ const CreateExpenseCategory = () => {
                         {...field}
                         placeholder="Briefly describe what this category covers..."
                         className="resize-none text-sm min-h-20"
+                        value={field.value ?? ""}
                       />
                     </FormControl>
                     <FormMessage className="text-xs" />
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="flex-1" disabled={isPending}>
-                {isPending ? (
-                  <Loader2Icon className="animate-spin mr-2 h-5 w-5" />
-                ) : (
-                  "Create Category"
-                )}
-              </Button>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setOpen(false)}
+                  disabled={isPending}
+                >
+                  Cancel
+                </Button>
+
+                <Button type="submit" disabled={isPending} className="gap-2">
+                  {isPending ? (
+                    <>
+                      <Loader2Icon className="animate-spin h-4 w-4" />
+                      Saving...
+                    </>
+                  ) : (
+                    "Save changes"
+                  )}
+                </Button>
+              </div>
             </form>
           </Form>
         </div>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default CreateExpenseCategory;
+export default EditExpenseCategoryDialog;

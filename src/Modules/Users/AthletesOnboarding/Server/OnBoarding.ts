@@ -86,8 +86,9 @@ const AthleteOnboardingAction = async (
 
       // 1. Get or use default subscription plan
       // Todo:add payments section
-      // let subscriptionPlanId = "1705b571-5192-4c9e-bf4f-f79969b21a1d";
-      let subscriptionPlanId = "59bfc6a8-c814-4b17-bc19-a60176f29cdb";
+      let subscriptionPlanId = "1705b571-5192-4c9e-bf4f-f79969b21a1d";
+      // let subscriptionPlanId = "59bfc6a8-c814-4b17-bc19-a60176f29cdb";
+      // f332a237-6475-4ac2-9dd1-138f13ad7e7c
 
       if (!subscriptionPlanId) {
         // Find default "Monthly Training" subscription plan

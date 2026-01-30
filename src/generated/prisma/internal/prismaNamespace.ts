@@ -410,6 +410,7 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
+  academy: 'academy',
   staff: 'staff'
 } as const
 
@@ -426,7 +427,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "expenses" | "expenseCategories" | "training" | "attendance" | "batches" | "drills" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "staff"
+    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "expenses" | "expenseCategories" | "training" | "attendance" | "batches" | "drills" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -2354,6 +2355,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    academy: {
+      payload: Prisma.$academyPayload<ExtArgs>
+      fields: Prisma.academyFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.academyFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.academyFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        findFirst: {
+          args: Prisma.academyFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.academyFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        findMany: {
+          args: Prisma.academyFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>[]
+        }
+        create: {
+          args: Prisma.academyCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        createMany: {
+          args: Prisma.academyCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.academyCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>[]
+        }
+        delete: {
+          args: Prisma.academyDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        update: {
+          args: Prisma.academyUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        deleteMany: {
+          args: Prisma.academyDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.academyUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.academyUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>[]
+        }
+        upsert: {
+          args: Prisma.academyUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$academyPayload>
+        }
+        aggregate: {
+          args: Prisma.AcademyAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAcademy>
+        }
+        groupBy: {
+          args: Prisma.academyGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcademyGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.academyCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AcademyCountAggregateOutputType> | number
+        }
+      }
+    }
     staff: {
       payload: Prisma.$staffPayload<ExtArgs>
       fields: Prisma.staffFieldRefs
@@ -2682,12 +2757,14 @@ export type FinanceScalarFieldEnum = (typeof FinanceScalarFieldEnum)[keyof typeo
 
 export const ExpensesScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   expenseNumber: 'expenseNumber',
   description: 'description',
   amount: 'amount',
   date: 'date',
   status: 'status',
   categoryId: 'categoryId',
+  isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2700,6 +2777,7 @@ export const ExpenseCategoriesScalarFieldEnum = {
   name: 'name',
   status: 'status',
   description: 'description',
+  isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2832,6 +2910,26 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const AcademyScalarFieldEnum = {
+  id: 'id',
+  paymentMathod: 'paymentMathod',
+  paymentMethodType: 'paymentMethodType',
+  academyName: 'academyName',
+  tagline: 'tagline',
+  description: 'description',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  address: 'address',
+  logoUrl: 'logoUrl',
+  heroImageUrl: 'heroImageUrl',
+  primaryColor: 'primaryColor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademyScalarFieldEnum = (typeof AcademyScalarFieldEnum)[keyof typeof AcademyScalarFieldEnum]
 
 
 export const StaffScalarFieldEnum = {
@@ -3214,6 +3312,7 @@ export type GlobalOmitConfig = {
   session?: Prisma.SessionOmit
   account?: Prisma.AccountOmit
   verification?: Prisma.VerificationOmit
+  academy?: Prisma.academyOmit
   staff?: Prisma.staffOmit
 }
 

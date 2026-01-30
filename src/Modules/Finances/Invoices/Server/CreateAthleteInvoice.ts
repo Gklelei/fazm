@@ -28,6 +28,12 @@ const calculateNextBillingDate = (
   }
 };
 
+const toNumberAmount = (val: string) => {
+  const n = Number(val);
+  if (Number.isNaN(n)) throw new Error("Invalid amount");
+  return n;
+};
+
 async function CreateAthleteInvoice(
   data: CreateInvoiceSchemaType,
 ): Promise<ActionResult> {
@@ -41,10 +47,7 @@ async function CreateAthleteInvoice(
     const parsedData = CreateInvoiceSchema.parse(data);
 
     const start = new Date(parsedData.startDate);
-    const nextBilling = calculateNextBillingDate(
-      start,
-      parsedData.subscriptionInterval,
-    );
+    const dueDate = new Date(parsedData.dueDate);
 
     await db.$transaction(async (tx) => {
       const now = new Date();
@@ -56,45 +59,75 @@ async function CreateAthleteInvoice(
         where: { createdAt: { gte: startOfDay, lte: endOfDay } },
       });
 
-      for (const id of parsedData.athleteId) {
+      // 1) Resolve plan mode
+      const isManual = parsedData.subType === "MANUAL";
+
+      // If plan selected, fetch it once
+      const selectedPlan = !isManual
+        ? await tx.subscriptionPlan.findUnique({
+            where: { id: parsedData.subType },
+          })
+        : null;
+
+      if (!isManual && !selectedPlan) {
+        throw new Error("Selected subscription plan does not exist");
+      }
+
+      // Manual mode: create an ad-hoc plan record (optional but consistent)
+      // If you don't want to create plans for manual, skip this and just use parsedData.
+      const manualPlan = isManual
+        ? await tx.subscriptionPlan.create({
+            data: {
+              name: parsedData.subScriptionName,
+              amount: toNumberAmount(parsedData.subScriptionAmount),
+              interval: parsedData.subscriptionInterval,
+              code: "",
+              // nextBillingDate: calculateNextBillingDate(start, parsedData.subscriptionInterval) ?? null,
+            },
+          })
+        : null;
+
+      const planToUse = isManual ? manualPlan! : selectedPlan!;
+      const invoiceType = isManual
+        ? INVOICE_TYPE.MANUAL
+        : INVOICE_TYPE.SUBSCRIPTION;
+
+      // 2) Create invoices per athlete
+      for (const athleteId of parsedData.athleteId) {
         const existingAthlete = await tx.athlete.findUnique({
-          where: { athleteId: id },
+          where: { athleteId },
         });
-        if (!existingAthlete) throw new Error(`Athlete ${id} not found`);
+
+        if (!existingAthlete) throw new Error(`Athlete ${athleteId} not found`);
 
         todaysCount++;
         const invoiceSequence = todaysCount.toString().padStart(3, "0");
-        const generatedReceipt = `INV-${datePart}-${invoiceSequence}`;
+        const invoiceNumber = `INV-${datePart}-${invoiceSequence}`;
 
-        const sub = await tx.subscriptionPlan.create({
-          data: {
-            amount: parseInt(parsedData.subScriptionAmount),
-            interval: parsedData.subscriptionInterval as
-              | "MONTHLY"
-              | "WEEKLY"
-              | "DAILY"
-              | "ONCE",
-            name: parsedData.subScriptionName,
-            code: "",
-            // nextBillingDate: nextBilling || new Date(),
-            // athleteId: id,
-          },
-        });
         await tx.invoice.create({
           data: {
-            amountDue: sub.amount,
-            dueDate: new Date(parsedData.dueDate),
-            invoiceNumber: generatedReceipt,
+            invoiceNumber,
+            athleteId,
+            dueDate,
             description: parsedData.description,
-            // subscriptionId: sub.id,
+
+            // Use resolved plan amount
+            amountDue: planToUse.amount,
+
+            // If you have a relation, store subscriptionPlanId
+            subscriptionPlanId: planToUse.id,
+
+            // whatever your unitAmount is supposed to be; leaving your placeholder
             unitAmount: 3000,
-            athleteId: id,
-            type: parsedData.subType as INVOICE_TYPE,
+
+            type: invoiceType,
           },
         });
       }
     });
+
     revalidatePath("/finances/invoice");
+
     return {
       success: true,
       message: `Invoices created successfully for ${parsedData.athleteId.length} athletes`,
@@ -102,15 +135,9 @@ async function CreateAthleteInvoice(
   } catch (error) {
     console.error("SERVER_ACTION_ERROR:", error);
 
-    if (error instanceof Error) {
-      return {
-        success: false,
-        message: error.message,
-      };
-    }
     return {
       success: false,
-      message: "Internal server error",
+      message: error instanceof Error ? error.message : "Internal server error",
     };
   }
 }

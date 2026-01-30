@@ -4,7 +4,7 @@ import InvoiceDocument from "@/Modules/Finances/Invoices/ui/InvoiceDocument";
 
 export async function GET(
   req: Request,
-  { params }: { params: Promise<{ id: string }> }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
 
@@ -24,6 +24,7 @@ export async function GET(
           phoneNumber: true,
         },
       },
+      subscriptionPlan: true,
     },
   });
 
@@ -32,7 +33,7 @@ export async function GET(
   }
 
   const stream = await renderToStream(
-    <InvoiceDocument invoice={invoice} logoUrl={logoUrl} />
+    <InvoiceDocument invoice={invoice} logoUrl={logoUrl} />,
   );
 
   return new Response(stream as unknown as BodyInit, {

@@ -17,13 +17,33 @@ export async function GET() {
   //   );
   // }
   try {
-    const [locations, drills, batches, coaches, attendance] =
+    const [locations, drills, batches, coaches, attendance, expense, plans] =
       await db.$transaction([
         db.trainingLocations.findMany(),
         db.drills.findMany(),
         db.batches.findMany(),
         db.staff.findMany(),
         db.tRAINING_ATTENDANCE_REASONS.findMany(),
+        db.expenseCategories.findMany({
+          where: {
+            isArchived: false,
+            status: "ACTIVE",
+          },
+          select: {
+            name: true,
+            id: true,
+          },
+        }),
+        db.subscriptionPlan.findMany({
+          where: {
+            isArchived: false,
+          },
+          select: {
+            id: true,
+            name: true,
+            amount: true,
+          },
+        }),
       ]);
 
     return NextResponse.json({
@@ -32,6 +52,8 @@ export async function GET() {
       batches,
       coaches,
       attendance,
+      expense,
+      plans,
     });
   } catch (error) {
     console.log({ error });

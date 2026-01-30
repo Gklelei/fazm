@@ -2,14 +2,13 @@ import z from "zod";
 
 const requiredString = z.string().trim().min(1, "This field is required");
 const optionalString = z.string().optional().or(z.literal(""));
-
 const dateStringSchema = z.string().refine(
   (val) => {
     if (!val) return false;
     const date = new Date(val);
     return !isNaN(date.getTime());
   },
-  { message: "Invalid date format" }
+  { message: "Invalid date format" },
 );
 
 const amountSchema = z
@@ -38,7 +37,7 @@ export const CreateInvoiceSchema = z
 
     dueDate: dateStringSchema,
 
-    subType: z.enum(["SUBSCRIPTION", "MANUAL", "LATE_FEE", "ITEM_PURCHASE"]),
+    subType: requiredString,
 
     description: optionalString,
   })
@@ -51,7 +50,7 @@ export const CreateInvoiceSchema = z
     {
       message: "Due date must be on or after start date",
       path: ["dueDate"],
-    }
+    },
   );
 
 export type CreateInvoiceSchemaType = z.infer<typeof CreateInvoiceSchema>;

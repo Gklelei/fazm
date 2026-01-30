@@ -249,7 +249,9 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                               {invoice.invoiceNumber}
                             </span>
                             <span className="text-[10px] text-muted-foreground tracking-tight italic capitalize">
-                              {invoice.type.toLowerCase()} invoice
+                              {invoice.subscriptionPlan?.code.toUpperCase() ||
+                                invoice.type.toUpperCase()}
+                              _INVOICE
                             </span>
                           </div>
                         </TableCell>

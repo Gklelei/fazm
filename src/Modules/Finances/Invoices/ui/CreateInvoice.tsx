@@ -5,7 +5,6 @@ import {
   CreateInvoiceSchema,
   CreateInvoiceSchemaType,
   SUBSCRIPTION_INTERVAL,
-  SUBSCRIPTION_TYPES,
 } from "../Validators";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -31,12 +30,20 @@ import { GenericSelect } from "@/utils/ReusableSelect";
 import { AllAthletesIDQueryType } from "../Types";
 import { SearchSelect } from "@/utils/ReusableSelectWithSearch";
 import { Separator } from "@/components/ui/separator";
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import CreateAthleteInvoice from "../Server/CreateAthleteInvoice";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
+import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Props {
   athletes: AllAthletesIDQueryType[];
@@ -45,13 +52,15 @@ interface Props {
 const CreateInvoice = ({ athletes }: Props) => {
   const [isPending, startTransistion] = useTransition();
   const router = useRouter();
+  const { data } = UseUtilsContext();
+
   const form = useForm<CreateInvoiceSchemaType>({
     resolver: zodResolver(CreateInvoiceSchema),
     defaultValues: {
       athleteId: [],
       description: "",
       dueDate: "",
-      subType: "MANUAL",
+      subType: "MANUAL", // Default to Manual so fields are editable by default
       startDate: new Date().toISOString().split("T")[0],
       subScriptionAmount: "",
       subscriptionInterval: "ONCE",
@@ -59,12 +68,26 @@ const CreateInvoice = ({ athletes }: Props) => {
     },
   });
 
-  const selectedAthletes = useWatch({
-    control: form.control,
-    name: "athleteId",
-  });
+  const { control, handleSubmit, setValue } = form;
 
-  const handleSubmit = async (values: CreateInvoiceSchemaType) => {
+  // 1. WATCHERS
+  const selectedAthletes = useWatch({ control, name: "athleteId" });
+  const selectedPlanId = useWatch({ control, name: "subType" });
+
+  // 2. LOGIC: Auto-fill fields when a plan is selected
+  useEffect(() => {
+    if (selectedPlanId === "MANUAL") return;
+
+    const plan = data?.plans?.find((p) => p.id === selectedPlanId);
+
+    if (plan) {
+      setValue("subScriptionAmount", plan.amount.toString());
+      setValue("subScriptionName", plan.name);
+      // Optional: setValue("subscriptionInterval", plan.interval);
+    }
+  }, [selectedPlanId, data?.plans, setValue]);
+
+  const onSubmit = async (values: CreateInvoiceSchemaType) => {
     startTransistion(async () => {
       const result = await CreateAthleteInvoice(values);
       if (result.success) {
@@ -76,6 +99,8 @@ const CreateInvoice = ({ athletes }: Props) => {
       }
     });
   };
+
+  const isManualMode = selectedPlanId === "MANUAL";
 
   return (
     <div className="max-w-full mx-auto py-8 px-4">
@@ -104,17 +129,14 @@ const CreateInvoice = ({ athletes }: Props) => {
 
         <CardContent className="pt-6">
           <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-10"
-            >
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
               <div className="space-y-4">
                 <h3 className="text-sm font-bold uppercase tracking-widest">
                   1. Target Athletes
                 </h3>
                 <FormField
                   name="athleteId"
-                  control={form.control}
+                  control={control}
                   render={({ field }) => (
                     <FormItem>
                       <FormControl>
@@ -151,7 +173,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="subScriptionName"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase">
@@ -166,20 +188,37 @@ const CreateInvoice = ({ athletes }: Props) => {
                   />
                   <FormField
                     name="subType"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-full space-y-1.5">
                         <FormLabel className="text-xs font-bold uppercase">
-                          Category
+                          Subscription plan
                         </FormLabel>
-                        <GenericSelect
-                          items={SUBSCRIPTION_TYPES}
-                          labelKey="name"
-                          valueKey="value"
-                          placeholder="Select Category"
-                          onValueChange={field.onChange}
+
+                        <Select
                           value={field.value}
-                        />
+                          onValueChange={field.onChange}
+                        >
+                          <FormControl>
+                            <SelectTrigger className="w-full h-9">
+                              <SelectValue placeholder="Select a subscription plan" />
+                            </SelectTrigger>
+                          </FormControl>
+
+                          <SelectContent className="max-h-72">
+                            {/* Added Manual Option */}
+                            <SelectItem value="MANUAL">
+                              Custom / Manual
+                            </SelectItem>
+
+                            {(data?.plans ?? []).map((i) => (
+                              <SelectItem key={i.id} value={i.id}>
+                                {`${i.name}-KSH${i.amount}`}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -187,7 +226,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 </div>
                 <FormField
                   name="description"
-                  control={form.control}
+                  control={control}
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel className="text-xs font-bold uppercase">
@@ -214,7 +253,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="subScriptionAmount"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase">
@@ -226,6 +265,10 @@ const CreateInvoice = ({ athletes }: Props) => {
                             type="number"
                             placeholder="0.00"
                             className="font-mono"
+                            // LOGIC: Only readonly if not in manual mode
+                            readOnly={!isManualMode}
+                            // Visual cue for disabled state
+                            style={{ opacity: !isManualMode ? 0.7 : 1 }}
                           />
                         </FormControl>
                         <FormMessage />
@@ -234,20 +277,23 @@ const CreateInvoice = ({ athletes }: Props) => {
                   />
                   <FormField
                     name="subscriptionInterval"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-full">
                         <FormLabel className="text-xs font-bold uppercase">
                           Interval
                         </FormLabel>
-                        <GenericSelect
-                          items={SUBSCRIPTION_INTERVAL}
-                          labelKey="name"
-                          valueKey="value"
-                          onValueChange={field.onChange}
-                          value={field.value}
-                          placeholder="Frequency"
-                        />
+                        <FormControl className="w-full">
+                          <GenericSelect
+                            items={SUBSCRIPTION_INTERVAL}
+                            labelKey="name"
+                            valueKey="value"
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            placeholder="Frequency"
+                          />
+                        </FormControl>
+
                         <FormMessage />
                       </FormItem>
                     )}
@@ -256,7 +302,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="startDate"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase">
@@ -271,7 +317,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                   />
                   <FormField
                     name="dueDate"
-                    control={form.control}
+                    control={control}
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="text-xs font-bold uppercase">

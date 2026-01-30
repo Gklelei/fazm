@@ -191,12 +191,14 @@ model Finance {
 
 model Expenses {
   id            String            @id @default(cuid())
-  expenseNumber String            @unique @map("expense_number")
+  name          String
+  expenseNumber String            @unique @default(cuid()) @map("expense_number")
   description   String?           @map("Description")
-  amount        String
+  amount        Float
   date          DateTime
   status        String? /* EXPENSE_STATUS    @default(PENDING) */
   categoryId    String            @map("category_id")
+  isArchived    Boolean           @default(false)
   category      ExpenseCategories @relation(fields: [categoryId], references: [id])
   createdAt     DateTime          @default(now()) @map("created_at")
   updatedAt     DateTime          @updatedAt @map("updated_at")
@@ -209,6 +211,7 @@ model ExpenseCategories {
   name        String
   status      EXPENSECATGORIES_STATUS
   description String?
+  isArchived  Boolean                 @default(false)
   expenses    Expenses[]
 
   createdAt DateTime @default(now()) @map("created_at")

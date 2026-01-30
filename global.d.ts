@@ -105,6 +105,15 @@ declare global {
   type ActionResult = { success: boolean; message: string };
 
   export type UtilsResponse = {
+    plans: {
+      id: string;
+      name: string;
+      amount: string;
+    }[];
+    expense: {
+      name: string;
+      id: string;
+    }[];
     locations: {
       id: string;
       name: string;

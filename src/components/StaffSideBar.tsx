@@ -17,6 +17,11 @@ const items = [
     url: "/users/staff/profile",
     icon: UserCircle,
   },
+  {
+    title: "Academy",
+    url: "/academy",
+    icon: UserCircle,
+  },
   // {
   //   title: "Account Security",
   //   url: "/users/staff/profile/account-settings",

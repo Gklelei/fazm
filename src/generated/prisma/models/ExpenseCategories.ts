@@ -29,6 +29,7 @@ export type ExpenseCategoriesMinAggregateOutputType = {
   name: string | null
   status: $Enums.EXPENSECATGORIES_STATUS | null
   description: string | null
+  isArchived: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -38,6 +39,7 @@ export type ExpenseCategoriesMaxAggregateOutputType = {
   name: string | null
   status: $Enums.EXPENSECATGORIES_STATUS | null
   description: string | null
+  isArchived: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -47,6 +49,7 @@ export type ExpenseCategoriesCountAggregateOutputType = {
   name: number
   status: number
   description: number
+  isArchived: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -58,6 +61,7 @@ export type ExpenseCategoriesMinAggregateInputType = {
   name?: true
   status?: true
   description?: true
+  isArchived?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -67,6 +71,7 @@ export type ExpenseCategoriesMaxAggregateInputType = {
   name?: true
   status?: true
   description?: true
+  isArchived?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -76,6 +81,7 @@ export type ExpenseCategoriesCountAggregateInputType = {
   name?: true
   status?: true
   description?: true
+  isArchived?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -158,6 +164,7 @@ export type ExpenseCategoriesGroupByOutputType = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description: string | null
+  isArchived: boolean
   createdAt: Date
   updatedAt: Date
   _count: ExpenseCategoriesCountAggregateOutputType | null
@@ -188,6 +195,7 @@ export type ExpenseCategoriesWhereInput = {
   name?: Prisma.StringFilter<"ExpenseCategories"> | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFilter<"ExpenseCategories"> | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.StringNullableFilter<"ExpenseCategories"> | string | null
+  isArchived?: Prisma.BoolFilter<"ExpenseCategories"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ExpenseCategories"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseCategories"> | Date | string
   expenses?: Prisma.ExpensesListRelationFilter
@@ -198,6 +206,7 @@ export type ExpenseCategoriesOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   expenses?: Prisma.ExpensesOrderByRelationAggregateInput
@@ -211,6 +220,7 @@ export type ExpenseCategoriesWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"ExpenseCategories"> | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFilter<"ExpenseCategories"> | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.StringNullableFilter<"ExpenseCategories"> | string | null
+  isArchived?: Prisma.BoolFilter<"ExpenseCategories"> | boolean
   createdAt?: Prisma.DateTimeFilter<"ExpenseCategories"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"ExpenseCategories"> | Date | string
   expenses?: Prisma.ExpensesListRelationFilter
@@ -221,6 +231,7 @@ export type ExpenseCategoriesOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.ExpenseCategoriesCountOrderByAggregateInput
@@ -236,6 +247,7 @@ export type ExpenseCategoriesScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"ExpenseCategories"> | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSWithAggregatesFilter<"ExpenseCategories"> | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.StringNullableWithAggregatesFilter<"ExpenseCategories"> | string | null
+  isArchived?: Prisma.BoolWithAggregatesFilter<"ExpenseCategories"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ExpenseCategories"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"ExpenseCategories"> | Date | string
 }
@@ -245,6 +257,7 @@ export type ExpenseCategoriesCreateInput = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description?: string | null
+  isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpensesCreateNestedManyWithoutCategoryInput
@@ -255,6 +268,7 @@ export type ExpenseCategoriesUncheckedCreateInput = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description?: string | null
+  isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
   expenses?: Prisma.ExpensesUncheckedCreateNestedManyWithoutCategoryInput
@@ -265,6 +279,7 @@ export type ExpenseCategoriesUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpensesUpdateManyWithoutCategoryNestedInput
@@ -275,6 +290,7 @@ export type ExpenseCategoriesUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   expenses?: Prisma.ExpensesUncheckedUpdateManyWithoutCategoryNestedInput
@@ -285,6 +301,7 @@ export type ExpenseCategoriesCreateManyInput = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description?: string | null
+  isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -294,6 +311,7 @@ export type ExpenseCategoriesUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -303,6 +321,7 @@ export type ExpenseCategoriesUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -317,6 +336,7 @@ export type ExpenseCategoriesCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -326,6 +346,7 @@ export type ExpenseCategoriesMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -335,6 +356,7 @@ export type ExpenseCategoriesMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   status?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -362,6 +384,7 @@ export type ExpenseCategoriesCreateWithoutExpensesInput = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description?: string | null
+  isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -371,6 +394,7 @@ export type ExpenseCategoriesUncheckedCreateWithoutExpensesInput = {
   name: string
   status: $Enums.EXPENSECATGORIES_STATUS
   description?: string | null
+  isArchived?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -396,6 +420,7 @@ export type ExpenseCategoriesUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -405,6 +430,7 @@ export type ExpenseCategoriesUncheckedUpdateWithoutExpensesInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   status?: Prisma.EnumEXPENSECATGORIES_STATUSFieldUpdateOperationsInput | $Enums.EXPENSECATGORIES_STATUS
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -445,6 +471,7 @@ export type ExpenseCategoriesSelect<ExtArgs extends runtime.Types.Extensions.Int
   name?: boolean
   status?: boolean
   description?: boolean
+  isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   expenses?: boolean | Prisma.ExpenseCategories$expensesArgs<ExtArgs>
@@ -456,6 +483,7 @@ export type ExpenseCategoriesSelectCreateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   status?: boolean
   description?: boolean
+  isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["expenseCategories"]>
@@ -465,6 +493,7 @@ export type ExpenseCategoriesSelectUpdateManyAndReturn<ExtArgs extends runtime.T
   name?: boolean
   status?: boolean
   description?: boolean
+  isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["expenseCategories"]>
@@ -474,11 +503,12 @@ export type ExpenseCategoriesSelectScalar = {
   name?: boolean
   status?: boolean
   description?: boolean
+  isArchived?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type ExpenseCategoriesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "description" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseCategories"]>
+export type ExpenseCategoriesOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "status" | "description" | "isArchived" | "createdAt" | "updatedAt", ExtArgs["result"]["expenseCategories"]>
 export type ExpenseCategoriesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   expenses?: boolean | Prisma.ExpenseCategories$expensesArgs<ExtArgs>
   _count?: boolean | Prisma.ExpenseCategoriesCountOutputTypeDefaultArgs<ExtArgs>
@@ -496,6 +526,7 @@ export type $ExpenseCategoriesPayload<ExtArgs extends runtime.Types.Extensions.I
     name: string
     status: $Enums.EXPENSECATGORIES_STATUS
     description: string | null
+    isArchived: boolean
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["expenseCategories"]>
@@ -926,6 +957,7 @@ export interface ExpenseCategoriesFieldRefs {
   readonly name: Prisma.FieldRef<"ExpenseCategories", 'String'>
   readonly status: Prisma.FieldRef<"ExpenseCategories", 'EXPENSECATGORIES_STATUS'>
   readonly description: Prisma.FieldRef<"ExpenseCategories", 'String'>
+  readonly isArchived: Prisma.FieldRef<"ExpenseCategories", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"ExpenseCategories", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"ExpenseCategories", 'DateTime'>
 }

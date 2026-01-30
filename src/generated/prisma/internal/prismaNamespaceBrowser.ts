@@ -77,6 +77,7 @@ export const ModelName = {
   Session: 'Session',
   Account: 'Account',
   Verification: 'Verification',
+  academy: 'academy',
   staff: 'staff'
 } as const
 
@@ -311,12 +312,14 @@ export type FinanceScalarFieldEnum = (typeof FinanceScalarFieldEnum)[keyof typeo
 
 export const ExpensesScalarFieldEnum = {
   id: 'id',
+  name: 'name',
   expenseNumber: 'expenseNumber',
   description: 'description',
   amount: 'amount',
   date: 'date',
   status: 'status',
   categoryId: 'categoryId',
+  isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -329,6 +332,7 @@ export const ExpenseCategoriesScalarFieldEnum = {
   name: 'name',
   status: 'status',
   description: 'description',
+  isArchived: 'isArchived',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -461,6 +465,26 @@ export const VerificationScalarFieldEnum = {
 } as const
 
 export type VerificationScalarFieldEnum = (typeof VerificationScalarFieldEnum)[keyof typeof VerificationScalarFieldEnum]
+
+
+export const AcademyScalarFieldEnum = {
+  id: 'id',
+  paymentMathod: 'paymentMathod',
+  paymentMethodType: 'paymentMethodType',
+  academyName: 'academyName',
+  tagline: 'tagline',
+  description: 'description',
+  contactEmail: 'contactEmail',
+  contactPhone: 'contactPhone',
+  address: 'address',
+  logoUrl: 'logoUrl',
+  heroImageUrl: 'heroImageUrl',
+  primaryColor: 'primaryColor',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type AcademyScalarFieldEnum = (typeof AcademyScalarFieldEnum)[keyof typeof AcademyScalarFieldEnum]
 
 
 export const StaffScalarFieldEnum = {

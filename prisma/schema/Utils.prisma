@@ -1,1 +1,16 @@
-
+model academy {
+    id                String   @id @default(cuid())
+    paymentMathod     String
+    paymentMethodType String
+    academyName       String   @map("academy_name")
+    tagline           String?  @map("tagline")
+    description       String?  @map("description")
+    contactEmail      String?  @map("contact_email")
+    contactPhone      String?  @map("contact_phone")
+    address           String?  @map("address")
+    logoUrl           String?  @map("logo_url")
+    heroImageUrl      String?  @map("hero_image_url")
+    primaryColor      String?  @map("primary_color")
+    createdAt         DateTime @default(now()) @map("created_at")
+    updatedAt         DateTime @updatedAt @map("updated_at")
+}

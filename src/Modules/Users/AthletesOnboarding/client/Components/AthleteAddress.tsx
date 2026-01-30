@@ -48,9 +48,9 @@ const AthleteAddress = () => {
             control={control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>County</FormLabel>
+                <FormLabel>Estate</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="County" type="text" />
+                  <Input {...field} placeholder="Estate" type="text" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -62,9 +62,9 @@ const AthleteAddress = () => {
             control={control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Sub-County</FormLabel>
+                <FormLabel>Town</FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Sub-County" type="text" />
+                  <Input {...field} placeholder="Town" type="text" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
