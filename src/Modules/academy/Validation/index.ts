@@ -11,5 +11,5 @@ export const AcademySchema = z.object({
   email: requiredString,
   phone: requiredString,
   address: requiredString,
-  logo: z.file({ error: "Please select a valid image" }),
+  logo: z.instanceof(File, { error: "A valid image is required" }),
 });

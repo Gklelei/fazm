@@ -17,34 +17,43 @@ export async function GET() {
   //   );
   // }
   try {
-    const [locations, drills, batches, coaches, attendance, expense, plans] =
-      await db.$transaction([
-        db.trainingLocations.findMany(),
-        db.drills.findMany(),
-        db.batches.findMany(),
-        db.staff.findMany(),
-        db.tRAINING_ATTENDANCE_REASONS.findMany(),
-        db.expenseCategories.findMany({
-          where: {
-            isArchived: false,
-            status: "ACTIVE",
-          },
-          select: {
-            name: true,
-            id: true,
-          },
-        }),
-        db.subscriptionPlan.findMany({
-          where: {
-            isArchived: false,
-          },
-          select: {
-            id: true,
-            name: true,
-            amount: true,
-          },
-        }),
-      ]);
+    const [
+      locations,
+      drills,
+      batches,
+      coaches,
+      attendance,
+      expense,
+      plans,
+      academy,
+    ] = await db.$transaction([
+      db.trainingLocations.findMany(),
+      db.drills.findMany(),
+      db.batches.findMany(),
+      db.staff.findMany(),
+      db.tRAINING_ATTENDANCE_REASONS.findMany(),
+      db.expenseCategories.findMany({
+        where: {
+          isArchived: false,
+          status: "ACTIVE",
+        },
+        select: {
+          name: true,
+          id: true,
+        },
+      }),
+      db.subscriptionPlan.findMany({
+        where: {
+          isArchived: false,
+        },
+        select: {
+          id: true,
+          name: true,
+          amount: true,
+        },
+      }),
+      db.academy.findFirst(),
+    ]);
 
     return NextResponse.json({
       locations,
@@ -54,6 +63,7 @@ export async function GET() {
       attendance,
       expense,
       plans,
+      academy,
     });
   } catch (error) {
     console.log({ error });

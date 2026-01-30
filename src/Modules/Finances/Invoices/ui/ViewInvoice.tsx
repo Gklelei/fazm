@@ -19,6 +19,7 @@ import {
 import { InvoiceType } from "../Types";
 import { formatDate } from "@/utils/TansformWords";
 import { useRouter } from "next/navigation";
+import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 
 interface Props {
   data: InvoiceType;
@@ -35,6 +36,8 @@ const ViewInvoicePage = ({ data }: Props) => {
     .join(" ");
 
   const balance = data.amountDue - data.amountPaid;
+
+  const { data: Utils } = UseUtilsContext();
 
   return (
     <div className="mx-auto max-w-full px-4 py-6 md:px-8">
@@ -92,11 +95,14 @@ const ViewInvoicePage = ({ data }: Props) => {
 
                 <div className="text-sm leading-relaxed text-muted-foreground">
                   <p className="text-lg font-bold text-foreground">
-                    Fazam Football Academy
+                    {Utils?.academy?.academyName || " Fazam Football Academy"}
                   </p>
-                  <p>Kimathi Street, Nairobi</p>
-                  <p>academy@fazamfootball.org</p>
-                  <p>0714401466</p>
+                  <p>{Utils?.academy?.address || "Kimathi Street, Nairobi"}</p>
+                  <p>
+                    {Utils?.academy?.contactEmail ||
+                      "academy@fazamfootball.org"}
+                  </p>
+                  <p>{Utils?.academy?.contactPhone || "0714401466"}</p>
                 </div>
               </div>
 
@@ -148,17 +154,18 @@ const ViewInvoicePage = ({ data }: Props) => {
                 </div>
               </div>
 
-              {data.description ||
-                (data.subscriptionPlan?.description && (
-                  <div className="space-y-3">
-                    <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                      Notes
-                    </h3>
-                    <p className="text-sm leading-relaxed">
-                      {data.subscriptionPlan.description || data.description}
-                    </p>
-                  </div>
-                ))}
+              {data.subscriptionPlan?.name && (
+                <div className="space-y-3">
+                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
+                    Notes
+                  </h3>
+                  <p className="text-sm leading-relaxed">
+                    {data.subscriptionPlan.name}
+                    <br />
+                    {data.subscriptionPlan.description}
+                  </p>
+                </div>
+              )}
             </section>
 
             {/* Line Items */}
@@ -178,7 +185,7 @@ const ViewInvoicePage = ({ data }: Props) => {
                   <TableRow>
                     <TableCell>1</TableCell>
                     <TableCell className="font-medium">
-                      {data.subscriptionPlan?.description ||
+                      {data.subscriptionPlan?.name ||
                         data.description ||
                         "General Services"}
                     </TableCell>
@@ -222,8 +229,10 @@ const ViewInvoicePage = ({ data }: Props) => {
                 Payment Instructions
               </h4>
               <p className="text-sm">
-                M-Pesa Send Money:
-                <span className="ml-2 font-mono font-bold">0758080448</span>
+                {Utils?.academy?.paymentMethodType || "Mpesa Send money:"}
+                <span className="ml-2 font-mono font-bold">
+                  {Utils?.academy?.paymentMathod || "0714401466"}
+                </span>
               </p>
             </section>
 

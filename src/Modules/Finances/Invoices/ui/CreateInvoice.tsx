@@ -60,7 +60,8 @@ const CreateInvoice = ({ athletes }: Props) => {
       athleteId: [],
       description: "",
       dueDate: "",
-      subType: "MANUAL", // Default to Manual so fields are editable by default
+      // manual removed — start with no plan selected
+      subType: "",
       startDate: new Date().toISOString().split("T")[0],
       subScriptionAmount: "",
       subscriptionInterval: "ONCE",
@@ -70,20 +71,28 @@ const CreateInvoice = ({ athletes }: Props) => {
 
   const { control, handleSubmit, setValue } = form;
 
-  // 1. WATCHERS
   const selectedAthletes = useWatch({ control, name: "athleteId" });
   const selectedPlanId = useWatch({ control, name: "subType" });
 
-  // 2. LOGIC: Auto-fill fields when a plan is selected
+  // Auto-fill fields when a plan is selected
   useEffect(() => {
-    if (selectedPlanId === "MANUAL") return;
+    if (!selectedPlanId) {
+      setValue("subScriptionAmount", "");
+      setValue("subScriptionName", "");
+      return;
+    }
 
     const plan = data?.plans?.find((p) => p.id === selectedPlanId);
 
     if (plan) {
       setValue("subScriptionAmount", plan.amount.toString());
       setValue("subScriptionName", plan.name);
-      // Optional: setValue("subscriptionInterval", plan.interval);
+      // Optional:
+      // setValue("subscriptionInterval", plan.interval);
+    } else {
+      // if plan id is stale/missing, clear
+      setValue("subScriptionAmount", "");
+      setValue("subScriptionName", "");
     }
   }, [selectedPlanId, data?.plans, setValue]);
 
@@ -100,8 +109,6 @@ const CreateInvoice = ({ athletes }: Props) => {
     });
   };
 
-  const isManualMode = selectedPlanId === "MANUAL";
-
   return (
     <div className="max-w-full mx-auto py-8 px-4">
       <Card>
@@ -110,16 +117,19 @@ const CreateInvoice = ({ athletes }: Props) => {
             <CardTitle className="text-2xl font-bold tracking-tight ">
               Generate Invoices
             </CardTitle>
+
             {selectedAthletes.length > 0 && (
               <div className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider">
                 {selectedAthletes.length} Selected
               </div>
             )}
+
             <Button onClick={() => router.back()} variant={"ghost"}>
               <ArrowLeft />
               Back
             </Button>
           </div>
+
           <CardDescription>
             Create individual or bulk billing statements for athletes.
           </CardDescription>
@@ -134,6 +144,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <h3 className="text-sm font-bold uppercase tracking-widest">
                   1. Target Athletes
                 </h3>
+
                 <FormField
                   name="athleteId"
                   control={control}
@@ -155,10 +166,12 @@ const CreateInvoice = ({ athletes }: Props) => {
                           }
                         />
                       </FormControl>
+
                       <FormDescription className="text-xs">
                         Tip: You can use &quot;Select&quot; All in the dropdown
                         to invoice your entire list at once.
                       </FormDescription>
+
                       <FormMessage />
                     </FormItem>
                   )}
@@ -170,6 +183,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
                   2. Billing Details
                 </h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="subScriptionName"
@@ -180,12 +194,17 @@ const CreateInvoice = ({ athletes }: Props) => {
                           Invoice Title
                         </FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="e.g. Term 1 Fees" />
+                          <Input
+                            {...field}
+                            placeholder="e.g. Term 1 Fees"
+                            readOnly
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     name="subType"
                     control={control}
@@ -206,11 +225,6 @@ const CreateInvoice = ({ athletes }: Props) => {
                           </FormControl>
 
                           <SelectContent className="max-h-72">
-                            {/* Added Manual Option */}
-                            <SelectItem value="MANUAL">
-                              Custom / Manual
-                            </SelectItem>
-
                             {(data?.plans ?? []).map((i) => (
                               <SelectItem key={i.id} value={i.id}>
                                 {`${i.name}-KSH${i.amount}`}
@@ -224,6 +238,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                     )}
                   />
                 </div>
+
                 <FormField
                   name="description"
                   control={control}
@@ -250,6 +265,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <h3 className="text-sm font-bold uppercase tracking-widest text-slate-500">
                   3. Pricing & Dates
                 </h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="subScriptionAmount"
@@ -265,16 +281,15 @@ const CreateInvoice = ({ athletes }: Props) => {
                             type="number"
                             placeholder="0.00"
                             className="font-mono"
-                            // LOGIC: Only readonly if not in manual mode
-                            readOnly={!isManualMode}
-                            // Visual cue for disabled state
-                            style={{ opacity: !isManualMode ? 0.7 : 1 }}
+                            readOnly
+                            style={{ opacity: 0.8 }}
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     name="subscriptionInterval"
                     control={control}
@@ -293,12 +308,12 @@ const CreateInvoice = ({ athletes }: Props) => {
                             placeholder="Frequency"
                           />
                         </FormControl>
-
                         <FormMessage />
                       </FormItem>
                     )}
                   />
                 </div>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <FormField
                     name="startDate"
@@ -315,6 +330,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                       </FormItem>
                     )}
                   />
+
                   <FormField
                     name="dueDate"
                     control={control}
@@ -337,7 +353,11 @@ const CreateInvoice = ({ athletes }: Props) => {
                 <Button
                   type="submit"
                   className="w-full h-12"
-                  disabled={selectedAthletes.length === 0 || isPending}
+                  disabled={
+                    selectedAthletes.length === 0 ||
+                    isPending ||
+                    !selectedPlanId
+                  }
                 >
                   {isPending ? (
                     <Loader2Spinner />
@@ -345,6 +365,11 @@ const CreateInvoice = ({ athletes }: Props) => {
                     `Confirm and Create ${selectedAthletes.length} Invoice(s)`
                   )}
                 </Button>
+                {!selectedPlanId && (
+                  <p className="text-xs text-muted-foreground mt-2">
+                    Select a subscription plan to continue.
+                  </p>
+                )}
               </div>
             </form>
           </Form>

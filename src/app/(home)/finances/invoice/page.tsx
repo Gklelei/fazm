@@ -6,7 +6,6 @@ import React from "react";
 const page = async () => {
   const invoices = await db.invoice.findMany(getInvoicesQuery);
 
-  console.log(invoices);
   return (
     <div>
       <Invoices data={invoices} />

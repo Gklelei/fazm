@@ -105,6 +105,23 @@ declare global {
   type ActionResult = { success: boolean; message: string };
 
   export type UtilsResponse = {
+    academy: {
+      id: string;
+      description: string | null;
+      createdAt: Date;
+      updatedAt: Date;
+      paymentMathod: string;
+      paymentMethodType: string;
+      academyName: string;
+      tagline: string | null;
+      contactEmail: string | null;
+      contactPhone: string | null;
+      address: string | null;
+      logoUrl: string | null;
+      heroImageUrl: string | null;
+      primaryColor: string | null;
+    } | null;
+
     plans: {
       id: string;
       name: string;
