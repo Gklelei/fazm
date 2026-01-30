@@ -30,6 +30,7 @@ import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { GetAllFinanceAtheletesType, GetAllInvoicesType } from "../Type";
 import { SearchSelect } from "@/utils/ReusableSelectWithSearch";
 import { GenericSelect } from "@/utils/ReusableSelect";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Props {
   id?: string;
@@ -48,6 +49,7 @@ const PEYMENT_METHODS = [
 const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
+  const queryClient = useQueryClient();
 
   const form = useForm<ClientFinanceSchemaType>({
     resolver: zodResolver(ClientFinanceSchema),
@@ -73,7 +75,7 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
       (f) =>
         f.athleteId === watchedAthleteId &&
         f.status !== "PAID" &&
-        f.status !== "CANCELED"
+        f.status !== "CANCELED",
     );
   }, [watchedAthleteId, invoices]);
 
@@ -86,6 +88,9 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
           icon: "success",
           text: `${result.message}\nReceipt: ${result.receiptNumber}`,
           title: "Success!",
+        });
+        await queryClient.invalidateQueries({
+          queryKey: ["FINANCE_TRANSACTION_DETAILS"],
         });
       } else {
         Sweetalert({ icon: "error", text: result.message, title: "Error" });

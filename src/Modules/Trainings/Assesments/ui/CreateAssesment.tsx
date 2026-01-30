@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Target, Save } from "lucide-react";
+import { Search, Target, Save, ArrowLeftCircle } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
@@ -27,6 +27,8 @@ import {
   AssesmentAthleteQueryType,
   GetAssesmentMetricsQueryType,
 } from "../Types";
+import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { useRouter } from "next/navigation";
 
 type Props = {
   athletes: AssesmentAthleteQueryType;
@@ -34,6 +36,7 @@ type Props = {
 };
 
 const CreateAssesment = ({ athletes, metrics }: Props) => {
+  const router = useRouter();
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedAthleteId, setSelectedAthleteId] = useState<string | null>(
     () => athletes.athletes?.[0]?.athleteId || null,
@@ -78,20 +81,48 @@ const CreateAssesment = ({ athletes, metrics }: Props) => {
       metricComments,
     });
 
-    if (result.status === "SUCCESS") alert("Saved!");
+    if (result.status === "SUCCESS") {
+      Sweetalert({
+        icon: "success",
+        text: result.successMessage || "Assesment created",
+        title: "Success!",
+      });
+    } else if (result.status === "ERROR") {
+      Sweetalert({
+        icon: "error",
+        text: result.successMessage || "failed to create assesment",
+        title: "An error has occurred",
+      });
+    }
   };
 
   return (
     <div className="mx-auto max-w-6xl p-3">
       <Card>
-        <CardHeader className="pb-3">
-          <CardTitle className="flex items-center gap-2 text-xl">
-            <Target className="h-5 w-5" /> Athlete Assessment
-          </CardTitle>
-          <CardDescription>
-            Select an athlete and record individual metric scores and comments
-          </CardDescription>
-        </CardHeader>
+        <div className="flex flex-col gap-3">
+          {/* Back button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => router.back()}
+            className="w-fit flex items-center gap-2 px-0 text-muted-foreground"
+          >
+            <ArrowLeftCircle className="h-4 w-4" />
+            Back
+          </Button>
+
+          {/* Header */}
+          <CardHeader className="pb-3 px-0">
+            <CardTitle className="flex items-center gap-2 text-xl">
+              <Target className="h-5 w-5" />
+              Athlete Assessment
+            </CardTitle>
+
+            <CardDescription className="max-w-2xl">
+              Select an athlete and record individual metric scores and comments
+            </CardDescription>
+          </CardHeader>
+        </div>
 
         <CardContent>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -191,9 +222,18 @@ const CreateAssesment = ({ athletes, metrics }: Props) => {
                                         <SelectValue placeholder="Grade" />
                                       </SelectTrigger>
                                       <SelectContent>
-                                        {[1, 2, 3, 4, 5].map((g) => (
-                                          <SelectItem key={g} value={String(g)}>
-                                            {g}
+                                        {[
+                                          { name: "BELOW_STANDARD", value: 1 },
+                                          { name: "NEEDS_WORK", value: 2 },
+                                          { name: "GOOD", value: 3 },
+                                          { name: "VERY_GOOD", value: 4 },
+                                          { name: "EXCELLENT", value: 5 },
+                                        ].map((g) => (
+                                          <SelectItem
+                                            key={g.value}
+                                            value={String(g.value)}
+                                          >
+                                            {`${g.value} - ${g.name}`}
                                           </SelectItem>
                                         ))}
                                       </SelectContent>

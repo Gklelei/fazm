@@ -40,6 +40,7 @@ import {
   AlertTriangle,
   PenBoxIcon,
   Loader2Icon,
+  ArrowLeftCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -189,18 +190,11 @@ const MarkAttendance = ({
         </div>
 
         <Button
-          onClick={() => handleSave(data.staffId)}
+          onClick={() => router.back()}
           disabled={isLoading || !isEnoughAthletes}
           className="gap-1.5 h-9"
         >
-          {isLoading ? (
-            <Loader2Icon className="h-2 w-2 animate-spin" />
-          ) : (
-            <>
-              <Save className="h-3.5 w-3.5" />
-              Save
-            </>
-          )}
+          <ArrowLeftCircle /> Back
         </Button>
       </div>
 

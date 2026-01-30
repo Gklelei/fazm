@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { addMinutes } from "date-fns";
 import z from "zod";
+import { revalidatePath } from "next/cache";
 
 class TrainingConflictError extends Error {
   constructor() {
@@ -95,7 +96,7 @@ export const CreateTrainingSession = async (
         },
       });
     });
-
+    revalidatePath("/training/sessions");
     return {
       success: true,
       message: "Training session scheduled successfully.",

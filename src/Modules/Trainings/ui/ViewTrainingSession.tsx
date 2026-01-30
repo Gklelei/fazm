@@ -21,7 +21,10 @@ import {
   Phone,
   Dumbbell,
   ClipboardList,
+  ArrowLeft,
 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 interface Props {
   data: GetAllTrainingSessionsByIdQueryType;
@@ -30,6 +33,7 @@ interface Props {
 }
 
 const ViewTrainingSession = ({ data, count, present }: Props) => {
+  const router = useRouter();
   const startTime = new Date(data.date).toLocaleTimeString([], {
     hour: "2-digit",
     minute: "2-digit",
@@ -45,6 +49,15 @@ const ViewTrainingSession = ({ data, count, present }: Props) => {
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto p-2 sm:p-4">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => router.back()}
+        className="w-fit flex items-center gap-2 px-0"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back
+      </Button>
       <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight">{data.name}</h1>
