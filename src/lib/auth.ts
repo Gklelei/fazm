@@ -6,7 +6,7 @@ export const auth = betterAuth({
   database: prismaAdapter(db, {
     provider: "postgresql",
   }),
-  trustedOrigins: ["https://fazam.vercel.app", "http://localhost:3000"],
+  trustedOrigins: ["https://fazm.vercel.app", "http://localhost:3000"],
   emailAndPassword: {
     enabled: true,
     minPasswordLength: 8,

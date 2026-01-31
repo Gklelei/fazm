@@ -127,7 +127,9 @@ export type AttendanceStatus = (typeof AttendanceStatus)[keyof typeof Attendance
 export const ROLES = {
   COACH: 'COACH',
   ADMIN: 'ADMIN',
-  DOCTOR: 'DOCTOR'
+  DOCTOR: 'DOCTOR',
+  FINANCE: 'FINANCE',
+  SUPER_ADMIN: 'SUPER_ADMIN'
 } as const
 
 export type ROLES = (typeof ROLES)[keyof typeof ROLES]

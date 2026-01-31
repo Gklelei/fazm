@@ -21,7 +21,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { DrillsSchema, DrillsSchemaType } from "../Validation";
 import { CreateDrills } from "../Server/Drills";
@@ -44,6 +43,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, Pen, Trash2Icon } from "lucide-react";
+import { toast } from "sonner";
 
 const Drills = () => {
   const [isPending, startTransition] = useTransition();
@@ -60,20 +60,11 @@ const Drills = () => {
   const handleSubmit = async (payload: DrillsSchemaType) => {
     startTransition(async () => {
       const results = await CreateDrills(payload);
-
       if (results.success) {
-        Sweetalert({
-          icon: "success",
-          text: results.message,
-          title: "Success!",
-        });
-        form.reset({ name: "", description: "" });
+        toast.success(results.message);
+        form.reset();
       } else {
-        Sweetalert({
-          icon: "error",
-          text: results.message,
-          title: "An error has occurred",
-        });
+        toast.error(results.message);
       }
     });
   };

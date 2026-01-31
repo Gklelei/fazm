@@ -9,6 +9,8 @@ export const UseGetAllAthletes = () => {
         method: "GET",
       });
 
+      console.log(response);
+
       if (!response.ok) {
         throw new Error("Error fetching data");
       }

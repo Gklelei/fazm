@@ -84,17 +84,13 @@ const AthleteOnboardingAction = async (
 
       const athleteId = `ATH-FFA-${String(sequence.current).padStart(3, "0")}`;
 
-      // 1. Get or use default subscription plan
-      // Todo:add payments section
-      let subscriptionPlanId = "1705b571-5192-4c9e-bf4f-f79969b21a1d";
-      // let subscriptionPlanId = "59bfc6a8-c814-4b17-bc19-a60176f29cdb";
-      // f332a237-6475-4ac2-9dd1-138f13ad7e7c
+      let subscriptionPlanId;
 
-      if (!subscriptionPlanId) {
+      if (!validatedData.subscriptionPlanId) {
         // Find default "Monthly Training" subscription plan
         const defaultPlan = await ctx.subscriptionPlan.findFirst({
           where: {
-            id: subscriptionPlanId,
+            id: validatedData.subscriptionPlanId,
             isActive: true,
             isArchived: false,
           },
@@ -230,14 +226,14 @@ const AthleteOnboardingAction = async (
       const athleteSubscription = await ctx.athleteSubscription.create({
         data: {
           athleteId: newAthlete.athleteId,
-          subscriptionPlanId: subscriptionPlanId,
+          subscriptionPlanId: subscriptionPlanId || "",
           status: "ACTIVE",
           startDate: currentPeriodStart,
           currentPeriodStart: currentPeriodStart,
           currentPeriodEnd: currentPeriodEnd,
           autoRenew: true,
           cancelAtPeriodEnd: false,
-          trialStart: null, // You could add trial period logic here
+          trialStart: null,
           trialEnd: null,
           updatedBy: session.user.email || "system",
         },

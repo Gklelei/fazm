@@ -5,13 +5,10 @@ async function main() {
   console.log(process.env.DATABASE_URL);
   await db.athleteSequence.upsert({
     where: { id: 1 },
-    update: {},
-    create: {
-      id: 1,
-      current: 0,
-    },
+    create: { id: 1, current: 0 },
+    update: { current: { increment: 1 } },
+    select: { current: true },
   });
-
   console.log("✅ Athlete sequence initialized");
 }
 

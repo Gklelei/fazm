@@ -18,4 +18,6 @@ enum ROLES {
   COACH
   ADMIN
   DOCTOR
+  FINANCE
+  SUPER_ADMIN
 }

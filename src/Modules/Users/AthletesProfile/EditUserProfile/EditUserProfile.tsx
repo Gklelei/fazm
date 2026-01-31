@@ -74,6 +74,7 @@ const EditUserProfile = ({ athlete }: Props) => {
       passportPage: athlete.passportBioData || "",
       idBack: athlete.nationalIdBack || "",
       idFront: athlete.nationalIdFront || "",
+      // subscriptionPlanId:athlete.
     },
   });
   const onSubmit = async (values: AthleteOnBoardingType) => {

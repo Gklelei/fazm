@@ -91,13 +91,13 @@ const AthletePhysicals = () => {
             name="dominantFoot"
             control={control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full">
                 <FormLabel className="flex items-center gap-2">
                   <Footprints className="h-4 w-4 text-muted-foreground" />
                   Dominant Foot
                 </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
+                  <FormControl className="w-full">
                     <SelectTrigger>
                       <SelectValue placeholder="Select dominant foot" />
                     </SelectTrigger>
@@ -118,12 +118,12 @@ const AthletePhysicals = () => {
             control={control}
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2">
+                <FormLabel className="flex items-center gap-2 w-full">
                   <Hand className="h-4 w-4 text-muted-foreground" />
                   Dominant Hand
                 </FormLabel>
                 <Select onValueChange={field.onChange} value={field.value}>
-                  <FormControl>
+                  <FormControl className=" w-full">
                     <SelectTrigger>
                       <SelectValue placeholder="Select dominant hand" />
                     </SelectTrigger>

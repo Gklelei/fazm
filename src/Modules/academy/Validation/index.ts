@@ -11,6 +11,6 @@ export const AcademySchema = z.object({
   email: requiredString,
   phone: requiredString,
   address: requiredString,
-  logo: z.instanceof(File, { error: "A valid image is required" }),
+  // logo: z.instanceof(File, { error: "A valid image is required" }),
   logoUrl: z.string().optional(),
 });

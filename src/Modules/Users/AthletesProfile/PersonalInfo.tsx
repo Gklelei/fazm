@@ -103,19 +103,7 @@ const PersonalInfo = ({ data }: { data: GetAthleteByIdQueryType }) => {
                     {statusMessages[data.status] || "Unknown status"}
                   </p>
                 </div>
-                <div>
-                  {/* <Sheet>
-                    <SheetTrigger asChild>
-                      <Button size="sm" className="gap-1 h-8 text-xs">
-                        <CreditCard className="h-3 w-3" />
-                        Make Payment
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent>
-                      <PaymentModal id={data.athleteId} />
-                    </SheetContent>
-                  </Sheet> */}
-                </div>
+                <div></div>
               </div>
             </div>
           </div>

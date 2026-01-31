@@ -5,7 +5,10 @@ import { getAcademyQuery } from "@/Modules/academy/Validation/Types";
 const page = async () => {
   const academy = await db.academy.findFirst(getAcademyQuery);
 
+  console.log(academy);
+
   const isEditing = !!academy;
+
   return <AcademyPage isEditting={isEditing} academy={academy || null} />;
 };
 

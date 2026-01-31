@@ -67,9 +67,9 @@ const PersonalInformation = () => {
             name="lastName"
             control={control}
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full col-span-2">
                 <FormLabel>Last Name</FormLabel>
-                <FormControl>
+                <FormControl className="w-full">
                   <Input type="text" {...field} placeholder="Last name" />
                 </FormControl>
                 <FormMessage />
@@ -129,9 +129,9 @@ const PersonalInformation = () => {
             control={control}
             name="batch"
             render={({ field }) => (
-              <FormItem>
+              <FormItem className="w-full md:col-span-2">
                 <FormLabel>Batch</FormLabel>
-                <FormControl>
+                <FormControl className="w-full ">
                   <GenericSelect
                     items={data?.batches ?? []}
                     valueKey="id"
@@ -152,9 +152,9 @@ const PersonalInformation = () => {
           name="profilePIcture"
           control={control}
           render={({ field }) => (
-            <FormItem>
+            <FormItem className="w-full">
               <FormLabel>Profile Picture</FormLabel>
-              <FormControl>
+              <FormControl className="w-full">
                 <LocalFsUpload
                   onChange={(url: string) => {
                     field.onChange(url);

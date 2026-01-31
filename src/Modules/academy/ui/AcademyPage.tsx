@@ -1,9 +1,15 @@
 "use client";
 
+import { useMemo } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import z from "zod";
-import { AcademySchema } from "../Validation";
 import { zodResolver } from "@hookform/resolvers/zod";
+
+import { AcademySchema } from "../Validation";
+import { getAcademyQueryType } from "../Validation/Types";
+import { CreateAcademyUtils, EditAcademyUtils } from "../Server/Academy";
+
 import {
   Card,
   CardContent,
@@ -19,40 +25,86 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
-import { getAcademyQueryType } from "../Validation/Types";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
+import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 
 interface Props {
-  isEditting: boolean;
+  isEditting: boolean; // kept for compatibility, but not trusted
   academy: getAcademyQueryType | null;
 }
 
-const AcademyPage = ({ isEditting, academy }: Props) => {
-  const form = useForm<z.infer<typeof AcademySchema>>({
-    resolver: zodResolver(AcademySchema),
-    defaultValues: {
+type FormValues = z.infer<typeof AcademySchema>;
+
+const AcademyPage = ({ academy }: Props) => {
+  const router = useRouter();
+  const editing = !!academy?.id;
+
+  const initialValues: FormValues = useMemo(
+    () => ({
       academyName: academy?.academyName || "",
       address: academy?.address || "",
       description: academy?.description || "",
       email: academy?.contactEmail || "",
-      logo: undefined,
+      logoUrl: academy?.logoUrl || "",
       paymentType: academy?.paymentMethodType || "",
       paymentMethod: academy?.paymentMathod || "",
       phone: academy?.contactPhone || "",
       tagline: academy?.tagline || "",
-    },
+    }),
+    [academy],
+  );
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(AcademySchema),
+    defaultValues: initialValues,
+    mode: "onSubmit",
   });
 
-  // no functionality (but keep the form submit hook so it doesn't error)
-  function handleSubmit(data: z.infer<typeof AcademySchema>) {
-    if (isEditting) {
-      console.log("Edited data:", data);
-    } else {
-      console.log("new Data:", data);
+  const { isSubmitting, isDirty } = form.formState;
+
+  const toast = (ok: boolean, message: string) => {
+    Sweetalert({
+      icon: ok ? "success" : "error",
+      title: ok ? "Success!" : "An error has occurred",
+      text: message,
+    });
+  };
+
+  const normalize = (v: FormValues): FormValues => ({
+    ...v,
+    academyName: v.academyName.trim(),
+    address: v.address.trim(),
+    email: v.email.trim(),
+    phone: v.phone.trim(),
+    tagline: v.tagline.trim(),
+    paymentType: v.paymentType.trim(),
+    paymentMethod: v.paymentMethod.trim(),
+    description: v.description?.trim() || "",
+    logoUrl: v.logoUrl?.trim() || "",
+  });
+
+  async function handleSubmit(values: FormValues) {
+    const payload = normalize(values);
+
+    if (editing) {
+      if (!academy?.id) {
+        toast(false, "Missing academy id. Refresh the page and try again.");
+        return;
+      }
+
+      const result = await EditAcademyUtils({ id: academy.id, data: payload });
+      toast(result.success, result.message);
+      if (result.success) form.reset(payload);
+      return;
     }
+
+    const result = await CreateAcademyUtils({ data: payload });
+    toast(result.success, result.message);
+    if (result.success) form.reset(payload);
   }
 
   return (
@@ -68,8 +120,9 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                 Configure your global academy settings.
               </CardDescription>
             </div>
+
             <div className="text-xs font-medium px-2 py-1 rounded-md border">
-              {isEditting ? "Editing" : "New setup"}
+              {editing ? "Editing" : "New setup"}
             </div>
           </div>
         </CardHeader>
@@ -101,7 +154,11 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           Academy name
                         </FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="e.g. Fazam Academy" />
+                          <Input
+                            {...field}
+                            placeholder="e.g. Fazam Academy"
+                            disabled={isSubmitting}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -120,6 +177,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           <Input
                             {...field}
                             placeholder="e.g. Building champions"
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -141,6 +199,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           <Input
                             {...field}
                             placeholder="e.g. Along Mombasa Road"
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -157,7 +216,11 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           Phone
                         </FormLabel>
                         <FormControl>
-                          <Input {...field} placeholder="e.g. +2547..." />
+                          <Input
+                            {...field}
+                            placeholder="e.g. +2547..."
+                            disabled={isSubmitting}
+                          />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -178,6 +241,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           {...field}
                           placeholder="e.g. info@academy.com"
                           type="email"
+                          disabled={isSubmitting}
                         />
                       </FormControl>
                       <FormMessage />
@@ -198,6 +262,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           {...field}
                           className="min-h-28 resize-none"
                           placeholder="Short description about your academy..."
+                          disabled={isSubmitting}
                         />
                       </FormControl>
                       <FormMessage />
@@ -207,46 +272,6 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
               </section>
 
               <Separator />
-
-              {/* Branding */}
-              <section className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Branding</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Upload your logo for documents and dashboards.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    name="logo"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Logo
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            type="file"
-                            accept="image/*"
-                            onChange={(e) =>
-                              field.onChange(e.target.files?.[0])
-                            }
-                          />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground">
-                          PNG/JPG recommended.
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </section>
-
-              <Separator />
-
               {/* Payments */}
               <section className="space-y-4">
                 <div className="space-y-1">
@@ -269,6 +294,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           <Input
                             {...field}
                             placeholder="e.g. MPESA / BANK / CASH"
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -288,6 +314,7 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                           <Input
                             {...field}
                             placeholder="e.g. Paybill/Till/Account no."
+                            disabled={isSubmitting}
                           />
                         </FormControl>
                         <FormMessage />
@@ -296,13 +323,73 @@ const AcademyPage = ({ isEditting, academy }: Props) => {
                   />
                 </div>
               </section>
+              {/* Branding */}
+              <section className="space-y-4">
+                <div className="space-y-1">
+                  <h3 className="text-sm font-semibold">Branding</h3>
+                  <p className="text-sm text-muted-foreground">
+                    Upload your logo for documents and dashboards.
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <FormField
+                    name="logoUrl"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
+                          Logo
+                        </FormLabel>
+                        <FormControl className="w-full">
+                          <LocalFsUpload
+                            onChange={(url: string) => field.onChange(url)}
+                            value={field.value || ""}
+                            folder="PROFILE"
+                            maxSizeMB={2}
+                          />
+                        </FormControl>
+                        <p className="text-xs text-muted-foreground">
+                          PNG/JPG recommended.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+              </section>
+
+              <Separator />
 
               {/* Actions */}
-              <div className="flex items-center justify-end gap-3 pt-2">
-                <Button type="button" variant="outline">
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => router.back()}
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto"
+                >
                   Cancel
                 </Button>
-                <Button type="submit">Save changes</Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={() => form.reset(initialValues)}
+                  disabled={isSubmitting || !isDirty}
+                  className="w-full sm:w-auto"
+                >
+                  Reset changes
+                </Button>
+
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full sm:w-auto"
+                >
+                  {isSubmitting ? "Saving..." : "Save changes"}
+                </Button>
               </div>
             </form>
           </Form>

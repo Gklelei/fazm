@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Form } from "@/components/ui/form";
@@ -18,6 +18,7 @@ import {
   ChevronRight,
   ChevronLeft,
   Check,
+  Loader2Icon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import PersonalInformation from "./PersonalInformation";
@@ -33,6 +34,7 @@ import {
 } from "../../validation";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { useQueryClient } from "@tanstack/react-query";
+import PaymentPlan from "./SubscriptionPlan";
 
 const STEPS = [
   {
@@ -98,12 +100,18 @@ const STEPS = [
       "emergencyContactRelationship",
     ],
   },
+  {
+    id: 7,
+    title: "Subscription plan",
+    fields: ["subscriptionPlanId"],
+  },
 ];
 
 const AthletesOnboardingForm = () => {
   const router = useRouter();
   const [currentStep, setCurrentStep] = useState(1);
   const queryClient = useQueryClient();
+  const [isPending, startTransistion] = useTransition();
 
   const form = useForm<AthleteOnBoardingType>({
     resolver: zodResolver(AthleteOnBoardingSchema),
@@ -142,6 +150,7 @@ const AthletesOnboardingForm = () => {
       passportPage: "",
       playingPositions: "",
       weight: "",
+      subscriptionPlanId: "",
     },
   });
 
@@ -179,31 +188,37 @@ const AthletesOnboardingForm = () => {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
   const handleSubmit = async (data: AthleteOnBoardingType) => {
-    const isValid = await form.trigger();
+    startTransistion(async () => {
+      const isValid = await form.trigger();
 
-    if (!isValid) {
-      Sweetalert({
-        icon: "error",
-        title: "Validation Error",
-        text: "Please fix all errors before submitting the form.",
-      });
-      return;
-    }
+      if (!isValid) {
+        Sweetalert({
+          icon: "error",
+          title: "Validation Error",
+          text: "Please fix all errors before submitting the form.",
+        });
+        return;
+      }
+      const result = await AthleteOnboardingAction(data);
 
-    const result = await AthleteOnboardingAction(data);
-    if (result.status === "SUCCESS") {
-      await queryClient.invalidateQueries({
-        queryKey: ["all-athletes"],
-      });
-      Sweetalert({
-        icon: "success",
-        text: result.successMessage,
-        title: "Success!",
-      });
-      router.push("/users/players");
-    } else {
-      Sweetalert({ icon: "error", text: result.errorMessage, title: "Error" });
-    }
+      if (result.status === "SUCCESS") {
+        await queryClient.invalidateQueries({
+          queryKey: ["all-athletes"],
+        });
+        Sweetalert({
+          icon: "success",
+          text: result.successMessage,
+          title: "Success!",
+        });
+        router.push("/users/players");
+      } else {
+        Sweetalert({
+          icon: "error",
+          text: result.errorMessage,
+          title: "Error",
+        });
+      }
+    });
   };
 
   const getStepStatus = (stepId: number) => {
@@ -319,6 +334,9 @@ const AthletesOnboardingForm = () => {
               <div className={currentStep === 6 ? "block" : "hidden"}>
                 <AthletesMedical />
               </div>
+              <div className={currentStep === 7 ? "block" : "hidden"}>
+                <PaymentPlan />
+              </div>
 
               {/* Navigation Buttons */}
               <div className="flex justify-between items-center pt-10 mt-8 border-t border-dashed">
@@ -344,8 +362,15 @@ const AthletesOnboardingForm = () => {
                   <Button
                     type="submit"
                     className="gap-2 px-8 bg-green-600 hover:bg-green-700"
+                    disabled={isPending}
                   >
-                    Complete Registration <Check className="h-4 w-4" />
+                    {isPending ? (
+                      <Loader2Icon className="size-4 animate-spin" />
+                    ) : (
+                      <>
+                        Complete Registration <Check className="h-4 w-4" />
+                      </>
+                    )}
                   </Button>
                 )}
               </div>

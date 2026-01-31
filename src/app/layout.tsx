@@ -5,6 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import ReactQueryClientProvider from "@/lib/ReactQueryClientProvider";
 import { UtilsProviderWrapper } from "@/Modules/Settings/UtilsProvider";
+import { Toaster } from "sonner";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -53,7 +54,7 @@ export const metadata: Metadata = {
   // },
 
   robots: {
-    index: true,
+    index: false,
     follow: false,
   },
 };
@@ -73,7 +74,15 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ReactQueryClientProvider>
-            <UtilsProviderWrapper>{children}</UtilsProviderWrapper>
+            <UtilsProviderWrapper>
+              {children}
+              <Toaster
+                closeButton
+                duration={5000}
+                richColors
+                position="top-right"
+              />
+            </UtilsProviderWrapper>
           </ReactQueryClientProvider>
         </ThemeProvider>
       </body>

@@ -20,7 +20,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useTransition } from "react";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import {
   TrainingLocationSchema,
@@ -46,6 +45,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Eye, Pen, Trash2Icon, MapPin } from "lucide-react";
+import { toast } from "sonner";
 
 const TrainingLocations = () => {
   const [isPending, startTransition] = useTransition();
@@ -61,18 +61,10 @@ const TrainingLocations = () => {
       const results = await CreateTrainingLocations(payload);
 
       if (results.success) {
-        Sweetalert({
-          icon: "success",
-          text: results.message,
-          title: "Success!",
-        });
+        toast.success(results.message);
         form.reset({ name: "" });
       } else {
-        Sweetalert({
-          icon: "error",
-          text: results.message,
-          title: "An error has occurred",
-        });
+        toast.error(results.message);
       }
     });
   };

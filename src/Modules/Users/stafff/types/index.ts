@@ -22,6 +22,7 @@ export const GetUserProfileQuery = (id: string) =>
     include: {
       sessions: true,
       staff: true,
+      accounts: true,
     },
   }) satisfies Prisma.UserFindUniqueArgs;
 

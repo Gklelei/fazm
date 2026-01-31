@@ -33,7 +33,7 @@ model Athlete {
   attendances          attendance[]
   invoices             Invoice[]
   assessments          Assessment[]
-  isArchived           Boolean                     @default(false)
+  isArchived           Boolean                     @default(false) @map("is_archived")
   ArchiveDate          DateTime?
   athleteSubscriptions AthleteSubscription[]
 

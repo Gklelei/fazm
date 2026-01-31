@@ -149,15 +149,18 @@ const CreateStaffForm = () => {
                     name="role"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-full">
                         <FormLabel>Role</FormLabel>
                         <Select
                           value={field.value}
                           onValueChange={field.onChange}
                         >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
+                          <FormControl className="w-full">
+                            <SelectTrigger>
+                              <SelectValue placeholder="select a role" />
+                            </SelectTrigger>
+                          </FormControl>
+
                           <SelectContent>
                             {["COACH", "ADMIN", "DOCTOR"].map((r) => (
                               <SelectItem key={r} value={r}>
@@ -174,10 +177,14 @@ const CreateStaffForm = () => {
                     name="password"
                     control={form.control}
                     render={({ field }) => (
-                      <FormItem>
+                      <FormItem className="w-full">
                         <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input type="password" {...field} />
+                        <FormControl className="w-full">
+                          <Input
+                            type="password"
+                            {...field}
+                            placeholder="*******"
+                          />
                         </FormControl>
                       </FormItem>
                     )}

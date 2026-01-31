@@ -3,7 +3,7 @@ import { authClient } from "@/lib/auth-client";
 import { createContext, useContext } from "react";
 
 const SessionContext = createContext<typeof authClient.$Infer.Session | null>(
-  null
+  null,
 );
 
 export default function SessionContextProvider({
