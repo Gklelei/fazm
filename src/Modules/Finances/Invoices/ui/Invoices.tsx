@@ -68,19 +68,6 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
     setStatusFilter(null);
   };
 
-  if (!data || data.length === 0) {
-    return (
-      <Card className="flex items-center justify-center p-12 m-6 border-dashed">
-        <div className="text-center">
-          <p className="text-muted-foreground font-medium">No invoices found</p>
-          <p className="text-xs text-muted-foreground/60">
-            Generate your first subscription or manual invoice to see it here.
-          </p>
-        </div>
-      </Card>
-    );
-  }
-
   const handleChangeInvoiceStatus = async (
     value: "PENDING" | "CANCELED",
     invoiceNumber: string,
@@ -224,7 +211,23 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredInvoices.length > 0 ? (
+                {filteredInvoices.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="p-0">
+                      <div className="flex items-center justify-center p-12 m-6 border border-dashed rounded-lg">
+                        <div className="text-center">
+                          <p className="text-muted-foreground font-medium">
+                            No invoices found
+                          </p>
+                          <p className="text-xs text-muted-foreground/60">
+                            Adjust filters or create a new invoice to see
+                            results here.
+                          </p>
+                        </div>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ) : (
                   filteredInvoices.map((invoice, i) => {
                     const balance = invoice.amountDue - invoice.amountPaid;
                     const athleteFullName = [
@@ -235,6 +238,9 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                       .filter(Boolean)
                       .join(" ");
 
+                    const isUpdatingThisInvoice =
+                      statusId === invoice.invoiceNumber;
+
                     return (
                       <TableRow
                         key={invoice.id}
@@ -243,18 +249,21 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                         <TableCell className="text-center text-muted-foreground text-xs">
                           {i + 1}
                         </TableCell>
+
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-mono font-bold text-sm text-foreground">
                               {invoice.invoiceNumber}
                             </span>
                             <span className="text-[10px] text-muted-foreground tracking-tight italic capitalize">
-                              {invoice.subscriptionPlan?.code.toUpperCase() ||
-                                invoice.type.toUpperCase()}
+                              {(
+                                invoice.subscriptionPlan?.code || invoice.type
+                              ).toUpperCase()}
                               _INVOICE
                             </span>
                           </div>
                         </TableCell>
+
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-semibold text-sm text-foreground">
@@ -265,15 +274,18 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                             </span>
                           </div>
                         </TableCell>
+
                         <TableCell className="text-right font-mono text-sm">
                           <span className="text-[10px] mr-1 text-muted-foreground">
                             KES
                           </span>
                           {formatCurrency(invoice.amountDue)}
                         </TableCell>
+
                         <TableCell className="text-right font-mono text-sm text-muted-foreground">
                           {formatCurrency(invoice.amountPaid)}
                         </TableCell>
+
                         <TableCell className="text-right font-mono text-sm font-bold">
                           <span
                             className={
@@ -285,6 +297,7 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                             {formatCurrency(balance)}
                           </span>
                         </TableCell>
+
                         <TableCell className="text-center">
                           <DropdownMenu>
                             <DropdownMenuTrigger
@@ -297,22 +310,23 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                               <Badge
                                 variant="secondary"
                                 className={`
-          font-bold text-[11px] px-3 py-0.5
-          transition-colors duration-200
-          ${
-            invoice.status === "PAID"
-              ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
-              : invoice.status === "PARTIAL"
-                ? "bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200"
-                : invoice.status === "PENDING"
-                  ? "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200"
-                  : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
-          }
-          ${
-            !(invoice.status === "PAID" || invoice.status === "PARTIAL") &&
-            "border-dashed border-2"
-          }
-        `}
+                    font-bold text-[11px] px-3 py-0.5 transition-colors duration-200
+                    ${
+                      invoice.status === "PAID"
+                        ? "bg-green-100 text-green-800 hover:bg-green-200 dark:bg-green-900 dark:text-green-200"
+                        : invoice.status === "PARTIAL"
+                          ? "bg-amber-100 text-amber-800 hover:bg-amber-200 dark:bg-amber-900 dark:text-amber-200"
+                          : invoice.status === "PENDING"
+                            ? "bg-blue-100 text-blue-800 hover:bg-blue-200 dark:bg-blue-900 dark:text-blue-200"
+                            : "bg-red-100 text-red-800 hover:bg-red-200 dark:bg-red-900 dark:text-red-200"
+                    }
+                    ${
+                      !(
+                        invoice.status === "PAID" ||
+                        invoice.status === "PARTIAL"
+                      ) && "border-dashed border-2"
+                    }
+                  `}
                               >
                                 <div className="flex items-center gap-1.5">
                                   {invoice.status.toLowerCase()}
@@ -325,47 +339,59 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                                 </div>
                               </Badge>
                             </DropdownMenuTrigger>
+
                             <DropdownMenuContent>
                               <DropdownMenuLabel className="text-xs font-semibold">
                                 Change Status
                               </DropdownMenuLabel>
                               <DropdownMenuSeparator />
-                              {["PENDING", "CANCELED"].map((status) => (
-                                <DropdownMenuItem
-                                  key={status}
-                                  onClick={() =>
-                                    handleChangeInvoiceStatus(
-                                      status as "PENDING" | "CANCELED",
-                                      invoice.invoiceNumber,
-                                    )
-                                  }
-                                  disabled={invoice.status === status}
-                                  className="text-xs py-2"
-                                >
-                                  <div className="flex items-center justify-between w-full">
-                                    <span
-                                      className={`
-              ${status === "PENDING" ? "text-blue-600" : "text-red-600"}
-            `}
-                                    >
-                                      {statusId ? (
-                                        <Loader2 className="animate-spin h-2 w-2" />
-                                      ) : (
-                                        status
+
+                              {(["PENDING", "CANCELED"] as const).map(
+                                (status) => (
+                                  <DropdownMenuItem
+                                    key={status}
+                                    onClick={() =>
+                                      handleChangeInvoiceStatus(
+                                        status,
+                                        invoice.invoiceNumber,
+                                      )
+                                    }
+                                    disabled={
+                                      invoice.status === status ||
+                                      isUpdatingThisInvoice
+                                    }
+                                    className="text-xs py-2"
+                                  >
+                                    <div className="flex items-center justify-between w-full">
+                                      <span
+                                        className={
+                                          status === "PENDING"
+                                            ? "text-blue-600"
+                                            : "text-red-600"
+                                        }
+                                      >
+                                        {isUpdatingThisInvoice ? (
+                                          <Loader2 className="animate-spin h-3 w-3" />
+                                        ) : (
+                                          status
+                                        )}
+                                      </span>
+
+                                      {invoice.status === status && (
+                                        <BadgeCheckIcon className="h-3 w-3 text-green-600" />
                                       )}
-                                    </span>
-                                    {invoice.status === status && (
-                                      <BadgeCheckIcon className="h-3 w-3 text-green-600" />
-                                    )}
-                                  </div>
-                                </DropdownMenuItem>
-                              ))}
+                                    </div>
+                                  </DropdownMenuItem>
+                                ),
+                              )}
                             </DropdownMenuContent>
                           </DropdownMenu>
                         </TableCell>
+
                         <TableCell className="text-sm text-muted-foreground whitespace-nowrap">
                           {formatDate(invoice.dueDate)}
                         </TableCell>
+
                         <TableCell className="text-right">
                           <div className="flex items-center justify-end gap-1">
                             <Button
@@ -378,6 +404,7 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                             >
                               <Eye className="h-4 w-4" />
                             </Button>
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -390,6 +417,7 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                             >
                               <PenBoxIcon className="h-4 w-4" />
                             </Button>
+
                             <Button
                               variant="ghost"
                               size="icon"
@@ -402,15 +430,6 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                       </TableRow>
                     );
                   })
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={9}
-                      className="h-32 text-center text-muted-foreground italic"
-                    >
-                      No invoices found matching your current filters.
-                    </TableCell>
-                  </TableRow>
                 )}
               </TableBody>
             </Table>
