@@ -9,8 +9,6 @@ import {
 } from "@/components/ui/card";
 import {
   ChartContainer,
-  ChartLegend,
-  ChartLegendContent,
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
@@ -26,40 +24,68 @@ const chartConfig = {
   income: {
     label: "Income",
     icon: TrendingUp,
+    color: "hsl(var(--chart-1))",
   },
 };
 
 const Chart = ({ data }: { data: ChartData[] }) => {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Yearly Income</CardTitle>
-        <CardDescription>
-          Total income recorded over the last 12 months
-        </CardDescription>
+    <Card className="border-2 md:grid-cols-2">
+      <CardHeader className="pb-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-xl font-bold">Yearly Income</CardTitle>
+            <CardDescription className="mt-1">
+              Total income recorded over the last 12 months
+            </CardDescription>
+          </div>
+          <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+            <TrendingUp className="h-5 w-5" />
+          </div>
+        </div>
       </CardHeader>
       <CardContent>
-        <ChartContainer config={chartConfig}>
+        <ChartContainer config={chartConfig} className="h-75 w-full">
           <AreaChart data={data} margin={{ left: 12, right: 12 }}>
-            <CartesianGrid vertical={false} />
+            <defs>
+              <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
+                <stop
+                  offset="5%"
+                  stopColor="hsl(var(--chart-1))"
+                  stopOpacity={0.3}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="hsl(var(--chart-1))"
+                  stopOpacity={0.05}
+                />
+              </linearGradient>
+            </defs>
+            <CartesianGrid
+              strokeDasharray="3 3"
+              vertical={false}
+              opacity={0.3}
+            />
             <XAxis
               dataKey="month"
               tickLine={false}
               axisLine={false}
               tickMargin={8}
               tickFormatter={(value) => value.slice(0, 3)}
+              className="text-xs"
             />
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
+              cursor={{ strokeDasharray: "3 3" }}
+              content={<ChartTooltipContent indicator="dot" />}
             />
             <Area
               dataKey="total"
               type="natural"
-              fillOpacity={0.4}
+              stroke="hsl(var(--chart-1))"
+              strokeWidth={2}
+              fill="url(#colorIncome)"
               stackId="a"
             />
-            <ChartLegend content={<ChartLegendContent />} />
           </AreaChart>
         </ChartContainer>
       </CardContent>

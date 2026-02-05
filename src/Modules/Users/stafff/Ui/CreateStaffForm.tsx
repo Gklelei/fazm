@@ -20,6 +20,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,7 @@ const CreateStaffForm = ({ user }: Props) => {
       email: "",
       phoneNumber: "",
       password: "",
-      role: "COACH",
+      role: undefined,
       image: "",
     },
   });
@@ -172,6 +173,7 @@ const CreateStaffForm = ({ user }: Props) => {
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -185,6 +187,7 @@ const CreateStaffForm = ({ user }: Props) => {
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -200,6 +203,7 @@ const CreateStaffForm = ({ user }: Props) => {
                         <FormControl>
                           <Input type="email" {...field} />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -237,6 +241,7 @@ const CreateStaffForm = ({ user }: Props) => {
                             ))}
                           </SelectContent>
                         </Select>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />
@@ -254,6 +259,7 @@ const CreateStaffForm = ({ user }: Props) => {
                               placeholder="*******"
                             />
                           </FormControl>
+                          <FormMessage />
                         </FormItem>
                       )}
                     />
@@ -274,6 +280,7 @@ const CreateStaffForm = ({ user }: Props) => {
                             onChange={field.onChange}
                           />
                         </FormControl>
+                        <FormMessage />
                       </FormItem>
                     )}
                   />

@@ -11,6 +11,34 @@ export const GetAthleteByIdQuery = (id: string) =>
       guardians: true,
       medical: true,
       finances: true,
+      invoices: {
+        include: {
+          subscriptionPlan: true,
+        },
+      },
+      assessments: {
+        include: {
+          coach: true,
+
+          responses: {
+            include: {
+              metric: true,
+            },
+          },
+          training: true,
+        },
+      },
+      trainings: true,
+      attendances: {
+        include: {
+          reason: true,
+          training: {
+            select: {
+              attendances: true,
+            },
+          },
+        },
+      },
     },
   }) satisfies Prisma.AthleteFindUniqueArgs;
 

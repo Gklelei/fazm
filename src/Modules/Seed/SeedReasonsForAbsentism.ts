@@ -51,7 +51,7 @@ async function main() {
       }),
     );
 
-    console.log("✅ Attendance sequence initialized successfully!");
+    console.log("Reasons for attendance seeded!");
   } catch (error) {
     console.error("❌ Seeding error details:");
     console.error(error);

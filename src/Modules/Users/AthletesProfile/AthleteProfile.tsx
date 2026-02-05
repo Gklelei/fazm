@@ -1,54 +1,85 @@
 "use client";
+
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+
 import PersonalInfo from "./PersonalInfo";
-import { TabsContent } from "@radix-ui/react-tabs";
 import GuardianInfo from "./GuardianInfo";
 import AddressInfo from "./AddressInfo";
 import MedicalEmergencyInformation from "./MedicalEmergencyInformation";
 import EmergencyContacts from "./EmergencyContacts";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import FinancialRecords from "./FinancialRecords";
+import AthleteInvoices from "./AthleteInvoices";
+import AthleteAssesments from "./AthleteAssesments";
+
 import { GetAthleteByIdQueryType } from "../Types";
 
 const AthleteProfile = ({ data }: { data: GetAthleteByIdQueryType }) => {
   const router = useRouter();
+
+  if (!data) return <div className="p-10 text-center">Athlete not found.</div>;
+
   return (
-    <div className="flex flex-col">
-      <Button type="button" variant={"secondary"} onClick={() => router.back()}>
-        Back
-      </Button>
+    <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
+      <div className="flex items-center justify-between">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => router.back()}
+          className="gap-2"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back
+        </Button>
+      </div>
+
       <PersonalInfo data={data} />
       <Separator />
-      <div className="mt-3">
-        <Tabs defaultValue={"guardian"}>
-          <TabsList>
-            <TabsTrigger value="guardian">Guardian Information</TabsTrigger>
-            <TabsTrigger value="address">Address Information</TabsTrigger>
-            <TabsTrigger value="medical">
-              Medical & Emergency Information
-            </TabsTrigger>
-            <TabsTrigger value="emergency">Emergency Contacts</TabsTrigger>
-            <TabsTrigger value="fees">Financial records</TabsTrigger>
+
+      <Tabs defaultValue="guardian" className="w-full">
+        <div className="w-full overflow-x-auto">
+          <TabsList className="inline-flex w-full md:w-auto justify-start mb-4">
+            <TabsTrigger value="guardian">Guardian</TabsTrigger>
+            <TabsTrigger value="address">Address</TabsTrigger>
+            <TabsTrigger value="medical">Medical</TabsTrigger>
+            <TabsTrigger value="emergency">Emergency</TabsTrigger>
+            <TabsTrigger value="fees">Financials</TabsTrigger>
+            <TabsTrigger value="invoice">Invoices</TabsTrigger>
+            <TabsTrigger value="assesments">Assessments</TabsTrigger>
           </TabsList>
-          <TabsContent value="guardian">
-            <GuardianInfo data={data} />
-          </TabsContent>
-          <TabsContent value="address">
-            <AddressInfo data={data} />
-          </TabsContent>
-          <TabsContent value="medical">
-            <MedicalEmergencyInformation data={data} />
-          </TabsContent>
-          <TabsContent value="emergency">
-            <EmergencyContacts data={data} />
-          </TabsContent>
-          <TabsContent value="fees">
-            <FinancialRecords data={data.finances ?? []} />
-          </TabsContent>
-        </Tabs>
-      </div>
+        </div>
+
+        <Card className="border shadow-sm">
+          <CardContent className="pt-6">
+            <TabsContent value="guardian">
+              <GuardianInfo data={data} />
+            </TabsContent>
+            <TabsContent value="address">
+              <AddressInfo data={data} />
+            </TabsContent>
+            <TabsContent value="medical">
+              <MedicalEmergencyInformation data={data} />
+            </TabsContent>
+            <TabsContent value="emergency">
+              <EmergencyContacts data={data} />
+            </TabsContent>
+            <TabsContent value="fees">
+              <FinancialRecords data={data} />
+            </TabsContent>
+            <TabsContent value="invoice">
+              <AthleteInvoices data={data} />
+            </TabsContent>
+            <TabsContent value="assesments">
+              <AthleteAssesments data={data} />
+            </TabsContent>
+          </CardContent>
+        </Card>
+      </Tabs>
     </div>
   );
 };

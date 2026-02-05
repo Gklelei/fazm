@@ -266,7 +266,7 @@ const ViewSubscriptions = ({ data }: { data: GetAllSubsQueryType[] }) => {
                       )}
                     </TableCell>
                     <TableCell className="font-medium">
-                      {formatCurrency(item.amount)}
+                      {formatCurrency(Number(item.amount))}
                     </TableCell>
                     <TableCell>{getFrequencyLabel(item.interval)}</TableCell>
                     <TableCell>{getStatusBadge(item.isActive)}</TableCell>
@@ -332,7 +332,10 @@ const ViewSubscriptions = ({ data }: { data: GetAllSubsQueryType[] }) => {
               <span className="text-muted-foreground">Total value:</span>
               <span className="font-medium">
                 {formatCurrency(
-                  filteredData.reduce((sum, item) => sum + item.amount, 0),
+                  filteredData.reduce(
+                    (sum, item) => sum + Number(item.amount),
+                    0,
+                  ),
                 )}
               </span>
             </div>

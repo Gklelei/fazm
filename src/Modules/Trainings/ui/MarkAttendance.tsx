@@ -234,7 +234,9 @@ const MarkAttendance = ({
                 <TableHead className="py-3 pl-4">Athlete</TableHead>
                 <TableHead className="py-3 w-40">Status</TableHead>
                 <TableHead className="py-3 w-55 pr-4">Reason</TableHead>
-                <TableHead className="py-3 w-25 pr-2">Assessment</TableHead>
+                <TableHead className="py-3 w-25 pr-2 hidden">
+                  Assessment
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -343,7 +345,7 @@ const MarkAttendance = ({
                         </Select>
                       )}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="hidden">
                       <Button
                         variant="ghost"
                         size="sm"

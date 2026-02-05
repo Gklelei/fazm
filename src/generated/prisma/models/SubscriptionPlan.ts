@@ -27,18 +27,18 @@ export type AggregateSubscriptionPlan = {
 }
 
 export type SubscriptionPlanAvgAggregateOutputType = {
-  amount: number | null
+  amount: runtime.Decimal | null
 }
 
 export type SubscriptionPlanSumAggregateOutputType = {
-  amount: number | null
+  amount: runtime.Decimal | null
 }
 
 export type SubscriptionPlanMinAggregateOutputType = {
   id: string | null
   name: string | null
   code: string | null
-  amount: number | null
+  amount: runtime.Decimal | null
   interval: $Enums.SUB_FREQUENCY | null
   description: string | null
   isActive: boolean | null
@@ -51,7 +51,7 @@ export type SubscriptionPlanMaxAggregateOutputType = {
   id: string | null
   name: string | null
   code: string | null
-  amount: number | null
+  amount: runtime.Decimal | null
   interval: $Enums.SUB_FREQUENCY | null
   description: string | null
   isActive: boolean | null
@@ -213,7 +213,7 @@ export type SubscriptionPlanGroupByOutputType = {
   id: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal
   interval: $Enums.SUB_FREQUENCY
   description: string | null
   isActive: boolean
@@ -249,7 +249,7 @@ export type SubscriptionPlanWhereInput = {
   id?: Prisma.StringFilter<"SubscriptionPlan"> | string
   name?: Prisma.StringFilter<"SubscriptionPlan"> | string
   code?: Prisma.StringFilter<"SubscriptionPlan"> | string
-  amount?: Prisma.FloatFilter<"SubscriptionPlan"> | number
+  amount?: Prisma.DecimalFilter<"SubscriptionPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFilter<"SubscriptionPlan"> | $Enums.SUB_FREQUENCY
   description?: Prisma.StringNullableFilter<"SubscriptionPlan"> | string | null
   isActive?: Prisma.BoolFilter<"SubscriptionPlan"> | boolean
@@ -282,7 +282,7 @@ export type SubscriptionPlanWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.SubscriptionPlanWhereInput[]
   NOT?: Prisma.SubscriptionPlanWhereInput | Prisma.SubscriptionPlanWhereInput[]
   name?: Prisma.StringFilter<"SubscriptionPlan"> | string
-  amount?: Prisma.FloatFilter<"SubscriptionPlan"> | number
+  amount?: Prisma.DecimalFilter<"SubscriptionPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFilter<"SubscriptionPlan"> | $Enums.SUB_FREQUENCY
   description?: Prisma.StringNullableFilter<"SubscriptionPlan"> | string | null
   isActive?: Prisma.BoolFilter<"SubscriptionPlan"> | boolean
@@ -318,7 +318,7 @@ export type SubscriptionPlanScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   name?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
   code?: Prisma.StringWithAggregatesFilter<"SubscriptionPlan"> | string
-  amount?: Prisma.FloatWithAggregatesFilter<"SubscriptionPlan"> | number
+  amount?: Prisma.DecimalWithAggregatesFilter<"SubscriptionPlan"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYWithAggregatesFilter<"SubscriptionPlan"> | $Enums.SUB_FREQUENCY
   description?: Prisma.StringNullableWithAggregatesFilter<"SubscriptionPlan"> | string | null
   isActive?: Prisma.BoolWithAggregatesFilter<"SubscriptionPlan"> | boolean
@@ -331,7 +331,7 @@ export type SubscriptionPlanCreateInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -346,7 +346,7 @@ export type SubscriptionPlanUncheckedCreateInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -361,7 +361,7 @@ export type SubscriptionPlanUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -376,7 +376,7 @@ export type SubscriptionPlanUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -391,7 +391,7 @@ export type SubscriptionPlanCreateManyInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -404,7 +404,7 @@ export type SubscriptionPlanUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -417,7 +417,7 @@ export type SubscriptionPlanUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -483,12 +483,12 @@ export type SubscriptionPlanNullableScalarRelationFilter = {
   isNot?: Prisma.SubscriptionPlanWhereInput | null
 }
 
-export type FloatFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type DecimalFieldUpdateOperationsInput = {
+  set?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  increment?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  decrement?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  multiply?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
 export type EnumSUB_FREQUENCYFieldUpdateOperationsInput = {
@@ -529,7 +529,7 @@ export type SubscriptionPlanCreateWithoutActiveSubscriptionsInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -543,7 +543,7 @@ export type SubscriptionPlanUncheckedCreateWithoutActiveSubscriptionsInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -573,7 +573,7 @@ export type SubscriptionPlanUpdateWithoutActiveSubscriptionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -587,7 +587,7 @@ export type SubscriptionPlanUncheckedUpdateWithoutActiveSubscriptionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -601,7 +601,7 @@ export type SubscriptionPlanCreateWithoutInvoicesInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -615,7 +615,7 @@ export type SubscriptionPlanUncheckedCreateWithoutInvoicesInput = {
   id?: string
   name: string
   code: string
-  amount: number
+  amount: runtime.Decimal | runtime.DecimalJsLike | number | string
   interval: $Enums.SUB_FREQUENCY
   description?: string | null
   isActive?: boolean
@@ -645,7 +645,7 @@ export type SubscriptionPlanUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -659,7 +659,7 @@ export type SubscriptionPlanUncheckedUpdateWithoutInvoicesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   code?: Prisma.StringFieldUpdateOperationsInput | string
-  amount?: Prisma.FloatFieldUpdateOperationsInput | number
+  amount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   interval?: Prisma.EnumSUB_FREQUENCYFieldUpdateOperationsInput | $Enums.SUB_FREQUENCY
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
@@ -783,7 +783,7 @@ export type $SubscriptionPlanPayload<ExtArgs extends runtime.Types.Extensions.In
     id: string
     name: string
     code: string
-    amount: number
+    amount: runtime.Decimal
     interval: $Enums.SUB_FREQUENCY
     description: string | null
     isActive: boolean
@@ -1218,7 +1218,7 @@ export interface SubscriptionPlanFieldRefs {
   readonly id: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly name: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly code: Prisma.FieldRef<"SubscriptionPlan", 'String'>
-  readonly amount: Prisma.FieldRef<"SubscriptionPlan", 'Float'>
+  readonly amount: Prisma.FieldRef<"SubscriptionPlan", 'Decimal'>
   readonly interval: Prisma.FieldRef<"SubscriptionPlan", 'SUB_FREQUENCY'>
   readonly description: Prisma.FieldRef<"SubscriptionPlan", 'String'>
   readonly isActive: Prisma.FieldRef<"SubscriptionPlan", 'Boolean'>

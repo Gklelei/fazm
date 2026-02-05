@@ -66,14 +66,14 @@ const GuardianInfo = ({ data }: { data?: GetAthleteByIdQueryType }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      className="h-6 w-6 text-muted-foreground hover:text-primary hidden"
                     >
                       <Edit className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive hidden"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>

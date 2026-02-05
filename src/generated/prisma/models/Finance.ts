@@ -623,6 +623,14 @@ export type FinanceUncheckedUpdateManyWithoutInvoiceNestedInput = {
   deleteMany?: Prisma.FinanceScalarWhereInput | Prisma.FinanceScalarWhereInput[]
 }
 
+export type FloatFieldUpdateOperationsInput = {
+  set?: number
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
+}
+
 export type EnumPAYMENT_TYPEFieldUpdateOperationsInput = {
   set?: $Enums.PAYMENT_TYPE
 }

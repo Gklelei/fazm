@@ -3144,16 +3144,16 @@ export type ListEnumATHLETE_ACCOUNT_STATUSFieldRefInput<$PrismaModel> = FieldRef
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'Decimal'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
     
 
 
 /**
- * Reference to a field of type 'Float[]'
+ * Reference to a field of type 'Decimal[]'
  */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 
@@ -3200,20 +3200,6 @@ export type ListEnumINVOICE_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
- * Reference to a field of type 'Decimal'
- */
-export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
-    
-
-
-/**
- * Reference to a field of type 'Decimal[]'
- */
-export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
-    
-
-
-/**
  * Reference to a field of type 'INVOICE_STATUS'
  */
 export type EnumINVOICE_STATUSFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'INVOICE_STATUS'>
@@ -3224,6 +3210,20 @@ export type EnumINVOICE_STATUSFieldRefInput<$PrismaModel> = FieldRefInputType<$P
  * Reference to a field of type 'INVOICE_STATUS[]'
  */
 export type ListEnumINVOICE_STATUSFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'INVOICE_STATUS[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 

@@ -194,7 +194,7 @@ export async function POST() {
       const invoiceNumber = `INV-${datePart}-${String(seq).padStart(3, "0")}`;
       seq += 1;
 
-      const unitAmount = moneyDecimal(sub.subscriptionPlan.amount);
+      const unitAmount = moneyDecimal(Number(sub.subscriptionPlan.amount));
       const amountDue = unitAmount;
 
       await ctx.invoice.create({

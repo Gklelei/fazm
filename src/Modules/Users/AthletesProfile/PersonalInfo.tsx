@@ -1,9 +1,6 @@
 import { Badge } from "@/components/ui/badge";
-// import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-// import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
-// import PaymentModal from "@/Modules/Finances/Ui/PaymentModal";
 import ProfileAvatar from "@/utils/profile/ProfileAvatar";
 import { Calendar, Mail, Phone, Shield, Target, Activity } from "lucide-react";
 import { GetAthleteByIdQueryType } from "../Types";
@@ -99,8 +96,7 @@ const PersonalInfo = ({ data }: { data: GetAthleteByIdQueryType }) => {
                     >
                       {data.status.trim()}
                     </span>
-                    {" • "}
-                    {statusMessages[data.status] || "Unknown status"}
+                    {statusMessages[data.status]}
                   </p>
                 </div>
                 <div></div>
