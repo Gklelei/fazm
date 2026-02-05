@@ -54,6 +54,7 @@ const AcademyPage = ({ academy }: Props) => {
       paymentMethod: academy?.paymentMathod || "",
       phone: academy?.contactPhone || "",
       tagline: academy?.tagline || "",
+      footerNotes: academy?.receiptFooterNotes || "",
     }),
     [academy],
   );
@@ -85,6 +86,7 @@ const AcademyPage = ({ academy }: Props) => {
     paymentMethod: v.paymentMethod.trim(),
     description: v.description?.trim() || "",
     logoUrl: v.logoUrl?.trim() || "",
+    footerNotes: v.footerNotes?.trim() || "",
   });
 
   async function handleSubmit(values: FormValues) {
@@ -249,6 +251,26 @@ const AcademyPage = ({ academy }: Props) => {
                   )}
                 />
 
+                <FormField
+                  name="footerNotes"
+                  control={form.control}
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-xs font-semibold uppercase tracking-wide">
+                        Receipt footer notes
+                      </FormLabel>
+                      <FormControl>
+                        <Textarea
+                          {...field}
+                          className="min-h-28 resize-none"
+                          placeholder="Receipt footer notes..."
+                          disabled={isSubmitting}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
                 <FormField
                   name="description"
                   control={form.control}

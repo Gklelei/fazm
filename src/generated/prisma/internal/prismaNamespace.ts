@@ -3015,6 +3015,7 @@ export const AcademyScalarFieldEnum = {
   address: 'address',
   logoUrl: 'logoUrl',
   heroImageUrl: 'heroImageUrl',
+  receiptFooterNotes: 'receiptFooterNotes',
   primaryColor: 'primaryColor',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

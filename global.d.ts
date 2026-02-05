@@ -120,6 +120,7 @@ declare global {
       logoUrl: string | null;
       heroImageUrl: string | null;
       primaryColor: string | null;
+      receiptFooterNotes: string | null;
     } | null;
 
     plans: {

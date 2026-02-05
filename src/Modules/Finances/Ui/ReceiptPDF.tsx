@@ -1,3 +1,6 @@
+/* eslint-disable jsx-a11y/alt-text */
+"use client";
+
 import {
   Document,
   Page,
@@ -8,10 +11,11 @@ import {
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
 import { getFinanceDetails } from "../Api/FetchTransactionDetails";
+import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 
 const styles = StyleSheet.create({
   page: {
-    padding: 50, // Increased padding for a more premium feel
+    padding: 50,
     fontSize: 10,
     fontFamily: "Helvetica",
     backgroundColor: "#FFFFFF",
@@ -20,7 +24,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  // Minimalist Header
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -31,25 +34,23 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
   },
   logo: {
-    width: 100,
+    width: 80,
     height: "auto",
   },
   headerText: {
     alignItems: "flex-end",
   },
   companyName: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: "bold",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
   companyTagline: {
-    fontSize: 9,
+    fontSize: 8,
     color: "#4B5563",
     marginTop: 2,
   },
-
-  // Document Info
   titleSection: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -71,8 +72,6 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     color: "#000000",
   },
-
-  // Content Grid
   grid: {
     flexDirection: "row",
     gap: 20,
@@ -89,7 +88,6 @@ const styles = StyleSheet.create({
     borderBottomColor: "#E5E7EB",
     paddingBottom: 4,
     marginBottom: 8,
-    letterSpacing: 0.5,
   },
   infoRow: {
     flexDirection: "row",
@@ -104,10 +102,8 @@ const styles = StyleSheet.create({
   value: {
     fontWeight: "bold",
   },
-
-  // High-Contrast Amount Box (Ink Friendly)
   amountSection: {
-    borderWidth: 2,
+    borderWidth: 1.5,
     borderColor: "#000000",
     padding: 15,
     marginVertical: 20,
@@ -115,21 +111,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   amountLabel: {
-    fontSize: 9,
+    fontSize: 8,
     textTransform: "uppercase",
-    letterSpacing: 2,
+    letterSpacing: 1,
     marginBottom: 4,
   },
   amountValue: {
-    fontSize: 24,
+    fontSize: 22,
     fontWeight: "bold",
   },
-
-  // Notes Section
   notesSection: {
     marginTop: 10,
     padding: 10,
-    backgroundColor: "#F9FAFB", // Very light gray for subtle contrast
+    backgroundColor: "#F9FAFB",
     borderRadius: 2,
   },
   notesTitle: {
@@ -143,21 +137,10 @@ const styles = StyleSheet.create({
     color: "#374151",
     lineHeight: 1.4,
   },
-
-  // Footer & Signature
-  footer: {
-    position: "absolute",
-    bottom: 50,
-    left: 50,
-    right: 50,
-    borderTopWidth: 1,
-    borderTopColor: "#E5E7EB",
-    paddingTop: 20,
-  },
   signatureArea: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 20,
+    marginTop: 40,
     marginBottom: 40,
   },
   sigBlock: {
@@ -167,130 +150,151 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     alignItems: "center",
   },
+  footer: {
+    position: "absolute",
+    bottom: 40,
+    left: 50,
+    right: 50,
+    borderTopWidth: 1,
+    borderTopColor: "#E5E7EB",
+    paddingTop: 10,
+  },
   footerText: {
     textAlign: "center",
     color: "#9CA3AF",
-    fontSize: 8,
+    fontSize: 7,
     lineHeight: 1.5,
   },
 });
 
-export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => (
-  <Document>
-    <Page size="A4" style={styles.page}>
-      <View style={styles.container}>
-        {/* Minimal Header */}
-        <View style={styles.header}>
-          {/* 
-            eslint-disable-next-line jsx-a11y/alt-text
-             */}
-          <Image src="/Fazam Logo Half.jpg" style={styles.logo} />
-          <View style={styles.headerText}>
-            <Text style={styles.companyName}>ATHLETE FINANCE</Text>
-            <Text style={styles.companyTagline}>
-              Payment Confirmation Statement
+export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
+  // Access global academy settings from context
+  const { data: academyConfig } = UseUtilsContext();
+
+  return (
+    <Document>
+      <Page size="A4" style={styles.page}>
+        <View style={styles.container}>
+          {/* Header */}
+          <View style={styles.header}>
+            <Image
+              src={academyConfig?.academy?.logoUrl || "/Fazam Logo Half.jpg"}
+              style={styles.logo}
+            />
+            <View style={styles.headerText}>
+              <Text style={styles.companyName}>
+                {academyConfig?.academy?.academyName || "ATHLETE ACADEMY"}
+              </Text>
+              <Text style={styles.companyTagline}>
+                Official Payment Receipt
+              </Text>
+            </View>
+          </View>
+
+          {/* Title Section */}
+          <View style={styles.titleSection}>
+            <View>
+              <Text style={styles.title}>Receipt</Text>
+              <Text style={{ fontSize: 9, color: "#6B7280" }}>
+                Date:{" "}
+                {data.paymentDate
+                  ? format(new Date(data.paymentDate), "PPPP")
+                  : "N/A"}
+              </Text>
+            </View>
+            <View style={styles.receiptRef}>
+              <Text>REFERENCE NO</Text>
+              <Text style={styles.receiptNumber}>{data.receiptNumber}</Text>
+            </View>
+          </View>
+
+          {/* Details Grid */}
+          <View style={styles.grid}>
+            <View style={styles.column}>
+              <Text style={styles.sectionTitle}>Athlete Information</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Name:</Text>
+                <Text style={styles.value}>
+                  {`${data.athlete.firstName} ${data.athlete.lastName}`}
+                </Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Athlete ID:</Text>
+                <Text style={styles.value}>{data.athleteId}</Text>
+              </View>
+            </View>
+
+            <View style={styles.column}>
+              <Text style={styles.sectionTitle}>Transaction Details</Text>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Method:</Text>
+                <Text style={styles.value}>{data.paymentType}</Text>
+              </View>
+              <View style={styles.infoRow}>
+                <Text style={styles.label}>Status:</Text>
+                <Text style={styles.value}>PAID</Text>
+              </View>
+            </View>
+          </View>
+
+          {/* Amount Display */}
+          <View style={styles.amountSection}>
+            <Text style={styles.amountLabel}>Total Received</Text>
+            <Text style={styles.amountValue}>
+              KES{" "}
+              {data.amountPaid?.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+              })}
+            </Text>
+          </View>
+
+          {/* Admin Info */}
+          <View style={styles.column}>
+            <Text style={styles.sectionTitle}>Administration</Text>
+            <View style={styles.infoRow}>
+              <Text style={styles.label}>Processed By:</Text>
+              <Text style={styles.value}>
+                {data.collectedBy || "System Admin"}
+              </Text>
+            </View>
+          </View>
+
+          {/* Notes Section - Pulling from context */}
+          <View style={styles.notesSection}>
+            <Text style={styles.notesTitle}>Notes & Remarks</Text>
+            <Text style={styles.notesText}>
+              {academyConfig?.academy?.receiptFooterNotes ||
+                "Thank you for your payment."}
+              {"\n\n"}
+              Please keep this receipt for your records. This is a
+              computer-generated document and does not require a physical
+              signature for validity.
+            </Text>
+          </View>
+
+          {/* Signatures */}
+          <View style={styles.signatureArea}>
+            <View style={styles.sigBlock}>
+              <Text style={styles.label}>Authorized Signature</Text>
+            </View>
+            <View style={styles.sigBlock}>
+              <Text style={styles.label}>Official Stamp</Text>
+            </View>
+          </View>
+
+          {/* Footer */}
+          <View style={styles.footer}>
+            <Text style={styles.footerText}>
+              {academyConfig?.academy?.academyName} •{" "}
+              {academyConfig?.academy?.contactEmail} •{" "}
+              {academyConfig?.academy?.contactPhone}
+            </Text>
+            <Text style={[styles.footerText, { marginTop: 4 }]}>
+              Generated on {format(new Date(), "PPpp")}
             </Text>
           </View>
         </View>
-
-        {/* Title & Receipt ID */}
-        <View style={styles.titleSection}>
-          <View>
-            <Text style={styles.title}>Receipt</Text>
-            <Text style={{ fontSize: 9, color: "#6B7280" }}>
-              Issued on {format(new Date(data.paymentDate), "PPPP")}
-            </Text>
-          </View>
-          <View style={styles.receiptRef}>
-            <Text>RECEIPT NO</Text>
-            <Text style={styles.receiptNumber}>{data.receiptNumber}</Text>
-          </View>
-        </View>
-
-        {/* Information Grid */}
-        <View style={styles.grid}>
-          <View style={styles.column}>
-            <Text style={styles.sectionTitle}>Payer Details</Text>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Athlete Name:</Text>
-              <Text
-                style={styles.value}
-              >{`${data.athlete.firstName} ${data.athlete.lastName}`}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Athlete ID:</Text>
-              <Text style={styles.value}>{data.athleteId}</Text>
-            </View>
-          </View>
-
-          <View style={styles.column}>
-            <Text style={styles.sectionTitle}>Payment Method</Text>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Method:</Text>
-              <Text style={styles.value}>{data.paymentType}</Text>
-            </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.label}>Status:</Text>
-              <Text style={styles.value}>PAID / COMPLETE</Text>
-            </View>
-          </View>
-        </View>
-
-        {/* Highlighted Amount */}
-        <View style={styles.amountSection}>
-          <Text style={styles.amountLabel}>Total Amount Received</Text>
-          <Text style={styles.amountValue}>
-            KES {data.amountPaid.toFixed(2)}
-          </Text>
-        </View>
-
-        {/* Secondary Details */}
-        <View style={styles.column}>
-          <Text style={styles.sectionTitle}>Administrative</Text>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Collected By:</Text>
-            <Text style={styles.value}>{data.collectedBy}</Text>
-          </View>
-          <View style={styles.infoRow}>
-            <Text style={styles.label}>Transaction Ref:</Text>
-            <Text style={styles.value}>{data.receiptNumber}</Text>
-          </View>
-        </View>
-
-        {/* Notes */}
-        <View style={styles.notesSection}>
-          <Text style={styles.notesTitle}>Important Information</Text>
-          <Text style={styles.notesText}>
-            This document confirms that the payment above has been received and
-            processed. Please retain this for your membership records. If this
-            was a subscription payment, your account has been updated
-            accordingly.
-          </Text>
-        </View>
-
-        {/* Signature Area */}
-        <View style={styles.signatureArea}>
-          <View style={styles.sigBlock}>
-            <Text style={styles.label}>Finance Officer Signature</Text>
-          </View>
-          <View style={styles.sigBlock}>
-            <Text style={styles.label}>Official Stamp</Text>
-          </View>
-        </View>
-
-        {/* Footer */}
-        <View style={styles.footer}>
-          <Text style={styles.footerText}>
-            Athlete Finance System • support@athletefinance.com • +254 700 000
-            000
-          </Text>
-          <Text
-            style={[styles.footerText, { marginTop: 4, fontWeight: "bold" }]}
-          >
-            Generated automatically on {format(new Date(), "PPpp")}
-          </Text>
-        </View>
-      </View>
-    </Page>
-  </Document>
-);
+      </Page>
+    </Document>
+  );
+};

@@ -16,6 +16,7 @@ export const getAcademyQuery = {
     primaryColor: true,
     tagline: true,
     updatedAt: true,
+    receiptFooterNotes: true,
   },
 } satisfies Prisma.academyFindFirstArgs;
 

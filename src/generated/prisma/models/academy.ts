@@ -36,6 +36,7 @@ export type AcademyMinAggregateOutputType = {
   address: string | null
   logoUrl: string | null
   heroImageUrl: string | null
+  receiptFooterNotes: string | null
   primaryColor: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -53,6 +54,7 @@ export type AcademyMaxAggregateOutputType = {
   address: string | null
   logoUrl: string | null
   heroImageUrl: string | null
+  receiptFooterNotes: string | null
   primaryColor: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -70,6 +72,7 @@ export type AcademyCountAggregateOutputType = {
   address: number
   logoUrl: number
   heroImageUrl: number
+  receiptFooterNotes: number
   primaryColor: number
   createdAt: number
   updatedAt: number
@@ -89,6 +92,7 @@ export type AcademyMinAggregateInputType = {
   address?: true
   logoUrl?: true
   heroImageUrl?: true
+  receiptFooterNotes?: true
   primaryColor?: true
   createdAt?: true
   updatedAt?: true
@@ -106,6 +110,7 @@ export type AcademyMaxAggregateInputType = {
   address?: true
   logoUrl?: true
   heroImageUrl?: true
+  receiptFooterNotes?: true
   primaryColor?: true
   createdAt?: true
   updatedAt?: true
@@ -123,6 +128,7 @@ export type AcademyCountAggregateInputType = {
   address?: true
   logoUrl?: true
   heroImageUrl?: true
+  receiptFooterNotes?: true
   primaryColor?: true
   createdAt?: true
   updatedAt?: true
@@ -213,6 +219,7 @@ export type AcademyGroupByOutputType = {
   address: string | null
   logoUrl: string | null
   heroImageUrl: string | null
+  receiptFooterNotes: string | null
   primaryColor: string | null
   createdAt: Date
   updatedAt: Date
@@ -251,6 +258,7 @@ export type academyWhereInput = {
   address?: Prisma.StringNullableFilter<"academy"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"academy"> | string | null
   heroImageUrl?: Prisma.StringNullableFilter<"academy"> | string | null
+  receiptFooterNotes?: Prisma.StringNullableFilter<"academy"> | string | null
   primaryColor?: Prisma.StringNullableFilter<"academy"> | string | null
   createdAt?: Prisma.DateTimeFilter<"academy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"academy"> | Date | string
@@ -268,6 +276,7 @@ export type academyOrderByWithRelationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptFooterNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -288,6 +297,7 @@ export type academyWhereUniqueInput = Prisma.AtLeast<{
   address?: Prisma.StringNullableFilter<"academy"> | string | null
   logoUrl?: Prisma.StringNullableFilter<"academy"> | string | null
   heroImageUrl?: Prisma.StringNullableFilter<"academy"> | string | null
+  receiptFooterNotes?: Prisma.StringNullableFilter<"academy"> | string | null
   primaryColor?: Prisma.StringNullableFilter<"academy"> | string | null
   createdAt?: Prisma.DateTimeFilter<"academy"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"academy"> | Date | string
@@ -305,6 +315,7 @@ export type academyOrderByWithAggregationInput = {
   address?: Prisma.SortOrderInput | Prisma.SortOrder
   logoUrl?: Prisma.SortOrderInput | Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  receiptFooterNotes?: Prisma.SortOrderInput | Prisma.SortOrder
   primaryColor?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -328,6 +339,7 @@ export type academyScalarWhereWithAggregatesInput = {
   address?: Prisma.StringNullableWithAggregatesFilter<"academy"> | string | null
   logoUrl?: Prisma.StringNullableWithAggregatesFilter<"academy"> | string | null
   heroImageUrl?: Prisma.StringNullableWithAggregatesFilter<"academy"> | string | null
+  receiptFooterNotes?: Prisma.StringNullableWithAggregatesFilter<"academy"> | string | null
   primaryColor?: Prisma.StringNullableWithAggregatesFilter<"academy"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"academy"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"academy"> | Date | string
@@ -345,6 +357,7 @@ export type academyCreateInput = {
   address?: string | null
   logoUrl?: string | null
   heroImageUrl?: string | null
+  receiptFooterNotes?: string | null
   primaryColor?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -362,6 +375,7 @@ export type academyUncheckedCreateInput = {
   address?: string | null
   logoUrl?: string | null
   heroImageUrl?: string | null
+  receiptFooterNotes?: string | null
   primaryColor?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -379,6 +393,7 @@ export type academyUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptFooterNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -396,6 +411,7 @@ export type academyUncheckedUpdateInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptFooterNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -413,6 +429,7 @@ export type academyCreateManyInput = {
   address?: string | null
   logoUrl?: string | null
   heroImageUrl?: string | null
+  receiptFooterNotes?: string | null
   primaryColor?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -430,6 +447,7 @@ export type academyUpdateManyMutationInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptFooterNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -447,6 +465,7 @@ export type academyUncheckedUpdateManyInput = {
   address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   logoUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   heroImageUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  receiptFooterNotes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   primaryColor?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -464,6 +483,7 @@ export type academyCountOrderByAggregateInput = {
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrder
+  receiptFooterNotes?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -481,6 +501,7 @@ export type academyMaxOrderByAggregateInput = {
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrder
+  receiptFooterNotes?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -498,6 +519,7 @@ export type academyMinOrderByAggregateInput = {
   address?: Prisma.SortOrder
   logoUrl?: Prisma.SortOrder
   heroImageUrl?: Prisma.SortOrder
+  receiptFooterNotes?: Prisma.SortOrder
   primaryColor?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -517,6 +539,7 @@ export type academySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   address?: boolean
   logoUrl?: boolean
   heroImageUrl?: boolean
+  receiptFooterNotes?: boolean
   primaryColor?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -534,6 +557,7 @@ export type academySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   address?: boolean
   logoUrl?: boolean
   heroImageUrl?: boolean
+  receiptFooterNotes?: boolean
   primaryColor?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -551,6 +575,7 @@ export type academySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   address?: boolean
   logoUrl?: boolean
   heroImageUrl?: boolean
+  receiptFooterNotes?: boolean
   primaryColor?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -568,12 +593,13 @@ export type academySelectScalar = {
   address?: boolean
   logoUrl?: boolean
   heroImageUrl?: boolean
+  receiptFooterNotes?: boolean
   primaryColor?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type academyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentMathod" | "paymentMethodType" | "academyName" | "tagline" | "description" | "contactEmail" | "contactPhone" | "address" | "logoUrl" | "heroImageUrl" | "primaryColor" | "createdAt" | "updatedAt", ExtArgs["result"]["academy"]>
+export type academyOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "paymentMathod" | "paymentMethodType" | "academyName" | "tagline" | "description" | "contactEmail" | "contactPhone" | "address" | "logoUrl" | "heroImageUrl" | "receiptFooterNotes" | "primaryColor" | "createdAt" | "updatedAt", ExtArgs["result"]["academy"]>
 
 export type $academyPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "academy"
@@ -590,6 +616,7 @@ export type $academyPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     address: string | null
     logoUrl: string | null
     heroImageUrl: string | null
+    receiptFooterNotes: string | null
     primaryColor: string | null
     createdAt: Date
     updatedAt: Date
@@ -1027,6 +1054,7 @@ export interface academyFieldRefs {
   readonly address: Prisma.FieldRef<"academy", 'String'>
   readonly logoUrl: Prisma.FieldRef<"academy", 'String'>
   readonly heroImageUrl: Prisma.FieldRef<"academy", 'String'>
+  readonly receiptFooterNotes: Prisma.FieldRef<"academy", 'String'>
   readonly primaryColor: Prisma.FieldRef<"academy", 'String'>
   readonly createdAt: Prisma.FieldRef<"academy", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"academy", 'DateTime'>
