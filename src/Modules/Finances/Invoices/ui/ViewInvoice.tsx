@@ -35,7 +35,7 @@ const ViewInvoicePage = ({ data }: Props) => {
     .filter(Boolean)
     .join(" ");
 
-  const balance = data.amountDue - data.amountPaid;
+  const balance = Number(data.amountDue) - Number(data.amountPaid);
 
   const { data: Utils } = UseUtilsContext();
 
@@ -95,7 +95,7 @@ const ViewInvoicePage = ({ data }: Props) => {
 
                 <div className="text-sm leading-relaxed text-muted-foreground">
                   <p className="text-lg font-bold text-foreground">
-                    {Utils?.academy?.academyName || " Fazam Football Academy"}
+                    {Utils?.academy?.academyName || "Fazam Football Academy"}
                   </p>
                   <p>{Utils?.academy?.address || "Kimathi Street, Nairobi"}</p>
                   <p>

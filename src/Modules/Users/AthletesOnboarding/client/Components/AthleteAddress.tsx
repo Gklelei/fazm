@@ -44,7 +44,7 @@ const AthleteAddress = () => {
           />
 
           <FormField
-            name="county"
+            name="estate"
             control={control}
             render={({ field }) => (
               <FormItem>
@@ -58,7 +58,7 @@ const AthleteAddress = () => {
           />
 
           <FormField
-            name="subCounty"
+            name="town"
             control={control}
             render={({ field }) => (
               <FormItem>

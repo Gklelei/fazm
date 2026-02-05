@@ -229,7 +229,8 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                   </TableRow>
                 ) : (
                   filteredInvoices.map((invoice, i) => {
-                    const balance = invoice.amountDue - invoice.amountPaid;
+                    const balance =
+                      Number(invoice.amountDue) - Number(invoice.amountPaid);
                     const athleteFullName = [
                       invoice.athlete.firstName,
                       invoice.athlete.middleName,
@@ -279,11 +280,11 @@ const Invoices = ({ data }: { data: AllInvoicesType[] }) => {
                           <span className="text-[10px] mr-1 text-muted-foreground">
                             KES
                           </span>
-                          {formatCurrency(invoice.amountDue)}
+                          {formatCurrency(Number(invoice.amountDue))}
                         </TableCell>
 
                         <TableCell className="text-right font-mono text-sm text-muted-foreground">
-                          {formatCurrency(invoice.amountPaid)}
+                          {formatCurrency(Number(invoice.amountPaid))}
                         </TableCell>
 
                         <TableCell className="text-right font-mono text-sm font-bold">

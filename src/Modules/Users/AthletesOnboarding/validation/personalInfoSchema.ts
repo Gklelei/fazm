@@ -20,7 +20,6 @@ export const personalInfoSchema = z.object({
   lastName: requiredString,
   middleName: optionalString,
 
-  // Change to this:
   email: optionalEmail,
   phoneNumber: optionalPhone,
 
@@ -30,7 +29,7 @@ export const personalInfoSchema = z.object({
       const now = new Date().getFullYear();
       return now - dob >= 3;
     },
-    { message: "Athlete must be at least 3 years old" }
+    { message: "Athlete must be at least 3 years old" },
   ),
   batch: requiredString,
   profilePIcture: optionalString,

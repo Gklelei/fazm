@@ -15,7 +15,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs } from "@/components/ui/tabs";
+import { Tabs, TabsList } from "@/components/ui/tabs";
 import { useState } from "react";
 import z from "zod";
 
@@ -43,7 +43,9 @@ const SendEmail = () => {
       </CardHeader>
       <CardContent>
         <>
-          <Tabs defaultValue="athlete"></Tabs>
+          <Tabs defaultValue="athlete">
+            <TabsList></TabsList>
+          </Tabs>
           <Card>
             <CardHeader>
               <div>

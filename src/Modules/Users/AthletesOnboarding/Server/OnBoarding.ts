@@ -1,4 +1,5 @@
 "use server";
+
 import { db } from "@/lib/prisma";
 import { AthleteOnBoardingSchema, AthleteOnBoardingType } from "../validation";
 import { auth } from "@/lib/auth";
@@ -10,13 +11,104 @@ type ActionPromise =
   | { status: "SUCCESS"; successMessage: string }
   | { status: "ERROR"; errorMessage: string };
 
+// ----------------- Billing policy -----------------
+const BILLING_DAY = 30; // unified monthly billing day
+
+/**
+ * You said you reversed the rule:
+ * - BEFORE 15th => HALF
+ * - 15th and after => FULL
+ *
+ * If you want the original rule, flip the ternary.
+ */
+function proratedInitialFactor(now: Date) {
+  return now.getDate() > 15 ? 0.5 : 1;
+}
+
+function toDecimal(value: number | Prisma.Decimal) {
+  return value instanceof Prisma.Decimal ? value : new Prisma.Decimal(value);
+}
+
+// ----------------- Small utils -----------------
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+
+function endOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+function parseCSV(value?: string | null) {
+  if (!value) return [];
+  return value
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
+
+function daysInMonth(year: number, monthIndex0: number) {
+  return new Date(year, monthIndex0 + 1, 0).getDate();
+}
+
+function clampToDay(year: number, monthIndex0: number, day: number) {
+  const dim = daysInMonth(year, monthIndex0);
+  const clamped = Math.min(day, dim);
+  return new Date(year, monthIndex0, clamped, 0, 0, 0, 0);
+}
+
+/**
+ * Returns the 30th of NEXT month (or last day if month doesn't have 30, e.g. Feb).
+ * Example: any day in Feb -> Mar 30
+ * Example: any day in Jan -> Feb 28/29 (clamped)
+ */
+function nextMonthlyBillingDate(now: Date, billingDay = BILLING_DAY) {
+  const year = now.getFullYear();
+  const month = now.getMonth(); // 0-based
+  const nextMonthDate = new Date(year, month + 1, 1);
+  return clampToDay(
+    nextMonthDate.getFullYear(),
+    nextMonthDate.getMonth(),
+    billingDay,
+  );
+}
+
+/**
+ * Monthly is unified to the 30th of next month.
+ * Others stay interval-based.
+ */
+function nextBillingByInterval(now: Date, interval: string) {
+  const next = new Date(now);
+
+  switch (interval) {
+    case "DAILY":
+      next.setDate(next.getDate() + 1);
+      return next;
+
+    case "WEEKLY":
+      next.setDate(next.getDate() + 7);
+      return next;
+
+    case "MONTHLY":
+      return nextMonthlyBillingDate(now, BILLING_DAY);
+
+    case "YEARLY":
+      next.setFullYear(next.getFullYear() + 1);
+      return next;
+
+    default:
+      // safe default: treat as monthly with unified billing
+      return nextMonthlyBillingDate(now, BILLING_DAY);
+  }
+}
+
 const AthleteOnboardingAction = async (
   data: AthleteOnBoardingType,
-  // & { subscriptionPlanId?: string }, // Allow passing a specific subscription plan
 ): Promise<ActionPromise> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const session = await auth.api.getSession({ headers: await headers() });
 
   if (!session?.user) {
     return {
@@ -35,131 +127,56 @@ const AthleteOnboardingAction = async (
 
   const validatedData = AthleteOnBoardingSchema.parse(data);
 
-  const allergies = validatedData.allergies
-    ? validatedData.allergies
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean)
-    : [];
-
-  const medicalConditions = validatedData.medicalConditions
-    ? validatedData.medicalConditions
-        .split(",")
-        .map((m) => m.trim())
-        .filter(Boolean)
-    : [];
-
-  const athletePositions = validatedData.playingPositions
-    ? validatedData.playingPositions
-        .split(",")
-        .map((ap) => ap.trim())
-        .filter(Boolean)
-    : [];
-
   try {
     await db.$transaction(async (ctx) => {
       const now = new Date();
+
+      // ---------- Invoice number ----------
       const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
-
-      const startOfDay = new Date(now.setHours(0, 0, 0, 0));
-      const endOfDay = new Date(now.setHours(23, 59, 59, 999));
-
       const todaysCount = await ctx.invoice.count({
-        where: {
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-        },
+        where: { createdAt: { gte: startOfDay(now), lte: endOfDay(now) } },
       });
-
-      const invoiceSequence = (todaysCount + 1).toString().padStart(3, "0");
+      const invoiceSequence = String(todaysCount + 1).padStart(3, "0");
       const generatedInvoiceNumber = `INV-${datePart}-${invoiceSequence}`;
 
+      // ---------- Athlete ID ----------
       const sequence = await ctx.athleteSequence.update({
         where: { id: 1 },
         data: { current: { increment: 1 } },
         select: { current: true },
       });
-
       const athleteId = `ATH-FFA-${String(sequence.current).padStart(3, "0")}`;
 
-      let subscriptionPlanId;
-
-      if (!validatedData.subscriptionPlanId) {
-        // Find default "Monthly Training" subscription plan
-        const defaultPlan = await ctx.subscriptionPlan.findFirst({
-          where: {
-            id: validatedData.subscriptionPlanId,
-            isActive: true,
-            isArchived: false,
-          },
-        });
-
-        if (!defaultPlan) {
-          throw new Error(
-            "Default subscription plan not found. Please create a 'MONTHLY_TRAINING' plan first.",
-          );
-        }
-
-        subscriptionPlanId = defaultPlan.id;
-      } else {
-        // Verify the provided subscription plan exists and is active
-        const plan = await ctx.subscriptionPlan.findUnique({
-          where: {
-            id: subscriptionPlanId,
-            isActive: true,
-            isArchived: false,
-          },
-        });
-
-        if (!plan) {
-          throw new Error("Selected subscription plan is not available.");
-        }
+      // ---------- Subscription plan (required) ----------
+      const subscriptionPlanId = validatedData.subscriptionPlanId;
+      if (!subscriptionPlanId) {
+        throw new Error("Subscription plan is required.");
       }
 
-      // Calculate billing period based on interval
-      const planDetails = await ctx.subscriptionPlan.findUnique({
-        where: { id: subscriptionPlanId },
-        select: { interval: true, amount: true, name: true },
+      const plan = await ctx.subscriptionPlan.findFirst({
+        where: {
+          id: subscriptionPlanId,
+          isActive: true,
+          isArchived: false,
+        },
+        select: { id: true, interval: true, amount: true, name: true },
       });
 
-      if (!planDetails) {
-        throw new Error("Subscription plan details not found.");
+      if (!plan) {
+        throw new Error("Selected subscription plan is not available.");
       }
 
-      const { interval, amount: planAmount, name: planName } = planDetails;
+      const { interval, amount: planAmountRaw, name: planName } = plan;
+      const planAmount = toDecimal(planAmountRaw);
 
-      // Calculate next billing date based on interval
-      const calculateNextBillingDate = (interval: string) => {
-        const nextDate = new Date();
-        switch (interval) {
-          case "DAILY":
-            nextDate.setDate(nextDate.getDate() + 1);
-            break;
-          case "WEEKLY":
-            nextDate.setDate(nextDate.getDate() + 7);
-            break;
-          case "MONTHLY":
-            nextDate.setMonth(nextDate.getMonth() + 1);
-            break;
-          case "YEARLY":
-            nextDate.setFullYear(nextDate.getFullYear() + 1);
-            break;
-          default:
-            nextDate.setMonth(nextDate.getMonth() + 1);
-        }
-        return nextDate;
-      };
+      // ---------- Unified billing dates ----------
+      const currentPeriodStart = now;
+      const currentPeriodEnd = nextBillingByInterval(now, interval);
 
-      // Calculate period start/end dates
-      const currentPeriodStart = new Date();
-      const currentPeriodEnd = calculateNextBillingDate(interval);
-
-      // 2. Create the athlete
+      // ---------- Create athlete ----------
       const newAthlete = await ctx.athlete.create({
         data: {
-          athleteId: athleteId,
+          athleteId,
           firstName: validatedData.firstName,
           lastName: validatedData.lastName,
           middleName: validatedData.middleName,
@@ -167,7 +184,7 @@ const AthleteOnboardingAction = async (
           phoneNumber: validatedData.phoneNumber ?? "",
           dateOfBirth: validatedData.dateOfBirth,
           profilePIcture: validatedData.profilePIcture ?? "",
-          positions: athletePositions,
+          positions: parseCSV(validatedData.playingPositions),
           batchesId: validatedData.batch,
           foot: validatedData.dominantFoot,
           hand: validatedData.dominantHand,
@@ -182,8 +199,8 @@ const AthleteOnboardingAction = async (
           address: {
             create: {
               country: validatedData.country,
-              county: validatedData.county,
-              subCounty: validatedData.subCounty,
+              town: validatedData.town,
+              estate: validatedData.estate,
               addressLine1: validatedData.addressLine1,
               addressLine2: validatedData.addressLine2 || "",
             },
@@ -209,70 +226,68 @@ const AthleteOnboardingAction = async (
           medical: {
             create: {
               bloogGroup: validatedData.bloodGroup,
-              allergies,
-              medicalConditions,
+              allergies: parseCSV(validatedData.allergies),
+              medicalConditions: parseCSV(validatedData.medicalConditions),
             },
           },
         },
-        include: {
-          address: true,
-          emergencyContacts: true,
-          guardians: true,
-          medical: true,
-        },
       });
 
-      // 3. Create athlete subscription
+      // ---------- Subscription record ----------
       const athleteSubscription = await ctx.athleteSubscription.create({
         data: {
           athleteId: newAthlete.athleteId,
-          subscriptionPlanId: subscriptionPlanId || "",
+          subscriptionPlanId,
           status: "ACTIVE",
           startDate: currentPeriodStart,
-          currentPeriodStart: currentPeriodStart,
-          currentPeriodEnd: currentPeriodEnd,
+          currentPeriodStart,
+          currentPeriodEnd,
           autoRenew: true,
           cancelAtPeriodEnd: false,
           trialStart: null,
           trialEnd: null,
           updatedBy: session.user.email || "system",
         },
-        include: {
-          subscriptionPlan: true,
-        },
       });
 
-      // 4. Create initial invoice
-      const invoice = await ctx.invoice.create({
+      // ---------- Initial invoice proration ----------
+      const factor = proratedInitialFactor(now);
+      const amountDue = planAmount.mul(factor);
+
+      const description =
+        factor === 0.5
+          ? `Initial ${planName} subscription (50% proration before 15th)`
+          : `Initial ${planName} subscription (full amount from 15th onwards)`;
+
+      // For MONTHLY, currentPeriodEnd is the 30th of next month.
+      // For others, it's based on interval.
+      const dueDate = currentPeriodEnd;
+      const nextBillingDate = currentPeriodEnd;
+
+      // ---------- Create invoice ----------
+      await ctx.invoice.create({
         data: {
           athleteId: newAthlete.athleteId,
           athleteSubscriptionId: athleteSubscription.id,
-          subscriptionPlanId: subscriptionPlanId,
+          subscriptionPlanId,
           invoiceNumber: generatedInvoiceNumber,
           type: "SUBSCRIPTION",
-          description: `Initial ${planName} subscription for ${interval.toLowerCase()} period`,
+          description,
           unitAmount: planAmount,
           quantity: 1,
-          amountDue: planAmount,
-          amountPaid: 0,
+          amountDue, // ✅ prorated
+          amountPaid: new Prisma.Decimal(0),
           status: "PENDING",
-          dueDate: calculateNextBillingDate(interval),
+          dueDate,
           periodStart: currentPeriodStart,
           periodEnd: currentPeriodEnd,
           isRecurring: true,
-          nextBillingDate: calculateNextBillingDate(interval),
+          nextBillingDate,
           issuedBy: session.user.email || "system",
         },
       });
-
-      return {
-        athlete: newAthlete,
-        subscription: athleteSubscription,
-        invoice: invoice,
-      };
     });
 
-    // Revalidate relevant paths
     revalidatePath("/athletes");
     revalidatePath("/finances/invoices");
 
@@ -280,8 +295,7 @@ const AthleteOnboardingAction = async (
       status: "SUCCESS",
       successMessage: "Athlete created successfully with subscription",
     };
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Athlete Onboarding Error:", error);
 
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -291,7 +305,6 @@ const AthleteOnboardingAction = async (
           errorMessage: "A record with this information already exists.",
         };
       }
-
       if (error.code === "P2025") {
         return {
           status: "ERROR",
@@ -302,16 +315,10 @@ const AthleteOnboardingAction = async (
     }
 
     if (error instanceof Error) {
-      return {
-        status: "ERROR",
-        errorMessage: error.message,
-      };
+      return { status: "ERROR", errorMessage: error.message };
     }
 
-    return {
-      status: "ERROR",
-      errorMessage: "Internal server error.",
-    };
+    return { status: "ERROR", errorMessage: "Internal server error." };
   }
 };
 

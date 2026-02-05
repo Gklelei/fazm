@@ -1,13 +1,13 @@
 import { Prisma } from "@/generated/prisma/client";
 
 export const GetStaffQuery = {
-  include: {
+  where: {
     user: {
-      select: {
-        image: true,
-        email: true,
-      },
+      isArchived: false,
     },
+  },
+  include: {
+    user: true,
   },
 } satisfies Prisma.staffFindManyArgs;
 
@@ -28,4 +28,25 @@ export const GetUserProfileQuery = (id: string) =>
 
 export type GetUserProfileType = Prisma.UserGetPayload<
   ReturnType<typeof GetUserProfileQuery>
+>;
+
+export const GetStaffByIdQuery = (id: string) =>
+  ({
+    where: {
+      staffId: id,
+    },
+    include: {
+      user: true,
+      assessments: {
+        select: {
+          _count: true,
+        },
+      },
+      attendances: true,
+      trainings: true,
+    },
+  }) satisfies Prisma.staffFindUniqueArgs;
+
+export type GetStaffByIdQueryType = Prisma.staffGetPayload<
+  ReturnType<typeof GetStaffByIdQuery>
 >;

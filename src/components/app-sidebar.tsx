@@ -25,7 +25,7 @@ import { useQuery } from "@tanstack/react-query";
 
 type RoleResponse = { role: AppRole | null };
 
-function useUserRole() {
+export function useUserRole() {
   return useQuery<RoleResponse>({
     queryKey: ["auth", "role"],
     queryFn: async () => {
@@ -39,8 +39,8 @@ function useUserRole() {
 }
 
 const isAllowed = (roles: AppRole[] | undefined, userRole: AppRole | null) => {
-  if (!roles?.length) return true; // public item
-  if (!userRole) return false; // unknown/unauth => deny
+  if (!roles?.length) return true;
+  if (!userRole) return false;
   return roles.includes(userRole);
 };
 
@@ -52,21 +52,17 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userRole = roleData?.role ?? null;
 
   const nav = React.useMemo(() => {
-    // While loading/error, show ONLY public items (items without roles)
     const effectiveRole = isLoading || isError ? null : userRole;
 
-    return (
-      data.navMain
-        .filter((item) => isAllowed(item.roles, effectiveRole))
-        .map((item) => {
-          const filteredSubs = (item.items ?? []).filter((sub) =>
-            isAllowed(sub.roles, effectiveRole),
-          );
-          return { ...item, items: filteredSubs };
-        })
-        // if a group has sub-items and all got filtered out, hide the group
-        .filter((item) => (item.items ? item.items.length > 0 : true))
-    );
+    return data.navMain
+      .filter((item) => isAllowed(item.roles, effectiveRole))
+      .map((item) => {
+        const filteredSubs = (item.items ?? []).filter((sub) =>
+          isAllowed(sub.roles, effectiveRole),
+        );
+        return { ...item, items: filteredSubs };
+      })
+      .filter((item) => (item.items ? item.items.length > 0 : true));
   }, [userRole, isLoading, isError]);
 
   return (
@@ -75,7 +71,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       className={cn("", isStaffProfile ? "border" : "border-none")}
       collapsible="offcanvas"
     >
-      {/* ✅ Header preserved */}
       <SidebarHeader className="bg-background">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -91,7 +86,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
       <SidebarContent className="bg-background">
         <SidebarGroup>
-          {/* Optional tiny loading text (doesn't remove anything) */}
           {isLoading ? (
             <div className="px-3 py-2 text-xs text-muted-foreground">
               Loading menu…

@@ -74,11 +74,11 @@ model AthleteMedicalAndEmergency {
 model AthleteAddress {
   id           String  @id @default(uuid())
   country      String
-  subCounty    String  @map("sub_county")
+  town         String
   addressLine1 String  @map("address_line_1")
   addressLine2 String  @map("address_line_2")
   athleteId    String  @unique @map("athlete_id")
-  county       String  @default("null")
+  estate       String
   athlete      Athlete @relation(fields: [athleteId], references: [id], onDelete: Cascade)
 
   @@map("athlete_address")

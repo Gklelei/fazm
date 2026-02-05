@@ -27,31 +27,31 @@ export type AggregateAthleteAddress = {
 export type AthleteAddressMinAggregateOutputType = {
   id: string | null
   country: string | null
-  subCounty: string | null
+  town: string | null
   addressLine1: string | null
   addressLine2: string | null
   athleteId: string | null
-  county: string | null
+  estate: string | null
 }
 
 export type AthleteAddressMaxAggregateOutputType = {
   id: string | null
   country: string | null
-  subCounty: string | null
+  town: string | null
   addressLine1: string | null
   addressLine2: string | null
   athleteId: string | null
-  county: string | null
+  estate: string | null
 }
 
 export type AthleteAddressCountAggregateOutputType = {
   id: number
   country: number
-  subCounty: number
+  town: number
   addressLine1: number
   addressLine2: number
   athleteId: number
-  county: number
+  estate: number
   _all: number
 }
 
@@ -59,31 +59,31 @@ export type AthleteAddressCountAggregateOutputType = {
 export type AthleteAddressMinAggregateInputType = {
   id?: true
   country?: true
-  subCounty?: true
+  town?: true
   addressLine1?: true
   addressLine2?: true
   athleteId?: true
-  county?: true
+  estate?: true
 }
 
 export type AthleteAddressMaxAggregateInputType = {
   id?: true
   country?: true
-  subCounty?: true
+  town?: true
   addressLine1?: true
   addressLine2?: true
   athleteId?: true
-  county?: true
+  estate?: true
 }
 
 export type AthleteAddressCountAggregateInputType = {
   id?: true
   country?: true
-  subCounty?: true
+  town?: true
   addressLine1?: true
   addressLine2?: true
   athleteId?: true
-  county?: true
+  estate?: true
   _all?: true
 }
 
@@ -162,11 +162,11 @@ export type AthleteAddressGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type AthleteAddressGroupByOutputType = {
   id: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
   athleteId: string
-  county: string
+  estate: string
   _count: AthleteAddressCountAggregateOutputType | null
   _min: AthleteAddressMinAggregateOutputType | null
   _max: AthleteAddressMaxAggregateOutputType | null
@@ -193,22 +193,22 @@ export type AthleteAddressWhereInput = {
   NOT?: Prisma.AthleteAddressWhereInput | Prisma.AthleteAddressWhereInput[]
   id?: Prisma.StringFilter<"AthleteAddress"> | string
   country?: Prisma.StringFilter<"AthleteAddress"> | string
-  subCounty?: Prisma.StringFilter<"AthleteAddress"> | string
+  town?: Prisma.StringFilter<"AthleteAddress"> | string
   addressLine1?: Prisma.StringFilter<"AthleteAddress"> | string
   addressLine2?: Prisma.StringFilter<"AthleteAddress"> | string
   athleteId?: Prisma.StringFilter<"AthleteAddress"> | string
-  county?: Prisma.StringFilter<"AthleteAddress"> | string
+  estate?: Prisma.StringFilter<"AthleteAddress"> | string
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
 }
 
 export type AthleteAddressOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   country?: Prisma.SortOrder
-  subCounty?: Prisma.SortOrder
+  town?: Prisma.SortOrder
   addressLine1?: Prisma.SortOrder
   addressLine2?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
-  county?: Prisma.SortOrder
+  estate?: Prisma.SortOrder
   athlete?: Prisma.AthleteOrderByWithRelationInput
 }
 
@@ -219,21 +219,21 @@ export type AthleteAddressWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.AthleteAddressWhereInput[]
   NOT?: Prisma.AthleteAddressWhereInput | Prisma.AthleteAddressWhereInput[]
   country?: Prisma.StringFilter<"AthleteAddress"> | string
-  subCounty?: Prisma.StringFilter<"AthleteAddress"> | string
+  town?: Prisma.StringFilter<"AthleteAddress"> | string
   addressLine1?: Prisma.StringFilter<"AthleteAddress"> | string
   addressLine2?: Prisma.StringFilter<"AthleteAddress"> | string
-  county?: Prisma.StringFilter<"AthleteAddress"> | string
+  estate?: Prisma.StringFilter<"AthleteAddress"> | string
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
 }, "id" | "athleteId">
 
 export type AthleteAddressOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   country?: Prisma.SortOrder
-  subCounty?: Prisma.SortOrder
+  town?: Prisma.SortOrder
   addressLine1?: Prisma.SortOrder
   addressLine2?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
-  county?: Prisma.SortOrder
+  estate?: Prisma.SortOrder
   _count?: Prisma.AthleteAddressCountOrderByAggregateInput
   _max?: Prisma.AthleteAddressMaxOrderByAggregateInput
   _min?: Prisma.AthleteAddressMinOrderByAggregateInput
@@ -245,80 +245,80 @@ export type AthleteAddressScalarWhereWithAggregatesInput = {
   NOT?: Prisma.AthleteAddressScalarWhereWithAggregatesInput | Prisma.AthleteAddressScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
   country?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
-  subCounty?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
+  town?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
   addressLine1?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
   addressLine2?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
   athleteId?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
-  county?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
+  estate?: Prisma.StringWithAggregatesFilter<"AthleteAddress"> | string
 }
 
 export type AthleteAddressCreateInput = {
   id?: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
-  county?: string
+  estate: string
   athlete: Prisma.AthleteCreateNestedOneWithoutAddressInput
 }
 
 export type AthleteAddressUncheckedCreateInput = {
   id?: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
   athleteId: string
-  county?: string
+  estate: string
 }
 
 export type AthleteAddressUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAddressNestedInput
 }
 
 export type AthleteAddressUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AthleteAddressCreateManyInput = {
   id?: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
   athleteId: string
-  county?: string
+  estate: string
 }
 
 export type AthleteAddressUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AthleteAddressUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AthleteAddressNullableScalarRelationFilter = {
@@ -329,31 +329,31 @@ export type AthleteAddressNullableScalarRelationFilter = {
 export type AthleteAddressCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   country?: Prisma.SortOrder
-  subCounty?: Prisma.SortOrder
+  town?: Prisma.SortOrder
   addressLine1?: Prisma.SortOrder
   addressLine2?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
-  county?: Prisma.SortOrder
+  estate?: Prisma.SortOrder
 }
 
 export type AthleteAddressMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   country?: Prisma.SortOrder
-  subCounty?: Prisma.SortOrder
+  town?: Prisma.SortOrder
   addressLine1?: Prisma.SortOrder
   addressLine2?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
-  county?: Prisma.SortOrder
+  estate?: Prisma.SortOrder
 }
 
 export type AthleteAddressMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   country?: Prisma.SortOrder
-  subCounty?: Prisma.SortOrder
+  town?: Prisma.SortOrder
   addressLine1?: Prisma.SortOrder
   addressLine2?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
-  county?: Prisma.SortOrder
+  estate?: Prisma.SortOrder
 }
 
 export type AthleteAddressCreateNestedOneWithoutAthleteInput = {
@@ -391,19 +391,19 @@ export type AthleteAddressUncheckedUpdateOneWithoutAthleteNestedInput = {
 export type AthleteAddressCreateWithoutAthleteInput = {
   id?: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
-  county?: string
+  estate: string
 }
 
 export type AthleteAddressUncheckedCreateWithoutAthleteInput = {
   id?: string
   country: string
-  subCounty: string
+  town: string
   addressLine1: string
   addressLine2: string
-  county?: string
+  estate: string
 }
 
 export type AthleteAddressCreateOrConnectWithoutAthleteInput = {
@@ -425,19 +425,19 @@ export type AthleteAddressUpdateToOneWithWhereWithoutAthleteInput = {
 export type AthleteAddressUpdateWithoutAthleteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AthleteAddressUncheckedUpdateWithoutAthleteInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   country?: Prisma.StringFieldUpdateOperationsInput | string
-  subCounty?: Prisma.StringFieldUpdateOperationsInput | string
+  town?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine1?: Prisma.StringFieldUpdateOperationsInput | string
   addressLine2?: Prisma.StringFieldUpdateOperationsInput | string
-  county?: Prisma.StringFieldUpdateOperationsInput | string
+  estate?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -445,47 +445,47 @@ export type AthleteAddressUncheckedUpdateWithoutAthleteInput = {
 export type AthleteAddressSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   country?: boolean
-  subCounty?: boolean
+  town?: boolean
   addressLine1?: boolean
   addressLine2?: boolean
   athleteId?: boolean
-  county?: boolean
+  estate?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["athleteAddress"]>
 
 export type AthleteAddressSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   country?: boolean
-  subCounty?: boolean
+  town?: boolean
   addressLine1?: boolean
   addressLine2?: boolean
   athleteId?: boolean
-  county?: boolean
+  estate?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["athleteAddress"]>
 
 export type AthleteAddressSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   country?: boolean
-  subCounty?: boolean
+  town?: boolean
   addressLine1?: boolean
   addressLine2?: boolean
   athleteId?: boolean
-  county?: boolean
+  estate?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["athleteAddress"]>
 
 export type AthleteAddressSelectScalar = {
   id?: boolean
   country?: boolean
-  subCounty?: boolean
+  town?: boolean
   addressLine1?: boolean
   addressLine2?: boolean
   athleteId?: boolean
-  county?: boolean
+  estate?: boolean
 }
 
-export type AthleteAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "country" | "subCounty" | "addressLine1" | "addressLine2" | "athleteId" | "county", ExtArgs["result"]["athleteAddress"]>
+export type AthleteAddressOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "country" | "town" | "addressLine1" | "addressLine2" | "athleteId" | "estate", ExtArgs["result"]["athleteAddress"]>
 export type AthleteAddressInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
 }
@@ -504,11 +504,11 @@ export type $AthleteAddressPayload<ExtArgs extends runtime.Types.Extensions.Inte
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     country: string
-    subCounty: string
+    town: string
     addressLine1: string
     addressLine2: string
     athleteId: string
-    county: string
+    estate: string
   }, ExtArgs["result"]["athleteAddress"]>
   composites: {}
 }
@@ -935,11 +935,11 @@ export interface Prisma__AthleteAddressClient<T, Null = never, ExtArgs extends r
 export interface AthleteAddressFieldRefs {
   readonly id: Prisma.FieldRef<"AthleteAddress", 'String'>
   readonly country: Prisma.FieldRef<"AthleteAddress", 'String'>
-  readonly subCounty: Prisma.FieldRef<"AthleteAddress", 'String'>
+  readonly town: Prisma.FieldRef<"AthleteAddress", 'String'>
   readonly addressLine1: Prisma.FieldRef<"AthleteAddress", 'String'>
   readonly addressLine2: Prisma.FieldRef<"AthleteAddress", 'String'>
   readonly athleteId: Prisma.FieldRef<"AthleteAddress", 'String'>
-  readonly county: Prisma.FieldRef<"AthleteAddress", 'String'>
+  readonly estate: Prisma.FieldRef<"AthleteAddress", 'String'>
 }
     
 

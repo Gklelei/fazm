@@ -43,7 +43,7 @@ const createFinancialTransaction = async (
 
     const newPaymentAmount = parseFloat(parsedData.amountPaid);
     const remainingBalance =
-      existingInvoice.amountDue - existingInvoice.amountPaid;
+      Number(existingInvoice.amountDue) - Number(existingInvoice.amountPaid);
 
     if (newPaymentAmount > remainingBalance) {
       return {
@@ -79,8 +79,9 @@ const createFinancialTransaction = async (
       const sequence = (todaysCount + 1).toString().padStart(3, "0");
       const generatedReceipt = `FEES-${datePart}-${sequence}`;
 
-      const totalPaidSoFar = existingInvoice.amountPaid + newPaymentAmount;
-      const isFullyPaid = totalPaidSoFar >= existingInvoice.amountDue;
+      const totalPaidSoFar =
+        Number(existingInvoice.amountPaid) + newPaymentAmount;
+      const isFullyPaid = totalPaidSoFar >= Number(existingInvoice.amountDue);
       const newStatus = isFullyPaid ? "PAID" : "PARTIAL";
 
       const finance = await ctx.finance.create({

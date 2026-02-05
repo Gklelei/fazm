@@ -16,8 +16,8 @@ import {
   TrophyIcon,
   DoorClosedLocked,
   UserCheck2Icon,
-  Mail,
-  MessageSquare,
+  // Mail,
+  // MessageSquare,
 } from "lucide-react";
 
 export type AppRole = "SUPER_ADMIN" | "ADMIN" | "COACH" | "FINANCE" | "STAFF";
@@ -164,24 +164,24 @@ export const data: { navMain: NavItem[] } = {
       ],
     },
 
-    {
-      title: "Communication",
-      icon: <Mail className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
-      items: [
-        {
-          title: "Send Email",
-          url: "/mail",
-          icon: <Mail className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-        {
-          title: "Send SMS",
-          url: "/sms",
-          icon: <MessageSquare className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-      ],
-    },
+    // {
+    //   title: "Communication",
+    //   icon: <Mail className="size-4" />,
+    //   roles: ["SUPER_ADMIN", "ADMIN"],
+    //   items: [
+    //     {
+    //       title: "Send Email",
+    //       url: "/mail",
+    //       icon: <Mail className="size-4" />,
+    //       roles: ["SUPER_ADMIN", "ADMIN"],
+    //     },
+    //     {
+    //       title: "Send SMS",
+    //       url: "/sms",
+    //       icon: <MessageSquare className="size-4" />,
+    //       roles: ["SUPER_ADMIN", "ADMIN"],
+    //     },
+    //   ],
+    // },
   ],
 };

@@ -9,9 +9,10 @@ import {
   TrainingLocationSchema,
   TrainingLocationSchemaType,
 } from "../Validation";
+import { revalidatePath } from "next/cache";
 
 export async function CreateTrainingLocations(
-  data: TrainingLocationSchemaType
+  data: TrainingLocationSchemaType,
 ): Promise<ActionResult> {
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -33,7 +34,7 @@ export async function CreateTrainingLocations(
         value: upperValue,
       },
     });
-
+    revalidatePath("/settings/utils");
     return {
       success: true,
       message: "Training location Created scheduled successfully.",

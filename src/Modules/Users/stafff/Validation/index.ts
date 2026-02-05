@@ -12,4 +12,9 @@ export const CreateStaffSchema = z.object({
   phoneNumber: z.string().trim().min(12, "Enter a valid phone number"),
 });
 
+export const EditStaffSchema = CreateStaffSchema.omit({
+  password: true,
+});
+
 export type CreateStaffSchemaType = z.infer<typeof CreateStaffSchema>;
+export type EditStaffSchemaType = z.infer<typeof EditStaffSchema>;

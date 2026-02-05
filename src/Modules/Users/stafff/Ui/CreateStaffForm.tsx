@@ -2,11 +2,16 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 
-import { CreateStaffSchema, CreateStaffSchemaType } from "../Validation";
+import {
+  CreateStaffSchema,
+  CreateStaffSchemaType,
+  EditStaffSchema,
+  EditStaffSchemaType,
+} from "../Validation";
 import { CreateStaffAction } from "../Server/CreateStaffAction";
 
 import {
@@ -36,13 +41,21 @@ import {
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { CloudinaryUpload } from "@/components/ImageUploader";
+import { GetStaffByIdQueryType } from "../types";
+import { AdminEditStaffProfile } from "../Server/EditStaff";
 
-const CreateStaffForm = () => {
+interface Props {
+  user?: GetStaffByIdQueryType;
+}
+
+const CreateStaffForm = ({ user }: Props) => {
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
+  const isEdditting = !!user;
 
-  const form = useForm<CreateStaffSchemaType>({
-    resolver: zodResolver(CreateStaffSchema),
+  type FormType = CreateStaffSchemaType | EditStaffSchemaType;
+  const form = useForm<FormType>({
+    resolver: zodResolver(isEdditting ? EditStaffSchema : CreateStaffSchema),
     defaultValues: {
       fullName: "",
       email: "",
@@ -53,17 +66,70 @@ const CreateStaffForm = () => {
     },
   });
 
-  const onSubmit = (data: CreateStaffSchemaType) => {
+  useEffect(() => {
+    if (!user) return;
+
+    form.reset({
+      email: user.user.email || "",
+      fullName: user.fullNames || "",
+      image: user.user.image || "",
+      phoneNumber: user.phoneNumber || "",
+      role: user.user.role || undefined,
+    });
+  }, [form, user]);
+
+  const onSubmit = (data: FormType) => {
     startTransition(async () => {
-      const res = await CreateStaffAction(data);
+      const parsed = isEdditting
+        ? EditStaffSchema.safeParse(data)
+        : CreateStaffSchema.safeParse(data);
 
-      Sweetalert({
-        icon: res.success ? "success" : "error",
-        title: res.success ? "User Created" : "Error",
-        text: res.message,
-      });
-
-      if (res.success) router.back();
+      if (!parsed.success) {
+        Sweetalert({
+          icon: "error",
+          title: "Validation error",
+          text: parsed.error.message ?? "Invalid input",
+        });
+        return;
+      }
+      if (isEdditting) {
+        const res = await AdminEditStaffProfile({
+          data: parsed.data as EditStaffSchemaType,
+          id: user.staffId,
+        });
+        if (res.success) {
+          Sweetalert({
+            icon: "success",
+            title: "Success!",
+            text: res.message,
+          });
+          router.push("/users/staff");
+        } else {
+          Sweetalert({
+            icon: "error",
+            title: "An error has occurred",
+            text: res.message,
+          });
+        }
+      } else {
+        const res = await CreateStaffAction(
+          parsed.data as CreateStaffSchemaType,
+        );
+        if (res.success) {
+          Sweetalert({
+            icon: "success",
+            title: "Success!",
+            text: res.message,
+          });
+          router.push("/users/staff");
+        } else {
+          Sweetalert({
+            icon: "error",
+            title: "An error has occurred",
+            text: res.message,
+          });
+        }
+      }
     });
   };
 
@@ -79,9 +145,11 @@ const CreateStaffForm = () => {
             Back
           </button>
 
-          <CardTitle>Create Staff</CardTitle>
+          <CardTitle>{isEdditting ? "Edit  staff" : "Create Staff"}</CardTitle>
           <CardDescription>
-            Add a new staff member and assign their role
+            {isEdditting
+              ? "Add a new staff member and assign their role"
+              : "Edit your staff details"}
           </CardDescription>
         </CardHeader>
 
@@ -172,23 +240,24 @@ const CreateStaffForm = () => {
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    name="password"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel>Password</FormLabel>
-                        <FormControl className="w-full">
-                          <Input
-                            type="password"
-                            {...field}
-                            placeholder="*******"
-                          />
-                        </FormControl>
-                      </FormItem>
-                    )}
-                  />
+                  {!isEdditting && (
+                    <FormField
+                      name="password"
+                      control={form.control}
+                      render={({ field }) => (
+                        <FormItem className="w-full">
+                          <FormLabel>Password</FormLabel>
+                          <FormControl className="w-full">
+                            <Input
+                              type="password"
+                              {...field}
+                              placeholder="*******"
+                            />
+                          </FormControl>
+                        </FormItem>
+                      )}
+                    />
+                  )}
                 </div>
 
                 <div className="mt-4">
@@ -211,14 +280,19 @@ const CreateStaffForm = () => {
                 </div>
               </section>
 
-              {/* ACTION */}
               <Button
                 type="submit"
                 size="lg"
                 className="w-full"
                 disabled={isPending}
               >
-                {isPending ? <Loader2Spinner /> : "Create Staff Member"}
+                {isPending ? (
+                  <Loader2Spinner />
+                ) : isEdditting ? (
+                  "Save"
+                ) : (
+                  "Create Staff Member"
+                )}
               </Button>
             </form>
           </Form>

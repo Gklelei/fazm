@@ -8,6 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import { InvoiceType } from "@/Modules/Finances/Invoices/Types";
 import { formatDate } from "@/utils/TansformWords";
+import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 
 // Mimicking Tailwind's color palette and spacing
 const styles = StyleSheet.create({
@@ -155,7 +156,8 @@ export default function InvoiceDocument({
     .filter(Boolean)
     .join(" ");
 
-  const balance = invoice.amountDue - invoice.amountPaid;
+  const balance = Number(invoice.amountDue) - Number(invoice.amountPaid);
+  const { data } = UseUtilsContext();
 
   return (
     <Document title={`Invoice ${invoice.invoiceNumber}`}>
@@ -166,12 +168,19 @@ export default function InvoiceDocument({
             {/* 
             eslint-disable-next-line jsx-a11y/alt-text
              */}
-            <Image src={logoUrl} style={styles.logo} />
-            <Text style={styles.academyName}>Fazam Football Academy</Text>
+            <Image
+              src={data?.academy?.logoUrl || logoUrl}
+              style={styles.logo}
+            />
+            <Text style={styles.academyName}>
+              {data?.academy?.academyName} ||Fazam Football Academy
+            </Text>
             <View style={styles.address}>
-              <Text>Kimathi Street, Nairobi</Text>
-              <Text>academy@fazamfootball.org</Text>
-              <Text>0714401466</Text>
+              <Text>{data?.academy?.address} || Kimathi Street, Nairobi</Text>
+              <Text>
+                {data?.academy?.contactEmail} || academy@fazamfootball.org
+              </Text>
+              <Text>{data?.academy?.contactPhone} ||0714401466</Text>
             </View>
           </View>
 

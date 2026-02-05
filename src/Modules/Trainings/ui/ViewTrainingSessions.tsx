@@ -184,7 +184,6 @@ const ViewTrainingSessions = ({ data }: Props) => {
                           onClick={() =>
                             router.push(`/assesments/${item.id}/mark`)
                           }
-                          disabled={item.status !== "COMPLETED"}
                         >
                           Assessment
                         </DropdownMenuItem>
@@ -206,7 +205,6 @@ const ViewTrainingSessions = ({ data }: Props) => {
                               `/training/sessions/attendance/mark/${item.id}`,
                             )
                           }
-                          disabled={item.status !== "COMPLETED"}
                         >
                           Mark Attendance
                         </DropdownMenuItem>

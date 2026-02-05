@@ -10,6 +10,7 @@ model User {
   accounts      Account[]
   sessions      Session[]
   staff         staff?
+  isArchived    Boolean   @default(false)
 
   @@map("user")
 }

@@ -4,8 +4,8 @@ const requiredString = z.string().trim().min(1, "This field is required");
 
 export const AddressInfoSchema = z.object({
   country: requiredString,
-  county: requiredString,
-  subCounty: requiredString,
+  estate: requiredString,
+  town: requiredString,
   addressLine1: requiredString,
   addressLine2: z.string().optional(),
 });

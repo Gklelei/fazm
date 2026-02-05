@@ -184,8 +184,8 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                           <div className="flex flex-col py-1">
                             <span className="font-medium">{a.description}</span>
                             <span className="text-xs opacity-70">
-                              Bal: {a.amountDue - a.amountPaid} |{" "}
-                              {a.invoiceNumber}
+                              Bal: {Number(a.amountDue) - Number(a.amountPaid)}{" "}
+                              | {a.invoiceNumber}
                             </span>
                           </div>
                         )}

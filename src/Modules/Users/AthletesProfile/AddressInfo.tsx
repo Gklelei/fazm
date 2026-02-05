@@ -27,17 +27,17 @@ const AddressInfo = ({ data }: { data: GetAthleteByIdQueryType }) => {
             <div className="space-y-1">
               <div className="flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium">County</span>
+                <span className="text-xs font-medium">estate</span>
               </div>
-              <p className="text-sm pl-5">{data.address?.county || "—"}</p>
+              <p className="text-sm pl-5">{data.address?.estate || "—"}</p>
             </div>
 
             <div className="space-y-1">
               <div className="flex items-center gap-1.5">
                 <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-                <span className="text-xs font-medium">Sub-County</span>
+                <span className="text-xs font-medium">Town</span>
               </div>
-              <p className="text-sm pl-5">{data.address?.subCounty || "—"}</p>
+              <p className="text-sm pl-5">{data.address?.town || "—"}</p>
             </div>
           </div>
 

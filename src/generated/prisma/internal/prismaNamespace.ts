@@ -2726,11 +2726,11 @@ export type AthleteMedicalAndEmergencyScalarFieldEnum = (typeof AthleteMedicalAn
 export const AthleteAddressScalarFieldEnum = {
   id: 'id',
   country: 'country',
-  subCounty: 'subCounty',
+  town: 'town',
   addressLine1: 'addressLine1',
   addressLine2: 'addressLine2',
   athleteId: 'athleteId',
-  county: 'county'
+  estate: 'estate'
 } as const
 
 export type AthleteAddressScalarFieldEnum = (typeof AthleteAddressScalarFieldEnum)[keyof typeof AthleteAddressScalarFieldEnum]
@@ -2951,7 +2951,8 @@ export const UserScalarFieldEnum = {
   image: 'image',
   role: 'role',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  isArchived: 'isArchived'
 } as const
 
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -3195,6 +3196,20 @@ export type EnumINVOICE_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
  * Reference to a field of type 'INVOICE_TYPE[]'
  */
 export type ListEnumINVOICE_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'INVOICE_TYPE[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal'
+ */
+export type DecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal'>
+    
+
+
+/**
+ * Reference to a field of type 'Decimal[]'
+ */
+export type ListDecimalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Decimal[]'>
     
 
 

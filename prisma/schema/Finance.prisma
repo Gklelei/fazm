@@ -43,7 +43,7 @@ model SubscriptionPlan {
   id          String        @id @default(uuid())
   name        String
   code        String        @unique
-  amount      Float
+  amount      Decimal       @db.Decimal(10, 2)
   interval    SUB_FREQUENCY
   description String?
   isActive    Boolean       @default(true)
@@ -126,12 +126,12 @@ model Invoice {
   description String?
 
   // Pricing
-  unitAmount Float
-  quantity   Int   @default(1)
-  amountDue  Float
+  unitAmount Decimal @db.Decimal(10, 2)
+  quantity   Int     @default(1)
+  amountDue  Decimal @db.Decimal(10, 2)
 
   // Payment status
-  amountPaid Float          @default(0)
+  amountPaid Decimal        @default(0) @db.Decimal(10, 2)
   status     INVOICE_STATUS @default(PENDING)
   dueDate    DateTime
 

@@ -33,9 +33,18 @@ interface props {
   data: InvoiceEditType;
 }
 
+function toInputDate(value: unknown): string {
+  if (!value) return "";
+  const d = value instanceof Date ? value : new Date(value as string);
+  return Number.isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+}
+
 const EditInvoice = ({ data }: props) => {
   const [isPending, startTransistion] = useTransition();
   const router = useRouter();
+
+  console.log({ data });
+
   const form = useForm<CreateInvoiceSchemaType>({
     resolver: zodResolver(CreateInvoiceSchema),
     defaultValues: {
@@ -44,9 +53,10 @@ const EditInvoice = ({ data }: props) => {
       dueDate: data.dueDate
         ? new Date(data.dueDate).toISOString().split("T")[0]
         : "",
-      startDate: data.dueDate
-        ? new Date(data.periodStart || "").toISOString().split("T")[0]
-        : "",
+      startDate: toInputDate(data.periodStart),
+      // dueDate: "",
+      // startDate: "",
+
       subScriptionAmount: String(data.amountDue) || "",
       subscriptionInterval:
         (data.subscriptionPlan?.interval as

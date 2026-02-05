@@ -1,3 +1,5 @@
+import { AppRole } from "@/components/SideBarItems";
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import Dashboard from "@/Modules/DashBoard/Ui/DashBoard";
 import {
@@ -7,6 +9,7 @@ import {
   startOfWeek,
   subMonths,
 } from "date-fns";
+import { headers } from "next/headers";
 
 const HomePage = async () => {
   const now = new Date();
@@ -14,6 +17,9 @@ const HomePage = async () => {
 
   const weekStart = startOfWeek(new Date(), { weekStartsOn: 1 });
   const weekEnd = endOfWeek(new Date(), { weekStartsOn: 1 });
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
   const [
     totalPlayers,
     totalCoaches,
@@ -26,11 +32,17 @@ const HomePage = async () => {
     guardianCount,
     totalFinances,
   ] = await db.$transaction([
-    db.athlete.count(),
-    db.staff.count({
-      // where: {
-      //   role: "COACH",
-      // },
+    db.athlete.count({
+      where: {
+        isArchived: false,
+      },
+    }),
+
+    db.user.count({
+      where: {
+        role: "COACH",
+        isArchived: false,
+      },
     }),
     db.finance.aggregate({
       _sum: { amountPaid: true },
@@ -86,6 +98,7 @@ const HomePage = async () => {
 
     db.training.count({
       where: {
+        isArchived: false,
         date: {
           gte: weekStart,
           lte: weekEnd,
@@ -95,6 +108,7 @@ const HomePage = async () => {
 
     db.training.findMany({
       where: {
+        isArchived: false,
         date: {
           gte: weekStart,
           lte: weekEnd,
@@ -142,7 +156,8 @@ const HomePage = async () => {
     guardianCount,
     totalFinances,
   };
-  return <Dashboard data={data} />;
+
+  return <Dashboard data={data} role={(session?.user.role as AppRole) || ""} />;
 };
 
 export default HomePage;

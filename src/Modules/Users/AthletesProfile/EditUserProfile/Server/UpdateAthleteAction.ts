@@ -12,7 +12,7 @@ type ActionResult = {
 
 export const UpdateAthleteAction = async (
   id: string,
-  data: AthleteOnBoardingType
+  data: AthleteOnBoardingType,
 ): Promise<ActionResult> => {
   const positions = data.playingPositions
     ? data.playingPositions
@@ -59,8 +59,8 @@ export const UpdateAthleteAction = async (
             addressLine1: data.addressLine1,
             addressLine2: data.addressLine2,
             country: data.country,
-            county: data.county,
-            subCounty: data.subCounty,
+            town: data.town,
+            estate: data.estate,
           },
         },
         medical: {

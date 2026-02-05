@@ -5,9 +5,10 @@ import { DrillsSchema, DrillsSchemaType } from "../Validation";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { toUpperUnderscore } from "@/utils/TansformWords";
+import { revalidatePath } from "next/cache";
 
 export const CreateDrills = async (
-  data: DrillsSchemaType
+  data: DrillsSchemaType,
 ): Promise<ActionResult> => {
   const values = DrillsSchema.parse(data);
 
@@ -31,7 +32,7 @@ export const CreateDrills = async (
         value: upperValue,
       },
     });
-
+    revalidatePath("/settings/utils");
     return {
       success: true,
       message: "Drill Created scheduled successfully.",

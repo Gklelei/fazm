@@ -5,67 +5,61 @@ import { CreateInvoiceSchema, CreateInvoiceSchemaType } from "../Validators";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { INVOICE_TYPE } from "@/generated/prisma/enums";
+import { Prisma } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 
-const calculateNextBillingDate = (
-  startDate: Date,
-  interval: string,
-): Date | null => {
-  const nextDate = new Date(startDate);
-  switch (interval) {
-    case "DAILY":
-      nextDate.setDate(nextDate.getDate() + 1);
-      return nextDate;
-    case "WEEKLY":
-      nextDate.setDate(nextDate.getDate() + 7);
-      return nextDate;
-    case "MONTHLY":
-      nextDate.setMonth(nextDate.getMonth() + 1);
-      return nextDate;
-    case "ONCE":
-    default:
-      return null;
-  }
-};
+function startOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
 
-const toNumberAmount = (val: string) => {
-  const n = Number(val);
+function endOfDay(d: Date) {
+  const x = new Date(d);
+  x.setHours(23, 59, 59, 999);
+  return x;
+}
+
+function toDecimal(val: string | number | Prisma.Decimal) {
+  if (val instanceof Prisma.Decimal) return val.toDecimalPlaces(2);
+  const n = typeof val === "string" ? Number(val) : val;
   if (Number.isNaN(n)) throw new Error("Invalid amount");
-  return n;
-};
+  return new Prisma.Decimal(n).toDecimalPlaces(2);
+}
 
 async function CreateAthleteInvoice(
   data: CreateInvoiceSchemaType,
 ): Promise<ActionResult> {
   const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user) {
-    return { success: false, message: "Unauthorized access" };
-  }
+  if (!session?.user) return { success: false, message: "Unauthorized access" };
 
   try {
-    const parsedData = CreateInvoiceSchema.parse(data);
+    const parsed = CreateInvoiceSchema.parse(data);
 
-    const start = new Date(parsedData.startDate);
-    const dueDate = new Date(parsedData.dueDate);
+    const dueDate = new Date(parsed.dueDate);
+    if (Number.isNaN(dueDate.getTime())) throw new Error("Invalid due date");
+
+    const periodStart = parsed.startDate ? new Date(parsed.startDate) : null;
+    if (periodStart && Number.isNaN(periodStart.getTime())) {
+      throw new Error("Invalid start date");
+    }
 
     await db.$transaction(async (tx) => {
       const now = new Date();
       const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
-      const startOfDay = new Date(new Date().setHours(0, 0, 0, 0));
-      const endOfDay = new Date(new Date().setHours(23, 59, 59, 999));
+      const sDay = startOfDay(now);
+      const eDay = endOfDay(now);
 
       let todaysCount = await tx.invoice.count({
-        where: { createdAt: { gte: startOfDay, lte: endOfDay } },
+        where: { createdAt: { gte: sDay, lte: eDay } },
       });
 
-      // 1) Resolve plan mode
-      const isManual = parsedData.subType === "MANUAL";
+      const isManual = parsed.subType === "MANUAL";
 
-      // If plan selected, fetch it once
       const selectedPlan = !isManual
-        ? await tx.subscriptionPlan.findUnique({
-            where: { id: parsedData.subType },
+        ? await tx.subscriptionPlan.findFirst({
+            where: { id: parsed.subType, isActive: true, isArchived: false },
+            select: { id: true, name: true, amount: true, interval: true },
           })
         : null;
 
@@ -73,35 +67,24 @@ async function CreateAthleteInvoice(
         throw new Error("Selected subscription plan does not exist");
       }
 
-      // Manual mode: create an ad-hoc plan record (optional but consistent)
-      // If you don't want to create plans for manual, skip this and just use parsedData.
-      const manualPlan = isManual
-        ? await tx.subscriptionPlan.create({
-            data: {
-              name: parsedData.subScriptionName,
-              amount: toNumberAmount(parsedData.subScriptionAmount),
-              interval: parsedData.subscriptionInterval,
-              code: "",
-              // nextBillingDate: calculateNextBillingDate(start, parsedData.subscriptionInterval) ?? null,
-            },
-          })
-        : null;
-
-      const planToUse = isManual ? manualPlan! : selectedPlan!;
       const invoiceType = isManual
         ? INVOICE_TYPE.MANUAL
         : INVOICE_TYPE.SUBSCRIPTION;
 
-      // 2) Create invoices per athlete
-      for (const athleteId of parsedData.athleteId) {
-        const existingAthlete = await tx.athlete.findUnique({
-          where: { athleteId },
-        });
+      // ✅ Make amountDue ALWAYS Decimal (manual or plan)
+      const amountDue = isManual
+        ? toDecimal(parsed.subScriptionAmount)
+        : toDecimal(selectedPlan!.amount);
 
-        if (!existingAthlete) throw new Error(`Athlete ${athleteId} not found`);
+      // If qty is always 1, unitAmount == amountDue
+      const unitAmount = amountDue;
 
-        todaysCount++;
-        const invoiceSequence = todaysCount.toString().padStart(3, "0");
+      for (const athleteId of parsed.athleteId) {
+        const athlete = await tx.athlete.findUnique({ where: { athleteId } });
+        if (!athlete) throw new Error(`Athlete ${athleteId} not found`);
+
+        todaysCount += 1;
+        const invoiceSequence = String(todaysCount).padStart(3, "0");
         const invoiceNumber = `INV-${datePart}-${invoiceSequence}`;
 
         await tx.invoice.create({
@@ -109,18 +92,23 @@ async function CreateAthleteInvoice(
             invoiceNumber,
             athleteId,
             dueDate,
-            description: parsedData.description,
-
-            // Use resolved plan amount
-            amountDue: planToUse.amount,
-
-            // If you have a relation, store subscriptionPlanId
-            subscriptionPlanId: planToUse.id,
-
-            // whatever your unitAmount is supposed to be; leaving your placeholder
-            unitAmount: 3000,
+            description: parsed.description,
 
             type: invoiceType,
+
+            unitAmount, // Decimal
+            quantity: 1,
+            amountDue, // Decimal
+            amountPaid: new Prisma.Decimal(0), // ✅ Decimal
+            status: "PENDING",
+
+            subscriptionPlanId: isManual ? null : selectedPlan!.id,
+
+            periodStart,
+            periodEnd: null,
+
+            isRecurring: false,
+            issuedBy: session.user.email ?? "system",
           },
         });
       }
@@ -130,11 +118,10 @@ async function CreateAthleteInvoice(
 
     return {
       success: true,
-      message: `Invoices created successfully for ${parsedData.athleteId.length} athletes`,
+      message: `Invoices created successfully for ${parsed.athleteId.length} athletes`,
     };
   } catch (error) {
     console.error("SERVER_ACTION_ERROR:", error);
-
     return {
       success: false,
       message: error instanceof Error ? error.message : "Internal server error",
