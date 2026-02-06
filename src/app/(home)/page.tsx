@@ -31,6 +31,7 @@ const HomePage = async () => {
     weeklyTrainings,
     guardianCount,
     totalFinances,
+    invoices,
   ] = await db.$transaction([
     db.athlete.count({
       where: {
@@ -143,6 +144,14 @@ const HomePage = async () => {
         amountPaid: true,
       },
     }),
+    db.invoice.findMany({
+      where: {
+        createdAt: {
+          gte: weekStart,
+          lte: weekEnd,
+        },
+      },
+    }),
   ]);
   const data = {
     totalPlayers,
@@ -155,6 +164,7 @@ const HomePage = async () => {
     weeklyTrainings,
     guardianCount,
     totalFinances,
+    invoices,
   };
 
   return <Dashboard data={data} role={(session?.user.role as AppRole) || ""} />;

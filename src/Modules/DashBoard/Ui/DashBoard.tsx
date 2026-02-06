@@ -82,7 +82,6 @@ const Dashboard = ({
               value={data.totalWeeklyPayments}
               icon={DollarSign}
               color="green"
-              isCurrency
             />
             <StatCard
               label="Total Guardians"

@@ -42,6 +42,7 @@ export const CreateAcademyUtils = async ({
         contactEmail: data.email,
         tagline: data.tagline,
         logoUrl: data.logoUrl,
+        receiptFooterNotes: data.footerNotes,
       },
     });
 

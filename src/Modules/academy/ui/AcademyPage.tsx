@@ -43,6 +43,8 @@ const AcademyPage = ({ academy }: Props) => {
   const router = useRouter();
   const editing = !!academy?.id;
 
+  console.log({ academy });
+
   const initialValues: FormValues = useMemo(
     () => ({
       academyName: academy?.academyName || "",
