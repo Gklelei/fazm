@@ -5,9 +5,7 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 const page = async () => {
-  if (process.env.NODE_ENV === "production") {
-    NotFound();
-  }
+  if (process.env.NODE_ENV === "production") return <NotFound />;
   const session = await auth.api.getSession({
     headers: await headers(),
   });
