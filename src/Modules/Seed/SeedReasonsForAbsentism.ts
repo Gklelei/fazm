@@ -2,7 +2,6 @@ import "dotenv/config.js";
 import { db } from "@/lib/prisma";
 
 type AttendanceStatus = "PRESENT" | "ABSENT" | "LATE" | "EXCUSED";
-
 export type AbsentReason =
   | "SENT APOLOGY"
   | "WITHOUT APOLOGY"
@@ -33,38 +32,23 @@ const Items: Props[] = [
 ];
 
 async function main() {
-  console.log("🚀 Starting Attendance Reasons seed...");
+  const rows = Items.map((item) => {
+    const id = `id_${item.name}_${item.reason ?? "NONE"}`;
+    return {
+      id,
+      status: item.name,
+      label: item.reason ?? "General",
+    };
+  });
 
-  try {
-    await db.$transaction(
-      Items.map((item) => {
-        const customId = `id_${item.name}_${item.reason ?? "NONE"}`;
-        return db.tRAINING_ATTENDANCE_REASONS.upsert({
-          where: { id: customId },
-          update: {},
-          create: {
-            id: customId,
-            status: item.name,
-            label: item.reason ?? "General",
-          },
-        });
-      }),
-    );
+  await db.tRAINING_ATTENDANCE_REASONS.createMany({
+    data: rows,
+    skipDuplicates: true,
+  });
 
-    console.log("Reasons for attendance seeded!");
-  } catch (error) {
-    console.error("❌ Seeding error details:");
-    console.error(error);
-    process.exit(1);
-  }
+  console.log("✅ Seeded attendance reasons");
 }
 
-main()
-  .then(async () => {
-    await db.$disconnect();
-  })
-  .catch(async (e) => {
-    console.error(e);
-    await db.$disconnect();
-    process.exit(1);
-  });
+main().finally(async () => {
+  await db.$disconnect();
+});

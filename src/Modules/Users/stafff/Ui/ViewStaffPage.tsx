@@ -286,280 +286,282 @@ const StaffViewPage = ({ staff }: { staff: GetStaffByIdQueryType }) => {
           </div>
         </CardContent>
       </Card>
+      {staff.user.role === "COACH" && (
+        <>
+          {/* Stats */}
+          <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
+            {/* Overview */}
+            <Card className="lg:col-span-4">
+              <CardHeader className="pb-2">
+                <SectionTitle
+                  icon={<BarChart3 className="h-4 w-4" />}
+                  title="Training Overview"
+                  subtitle="Completion and workload summary."
+                />
+              </CardHeader>
 
-      {/* Stats */}
-      <div className="mb-6 grid grid-cols-1 gap-4 lg:grid-cols-12">
-        {/* Overview */}
-        <Card className="lg:col-span-4">
-          <CardHeader className="pb-2">
-            <SectionTitle
-              icon={<BarChart3 className="h-4 w-4" />}
-              title="Training Overview"
-              subtitle="Completion and workload summary."
-            />
-          </CardHeader>
-
-          <CardContent className="pt-2">
-            <div className="space-y-4">
-              <div className="rounded-xl border bg-muted/20 p-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-muted-foreground">
-                    Total sessions
-                  </span>
-                  <span className="text-lg font-semibold">
-                    {totalTrainings}
-                  </span>
-                </div>
-
-                <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-                  <div className="h-full w-full rounded-full bg-primary" />
-                </div>
-
-                <div className="mt-4 grid grid-cols-3 gap-3">
-                  <div className="rounded-lg border bg-background p-3 text-center">
-                    <div className="text-lg font-semibold text-green-700">
-                      {completedTrainings}
+              <CardContent className="pt-2">
+                <div className="space-y-4">
+                  <div className="rounded-xl border bg-muted/20 p-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">
+                        Total sessions
+                      </span>
+                      <span className="text-lg font-semibold">
+                        {totalTrainings}
+                      </span>
                     </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      Completed
+
+                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full w-full rounded-full bg-primary" />
                     </div>
-                  </div>
-                  <div className="rounded-lg border bg-background p-3 text-center">
-                    <div className="text-lg font-semibold text-blue-700">
-                      {upcomingTrainings}
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      Upcoming
-                    </div>
-                  </div>
-                  <div className="rounded-lg border bg-background p-3 text-center">
-                    <div className="text-lg font-semibold">
-                      {completionRate}%
-                    </div>
-                    <div className="text-[11px] text-muted-foreground">
-                      Rate
-                    </div>
-                  </div>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="rounded-xl border bg-background p-4">
-                  <div className="text-2xl font-semibold">
-                    {totalTrainingHours}h
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Total hours
-                  </div>
-                </div>
-                <div className="rounded-xl border bg-background p-4">
-                  <div className="text-2xl font-semibold">
-                    {avgTrainingDuration}m
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    Avg duration
-                  </div>
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Quick stats */}
-        <div className="lg:col-span-8">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              label="Total Trainings"
-              value={totalTrainings}
-              icon={<Calendar className="h-5 w-5" />}
-              hint="All assigned sessions"
-            />
-            <StatCard
-              label="Upcoming"
-              value={upcomingTrainings}
-              icon={<TrendingUp className="h-5 w-5" />}
-              hint="Scheduled in future"
-            />
-            <StatCard
-              label="Completed"
-              value={completedTrainings}
-              icon={<CheckCircle className="h-5 w-5" />}
-              hint="Finished sessions"
-            />
-            <StatCard
-              label="Assessments"
-              value={staff.assessments.length}
-              icon={<Target className="h-5 w-5" />}
-              hint="Submitted evaluations"
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Sessions */}
-      <Card>
-        <CardHeader className="space-y-3">
-          <SectionTitle
-            icon={<Calendar className="h-4 w-4" />}
-            title="Training Sessions"
-            subtitle="Upcoming first, then previous sessions."
-            right={
-              totalTrainings > 0 ? (
-                <Badge variant="outline" className="border bg-muted/20">
-                  {totalTrainings} total
-                </Badge>
-              ) : null
-            }
-          />
-          <Separator />
-        </CardHeader>
-
-        <CardContent>
-          {totalTrainings === 0 ? (
-            <div className="grid place-items-center gap-2 py-14 text-center text-muted-foreground">
-              <Calendar className="h-14 w-14 opacity-50" />
-              <div className="text-base font-medium text-foreground">
-                No Training Sessions
-              </div>
-              <div className="text-sm">
-                This staff member has no assigned sessions.
-              </div>
-            </div>
-          ) : (
-            <div className="space-y-8">
-              {/* Upcoming */}
-              {upcoming.length > 0 ? (
-                <div className="space-y-3">
-                  <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Upcoming
-                  </div>
-
-                  <div className="space-y-3">
-                    {upcoming.map((training) => (
-                      <div
-                        key={training.id}
-                        className="group rounded-xl border bg-background p-4 transition hover:bg-muted/20"
-                      >
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                          <div className="flex items-start gap-4">
-                            <div className="w-14 rounded-xl border bg-muted/20 p-2 text-center">
-                              <div className="text-xl font-semibold text-primary">
-                                {format(new Date(training.date), "dd")}
-                              </div>
-                              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                                {format(new Date(training.date), "EEE")}
-                              </div>
-                            </div>
-
-                            <div className="space-y-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <div className="font-semibold">
-                                  {training.name}
-                                </div>
-                                {getStatusBadge(training.status)}
-                              </div>
-
-                              {training.description ? (
-                                <div className="text-sm text-muted-foreground">
-                                  {training.description}
-                                </div>
-                              ) : null}
-
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Calendar className="h-4 w-4" />
-                                  {formatDate(String(training.date))}
-                                </span>
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Clock className="h-4 w-4" />
-                                  {training.duration} mins
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-end gap-2">
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition"
-                            >
-                              Details
-                            </Button>
-                          </div>
+                    <div className="mt-4 grid grid-cols-3 gap-3">
+                      <div className="rounded-lg border bg-background p-3 text-center">
+                        <div className="text-lg font-semibold text-green-700">
+                          {completedTrainings}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          Completed
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-
-              {/* Past / other */}
-              {pastOrOther.length > 0 ? (
-                <div className="space-y-3">
-                  <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
-                    Past & Other
-                  </div>
-
-                  <div className="space-y-3">
-                    {pastOrOther.map((training) => (
-                      <div
-                        key={training.id}
-                        className="rounded-xl border bg-background p-4 transition hover:bg-muted/20"
-                      >
-                        <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-                          <div className="flex items-start gap-4">
-                            <div className="w-14 rounded-xl border bg-muted/10 p-2 text-center">
-                              <div className="text-xl font-semibold text-muted-foreground">
-                                {format(new Date(training.date), "dd")}
-                              </div>
-                              <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                                {format(new Date(training.date), "EEE")}
-                              </div>
-                            </div>
-
-                            <div className="space-y-1">
-                              <div className="flex flex-wrap items-center gap-2">
-                                <div className="font-semibold">
-                                  {training.name}
-                                </div>
-                                {getStatusBadge(training.status)}
-                              </div>
-
-                              {training.description ? (
-                                <div className="text-sm text-muted-foreground">
-                                  {training.description}
-                                </div>
-                              ) : null}
-
-                              <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Calendar className="h-4 w-4" />
-                                  {formatDate(String(training.date))}
-                                </span>
-                                <span className="inline-flex items-center gap-1.5">
-                                  <Clock className="h-4 w-4" />
-                                  {training.duration} mins
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center justify-end gap-2">
-                            <Button variant="ghost" size="sm">
-                              Details
-                            </Button>
-                          </div>
+                      <div className="rounded-lg border bg-background p-3 text-center">
+                        <div className="text-lg font-semibold text-blue-700">
+                          {upcomingTrainings}
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          Upcoming
                         </div>
                       </div>
-                    ))}
+                      <div className="rounded-lg border bg-background p-3 text-center">
+                        <div className="text-lg font-semibold">
+                          {completionRate}%
+                        </div>
+                        <div className="text-[11px] text-muted-foreground">
+                          Rate
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border bg-background p-4">
+                      <div className="text-2xl font-semibold">
+                        {totalTrainingHours}h
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Total hours
+                      </div>
+                    </div>
+                    <div className="rounded-xl border bg-background p-4">
+                      <div className="text-2xl font-semibold">
+                        {avgTrainingDuration}m
+                      </div>
+                      <div className="text-xs text-muted-foreground">
+                        Avg duration
+                      </div>
+                    </div>
                   </div>
                 </div>
-              ) : null}
+              </CardContent>
+            </Card>
+
+            {/* Quick stats */}
+            <div className="lg:col-span-8">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <StatCard
+                  label="Total Trainings"
+                  value={totalTrainings}
+                  icon={<Calendar className="h-5 w-5" />}
+                  hint="All assigned sessions"
+                />
+                <StatCard
+                  label="Upcoming"
+                  value={upcomingTrainings}
+                  icon={<TrendingUp className="h-5 w-5" />}
+                  hint="Scheduled in future"
+                />
+                <StatCard
+                  label="Completed"
+                  value={completedTrainings}
+                  icon={<CheckCircle className="h-5 w-5" />}
+                  hint="Finished sessions"
+                />
+                <StatCard
+                  label="Assessments"
+                  value={staff.assessments.length}
+                  icon={<Target className="h-5 w-5" />}
+                  hint="Submitted evaluations"
+                />
+              </div>
             </div>
-          )}
-        </CardContent>
-      </Card>
+          </div>{" "}
+          {/* Sessions */}
+          <Card>
+            <CardHeader className="space-y-3">
+              <SectionTitle
+                icon={<Calendar className="h-4 w-4" />}
+                title="Training Sessions"
+                subtitle="Upcoming first, then previous sessions."
+                right={
+                  totalTrainings > 0 ? (
+                    <Badge variant="outline" className="border bg-muted/20">
+                      {totalTrainings} total
+                    </Badge>
+                  ) : null
+                }
+              />
+              <Separator />
+            </CardHeader>
+
+            <CardContent>
+              {totalTrainings === 0 ? (
+                <div className="grid place-items-center gap-2 py-14 text-center text-muted-foreground">
+                  <Calendar className="h-14 w-14 opacity-50" />
+                  <div className="text-base font-medium text-foreground">
+                    No Training Sessions
+                  </div>
+                  <div className="text-sm">
+                    This staff member has no assigned sessions.
+                  </div>
+                </div>
+              ) : (
+                <div className="space-y-8">
+                  {/* Upcoming */}
+                  {upcoming.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                        Upcoming
+                      </div>
+
+                      <div className="space-y-3">
+                        {upcoming.map((training) => (
+                          <div
+                            key={training.id}
+                            className="group rounded-xl border bg-background p-4 transition hover:bg-muted/20"
+                          >
+                            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                              <div className="flex items-start gap-4">
+                                <div className="w-14 rounded-xl border bg-muted/20 p-2 text-center">
+                                  <div className="text-xl font-semibold text-primary">
+                                    {format(new Date(training.date), "dd")}
+                                  </div>
+                                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                                    {format(new Date(training.date), "EEE")}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <div className="font-semibold">
+                                      {training.name}
+                                    </div>
+                                    {getStatusBadge(training.status)}
+                                  </div>
+
+                                  {training.description ? (
+                                    <div className="text-sm text-muted-foreground">
+                                      {training.description}
+                                    </div>
+                                  ) : null}
+
+                                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Calendar className="h-4 w-4" />
+                                      {formatDate(String(training.date))}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Clock className="h-4 w-4" />
+                                      {training.duration} mins
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-end gap-2">
+                                <Button
+                                  variant="secondary"
+                                  size="sm"
+                                  className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition"
+                                >
+                                  Details
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+
+                  {/* Past / other */}
+                  {pastOrOther.length > 0 ? (
+                    <div className="space-y-3">
+                      <div className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                        Past & Other
+                      </div>
+
+                      <div className="space-y-3">
+                        {pastOrOther.map((training) => (
+                          <div
+                            key={training.id}
+                            className="rounded-xl border bg-background p-4 transition hover:bg-muted/20"
+                          >
+                            <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                              <div className="flex items-start gap-4">
+                                <div className="w-14 rounded-xl border bg-muted/10 p-2 text-center">
+                                  <div className="text-xl font-semibold text-muted-foreground">
+                                    {format(new Date(training.date), "dd")}
+                                  </div>
+                                  <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                                    {format(new Date(training.date), "EEE")}
+                                  </div>
+                                </div>
+
+                                <div className="space-y-1">
+                                  <div className="flex flex-wrap items-center gap-2">
+                                    <div className="font-semibold">
+                                      {training.name}
+                                    </div>
+                                    {getStatusBadge(training.status)}
+                                  </div>
+
+                                  {training.description ? (
+                                    <div className="text-sm text-muted-foreground">
+                                      {training.description}
+                                    </div>
+                                  ) : null}
+
+                                  <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Calendar className="h-4 w-4" />
+                                      {formatDate(String(training.date))}
+                                    </span>
+                                    <span className="inline-flex items-center gap-1.5">
+                                      <Clock className="h-4 w-4" />
+                                      {training.duration} mins
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex items-center justify-end gap-2">
+                                <Button variant="ghost" size="sm">
+                                  Details
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

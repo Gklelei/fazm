@@ -27,10 +27,12 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { PDFDownloadLink } from "@react-pdf/renderer";
 import { ReceiptPDF } from "./ReceiptPDF";
+import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 
 const TransactionDetails = ({ id }: { id: string }) => {
   const [open, setIsOpen] = useState<boolean>(false);
   const { data, isLoading, refetch } = UseFetchTransactionDetails(id);
+  const { data: utils } = UseUtilsContext();
 
   useEffect(() => {
     if (open) {
@@ -55,7 +57,7 @@ const TransactionDetails = ({ id }: { id: string }) => {
             </SheetTitle>
             {data && (
               <PDFDownloadLink
-                document={<ReceiptPDF data={data} />}
+                document={<ReceiptPDF data={data} academyConfig={utils} />}
                 fileName={`Receipt-${data.receiptNumber}.pdf`}
               >
                 {({ loading }) => (
@@ -168,19 +170,19 @@ const TransactionDetails = ({ id }: { id: string }) => {
                       Start Date
                     </p>
                     <p className="font-medium text-base">
-                      {format(new Date(data.subscriptionStartDate), "PPP")}
+                      {format(new Date(data.invoice?.subscriptionPlan.), "PPP")}
                     </p>
                   </div> */}
-                  {/* <div>
+                  <div>
                     <p className="text-sm text-muted-foreground mb-1">
                       End Date
                     </p>
                     <p className="font-medium text-base">
-                      {format(new Date(data.subscriptionEndDate), "PPP")}
+                      {format(new Date(String(data.invoice?.dueDate)), "PPP")}
                     </p>
-                  </div> */}
+                  </div>
                 </div>
-                <div className="mt-4">
+                {/* <div className="mt-4">
                   <p className="text-sm text-muted-foreground mb-1">Duration</p>
                   <p className="font-medium text-base">
                     {Math.ceil(
@@ -190,7 +192,7 @@ const TransactionDetails = ({ id }: { id: string }) => {
                     )}{" "}
                     days
                   </p>
-                </div>
+                </div> */}
               </div>
               {/* Notes */}
               {data.notes && (

@@ -2,8 +2,8 @@
 import { FullAthleteData } from "@/app/(home)/users/players/edit/[id]/page";
 import { useForm } from "react-hook-form";
 import {
-  AthleteOnBoardingSchema,
-  AthleteOnBoardingType,
+  editSchema,
+  editSchemaType,
 } from "../../AthletesOnboarding/validation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -37,8 +37,8 @@ const EditUserProfile = ({ athlete }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
-  const form = useForm<AthleteOnBoardingType>({
-    resolver: zodResolver(AthleteOnBoardingSchema),
+  const form = useForm<editSchemaType>({
+    resolver: zodResolver(editSchema),
     defaultValues: {
       addressLine1: athlete.address?.addressLine1 || "",
       addressLine2: athlete.address?.addressLine2 || "",
@@ -77,7 +77,7 @@ const EditUserProfile = ({ athlete }: Props) => {
       // subscriptionPlanId:athlete.
     },
   });
-  const onSubmit = async (values: AthleteOnBoardingType) => {
+  const onSubmit = async (values: editSchemaType) => {
     startTransition(async () => {
       const result = await UpdateAthleteAction(athlete.athleteId, values);
 

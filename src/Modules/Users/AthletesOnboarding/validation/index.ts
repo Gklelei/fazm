@@ -17,3 +17,8 @@ export const AthleteOnBoardingSchema = personalInfoSchema
   .merge(AthletePyschicalsSchema)
   .merge(SubscriptionSchema);
 export type AthleteOnBoardingType = z.infer<typeof AthleteOnBoardingSchema>;
+
+export const editSchema = AthleteOnBoardingSchema.omit({
+  subscriptionPlanId: true,
+});
+export type editSchemaType = z.infer<typeof editSchema>;

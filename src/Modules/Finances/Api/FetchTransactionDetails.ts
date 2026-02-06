@@ -10,7 +10,12 @@ export const query = {
         profilePIcture: true,
       },
     },
-    invoice: true,
+    invoice: {
+      include: {
+        subscriptionPlan: true,
+        athleteSubscription: true,
+      },
+    },
   },
 } satisfies Prisma.FinanceFindManyArgs;
 

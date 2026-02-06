@@ -10,8 +10,27 @@ import {
   Image,
 } from "@react-pdf/renderer";
 import { format } from "date-fns";
-import { getFinanceDetails } from "../Api/FetchTransactionDetails";
-import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+import type { getFinanceDetails } from "../Api/FetchTransactionDetails";
+
+type AcademyConfig = {
+  academy?: {
+    id: string;
+    description: string | null;
+    createdAt: Date;
+    updatedAt: Date;
+    paymentMathod: string;
+    paymentMethodType: string;
+    academyName: string;
+    tagline: string | null;
+    contactEmail: string | null;
+    contactPhone: string | null;
+    address: string | null;
+    logoUrl: string | null;
+    heroImageUrl: string | null;
+    primaryColor: string | null;
+    receiptFooterNotes: string | null;
+  } | null;
+};
 
 const styles = StyleSheet.create({
   page: {
@@ -21,9 +40,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
     color: "#000000",
   },
-  container: {
-    flex: 1,
-  },
+  container: { flex: 1 },
   header: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -33,53 +50,26 @@ const styles = StyleSheet.create({
     borderBottomColor: "#000000",
     paddingBottom: 20,
   },
-  logo: {
-    width: 80,
-    height: "auto",
-  },
-  headerText: {
-    alignItems: "flex-end",
-  },
+  logo: { width: 80, height: 40 }, // react-pdf is picky; give a real height
+  headerText: { alignItems: "flex-end" },
   companyName: {
     fontSize: 14,
     fontWeight: "bold",
     letterSpacing: 1,
     textTransform: "uppercase",
   },
-  companyTagline: {
-    fontSize: 8,
-    color: "#4B5563",
-    marginTop: 2,
-  },
+  companyTagline: { fontSize: 8, color: "#4B5563", marginTop: 2 },
   titleSection: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "flex-end",
     marginBottom: 30,
   },
-  title: {
-    fontSize: 22,
-    fontWeight: "bold",
-    textTransform: "uppercase",
-  },
-  receiptRef: {
-    fontSize: 10,
-    color: "#4B5563",
-    textAlign: "right",
-  },
-  receiptNumber: {
-    fontSize: 12,
-    fontWeight: "bold",
-    color: "#000000",
-  },
-  grid: {
-    flexDirection: "row",
-    gap: 20,
-    marginBottom: 30,
-  },
-  column: {
-    flex: 1,
-  },
+  title: { fontSize: 22, fontWeight: "bold", textTransform: "uppercase" },
+  receiptRef: { fontSize: 10, color: "#4B5563", textAlign: "right" },
+  receiptNumber: { fontSize: 12, fontWeight: "bold", color: "#000000" },
+  grid: { flexDirection: "row", gap: 20, marginBottom: 30 },
+  column: { flex: 1 },
   sectionTitle: {
     fontSize: 9,
     fontWeight: "bold",
@@ -94,14 +84,8 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginBottom: 6,
   },
-  label: {
-    color: "#6B7280",
-    fontSize: 8,
-    textTransform: "uppercase",
-  },
-  value: {
-    fontWeight: "bold",
-  },
+  label: { color: "#6B7280", fontSize: 8, textTransform: "uppercase" },
+  value: { fontWeight: "bold" },
   amountSection: {
     borderWidth: 1.5,
     borderColor: "#000000",
@@ -116,27 +100,15 @@ const styles = StyleSheet.create({
     letterSpacing: 1,
     marginBottom: 4,
   },
-  amountValue: {
-    fontSize: 22,
-    fontWeight: "bold",
-  },
-  notesSection: {
-    marginTop: 10,
-    padding: 10,
-    backgroundColor: "#F9FAFB",
-    borderRadius: 2,
-  },
+  amountValue: { fontSize: 22, fontWeight: "bold" },
+  notesSection: { marginTop: 10, padding: 10, backgroundColor: "#F9FAFB" },
   notesTitle: {
     fontSize: 8,
     fontWeight: "bold",
     marginBottom: 4,
     textTransform: "uppercase",
   },
-  notesText: {
-    fontSize: 9,
-    color: "#374151",
-    lineHeight: 1.4,
-  },
+  notesText: { fontSize: 9, color: "#374151", lineHeight: 1.4 },
   signatureArea: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -167,23 +139,28 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
-  // Access global academy settings from context
-  const { data: academyConfig } = UseUtilsContext();
+export const ReceiptPDF = ({
+  data,
+  academyConfig,
+  fallbackLogoAbsoluteUrl,
+}: {
+  data: getFinanceDetails;
+  academyConfig?: AcademyConfig | null;
+  fallbackLogoAbsoluteUrl?: string;
+}) => {
+  const academy = academyConfig?.academy;
+
+  const logoSrc = academy?.logoUrl || fallbackLogoAbsoluteUrl || undefined;
 
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.container}>
-          {/* Header */}
           <View style={styles.header}>
-            <Image
-              src={academyConfig?.academy?.logoUrl || "/Fazam Logo Half.jpg"}
-              style={styles.logo}
-            />
+            {logoSrc ? <Image src={logoSrc} style={styles.logo} /> : <View />}
             <View style={styles.headerText}>
               <Text style={styles.companyName}>
-                {academyConfig?.academy?.academyName || "ATHLETE ACADEMY"}
+                {academy?.academyName || "ATHLETE ACADEMY"}
               </Text>
               <Text style={styles.companyTagline}>
                 Official Payment Receipt
@@ -191,7 +168,6 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </View>
           </View>
 
-          {/* Title Section */}
           <View style={styles.titleSection}>
             <View>
               <Text style={styles.title}>Receipt</Text>
@@ -208,15 +184,14 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </View>
           </View>
 
-          {/* Details Grid */}
           <View style={styles.grid}>
             <View style={styles.column}>
               <Text style={styles.sectionTitle}>Athlete Information</Text>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>Name:</Text>
-                <Text style={styles.value}>
-                  {`${data.athlete.firstName} ${data.athlete.lastName}`}
-                </Text>
+                <Text
+                  style={styles.value}
+                >{`${data.athlete.firstName} ${data.athlete.lastName}`}</Text>
               </View>
               <View style={styles.infoRow}>
                 <Text style={styles.label}>Athlete ID:</Text>
@@ -237,7 +212,6 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </View>
           </View>
 
-          {/* Amount Display */}
           <View style={styles.amountSection}>
             <Text style={styles.amountLabel}>Total Received</Text>
             <Text style={styles.amountValue}>
@@ -248,7 +222,6 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </Text>
           </View>
 
-          {/* Admin Info */}
           <View style={styles.column}>
             <Text style={styles.sectionTitle}>Administration</Text>
             <View style={styles.infoRow}>
@@ -259,20 +232,17 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </View>
           </View>
 
-          {/* Notes Section - Pulling from context */}
           <View style={styles.notesSection}>
             <Text style={styles.notesTitle}>Notes & Remarks</Text>
             <Text style={styles.notesText}>
-              {academyConfig?.academy?.receiptFooterNotes ||
-                "Thank you for your payment."}
+              {academy?.receiptFooterNotes || "Thank you for your payment."}
               {"\n\n"}
-              Please keep this receipt for your records. This is a
+              {/* Please keep this receipt for your records. This is a
               computer-generated document and does not require a physical
-              signature for validity.
+              signature for validity. */}
             </Text>
           </View>
 
-          {/* Signatures */}
           <View style={styles.signatureArea}>
             <View style={styles.sigBlock}>
               <Text style={styles.label}>Authorized Signature</Text>
@@ -282,12 +252,10 @@ export const ReceiptPDF = ({ data }: { data: getFinanceDetails }) => {
             </View>
           </View>
 
-          {/* Footer */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>
-              {academyConfig?.academy?.academyName} •{" "}
-              {academyConfig?.academy?.contactEmail} •{" "}
-              {academyConfig?.academy?.contactPhone}
+              {academy?.academyName} • {academy?.contactEmail} •{" "}
+              {academy?.contactPhone}
             </Text>
             <Text style={[styles.footerText, { marginTop: 4 }]}>
               Generated on {format(new Date(), "PPpp")}

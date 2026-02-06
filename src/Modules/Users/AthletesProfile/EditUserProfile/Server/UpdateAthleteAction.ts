@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { AthleteOnBoardingType } from "@/Modules/Users/AthletesOnboarding/validation";
+import { editSchemaType } from "@/Modules/Users/AthletesOnboarding/validation";
 import { revalidatePath } from "next/cache";
 
 type ActionResult = {
@@ -12,7 +12,7 @@ type ActionResult = {
 
 export const UpdateAthleteAction = async (
   id: string,
-  data: AthleteOnBoardingType,
+  data: editSchemaType,
 ): Promise<ActionResult> => {
   const positions = data.playingPositions
     ? data.playingPositions
