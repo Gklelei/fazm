@@ -20,7 +20,7 @@ const EmergencyContacts = ({ data }: { data: GetAthleteByIdQueryType }) => {
               Emergency Contacts
             </CardTitle>
           </div>
-          <Button size="sm" className="gap-1.5 h-8 text-xs">
+          <Button size="sm" className="gap-1.5 h-8 text-xs hidden">
             <Plus className="h-3.5 w-3.5" />
             Add Contact
           </Button>
@@ -46,14 +46,14 @@ const EmergencyContacts = ({ data }: { data: GetAthleteByIdQueryType }) => {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-primary"
+                      className="h-6 w-6 text-muted-foreground hover:text-primary hidden"
                     >
                       <Edit className="h-3 w-3" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="h-6 w-6 text-muted-foreground hover:text-destructive"
+                      className="h-6 w-6 text-muted-foreground hover:text-destructive hidden"
                     >
                       <Trash2 className="h-3 w-3" />
                     </Button>
