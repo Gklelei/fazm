@@ -10,6 +10,8 @@ const UPLOAD_ROOT =
 const SAFE_DIR_REGEX = /^[a-zA-Z0-9_-]+$/;
 const SAFE_FILE_REGEX = /^[a-zA-Z0-9._-]+$/;
 
+console.log({ UPLOAD_ROOT });
+
 /* =========================
    UPLOAD FILE
 ========================= */
