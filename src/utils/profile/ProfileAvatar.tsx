@@ -22,7 +22,7 @@ const ProfileImage = ({ url, name, size = 48, className }: Props) => {
     <div
       className={cn(
         "relative overflow-hidden rounded-full flex items-center justify-center bg-muted shrink-0",
-        className
+        className,
       )}
       style={{ width: size, height: size }}
     >
@@ -34,6 +34,7 @@ const ProfileImage = ({ url, name, size = 48, className }: Props) => {
           sizes={`${size}px`}
           className="object-cover"
           priority={size > 100}
+          unoptimized
         />
       ) : (
         <span

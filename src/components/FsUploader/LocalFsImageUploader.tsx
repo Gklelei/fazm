@@ -135,6 +135,7 @@ export const LocalFsUpload = ({
             className="object-cover"
             sizes="(max-width: 160px) 100vw, 160px"
             priority
+            unoptimized
           />
 
           {(isDeleting || isUploading) && (
