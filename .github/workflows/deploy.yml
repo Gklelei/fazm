@@ -1,0 +1,22 @@
+- name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. Enter the folder (Make sure this path exists on your server!)
+            cd ~/my-app-folder
+            
+            # 2. Pull the latest code using the Deploy Key we set in Phase 1
+            git pull origin main
+            
+            # 3. Install only production dependencies
+            npm install --production
+            
+            # 4. Run database migrations (Prisma)
+            npx prisma migrate deploy
+            
+            # 5. Restart the app so changes take effect
+            # We use 'reload' for zero-downtime; if it's the first time, we 'start'
+            pm2 reload my-app || pm2 start dist/index.js --name "my-app"

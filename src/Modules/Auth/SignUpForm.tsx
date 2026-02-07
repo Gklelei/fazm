@@ -30,7 +30,7 @@ const SignUp = () => {
         email: data.email,
         password: data.password,
         name: "lelei",
-        callbackURL: "/sign-in",
+        // callbackURL: "/sign-in",
       });
 
       if (error) {

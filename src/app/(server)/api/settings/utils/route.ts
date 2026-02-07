@@ -15,8 +15,14 @@ export async function GET() {
     ] = await Promise.all([
       db.trainingLocations.findMany(),
       db.drills.findMany(),
-      db.batches.findMany(),
-      db.staff.findMany(),
+      db.batches.findMany({}),
+      db.staff.findMany({
+        where: {
+          user: {
+            role: "COACH",
+          },
+        },
+      }),
       db.tRAINING_ATTENDANCE_REASONS.findMany(),
       db.expenseCategories.findMany({
         where: { isArchived: false, status: "ACTIVE" },
