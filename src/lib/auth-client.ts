@@ -2,7 +2,7 @@ import { createAuthClient } from "better-auth/react";
 export const authClient = createAuthClient({
   baseURL:
     process.env.NODE_ENV === "production"
-      ? "https://fazam.vercel.app"
+      ? (process.env.BETTER_AUTH_URL as string)
       : "http://localhost:3000",
 });
 
