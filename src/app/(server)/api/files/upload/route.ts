@@ -4,7 +4,8 @@ import * as path from "path";
 
 export const runtime = "nodejs";
 
-const UPLOAD_ROOT = path.join(process.cwd(), "public", "uploads");
+const UPLOAD_ROOT =
+  process.env.UPLOAD_ROOT ?? path.join(process.cwd(), "public", "uploads");
 
 const SAFE_DIR_REGEX = /^[a-zA-Z0-9_-]+$/;
 const SAFE_FILE_REGEX = /^[a-zA-Z0-9._-]+$/;
