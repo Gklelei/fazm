@@ -1,9 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 
 export const getInvoicesQuery = {
-  orderBy: {
-    createdAt: "desc",
-  },
   include: {
     athlete: {
       select: {
@@ -13,13 +10,7 @@ export const getInvoicesQuery = {
         middleName: true,
       },
     },
-    subscriptionPlan: {
-      select: {
-        name: true,
-        code: true,
-        description: true,
-      },
-    },
+    subscriptionPlan: { select: { name: true, code: true } },
   },
 } satisfies Prisma.InvoiceFindManyArgs;
 

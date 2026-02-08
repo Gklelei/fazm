@@ -45,8 +45,7 @@ export const UpdateAthleteStatus = async ({
     }
 
     const existingAthlete = await db.athlete.findUnique({
-      where: { id: athleteId },
-      select: { id: true },
+      where: { athleteId: athleteId },
     });
 
     if (!existingAthlete) {
@@ -54,7 +53,7 @@ export const UpdateAthleteStatus = async ({
     }
 
     await db.athlete.update({
-      where: { id: athleteId },
+      where: { athleteId: athleteId },
       data: { status: dbStatus },
     });
 

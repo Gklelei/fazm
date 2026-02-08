@@ -22,6 +22,7 @@ import {
 import {
   Eye,
   Filter,
+  Loader2,
   Loader2Icon,
   PenBox,
   Search,
@@ -30,7 +31,7 @@ import {
   X,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -59,47 +60,52 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useDebounce } from "@/utils/Debounce";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useInView } from "react-intersection-observer";
+import { PageLoader } from "@/utils/Alerts/PageLoader";
 
 interface Props {
-  data: GetStaffType[];
+  initialData: {
+    pages: Array<{ items: GetStaffType[]; nextCursor: number | null }>;
+    pageParams: number[];
+  };
 }
 
 const ROLES = ["COACH", "ADMIN", "DOCTOR"];
 
-const ViewAllStaff = ({ data }: Props) => {
+const ViewAllStaff = ({ initialData }: Props) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("");
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [showRoleFilter, setShowRoleFilter] = useState(false);
+  const debounceSearch = useDebounce(searchQuery, 1000);
+  const { ref, inView } = useInView();
 
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-
-    const normalizedSearch = searchQuery.toLowerCase().trim();
-    const normalizedRole = roleFilter.trim().toLowerCase();
-
-    if (!normalizedSearch && !normalizedRole) return data;
-
-    return data.filter((item) => {
-      const itemName = item.fullNames?.toLowerCase() || "";
-      const itemRole = item.user?.role?.toLowerCase() || "";
-      const itemEmail = item.user?.email?.toLowerCase() || "";
-      const itemPhone = item.phoneNumber?.toLowerCase() || "";
-
-      const matchesSearch = !normalizedSearch
-        ? true
-        : itemName.includes(normalizedSearch) ||
-          itemEmail.includes(normalizedSearch) ||
-          itemPhone.includes(normalizedSearch) ||
-          itemRole.includes(normalizedSearch);
-
-      // Filter by role
-      const matchesRole = !normalizedRole ? true : itemRole === normalizedRole;
-
-      return matchesSearch && matchesRole;
+  const { data, hasNextPage, isFetchingNextPage, isLoading, fetchNextPage } =
+    useInfiniteQuery({
+      queryKey: ["staff-list", debounceSearch],
+      initialPageParam: 1,
+      initialData: debounceSearch === "" ? initialData : undefined,
+      queryFn: async ({ pageParam = 1 }) => {
+        const res = await fetch(
+          `/users/staff?page=${pageParam}&search=${debounceSearch}&role=${roleFilter}`,
+        );
+        return res.json();
+      },
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
     });
-  }, [data, searchQuery, roleFilter]);
+
+  const allStaff = useMemo(() => {
+    return data?.pages.flatMap((staff) => staff.items) || [];
+  }, [data?.pages]);
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [fetchNextPage, hasNextPage, inView]);
 
   const handleUserDelete = async (id: string) => {
     setDeletingId(id);
@@ -135,6 +141,8 @@ const ViewAllStaff = ({ data }: Props) => {
     setSearchQuery("");
     setRoleFilter("");
   };
+
+  if (isLoading && !isFetchingNextPage) return <PageLoader />;
 
   const activeFiltersCount = (searchQuery ? 1 : 0) + (roleFilter ? 1 : 0);
 
@@ -235,17 +243,17 @@ const ViewAllStaff = ({ data }: Props) => {
 
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
-          <span>Total: {data.length} users</span>
+          <span>Total: {allStaff.length} users</span>
           {activeFiltersCount > 0 && (
-            <span>Filtered: {filteredData.length} users</span>
+            <span>Filtered: {allStaff.length} users</span>
           )}
         </div>
       </CardHeader>
 
       <CardContent className="p-0">
-        {data.length === 0 ? (
+        {allStaff.length === 0 ? (
           <EmptyData />
-        ) : filteredData.length === 0 ? (
+        ) : allStaff.length === 0 ? (
           <NoResults />
         ) : (
           <div className="overflow-x-auto">
@@ -260,7 +268,7 @@ const ViewAllStaff = ({ data }: Props) => {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredData.map((staff, index) => (
+                {allStaff.map((staff, index) => (
                   <TableRow key={staff.staffId} className="hover:bg-muted/50">
                     <TableCell className="font-medium">{index + 1}</TableCell>
                     <TableCell>
@@ -392,6 +400,27 @@ const ViewAllStaff = ({ data }: Props) => {
                 ))}
               </TableBody>
             </Table>
+            {allStaff.length > 0 && (
+              <div
+                ref={ref}
+                className="h-20 w-full flex justify-center items-center"
+              >
+                {isFetchingNextPage ? (
+                  <div className="flex items-center gap-2 text-primary font-medium">
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    <span>Loading more athletes...</span>
+                  </div>
+                ) : !hasNextPage && debounceSearch ? (
+                  <p className="text-muted-foreground text-sm italic">
+                    Showing all results for {debounceSearch}
+                  </p>
+                ) : !hasNextPage ? (
+                  <p className="text-muted-foreground text-sm italic">
+                    You&apos;ve reached the end of the staff list.
+                  </p>
+                ) : null}
+              </div>
+            )}
           </div>
         )}
       </CardContent>

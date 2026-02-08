@@ -158,7 +158,6 @@ const TransactionDetails = ({ id }: { id: string }) => {
                 </div>
               </div>
               <Separator />
-              {/* Subscription Period */}
               <div className="space-y-4">
                 <h4 className="font-medium flex items-center gap-2">
                   <Calendar className="h-4 w-4" />

@@ -27,13 +27,13 @@ export async function GET(
       subscriptionPlan: true,
     },
   });
-
+  const academy = await db.academy.findFirst();
   if (!invoice) {
     return new Response("Invoice not found", { status: 404 });
   }
 
   const stream = await renderToStream(
-    <InvoiceDocument invoice={invoice} logoUrl={logoUrl} />,
+    <InvoiceDocument invoice={invoice} logoUrl={logoUrl} academy={academy} />,
   );
 
   return new Response(stream as unknown as BodyInit, {

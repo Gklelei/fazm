@@ -7,7 +7,8 @@ export default defineConfig({
   migrations: {
     path: "prisma/migrations",
     // seed: "tsx ./src/Modules/Seed/SeedAthleteSequence.ts",
-    seed: "tsx ./src/Modules/Seed/SeedReasonsForAbsentism.ts",
+    // seed: "tsx ./src/Modules/Seed/SeedReasonsForAbsentism.ts",
+    seed: 'ts-node -r tsconfig-paths/register --compiler-options {"module":"CommonJS"} ./src/Modules/Seed/SeedReasonsForAbsentism.ts',
   },
   datasource: {
     url: process.env["DATABASE_URL"],

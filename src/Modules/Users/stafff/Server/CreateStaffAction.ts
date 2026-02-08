@@ -5,6 +5,7 @@ import { CreateStaffSchema, CreateStaffSchemaType } from "../Validation";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { APIError } from "better-auth";
 
 type ActionResult = {
   success: boolean;
@@ -59,6 +60,10 @@ export const CreateStaffAction = async (
     return { success: true, message: "User created successfully" };
   } catch (error) {
     console.error(error);
-    return { success: false, message: "Internal server error" };
+    return {
+      success: false,
+      message:
+        error instanceof APIError ? error.message : "Internal server error",
+    };
   }
 };

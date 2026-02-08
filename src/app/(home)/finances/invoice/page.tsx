@@ -1,16 +1,35 @@
 import { db } from "@/lib/prisma";
-import { getInvoicesQuery } from "@/Modules/Finances/Invoices/Types";
 import Invoices from "@/Modules/Finances/Invoices/ui/Invoices";
-import React from "react";
 
-const page = async () => {
-  const invoices = await db.invoice.findMany(getInvoicesQuery);
+export default async function Page() {
+  const pageSize = 10;
 
-  return (
-    <div>
-      <Invoices data={invoices} />
-    </div>
-  );
-};
+  const items = await db.invoice.findMany({
+    take: pageSize,
+    orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    include: {
+      athlete: {
+        select: {
+          athleteId: true,
+          firstName: true,
+          lastName: true,
+          middleName: true,
+        },
+      },
+      subscriptionPlan: { select: { name: true, code: true } },
+    },
+  });
 
-export default page;
+  const last = items[items.length - 1];
+  const nextCursor =
+    items.length === pageSize && last
+      ? JSON.stringify({ createdAt: last.createdAt.toISOString(), id: last.id })
+      : null;
+
+  const initialData = {
+    pages: [{ items: JSON.parse(JSON.stringify(items)), nextCursor }],
+    pageParams: [null],
+  };
+
+  return <Invoices initialData={initialData} />;
+}

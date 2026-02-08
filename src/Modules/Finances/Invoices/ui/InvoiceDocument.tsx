@@ -8,7 +8,7 @@ import {
 } from "@react-pdf/renderer";
 import { InvoiceType } from "@/Modules/Finances/Invoices/Types";
 import { formatDate } from "@/utils/TansformWords";
-import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+import { getAcademyQueryType } from "@/Modules/academy/Validation/Types";
 
 // Mimicking Tailwind's color palette and spacing
 const styles = StyleSheet.create({
@@ -144,9 +144,11 @@ const styles = StyleSheet.create({
 export default function InvoiceDocument({
   invoice,
   logoUrl,
+  academy,
 }: {
   invoice: InvoiceType;
   logoUrl: string;
+  academy: getAcademyQueryType | null;
 }) {
   const fullName = [
     invoice.athlete.firstName,
@@ -157,7 +159,6 @@ export default function InvoiceDocument({
     .join(" ");
 
   const balance = Number(invoice.amountDue) - Number(invoice.amountPaid);
-  const { data } = UseUtilsContext();
 
   return (
     <Document title={`Invoice ${invoice.invoiceNumber}`}>
@@ -168,19 +169,16 @@ export default function InvoiceDocument({
             {/* 
             eslint-disable-next-line jsx-a11y/alt-text
              */}
-            <Image
-              src={data?.academy?.logoUrl || logoUrl}
-              style={styles.logo}
-            />
+            <Image src={academy?.logoUrl || logoUrl} style={styles.logo} />
             <Text style={styles.academyName}>
-              {data?.academy?.academyName} ||Fazam Football Academy
+              {academy?.academyName || "Fazam Football Academy"}
             </Text>
             <View style={styles.address}>
-              <Text>{data?.academy?.address} || Kimathi Street, Nairobi</Text>
+              <Text>{academy?.address || "Kimathi Street, Nairobi"} </Text>
               <Text>
-                {data?.academy?.contactEmail} || academy@fazamfootball.org
+                {academy?.contactEmail || "academy@fazamfootball.org"}{" "}
               </Text>
-              <Text>{data?.academy?.contactPhone} ||0714401466</Text>
+              <Text>{academy?.contactPhone || "0714401466"}</Text>
             </View>
           </View>
 
@@ -272,7 +270,10 @@ export default function InvoiceDocument({
         {/* Payment Details */}
         <View style={styles.paymentBox}>
           <Text style={styles.sectionTitle}>Payment Instructions</Text>
-          <Text>M-Pesa Send Money: 0758080448</Text>
+          <Text>
+            {academy?.paymentMethodType || "M-Pesa Send Money"}:{" "}
+            {academy?.paymentMathod || "0758080448"}
+          </Text>
         </View>
 
         <Text style={styles.footer}>

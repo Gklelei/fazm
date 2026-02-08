@@ -5,16 +5,13 @@ import * as path from "path";
 export const runtime = "nodejs";
 
 const UPLOAD_ROOT =
-  process.env.UPLOAD_ROOT ?? path.join(process.cwd(), "public", "uploads");
+  process.env.NODE_ENV === "production"
+    ? process.env.UPLOAD_ROOT
+    : path.join(process.cwd(), "public", "uploads");
 
 const SAFE_DIR_REGEX = /^[a-zA-Z0-9_-]+$/;
 const SAFE_FILE_REGEX = /^[a-zA-Z0-9._-]+$/;
 
-console.log({ UPLOAD_ROOT });
-
-/* =========================
-   UPLOAD FILE
-========================= */
 export async function POST(req: NextRequest) {
   try {
     const formData = await req.formData();
@@ -39,7 +36,7 @@ export async function POST(req: NextRequest) {
     const buffer = Buffer.from(await file.arrayBuffer());
     const safeFileName = `${Date.now()}-${file.name.replace(/[^a-zA-Z0-9._-]/g, "_")}`;
 
-    const targetDir = path.join(UPLOAD_ROOT, directory);
+    const targetDir = path.join(UPLOAD_ROOT!, directory);
     const filePath = path.join(targetDir, safeFileName);
 
     await fs.mkdir(targetDir, { recursive: true });
@@ -99,11 +96,11 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "Invalid file name" }, { status: 400 });
     }
 
-    const filePath = path.join(UPLOAD_ROOT, directory, fileName);
+    const filePath = path.join(UPLOAD_ROOT!, directory, fileName);
 
     // Prevent path traversal
     const resolvedPath = path.resolve(filePath);
-    const resolvedRoot = path.resolve(UPLOAD_ROOT);
+    const resolvedRoot = path.resolve(UPLOAD_ROOT!);
 
     if (!resolvedPath.startsWith(resolvedRoot + path.sep)) {
       return NextResponse.json({ error: "Invalid file path" }, { status: 400 });

@@ -2,10 +2,9 @@ import "dotenv/config.js";
 import { db } from "@/lib/prisma";
 
 async function main() {
-  console.log(process.env.DATABASE_URL);
   await db.athleteSequence.upsert({
     where: { id: 1 },
-    create: { id: 1, current: 0 },
+    create: { id: 1, current: 500 },
     update: { current: { increment: 1 } },
     select: { current: true },
   });
