@@ -102,7 +102,7 @@ export async function seedAthletes(prisma: PrismaClient) {
           status: "PENDING",
           isArchived: false,
           profilePIcture: clean(row.avatar),
-          batchesId: "cmldhgcc20003ulj6hpwqmzd7",
+          batchesId: "cmle0egdq0003yjy1t5dah3q2",
 
           address: {
             create: {
