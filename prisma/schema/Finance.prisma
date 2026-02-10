@@ -95,6 +95,8 @@ model AthleteSubscription {
   updatedAt DateTime  @updatedAt
   updatedBy String? // Track who updated this subscription
   finances  Finance[]
+  coupon    Coupon?   @relation(fields: [couponId], references: [id])
+  couponId  String?
 
   // Ensure an athlete can't have multiple active subscriptions of same plan
   @@unique([athleteId, subscriptionPlanId, status])
@@ -149,6 +151,8 @@ model Invoice {
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   finances  Finance[]
+  coupon    Coupon?   @relation(fields: [couponId], references: [id])
+  couponId  String?
 
   @@index([athleteId])
   @@index([subscriptionPlanId])
@@ -187,6 +191,41 @@ model Finance {
   @@index([athleteSubscriptionId])
   @@index([paymentDate])
   @@map("finance")
+}
+
+enum DiscountType {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum CouponInterval {
+  ONCE
+  REPEATING
+}
+
+model Coupon {
+  id   String @id @default(cuid())
+  name String @unique
+
+  discountType DiscountType @default(PERCENTAGE)
+  value        Decimal      @db.Decimal(10, 2)
+
+  interval CouponInterval @default(ONCE)
+
+  startDate  DateTime  @default(now())
+  expiryDate DateTime?
+
+  usageLimit Int?
+  timesUsed  Int  @default(0)
+  status     Int  @default(0) /* 1 for active and 0 for inactive */
+  voided     Int  @default(0) /* 1 - voided 0 - not voided */
+
+  createdAt     DateTime              @default(now())
+  updatedAt     DateTime              @updatedAt
+  subscriptions AthleteSubscription[]
+  invoices      Invoice[]
+
+  @@map("coupons")
 }
 
 model Expenses {

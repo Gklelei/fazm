@@ -41,6 +41,7 @@ export type AthleteSubscriptionMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   updatedBy: string | null
+  couponId: string | null
 }
 
 export type AthleteSubscriptionMaxAggregateOutputType = {
@@ -60,6 +61,7 @@ export type AthleteSubscriptionMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   updatedBy: string | null
+  couponId: string | null
 }
 
 export type AthleteSubscriptionCountAggregateOutputType = {
@@ -79,6 +81,7 @@ export type AthleteSubscriptionCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   updatedBy: number
+  couponId: number
   _all: number
 }
 
@@ -100,6 +103,7 @@ export type AthleteSubscriptionMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   updatedBy?: true
+  couponId?: true
 }
 
 export type AthleteSubscriptionMaxAggregateInputType = {
@@ -119,6 +123,7 @@ export type AthleteSubscriptionMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   updatedBy?: true
+  couponId?: true
 }
 
 export type AthleteSubscriptionCountAggregateInputType = {
@@ -138,6 +143,7 @@ export type AthleteSubscriptionCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   updatedBy?: true
+  couponId?: true
   _all?: true
 }
 
@@ -230,6 +236,7 @@ export type AthleteSubscriptionGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   updatedBy: string | null
+  couponId: string | null
   _count: AthleteSubscriptionCountAggregateOutputType | null
   _min: AthleteSubscriptionMinAggregateOutputType | null
   _max: AthleteSubscriptionMaxAggregateOutputType | null
@@ -270,10 +277,12 @@ export type AthleteSubscriptionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedBy?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
+  couponId?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   subscriptionPlan?: Prisma.XOR<Prisma.SubscriptionPlanScalarRelationFilter, Prisma.SubscriptionPlanWhereInput>
   invoices?: Prisma.InvoiceListRelationFilter
   finances?: Prisma.FinanceListRelationFilter
+  coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
 }
 
 export type AthleteSubscriptionOrderByWithRelationInput = {
@@ -293,10 +302,12 @@ export type AthleteSubscriptionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   athlete?: Prisma.AthleteOrderByWithRelationInput
   subscriptionPlan?: Prisma.SubscriptionPlanOrderByWithRelationInput
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   finances?: Prisma.FinanceOrderByRelationAggregateInput
+  coupon?: Prisma.CouponOrderByWithRelationInput
 }
 
 export type AthleteSubscriptionWhereUniqueInput = Prisma.AtLeast<{
@@ -320,10 +331,12 @@ export type AthleteSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedBy?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
+  couponId?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   subscriptionPlan?: Prisma.XOR<Prisma.SubscriptionPlanScalarRelationFilter, Prisma.SubscriptionPlanWhereInput>
   invoices?: Prisma.InvoiceListRelationFilter
   finances?: Prisma.FinanceListRelationFilter
+  coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
 }, "id" | "athleteId_subscriptionPlanId_status">
 
 export type AthleteSubscriptionOrderByWithAggregationInput = {
@@ -343,6 +356,7 @@ export type AthleteSubscriptionOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrderInput | Prisma.SortOrder
+  couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AthleteSubscriptionCountOrderByAggregateInput
   _max?: Prisma.AthleteSubscriptionMaxOrderByAggregateInput
   _min?: Prisma.AthleteSubscriptionMinOrderByAggregateInput
@@ -368,6 +382,7 @@ export type AthleteSubscriptionScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AthleteSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AthleteSubscription"> | Date | string
   updatedBy?: Prisma.StringNullableWithAggregatesFilter<"AthleteSubscription"> | string | null
+  couponId?: Prisma.StringNullableWithAggregatesFilter<"AthleteSubscription"> | string | null
 }
 
 export type AthleteSubscriptionCreateInput = {
@@ -389,6 +404,7 @@ export type AthleteSubscriptionCreateInput = {
   subscriptionPlan: Prisma.SubscriptionPlanCreateNestedOneWithoutActiveSubscriptionsInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceCreateNestedManyWithoutAthleteSubscriptionInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutSubscriptionsInput
 }
 
 export type AthleteSubscriptionUncheckedCreateInput = {
@@ -408,6 +424,7 @@ export type AthleteSubscriptionUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
 }
@@ -431,6 +448,7 @@ export type AthleteSubscriptionUpdateInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutActiveSubscriptionsNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutAthleteSubscriptionNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutSubscriptionsNestedInput
 }
 
 export type AthleteSubscriptionUncheckedUpdateInput = {
@@ -450,6 +468,7 @@ export type AthleteSubscriptionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
 }
@@ -471,6 +490,7 @@ export type AthleteSubscriptionCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
 }
 
 export type AthleteSubscriptionUpdateManyMutationInput = {
@@ -507,6 +527,7 @@ export type AthleteSubscriptionUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AthleteSubscriptionListRelationFilter = {
@@ -542,6 +563,7 @@ export type AthleteSubscriptionCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type AthleteSubscriptionMaxOrderByAggregateInput = {
@@ -561,6 +583,7 @@ export type AthleteSubscriptionMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type AthleteSubscriptionMinOrderByAggregateInput = {
@@ -580,6 +603,7 @@ export type AthleteSubscriptionMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   updatedBy?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type AthleteSubscriptionNullableScalarRelationFilter = {
@@ -707,6 +731,48 @@ export type AthleteSubscriptionUpdateOneWithoutFinancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AthleteSubscriptionUpdateToOneWithWhereWithoutFinancesInput, Prisma.AthleteSubscriptionUpdateWithoutFinancesInput>, Prisma.AthleteSubscriptionUncheckedUpdateWithoutFinancesInput>
 }
 
+export type AthleteSubscriptionCreateNestedManyWithoutCouponInput = {
+  create?: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput> | Prisma.AthleteSubscriptionCreateWithoutCouponInput[] | Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput | Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput[]
+  createMany?: Prisma.AthleteSubscriptionCreateManyCouponInputEnvelope
+  connect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+}
+
+export type AthleteSubscriptionUncheckedCreateNestedManyWithoutCouponInput = {
+  create?: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput> | Prisma.AthleteSubscriptionCreateWithoutCouponInput[] | Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput | Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput[]
+  createMany?: Prisma.AthleteSubscriptionCreateManyCouponInputEnvelope
+  connect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+}
+
+export type AthleteSubscriptionUpdateManyWithoutCouponNestedInput = {
+  create?: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput> | Prisma.AthleteSubscriptionCreateWithoutCouponInput[] | Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput | Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput[]
+  upsert?: Prisma.AthleteSubscriptionUpsertWithWhereUniqueWithoutCouponInput | Prisma.AthleteSubscriptionUpsertWithWhereUniqueWithoutCouponInput[]
+  createMany?: Prisma.AthleteSubscriptionCreateManyCouponInputEnvelope
+  set?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  disconnect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  delete?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  connect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  update?: Prisma.AthleteSubscriptionUpdateWithWhereUniqueWithoutCouponInput | Prisma.AthleteSubscriptionUpdateWithWhereUniqueWithoutCouponInput[]
+  updateMany?: Prisma.AthleteSubscriptionUpdateManyWithWhereWithoutCouponInput | Prisma.AthleteSubscriptionUpdateManyWithWhereWithoutCouponInput[]
+  deleteMany?: Prisma.AthleteSubscriptionScalarWhereInput | Prisma.AthleteSubscriptionScalarWhereInput[]
+}
+
+export type AthleteSubscriptionUncheckedUpdateManyWithoutCouponNestedInput = {
+  create?: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput> | Prisma.AthleteSubscriptionCreateWithoutCouponInput[] | Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput | Prisma.AthleteSubscriptionCreateOrConnectWithoutCouponInput[]
+  upsert?: Prisma.AthleteSubscriptionUpsertWithWhereUniqueWithoutCouponInput | Prisma.AthleteSubscriptionUpsertWithWhereUniqueWithoutCouponInput[]
+  createMany?: Prisma.AthleteSubscriptionCreateManyCouponInputEnvelope
+  set?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  disconnect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  delete?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  connect?: Prisma.AthleteSubscriptionWhereUniqueInput | Prisma.AthleteSubscriptionWhereUniqueInput[]
+  update?: Prisma.AthleteSubscriptionUpdateWithWhereUniqueWithoutCouponInput | Prisma.AthleteSubscriptionUpdateWithWhereUniqueWithoutCouponInput[]
+  updateMany?: Prisma.AthleteSubscriptionUpdateManyWithWhereWithoutCouponInput | Prisma.AthleteSubscriptionUpdateManyWithWhereWithoutCouponInput[]
+  deleteMany?: Prisma.AthleteSubscriptionScalarWhereInput | Prisma.AthleteSubscriptionScalarWhereInput[]
+}
+
 export type AthleteSubscriptionCreateWithoutAthleteInput = {
   id?: string
   startDate?: Date | string
@@ -725,6 +791,7 @@ export type AthleteSubscriptionCreateWithoutAthleteInput = {
   subscriptionPlan: Prisma.SubscriptionPlanCreateNestedOneWithoutActiveSubscriptionsInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceCreateNestedManyWithoutAthleteSubscriptionInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutSubscriptionsInput
 }
 
 export type AthleteSubscriptionUncheckedCreateWithoutAthleteInput = {
@@ -743,6 +810,7 @@ export type AthleteSubscriptionUncheckedCreateWithoutAthleteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
 }
@@ -793,6 +861,7 @@ export type AthleteSubscriptionScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AthleteSubscription"> | Date | string
   updatedBy?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
+  couponId?: Prisma.StringNullableFilter<"AthleteSubscription"> | string | null
 }
 
 export type AthleteSubscriptionCreateWithoutSubscriptionPlanInput = {
@@ -813,6 +882,7 @@ export type AthleteSubscriptionCreateWithoutSubscriptionPlanInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutAthleteSubscriptionsInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceCreateNestedManyWithoutAthleteSubscriptionInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutSubscriptionsInput
 }
 
 export type AthleteSubscriptionUncheckedCreateWithoutSubscriptionPlanInput = {
@@ -831,6 +901,7 @@ export type AthleteSubscriptionUncheckedCreateWithoutSubscriptionPlanInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
 }
@@ -879,6 +950,7 @@ export type AthleteSubscriptionCreateWithoutInvoicesInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutAthleteSubscriptionsInput
   subscriptionPlan: Prisma.SubscriptionPlanCreateNestedOneWithoutActiveSubscriptionsInput
   finances?: Prisma.FinanceCreateNestedManyWithoutAthleteSubscriptionInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutSubscriptionsInput
 }
 
 export type AthleteSubscriptionUncheckedCreateWithoutInvoicesInput = {
@@ -898,6 +970,7 @@ export type AthleteSubscriptionUncheckedCreateWithoutInvoicesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
 }
 
@@ -935,6 +1008,7 @@ export type AthleteSubscriptionUpdateWithoutInvoicesInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAthleteSubscriptionsNestedInput
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutActiveSubscriptionsNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutAthleteSubscriptionNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutSubscriptionsNestedInput
 }
 
 export type AthleteSubscriptionUncheckedUpdateWithoutInvoicesInput = {
@@ -954,6 +1028,7 @@ export type AthleteSubscriptionUncheckedUpdateWithoutInvoicesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
 }
 
@@ -975,6 +1050,7 @@ export type AthleteSubscriptionCreateWithoutFinancesInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutAthleteSubscriptionsInput
   subscriptionPlan: Prisma.SubscriptionPlanCreateNestedOneWithoutActiveSubscriptionsInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteSubscriptionInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutSubscriptionsInput
 }
 
 export type AthleteSubscriptionUncheckedCreateWithoutFinancesInput = {
@@ -994,6 +1070,7 @@ export type AthleteSubscriptionUncheckedCreateWithoutFinancesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
 }
 
@@ -1031,6 +1108,7 @@ export type AthleteSubscriptionUpdateWithoutFinancesInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAthleteSubscriptionsNestedInput
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutActiveSubscriptionsNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteSubscriptionNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutSubscriptionsNestedInput
 }
 
 export type AthleteSubscriptionUncheckedUpdateWithoutFinancesInput = {
@@ -1050,7 +1128,76 @@ export type AthleteSubscriptionUncheckedUpdateWithoutFinancesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
+}
+
+export type AthleteSubscriptionCreateWithoutCouponInput = {
+  id?: string
+  startDate?: Date | string
+  endDate?: Date | string | null
+  status?: $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart: Date | string
+  currentPeriodEnd: Date | string
+  trialStart?: Date | string | null
+  trialEnd?: Date | string | null
+  paymentMethodId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  updatedBy?: string | null
+  athlete: Prisma.AthleteCreateNestedOneWithoutAthleteSubscriptionsInput
+  subscriptionPlan: Prisma.SubscriptionPlanCreateNestedOneWithoutActiveSubscriptionsInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteSubscriptionInput
+  finances?: Prisma.FinanceCreateNestedManyWithoutAthleteSubscriptionInput
+}
+
+export type AthleteSubscriptionUncheckedCreateWithoutCouponInput = {
+  id?: string
+  athleteId: string
+  subscriptionPlanId: string
+  startDate?: Date | string
+  endDate?: Date | string | null
+  status?: $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart: Date | string
+  currentPeriodEnd: Date | string
+  trialStart?: Date | string | null
+  trialEnd?: Date | string | null
+  paymentMethodId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  updatedBy?: string | null
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
+  finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteSubscriptionInput
+}
+
+export type AthleteSubscriptionCreateOrConnectWithoutCouponInput = {
+  where: Prisma.AthleteSubscriptionWhereUniqueInput
+  create: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput>
+}
+
+export type AthleteSubscriptionCreateManyCouponInputEnvelope = {
+  data: Prisma.AthleteSubscriptionCreateManyCouponInput | Prisma.AthleteSubscriptionCreateManyCouponInput[]
+  skipDuplicates?: boolean
+}
+
+export type AthleteSubscriptionUpsertWithWhereUniqueWithoutCouponInput = {
+  where: Prisma.AthleteSubscriptionWhereUniqueInput
+  update: Prisma.XOR<Prisma.AthleteSubscriptionUpdateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedUpdateWithoutCouponInput>
+  create: Prisma.XOR<Prisma.AthleteSubscriptionCreateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedCreateWithoutCouponInput>
+}
+
+export type AthleteSubscriptionUpdateWithWhereUniqueWithoutCouponInput = {
+  where: Prisma.AthleteSubscriptionWhereUniqueInput
+  data: Prisma.XOR<Prisma.AthleteSubscriptionUpdateWithoutCouponInput, Prisma.AthleteSubscriptionUncheckedUpdateWithoutCouponInput>
+}
+
+export type AthleteSubscriptionUpdateManyWithWhereWithoutCouponInput = {
+  where: Prisma.AthleteSubscriptionScalarWhereInput
+  data: Prisma.XOR<Prisma.AthleteSubscriptionUpdateManyMutationInput, Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutCouponInput>
 }
 
 export type AthleteSubscriptionCreateManyAthleteInput = {
@@ -1069,6 +1216,7 @@ export type AthleteSubscriptionCreateManyAthleteInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
 }
 
 export type AthleteSubscriptionUpdateWithoutAthleteInput = {
@@ -1089,6 +1237,7 @@ export type AthleteSubscriptionUpdateWithoutAthleteInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutActiveSubscriptionsNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutAthleteSubscriptionNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutSubscriptionsNestedInput
 }
 
 export type AthleteSubscriptionUncheckedUpdateWithoutAthleteInput = {
@@ -1107,6 +1256,7 @@ export type AthleteSubscriptionUncheckedUpdateWithoutAthleteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
 }
@@ -1127,6 +1277,7 @@ export type AthleteSubscriptionUncheckedUpdateManyWithoutAthleteInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AthleteSubscriptionCreateManySubscriptionPlanInput = {
@@ -1145,6 +1296,7 @@ export type AthleteSubscriptionCreateManySubscriptionPlanInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   updatedBy?: string | null
+  couponId?: string | null
 }
 
 export type AthleteSubscriptionUpdateWithoutSubscriptionPlanInput = {
@@ -1165,6 +1317,7 @@ export type AthleteSubscriptionUpdateWithoutSubscriptionPlanInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAthleteSubscriptionsNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutAthleteSubscriptionNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutSubscriptionsNestedInput
 }
 
 export type AthleteSubscriptionUncheckedUpdateWithoutSubscriptionPlanInput = {
@@ -1183,6 +1336,7 @@ export type AthleteSubscriptionUncheckedUpdateWithoutSubscriptionPlanInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
 }
@@ -1190,6 +1344,87 @@ export type AthleteSubscriptionUncheckedUpdateWithoutSubscriptionPlanInput = {
 export type AthleteSubscriptionUncheckedUpdateManyWithoutSubscriptionPlanInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumSUBSCRIPTION_STATUSFieldUpdateOperationsInput | $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trialStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type AthleteSubscriptionCreateManyCouponInput = {
+  id?: string
+  athleteId: string
+  subscriptionPlanId: string
+  startDate?: Date | string
+  endDate?: Date | string | null
+  status?: $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: boolean
+  cancelAtPeriodEnd?: boolean
+  currentPeriodStart: Date | string
+  currentPeriodEnd: Date | string
+  trialStart?: Date | string | null
+  trialEnd?: Date | string | null
+  paymentMethodId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  updatedBy?: string | null
+}
+
+export type AthleteSubscriptionUpdateWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumSUBSCRIPTION_STATUSFieldUpdateOperationsInput | $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trialStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  athlete?: Prisma.AthleteUpdateOneRequiredWithoutAthleteSubscriptionsNestedInput
+  subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneRequiredWithoutActiveSubscriptionsNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutAthleteSubscriptionNestedInput
+  finances?: Prisma.FinanceUpdateManyWithoutAthleteSubscriptionNestedInput
+}
+
+export type AthleteSubscriptionUncheckedUpdateWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionPlanId?: Prisma.StringFieldUpdateOperationsInput | string
+  startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumSUBSCRIPTION_STATUSFieldUpdateOperationsInput | $Enums.SUBSCRIPTION_STATUS
+  autoRenew?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  cancelAtPeriodEnd?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  currentPeriodStart?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  currentPeriodEnd?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  trialStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  trialEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  paymentMethodId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
+  finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteSubscriptionNestedInput
+}
+
+export type AthleteSubscriptionUncheckedUpdateManyWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionPlanId?: Prisma.StringFieldUpdateOperationsInput | string
   startDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.EnumSUBSCRIPTION_STATUSFieldUpdateOperationsInput | $Enums.SUBSCRIPTION_STATUS
@@ -1262,10 +1497,12 @@ export type AthleteSubscriptionSelect<ExtArgs extends runtime.Types.Extensions.I
   createdAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
   invoices?: boolean | Prisma.AthleteSubscription$invoicesArgs<ExtArgs>
   finances?: boolean | Prisma.AthleteSubscription$financesArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
   _count?: boolean | Prisma.AthleteSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["athleteSubscription"]>
 
@@ -1286,8 +1523,10 @@ export type AthleteSubscriptionSelectCreateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
 }, ExtArgs["result"]["athleteSubscription"]>
 
 export type AthleteSubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1307,8 +1546,10 @@ export type AthleteSubscriptionSelectUpdateManyAndReturn<ExtArgs extends runtime
   createdAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
 }, ExtArgs["result"]["athleteSubscription"]>
 
 export type AthleteSubscriptionSelectScalar = {
@@ -1328,23 +1569,27 @@ export type AthleteSubscriptionSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   updatedBy?: boolean
+  couponId?: boolean
 }
 
-export type AthleteSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "athleteId" | "subscriptionPlanId" | "startDate" | "endDate" | "status" | "autoRenew" | "cancelAtPeriodEnd" | "currentPeriodStart" | "currentPeriodEnd" | "trialStart" | "trialEnd" | "paymentMethodId" | "createdAt" | "updatedAt" | "updatedBy", ExtArgs["result"]["athleteSubscription"]>
+export type AthleteSubscriptionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "athleteId" | "subscriptionPlanId" | "startDate" | "endDate" | "status" | "autoRenew" | "cancelAtPeriodEnd" | "currentPeriodStart" | "currentPeriodEnd" | "trialStart" | "trialEnd" | "paymentMethodId" | "createdAt" | "updatedAt" | "updatedBy" | "couponId", ExtArgs["result"]["athleteSubscription"]>
 export type AthleteSubscriptionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
   invoices?: boolean | Prisma.AthleteSubscription$invoicesArgs<ExtArgs>
   finances?: boolean | Prisma.AthleteSubscription$financesArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
   _count?: boolean | Prisma.AthleteSubscriptionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AthleteSubscriptionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
 }
 export type AthleteSubscriptionIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.SubscriptionPlanDefaultArgs<ExtArgs>
+  coupon?: boolean | Prisma.AthleteSubscription$couponArgs<ExtArgs>
 }
 
 export type $AthleteSubscriptionPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1354,6 +1599,7 @@ export type $AthleteSubscriptionPayload<ExtArgs extends runtime.Types.Extensions
     subscriptionPlan: Prisma.$SubscriptionPlanPayload<ExtArgs>
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     finances: Prisma.$FinancePayload<ExtArgs>[]
+    coupon: Prisma.$CouponPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1372,6 +1618,7 @@ export type $AthleteSubscriptionPayload<ExtArgs extends runtime.Types.Extensions
     createdAt: Date
     updatedAt: Date
     updatedBy: string | null
+    couponId: string | null
   }, ExtArgs["result"]["athleteSubscription"]>
   composites: {}
 }
@@ -1770,6 +2017,7 @@ export interface Prisma__AthleteSubscriptionClient<T, Null = never, ExtArgs exte
   subscriptionPlan<T extends Prisma.SubscriptionPlanDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.SubscriptionPlanDefaultArgs<ExtArgs>>): Prisma.Prisma__SubscriptionPlanClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   invoices<T extends Prisma.AthleteSubscription$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AthleteSubscription$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   finances<T extends Prisma.AthleteSubscription$financesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AthleteSubscription$financesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  coupon<T extends Prisma.AthleteSubscription$couponArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AthleteSubscription$couponArgs<ExtArgs>>): Prisma.Prisma__CouponClient<runtime.Types.Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1815,6 +2063,7 @@ export interface AthleteSubscriptionFieldRefs {
   readonly createdAt: Prisma.FieldRef<"AthleteSubscription", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AthleteSubscription", 'DateTime'>
   readonly updatedBy: Prisma.FieldRef<"AthleteSubscription", 'String'>
+  readonly couponId: Prisma.FieldRef<"AthleteSubscription", 'String'>
 }
     
 
@@ -2256,6 +2505,25 @@ export type AthleteSubscription$financesArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.FinanceScalarFieldEnum | Prisma.FinanceScalarFieldEnum[]
+}
+
+/**
+ * AthleteSubscription.coupon
+ */
+export type AthleteSubscription$couponArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Coupon
+   */
+  select?: Prisma.CouponSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Coupon
+   */
+  omit?: Prisma.CouponOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CouponInclude<ExtArgs> | null
+  where?: Prisma.CouponWhereInput
 }
 
 /**

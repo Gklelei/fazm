@@ -16,6 +16,7 @@ import {
   TrophyIcon,
   DoorClosedLocked,
   UserCheck2Icon,
+  TagIcon,
   // Mail,
   // MessageSquare,
 } from "lucide-react";
@@ -119,6 +120,12 @@ export const data: { navMain: NavItem[] } = {
           title: "Expense Categories",
           url: "/expenses-categories",
           icon: <TrophyIcon className="size-4" />,
+          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
+        },
+        {
+          title: "Coupons",
+          url: "/coupons",
+          icon: <TagIcon className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
         },
       ],

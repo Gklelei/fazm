@@ -3,12 +3,13 @@
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,7 +20,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft } from "lucide-react";
+import { PlusIcon, ChevronLeft } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { ClientFinanceSchema, ClientFinanceSchemaType } from "../Validators";
@@ -37,16 +38,25 @@ interface Props {
   showBack?: boolean;
   invoices: GetAllInvoicesType[];
   athletes: GetAllFinanceAtheletesType[];
+  trigger?: React.ReactNode;
+  defaultOpen?: boolean;
 }
 
-const PEYMENT_METHODS = [
+const PAYMENT_METHODS = [
   "CASH",
   "BANK_TRANSFER",
   "MPESA_SEND_MONEY",
   "MPESA_PAYBILL",
 ];
 
-const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
+const PaymentDialog = ({
+  id,
+  showBack,
+  athletes,
+  invoices,
+  trigger,
+  defaultOpen = false,
+}: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const queryClient = useQueryClient();
@@ -57,7 +67,7 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
       amountPaid: "",
       collectedBy: "",
       notes: "",
-      paymentDate: "",
+      paymentDate: new Date().toISOString().split("T")[0],
       paymentType: "MPESA_SEND_MONEY",
       athleteId: id || "",
       invoiceId: "",
@@ -92,42 +102,58 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
         await queryClient.invalidateQueries({
           queryKey: ["FINANCE_TRANSACTION_DETAILS"],
         });
+        form.reset({
+          amountPaid: "",
+          collectedBy: "",
+          notes: "",
+          paymentDate: new Date().toISOString().split("T")[0],
+          paymentType: "MPESA_SEND_MONEY",
+          athleteId: id || "",
+          invoiceId: "",
+        });
       } else {
         Sweetalert({ icon: "error", text: result.message, title: "Error" });
       }
     });
   };
 
-  return (
-    <Card className="max-w-2xl mx-auto border-none shadow-md">
-      <CardHeader className="space-y-1">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-2xl font-bold tracking-tight">
-            Record Payment
-          </CardTitle>
-          {showBack && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="gap-1"
-            >
-              <ChevronLeft className="w-4 h-4" /> Back
-            </Button>
-          )}
-        </div>
-        <CardDescription>
-          Enter transaction details to update player balance
-        </CardDescription>
-      </CardHeader>
+  const defaultTrigger = trigger || (
+    <Button className="gap-2">
+      <PlusIcon className="h-4 w-4" />
+      Record Payment
+    </Button>
+  );
 
-      <CardContent>
+  return (
+    <Dialog defaultOpen={defaultOpen}>
+      <DialogTrigger asChild>{defaultTrigger}</DialogTrigger>
+      <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogHeader className="space-y-3">
+          <div className="flex items-center justify-between">
+            <DialogTitle className="text-xl font-bold tracking-tight">
+              Record Payment
+            </DialogTitle>
+            {showBack && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => router.back()}
+                className="gap-1"
+              >
+                <ChevronLeft className="w-4 h-4" /> Back
+              </Button>
+            )}
+          </div>
+          <DialogDescription className="text-sm">
+            Enter transaction details to update player balance
+          </DialogDescription>
+        </DialogHeader>
+
         <Form {...form}>
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
           >
-            {/* Athlete & Invoice Selection Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {!id && (
                 <FormField
@@ -135,7 +161,9 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                   control={form.control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Athlete</FormLabel>
+                      <FormLabel className="text-sm font-medium">
+                        Athlete
+                      </FormLabel>
                       <FormControl>
                         <SearchSelect
                           items={athletes}
@@ -152,7 +180,7 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                               <span className="font-medium">
                                 {a.firstName} {a.lastName}
                               </span>
-                              <span className="text-xs opacity-70 uppercase">
+                              <span className="text-xs text-muted-foreground uppercase">
                                 {a.athleteId}
                               </span>
                             </div>
@@ -170,7 +198,9 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem className={id ? "col-span-2" : ""}>
-                    <FormLabel>Target Invoice</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      Target Invoice
+                    </FormLabel>
                     <FormControl>
                       <SearchSelect
                         items={filteredInvoices}
@@ -183,7 +213,7 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                         renderItem={(a) => (
                           <div className="flex flex-col py-1">
                             <span className="font-medium">{a.description}</span>
-                            <span className="text-xs opacity-70">
+                            <span className="text-xs text-muted-foreground">
                               Bal: {Number(a.amountDue) - Number(a.amountPaid)}{" "}
                               | {a.invoiceNumber}
                             </span>
@@ -197,14 +227,15 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
               />
             </div>
 
-            {/* Financial Details Row */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 border-t pt-4">
               <FormField
                 name="amountPaid"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Amount Paid</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      Amount Paid
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -223,7 +254,9 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Payment Date</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      Payment Date
+                    </FormLabel>
                     <FormControl>
                       <Input {...field} type="date" className="h-10" />
                     </FormControl>
@@ -233,14 +266,15 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
               />
             </div>
 
-            {/* Collection Details Row */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <FormField
                 name="collectedBy"
                 control={form.control}
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Received By</FormLabel>
+                    <FormLabel className="text-sm font-medium">
+                      Received By
+                    </FormLabel>
                     <FormControl>
                       <Input
                         {...field}
@@ -258,12 +292,14 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
                 name="paymentType"
                 control={form.control}
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Payment Method</FormLabel>
-                    <FormControl>
+                  <FormItem className="w-full">
+                    <FormLabel className="text-sm font-medium">
+                      Payment Method
+                    </FormLabel>
+                    <FormControl className="w-full">
                       <GenericSelect
                         placeholder="Payment types"
-                        items={PEYMENT_METHODS.map((m) => ({
+                        items={PAYMENT_METHODS.map((m) => ({
                           id: m,
                           label: m.replace(/_/g, " "),
                         }))}
@@ -284,12 +320,14 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
               control={form.control}
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Additional Notes</FormLabel>
+                  <FormLabel className="text-sm font-medium">
+                    Additional Notes
+                  </FormLabel>
                   <FormControl>
                     <Textarea
                       {...field}
                       placeholder="e.g. Partial payment for term 2"
-                      className="min-h-20"
+                      className="min-h-24 resize-none"
                     />
                   </FormControl>
                   <FormMessage />
@@ -297,14 +335,41 @@ const PaymentModal = ({ id, showBack, athletes, invoices }: Props) => {
               )}
             />
 
-            <Button type="submit" className="w-full h-11" disabled={isPending}>
-              {isPending ? <Loader2Spinner /> : "Complete Transaction"}
-            </Button>
+            <div className="flex gap-3 pt-2">
+              <Button
+                type="button"
+                variant="outline"
+                className="flex-1"
+                onClick={() =>
+                  form.reset({
+                    amountPaid: "",
+                    collectedBy: "",
+                    notes: "",
+                    paymentDate: new Date().toISOString().split("T")[0],
+                    paymentType: "MPESA_SEND_MONEY",
+                    athleteId: id || "",
+                    invoiceId: "",
+                  })
+                }
+              >
+                Clear
+              </Button>
+              <Button type="submit" className="flex-1" disabled={isPending}>
+                {isPending ? (
+                  <>
+                    <Loader2Spinner />
+                    Processing...
+                  </>
+                ) : (
+                  "Complete Transaction"
+                )}
+              </Button>
+            </div>
           </form>
         </Form>
-      </CardContent>
-    </Card>
+      </DialogContent>
+    </Dialog>
   );
 };
 
-export default PaymentModal;
+export default PaymentDialog;

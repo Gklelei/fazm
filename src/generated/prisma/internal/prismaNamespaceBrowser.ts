@@ -65,6 +65,7 @@ export const ModelName = {
   AthleteSubscription: 'AthleteSubscription',
   Invoice: 'Invoice',
   Finance: 'Finance',
+  Coupon: 'Coupon',
   Expenses: 'Expenses',
   ExpenseCategories: 'ExpenseCategories',
   training: 'training',
@@ -260,7 +261,8 @@ export const AthleteSubscriptionScalarFieldEnum = {
   paymentMethodId: 'paymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  updatedBy: 'updatedBy',
+  couponId: 'couponId'
 } as const
 
 export type AthleteSubscriptionScalarFieldEnum = (typeof AthleteSubscriptionScalarFieldEnum)[keyof typeof AthleteSubscriptionScalarFieldEnum]
@@ -288,7 +290,8 @@ export const InvoiceScalarFieldEnum = {
   issuedBy: 'issuedBy',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  couponId: 'couponId'
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
@@ -309,6 +312,25 @@ export const FinanceScalarFieldEnum = {
 } as const
 
 export type FinanceScalarFieldEnum = (typeof FinanceScalarFieldEnum)[keyof typeof FinanceScalarFieldEnum]
+
+
+export const CouponScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  discountType: 'discountType',
+  value: 'value',
+  interval: 'interval',
+  startDate: 'startDate',
+  expiryDate: 'expiryDate',
+  usageLimit: 'usageLimit',
+  timesUsed: 'timesUsed',
+  status: 'status',
+  voided: 'voided',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CouponScalarFieldEnum = (typeof CouponScalarFieldEnum)[keyof typeof CouponScalarFieldEnum]
 
 
 export const ExpensesScalarFieldEnum = {

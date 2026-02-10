@@ -88,6 +88,11 @@ export type Invoice = Prisma.InvoiceModel
  */
 export type Finance = Prisma.FinanceModel
 /**
+ * Model Coupon
+ * 
+ */
+export type Coupon = Prisma.CouponModel
+/**
  * Model Expenses
  * 
  */

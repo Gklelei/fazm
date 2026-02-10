@@ -398,6 +398,7 @@ export const ModelName = {
   AthleteSubscription: 'AthleteSubscription',
   Invoice: 'Invoice',
   Finance: 'Finance',
+  Coupon: 'Coupon',
   Expenses: 'Expenses',
   ExpenseCategories: 'ExpenseCategories',
   training: 'training',
@@ -428,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "expenses" | "expenseCategories" | "training" | "batches" | "batchSchedule" | "drills" | "attendance" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
+    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "coupon" | "expenses" | "expenseCategories" | "training" | "batches" | "batchSchedule" | "drills" | "attendance" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1465,6 +1466,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.FinanceCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.FinanceCountAggregateOutputType> | number
+        }
+      }
+    }
+    Coupon: {
+      payload: Prisma.$CouponPayload<ExtArgs>
+      fields: Prisma.CouponFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CouponFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CouponFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        findFirst: {
+          args: Prisma.CouponFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CouponFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        findMany: {
+          args: Prisma.CouponFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>[]
+        }
+        create: {
+          args: Prisma.CouponCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        createMany: {
+          args: Prisma.CouponCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CouponCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>[]
+        }
+        delete: {
+          args: Prisma.CouponDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        update: {
+          args: Prisma.CouponUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        deleteMany: {
+          args: Prisma.CouponDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CouponUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CouponUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>[]
+        }
+        upsert: {
+          args: Prisma.CouponUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CouponPayload>
+        }
+        aggregate: {
+          args: Prisma.CouponAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCoupon>
+        }
+        groupBy: {
+          args: Prisma.CouponGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CouponGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CouponCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CouponCountAggregateOutputType> | number
         }
       }
     }
@@ -2779,7 +2854,8 @@ export const AthleteSubscriptionScalarFieldEnum = {
   paymentMethodId: 'paymentMethodId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  updatedBy: 'updatedBy'
+  updatedBy: 'updatedBy',
+  couponId: 'couponId'
 } as const
 
 export type AthleteSubscriptionScalarFieldEnum = (typeof AthleteSubscriptionScalarFieldEnum)[keyof typeof AthleteSubscriptionScalarFieldEnum]
@@ -2807,7 +2883,8 @@ export const InvoiceScalarFieldEnum = {
   issuedBy: 'issuedBy',
   notes: 'notes',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  couponId: 'couponId'
 } as const
 
 export type InvoiceScalarFieldEnum = (typeof InvoiceScalarFieldEnum)[keyof typeof InvoiceScalarFieldEnum]
@@ -2828,6 +2905,25 @@ export const FinanceScalarFieldEnum = {
 } as const
 
 export type FinanceScalarFieldEnum = (typeof FinanceScalarFieldEnum)[keyof typeof FinanceScalarFieldEnum]
+
+
+export const CouponScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  discountType: 'discountType',
+  value: 'value',
+  interval: 'interval',
+  startDate: 'startDate',
+  expiryDate: 'expiryDate',
+  usageLimit: 'usageLimit',
+  timesUsed: 'timesUsed',
+  status: 'status',
+  voided: 'voided',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type CouponScalarFieldEnum = (typeof CouponScalarFieldEnum)[keyof typeof CouponScalarFieldEnum]
 
 
 export const ExpensesScalarFieldEnum = {
@@ -3243,6 +3339,34 @@ export type ListEnumPAYMENT_TYPEFieldRefInput<$PrismaModel> = FieldRefInputType<
 
 
 /**
+ * Reference to a field of type 'DiscountType'
+ */
+export type EnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType'>
+    
+
+
+/**
+ * Reference to a field of type 'DiscountType[]'
+ */
+export type ListEnumDiscountTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DiscountType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'CouponInterval'
+ */
+export type EnumCouponIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CouponInterval'>
+    
+
+
+/**
+ * Reference to a field of type 'CouponInterval[]'
+ */
+export type ListEnumCouponIntervalFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'CouponInterval[]'>
+    
+
+
+/**
  * Reference to a field of type 'EXPENSECATGORIES_STATUS'
  */
 export type EnumEXPENSECATGORIES_STATUSFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'EXPENSECATGORIES_STATUS'>
@@ -3420,6 +3544,7 @@ export type GlobalOmitConfig = {
   athleteSubscription?: Prisma.AthleteSubscriptionOmit
   invoice?: Prisma.InvoiceOmit
   finance?: Prisma.FinanceOmit
+  coupon?: Prisma.CouponOmit
   expenses?: Prisma.ExpensesOmit
   expenseCategories?: Prisma.ExpenseCategoriesOmit
   training?: Prisma.trainingOmit

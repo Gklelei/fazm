@@ -83,6 +83,22 @@ export const SUB_FREQUENCY = {
 export type SUB_FREQUENCY = (typeof SUB_FREQUENCY)[keyof typeof SUB_FREQUENCY]
 
 
+export const DiscountType = {
+  PERCENTAGE: 'PERCENTAGE',
+  FIXED_AMOUNT: 'FIXED_AMOUNT'
+} as const
+
+export type DiscountType = (typeof DiscountType)[keyof typeof DiscountType]
+
+
+export const CouponInterval = {
+  ONCE: 'ONCE',
+  REPEATING: 'REPEATING'
+} as const
+
+export type CouponInterval = (typeof CouponInterval)[keyof typeof CouponInterval]
+
+
 export const EXPENSECATGORIES_STATUS = {
   ACTIVE: 'ACTIVE',
   INACTIVE: 'INACTIVE'

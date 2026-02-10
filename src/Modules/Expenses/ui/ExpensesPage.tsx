@@ -19,6 +19,7 @@ import { VoidExpenses } from "../Server/CreateExpense";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import CreateExpenses from "./CreateExpenses";
 import EditExpenseForm from "./EditExpensesForm";
+import { formatCurrency } from "@/utils/TansformWords";
 
 interface Props {
   expenses: GetExpensesQueryType[];
@@ -102,7 +103,9 @@ const ExpensesPage = ({ expenses }: Props) => {
                   </TableCell>
 
                   <TableCell className="font-medium">{e.name}</TableCell>
-                  <TableCell className="font-medium">KES {e.amount}</TableCell>
+                  <TableCell className="font-medium">
+                    KES {formatCurrency(e.amount)}
+                  </TableCell>
 
                   <TableCell className="text-muted-foreground truncate max-w-75">
                     {e.description || "—"}

@@ -63,6 +63,7 @@ export type InvoiceMinAggregateOutputType = {
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  couponId: string | null
 }
 
 export type InvoiceMaxAggregateOutputType = {
@@ -88,6 +89,7 @@ export type InvoiceMaxAggregateOutputType = {
   notes: string | null
   createdAt: Date | null
   updatedAt: Date | null
+  couponId: string | null
 }
 
 export type InvoiceCountAggregateOutputType = {
@@ -113,6 +115,7 @@ export type InvoiceCountAggregateOutputType = {
   notes: number
   createdAt: number
   updatedAt: number
+  couponId: number
   _all: number
 }
 
@@ -154,6 +157,7 @@ export type InvoiceMinAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  couponId?: true
 }
 
 export type InvoiceMaxAggregateInputType = {
@@ -179,6 +183,7 @@ export type InvoiceMaxAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  couponId?: true
 }
 
 export type InvoiceCountAggregateInputType = {
@@ -204,6 +209,7 @@ export type InvoiceCountAggregateInputType = {
   notes?: true
   createdAt?: true
   updatedAt?: true
+  couponId?: true
   _all?: true
 }
 
@@ -316,6 +322,7 @@ export type InvoiceGroupByOutputType = {
   notes: string | null
   createdAt: Date
   updatedAt: Date
+  couponId: string | null
   _count: InvoiceCountAggregateOutputType | null
   _avg: InvoiceAvgAggregateOutputType | null
   _sum: InvoiceSumAggregateOutputType | null
@@ -364,10 +371,12 @@ export type InvoiceWhereInput = {
   notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  couponId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   subscriptionPlan?: Prisma.XOR<Prisma.SubscriptionPlanNullableScalarRelationFilter, Prisma.SubscriptionPlanWhereInput> | null
   athleteSubscription?: Prisma.XOR<Prisma.AthleteSubscriptionNullableScalarRelationFilter, Prisma.AthleteSubscriptionWhereInput> | null
   finances?: Prisma.FinanceListRelationFilter
+  coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
 }
 
 export type InvoiceOrderByWithRelationInput = {
@@ -393,10 +402,12 @@ export type InvoiceOrderByWithRelationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   athlete?: Prisma.AthleteOrderByWithRelationInput
   subscriptionPlan?: Prisma.SubscriptionPlanOrderByWithRelationInput
   athleteSubscription?: Prisma.AthleteSubscriptionOrderByWithRelationInput
   finances?: Prisma.FinanceOrderByRelationAggregateInput
+  coupon?: Prisma.CouponOrderByWithRelationInput
 }
 
 export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
@@ -425,10 +436,12 @@ export type InvoiceWhereUniqueInput = Prisma.AtLeast<{
   notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  couponId?: Prisma.StringNullableFilter<"Invoice"> | string | null
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   subscriptionPlan?: Prisma.XOR<Prisma.SubscriptionPlanNullableScalarRelationFilter, Prisma.SubscriptionPlanWhereInput> | null
   athleteSubscription?: Prisma.XOR<Prisma.AthleteSubscriptionNullableScalarRelationFilter, Prisma.AthleteSubscriptionWhereInput> | null
   finances?: Prisma.FinanceListRelationFilter
+  coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
 }, "id" | "invoiceNumber">
 
 export type InvoiceOrderByWithAggregationInput = {
@@ -454,6 +467,7 @@ export type InvoiceOrderByWithAggregationInput = {
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  couponId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.InvoiceCountOrderByAggregateInput
   _avg?: Prisma.InvoiceAvgOrderByAggregateInput
   _max?: Prisma.InvoiceMaxOrderByAggregateInput
@@ -487,6 +501,7 @@ export type InvoiceScalarWhereWithAggregatesInput = {
   notes?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Invoice"> | Date | string
+  couponId?: Prisma.StringNullableWithAggregatesFilter<"Invoice"> | string | null
 }
 
 export type InvoiceCreateInput = {
@@ -513,6 +528,7 @@ export type InvoiceCreateInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanCreateNestedOneWithoutInvoicesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutInvoicesInput
   finances?: Prisma.FinanceCreateNestedManyWithoutInvoiceInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutInvoicesInput
 }
 
 export type InvoiceUncheckedCreateInput = {
@@ -538,6 +554,7 @@ export type InvoiceUncheckedCreateInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
@@ -565,6 +582,7 @@ export type InvoiceUpdateInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneWithoutInvoicesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutInvoicesNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutInvoiceNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutInvoicesNestedInput
 }
 
 export type InvoiceUncheckedUpdateInput = {
@@ -590,6 +608,7 @@ export type InvoiceUncheckedUpdateInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
@@ -616,6 +635,7 @@ export type InvoiceCreateManyInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
 }
 
 export type InvoiceUpdateManyMutationInput = {
@@ -663,6 +683,7 @@ export type InvoiceUncheckedUpdateManyInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InvoiceListRelationFilter = {
@@ -698,6 +719,7 @@ export type InvoiceCountOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type InvoiceAvgOrderByAggregateInput = {
@@ -730,6 +752,7 @@ export type InvoiceMaxOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type InvoiceMinOrderByAggregateInput = {
@@ -755,6 +778,7 @@ export type InvoiceMinOrderByAggregateInput = {
   notes?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  couponId?: Prisma.SortOrder
 }
 
 export type InvoiceSumOrderByAggregateInput = {
@@ -919,6 +943,48 @@ export type InvoiceUpdateOneWithoutFinancesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.InvoiceUpdateToOneWithWhereWithoutFinancesInput, Prisma.InvoiceUpdateWithoutFinancesInput>, Prisma.InvoiceUncheckedUpdateWithoutFinancesInput>
 }
 
+export type InvoiceCreateNestedManyWithoutCouponInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput> | Prisma.InvoiceCreateWithoutCouponInput[] | Prisma.InvoiceUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutCouponInput | Prisma.InvoiceCreateOrConnectWithoutCouponInput[]
+  createMany?: Prisma.InvoiceCreateManyCouponInputEnvelope
+  connect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+}
+
+export type InvoiceUncheckedCreateNestedManyWithoutCouponInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput> | Prisma.InvoiceCreateWithoutCouponInput[] | Prisma.InvoiceUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutCouponInput | Prisma.InvoiceCreateOrConnectWithoutCouponInput[]
+  createMany?: Prisma.InvoiceCreateManyCouponInputEnvelope
+  connect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+}
+
+export type InvoiceUpdateManyWithoutCouponNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput> | Prisma.InvoiceCreateWithoutCouponInput[] | Prisma.InvoiceUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutCouponInput | Prisma.InvoiceCreateOrConnectWithoutCouponInput[]
+  upsert?: Prisma.InvoiceUpsertWithWhereUniqueWithoutCouponInput | Prisma.InvoiceUpsertWithWhereUniqueWithoutCouponInput[]
+  createMany?: Prisma.InvoiceCreateManyCouponInputEnvelope
+  set?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  disconnect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  delete?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  connect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  update?: Prisma.InvoiceUpdateWithWhereUniqueWithoutCouponInput | Prisma.InvoiceUpdateWithWhereUniqueWithoutCouponInput[]
+  updateMany?: Prisma.InvoiceUpdateManyWithWhereWithoutCouponInput | Prisma.InvoiceUpdateManyWithWhereWithoutCouponInput[]
+  deleteMany?: Prisma.InvoiceScalarWhereInput | Prisma.InvoiceScalarWhereInput[]
+}
+
+export type InvoiceUncheckedUpdateManyWithoutCouponNestedInput = {
+  create?: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput> | Prisma.InvoiceCreateWithoutCouponInput[] | Prisma.InvoiceUncheckedCreateWithoutCouponInput[]
+  connectOrCreate?: Prisma.InvoiceCreateOrConnectWithoutCouponInput | Prisma.InvoiceCreateOrConnectWithoutCouponInput[]
+  upsert?: Prisma.InvoiceUpsertWithWhereUniqueWithoutCouponInput | Prisma.InvoiceUpsertWithWhereUniqueWithoutCouponInput[]
+  createMany?: Prisma.InvoiceCreateManyCouponInputEnvelope
+  set?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  disconnect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  delete?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  connect?: Prisma.InvoiceWhereUniqueInput | Prisma.InvoiceWhereUniqueInput[]
+  update?: Prisma.InvoiceUpdateWithWhereUniqueWithoutCouponInput | Prisma.InvoiceUpdateWithWhereUniqueWithoutCouponInput[]
+  updateMany?: Prisma.InvoiceUpdateManyWithWhereWithoutCouponInput | Prisma.InvoiceUpdateManyWithWhereWithoutCouponInput[]
+  deleteMany?: Prisma.InvoiceScalarWhereInput | Prisma.InvoiceScalarWhereInput[]
+}
+
 export type InvoiceCreateWithoutAthleteInput = {
   id?: string
   invoiceNumber: string
@@ -942,6 +1008,7 @@ export type InvoiceCreateWithoutAthleteInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanCreateNestedOneWithoutInvoicesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutInvoicesInput
   finances?: Prisma.FinanceCreateNestedManyWithoutInvoiceInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutInvoicesInput
 }
 
 export type InvoiceUncheckedCreateWithoutAthleteInput = {
@@ -966,6 +1033,7 @@ export type InvoiceUncheckedCreateWithoutAthleteInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
@@ -1021,6 +1089,7 @@ export type InvoiceScalarWhereInput = {
   notes?: Prisma.StringNullableFilter<"Invoice"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Invoice"> | Date | string
+  couponId?: Prisma.StringNullableFilter<"Invoice"> | string | null
 }
 
 export type InvoiceCreateWithoutSubscriptionPlanInput = {
@@ -1046,6 +1115,7 @@ export type InvoiceCreateWithoutSubscriptionPlanInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutInvoicesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutInvoicesInput
   finances?: Prisma.FinanceCreateNestedManyWithoutInvoiceInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutInvoicesInput
 }
 
 export type InvoiceUncheckedCreateWithoutSubscriptionPlanInput = {
@@ -1070,6 +1140,7 @@ export type InvoiceUncheckedCreateWithoutSubscriptionPlanInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
@@ -1122,6 +1193,7 @@ export type InvoiceCreateWithoutAthleteSubscriptionInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutInvoicesInput
   subscriptionPlan?: Prisma.SubscriptionPlanCreateNestedOneWithoutInvoicesInput
   finances?: Prisma.FinanceCreateNestedManyWithoutInvoiceInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutInvoicesInput
 }
 
 export type InvoiceUncheckedCreateWithoutAthleteSubscriptionInput = {
@@ -1146,6 +1218,7 @@ export type InvoiceUncheckedCreateWithoutAthleteSubscriptionInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
   finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutInvoiceInput
 }
 
@@ -1198,6 +1271,7 @@ export type InvoiceCreateWithoutFinancesInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutInvoicesInput
   subscriptionPlan?: Prisma.SubscriptionPlanCreateNestedOneWithoutInvoicesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutInvoicesInput
+  coupon?: Prisma.CouponCreateNestedOneWithoutInvoicesInput
 }
 
 export type InvoiceUncheckedCreateWithoutFinancesInput = {
@@ -1223,6 +1297,7 @@ export type InvoiceUncheckedCreateWithoutFinancesInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
 }
 
 export type InvoiceCreateOrConnectWithoutFinancesInput = {
@@ -1264,6 +1339,7 @@ export type InvoiceUpdateWithoutFinancesInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutInvoicesNestedInput
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneWithoutInvoicesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutInvoicesNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutInvoicesNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutFinancesInput = {
@@ -1289,6 +1365,85 @@ export type InvoiceUncheckedUpdateWithoutFinancesInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InvoiceCreateWithoutCouponInput = {
+  id?: string
+  invoiceNumber: string
+  type?: $Enums.INVOICE_TYPE
+  description?: string | null
+  unitAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: number
+  amountDue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.INVOICE_STATUS
+  dueDate: Date | string
+  isRecurring?: boolean
+  billingCycle?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  nextBillingDate?: Date | string | null
+  issuedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  athlete: Prisma.AthleteCreateNestedOneWithoutInvoicesInput
+  subscriptionPlan?: Prisma.SubscriptionPlanCreateNestedOneWithoutInvoicesInput
+  athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutInvoicesInput
+  finances?: Prisma.FinanceCreateNestedManyWithoutInvoiceInput
+}
+
+export type InvoiceUncheckedCreateWithoutCouponInput = {
+  id?: string
+  invoiceNumber: string
+  athleteId: string
+  subscriptionPlanId?: string | null
+  athleteSubscriptionId?: string | null
+  type?: $Enums.INVOICE_TYPE
+  description?: string | null
+  unitAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: number
+  amountDue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.INVOICE_STATUS
+  dueDate: Date | string
+  isRecurring?: boolean
+  billingCycle?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  nextBillingDate?: Date | string | null
+  issuedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutInvoiceInput
+}
+
+export type InvoiceCreateOrConnectWithoutCouponInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput>
+}
+
+export type InvoiceCreateManyCouponInputEnvelope = {
+  data: Prisma.InvoiceCreateManyCouponInput | Prisma.InvoiceCreateManyCouponInput[]
+  skipDuplicates?: boolean
+}
+
+export type InvoiceUpsertWithWhereUniqueWithoutCouponInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  update: Prisma.XOR<Prisma.InvoiceUpdateWithoutCouponInput, Prisma.InvoiceUncheckedUpdateWithoutCouponInput>
+  create: Prisma.XOR<Prisma.InvoiceCreateWithoutCouponInput, Prisma.InvoiceUncheckedCreateWithoutCouponInput>
+}
+
+export type InvoiceUpdateWithWhereUniqueWithoutCouponInput = {
+  where: Prisma.InvoiceWhereUniqueInput
+  data: Prisma.XOR<Prisma.InvoiceUpdateWithoutCouponInput, Prisma.InvoiceUncheckedUpdateWithoutCouponInput>
+}
+
+export type InvoiceUpdateManyWithWhereWithoutCouponInput = {
+  where: Prisma.InvoiceScalarWhereInput
+  data: Prisma.XOR<Prisma.InvoiceUpdateManyMutationInput, Prisma.InvoiceUncheckedUpdateManyWithoutCouponInput>
 }
 
 export type InvoiceCreateManyAthleteInput = {
@@ -1313,6 +1468,7 @@ export type InvoiceCreateManyAthleteInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
 }
 
 export type InvoiceUpdateWithoutAthleteInput = {
@@ -1338,6 +1494,7 @@ export type InvoiceUpdateWithoutAthleteInput = {
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneWithoutInvoicesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutInvoicesNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutInvoiceNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutInvoicesNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutAthleteInput = {
@@ -1362,6 +1519,7 @@ export type InvoiceUncheckedUpdateWithoutAthleteInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
@@ -1387,6 +1545,7 @@ export type InvoiceUncheckedUpdateManyWithoutAthleteInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InvoiceCreateManySubscriptionPlanInput = {
@@ -1411,6 +1570,7 @@ export type InvoiceCreateManySubscriptionPlanInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
 }
 
 export type InvoiceUpdateWithoutSubscriptionPlanInput = {
@@ -1436,6 +1596,7 @@ export type InvoiceUpdateWithoutSubscriptionPlanInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutInvoicesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutInvoicesNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutInvoiceNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutInvoicesNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutSubscriptionPlanInput = {
@@ -1460,6 +1621,7 @@ export type InvoiceUncheckedUpdateWithoutSubscriptionPlanInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
@@ -1485,6 +1647,7 @@ export type InvoiceUncheckedUpdateManyWithoutSubscriptionPlanInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type InvoiceCreateManyAthleteSubscriptionInput = {
@@ -1509,6 +1672,7 @@ export type InvoiceCreateManyAthleteSubscriptionInput = {
   notes?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  couponId?: string | null
 }
 
 export type InvoiceUpdateWithoutAthleteSubscriptionInput = {
@@ -1534,6 +1698,7 @@ export type InvoiceUpdateWithoutAthleteSubscriptionInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutInvoicesNestedInput
   subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneWithoutInvoicesNestedInput
   finances?: Prisma.FinanceUpdateManyWithoutInvoiceNestedInput
+  coupon?: Prisma.CouponUpdateOneWithoutInvoicesNestedInput
 }
 
 export type InvoiceUncheckedUpdateWithoutAthleteSubscriptionInput = {
@@ -1558,6 +1723,7 @@ export type InvoiceUncheckedUpdateWithoutAthleteSubscriptionInput = {
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutInvoiceNestedInput
 }
 
@@ -1566,6 +1732,109 @@ export type InvoiceUncheckedUpdateManyWithoutAthleteSubscriptionInput = {
   invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
   subscriptionPlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumINVOICE_TYPEFieldUpdateOperationsInput | $Enums.INVOICE_TYPE
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  amountDue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumINVOICE_STATUSFieldUpdateOperationsInput | $Enums.INVOICE_STATUS
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  billingCycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  issuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  couponId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type InvoiceCreateManyCouponInput = {
+  id?: string
+  invoiceNumber: string
+  athleteId: string
+  subscriptionPlanId?: string | null
+  athleteSubscriptionId?: string | null
+  type?: $Enums.INVOICE_TYPE
+  description?: string | null
+  unitAmount: runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: number
+  amountDue: runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: $Enums.INVOICE_STATUS
+  dueDate: Date | string
+  isRecurring?: boolean
+  billingCycle?: string | null
+  periodStart?: Date | string | null
+  periodEnd?: Date | string | null
+  nextBillingDate?: Date | string | null
+  issuedBy?: string | null
+  notes?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type InvoiceUpdateWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumINVOICE_TYPEFieldUpdateOperationsInput | $Enums.INVOICE_TYPE
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  amountDue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumINVOICE_STATUSFieldUpdateOperationsInput | $Enums.INVOICE_STATUS
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  billingCycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  issuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athlete?: Prisma.AthleteUpdateOneRequiredWithoutInvoicesNestedInput
+  subscriptionPlan?: Prisma.SubscriptionPlanUpdateOneWithoutInvoicesNestedInput
+  athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutInvoicesNestedInput
+  finances?: Prisma.FinanceUpdateManyWithoutInvoiceNestedInput
+}
+
+export type InvoiceUncheckedUpdateWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionPlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  type?: Prisma.EnumINVOICE_TYPEFieldUpdateOperationsInput | $Enums.INVOICE_TYPE
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  unitAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  quantity?: Prisma.IntFieldUpdateOperationsInput | number
+  amountDue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  amountPaid?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  status?: Prisma.EnumINVOICE_STATUSFieldUpdateOperationsInput | $Enums.INVOICE_STATUS
+  dueDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isRecurring?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  billingCycle?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  periodStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  periodEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  issuedBy?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  finances?: Prisma.FinanceUncheckedUpdateManyWithoutInvoiceNestedInput
+}
+
+export type InvoiceUncheckedUpdateManyWithoutCouponInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  invoiceNumber?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  subscriptionPlanId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   type?: Prisma.EnumINVOICE_TYPEFieldUpdateOperationsInput | $Enums.INVOICE_TYPE
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   unitAmount?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -1639,10 +1908,12 @@ export type InvoiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
   finances?: boolean | Prisma.Invoice$financesArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
   _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
@@ -1669,9 +1940,11 @@ export type InvoiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1697,9 +1970,11 @@ export type InvoiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  couponId?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
 }, ExtArgs["result"]["invoice"]>
 
 export type InvoiceSelectScalar = {
@@ -1725,25 +2000,29 @@ export type InvoiceSelectScalar = {
   notes?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  couponId?: boolean
 }
 
-export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "athleteId" | "subscriptionPlanId" | "athleteSubscriptionId" | "type" | "description" | "unitAmount" | "quantity" | "amountDue" | "amountPaid" | "status" | "dueDate" | "isRecurring" | "billingCycle" | "periodStart" | "periodEnd" | "nextBillingDate" | "issuedBy" | "notes" | "createdAt" | "updatedAt", ExtArgs["result"]["invoice"]>
+export type InvoiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "invoiceNumber" | "athleteId" | "subscriptionPlanId" | "athleteSubscriptionId" | "type" | "description" | "unitAmount" | "quantity" | "amountDue" | "amountPaid" | "status" | "dueDate" | "isRecurring" | "billingCycle" | "periodStart" | "periodEnd" | "nextBillingDate" | "issuedBy" | "notes" | "createdAt" | "updatedAt" | "couponId", ExtArgs["result"]["invoice"]>
 export type InvoiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
   finances?: boolean | Prisma.Invoice$financesArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
   _count?: boolean | Prisma.InvoiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type InvoiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
 }
 export type InvoiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   subscriptionPlan?: boolean | Prisma.Invoice$subscriptionPlanArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>
+  coupon?: boolean | Prisma.Invoice$couponArgs<ExtArgs>
 }
 
 export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1753,6 +2032,7 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     subscriptionPlan: Prisma.$SubscriptionPlanPayload<ExtArgs> | null
     athleteSubscription: Prisma.$AthleteSubscriptionPayload<ExtArgs> | null
     finances: Prisma.$FinancePayload<ExtArgs>[]
+    coupon: Prisma.$CouponPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1777,6 +2057,7 @@ export type $InvoicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     notes: string | null
     createdAt: Date
     updatedAt: Date
+    couponId: string | null
   }, ExtArgs["result"]["invoice"]>
   composites: {}
 }
@@ -2175,6 +2456,7 @@ export interface Prisma__InvoiceClient<T, Null = never, ExtArgs extends runtime.
   subscriptionPlan<T extends Prisma.Invoice$subscriptionPlanArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$subscriptionPlanArgs<ExtArgs>>): Prisma.Prisma__SubscriptionPlanClient<runtime.Types.Result.GetResult<Prisma.$SubscriptionPlanPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   athleteSubscription<T extends Prisma.Invoice$athleteSubscriptionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$athleteSubscriptionArgs<ExtArgs>>): Prisma.Prisma__AthleteSubscriptionClient<runtime.Types.Result.GetResult<Prisma.$AthleteSubscriptionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   finances<T extends Prisma.Invoice$financesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$financesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$FinancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  coupon<T extends Prisma.Invoice$couponArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Invoice$couponArgs<ExtArgs>>): Prisma.Prisma__CouponClient<runtime.Types.Result.GetResult<Prisma.$CouponPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2226,6 +2508,7 @@ export interface InvoiceFieldRefs {
   readonly notes: Prisma.FieldRef<"Invoice", 'String'>
   readonly createdAt: Prisma.FieldRef<"Invoice", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Invoice", 'DateTime'>
+  readonly couponId: Prisma.FieldRef<"Invoice", 'String'>
 }
     
 
@@ -2681,6 +2964,25 @@ export type Invoice$financesArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.FinanceScalarFieldEnum | Prisma.FinanceScalarFieldEnum[]
+}
+
+/**
+ * Invoice.coupon
+ */
+export type Invoice$couponArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Coupon
+   */
+  select?: Prisma.CouponSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Coupon
+   */
+  omit?: Prisma.CouponOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CouponInclude<ExtArgs> | null
+  where?: Prisma.CouponWhereInput
 }
 
 /**

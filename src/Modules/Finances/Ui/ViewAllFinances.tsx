@@ -97,30 +97,11 @@ const ViewAllFinances = ({
               Showing {filteredData.length} of {data.length} transactions
             </p>
           </div>
-          <Sheet>
-            <SheetTrigger asChild>
-              <Button size="sm" className="gap-2  text-white">
-                <CreditCard className="h-4 w-4" />
-                Record Payment
-              </Button>
-            </SheetTrigger>
-            <SheetContent className="sm:max-w-md">
-              <SheetHeader className="mb-6">
-                <SheetDescription className="text-base font-semibold">
-                  Record Payment Transaction
-                </SheetDescription>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Enter payment details for an athlete
-                </p>
-              </SheetHeader>
-              <PaymentModal athletes={athletes} invoices={invoices} />
-            </SheetContent>
-          </Sheet>
+          <PaymentModal athletes={athletes} invoices={invoices} />
         </div>
       </CardHeader>
 
       <CardContent>
-        {/* --- Filter Toolbar --- */}
         <div className="flex flex-col md:flex-row gap-3 mb-6">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -186,7 +167,6 @@ const ViewAllFinances = ({
           </div>
         </div>
 
-        {/* --- Table Section --- */}
         <div className="rounded-md border  overflow-hidden">
           <Table>
             <TableHeader>
