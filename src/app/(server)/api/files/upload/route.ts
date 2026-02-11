@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
     await fs.mkdir(targetDir, { recursive: true });
     await fs.writeFile(filePath, buffer);
 
-    const fileUrl = `/uploads/${directory}/${safeFileName}`;
+    const fileUrl = `https://www.system.fazamfootball.org/uploads/${directory}/${safeFileName}`;
 
     return NextResponse.json(
       {

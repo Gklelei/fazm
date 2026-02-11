@@ -41,14 +41,14 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useTransition } from "react";
+import { useEffect, useTransition } from "react";
 import { CreateCouponsAction } from "../Server/CouponsAction";
 
 import { toast } from "sonner";
-import { GetCouponsQueryType } from "../Types/Index";
+import { GetCouponsByIdQueryType, GetCouponsQueryType } from "../Types/Index";
 
 interface Props {
-  coupon?: GetCouponsQueryType;
+  coupon?: GetCouponsByIdQueryType;
   id?: string;
 }
 
@@ -56,6 +56,8 @@ const CreateCoupons = ({ id, coupon }: Props) => {
   const [isPending, startTransistion] = useTransition();
 
   const Iseditting = !!id || !!coupon;
+
+  console.log({ coupon });
 
   const form = useForm<couponSchemaType>({
     resolver: zodResolver(couponSchema),
@@ -69,6 +71,12 @@ const CreateCoupons = ({ id, coupon }: Props) => {
       expiryDate: undefined,
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      discountType: coupon?.discountType || "",
+    });
+  }, []);
 
   const handleSubmit = async (data: couponSchemaType) => {
     startTransistion(async () => {

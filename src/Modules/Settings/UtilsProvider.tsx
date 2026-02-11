@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { UtilsContextProvider } from "../Context/UtilsContext";
+import AppLoader from "@/utils/Alerts/Apploader";
 
 const REFRESH_INTERVAL = 30 * 60 * 1000;
 
@@ -27,7 +28,7 @@ export function UtilsProviderWrapper({
   });
 
   if (isLoading || !data) {
-    return null;
+    return <AppLoader />;
   }
 
   return (

@@ -117,6 +117,7 @@ const Coupons = ({ coupons }: Props) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            <CreateCoupons />
           </div>
         </div>
       </CardHeader>
@@ -258,8 +259,10 @@ const Coupons = ({ coupons }: Props) => {
                           <DropdownMenuItem>
                             <Pencil
                               className="mr-2 h-4 w-4"
-                              onClick={() => router}
-                            />{" "}
+                              onClick={() =>
+                                router.push(`/coupons/${coupon.id}`)
+                              }
+                            />
                             Edit Details
                           </DropdownMenuItem>
                           <DropdownMenuItem

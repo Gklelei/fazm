@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import ReactQueryClientProvider from "@/lib/ReactQueryClientProvider";
 import { UtilsProviderWrapper } from "@/Modules/Settings/UtilsProvider";
 import { Toaster } from "sonner";
+import MainLayoutWrapper from "@/utils/MainLayoutWrapper";
 
 const jetbrainsMono = JetBrains_Mono({
   variable: "--font-jetbrains-mono",
@@ -74,7 +75,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ReactQueryClientProvider>
-            <UtilsProviderWrapper>
+            <MainLayoutWrapper>
               {children}
               <Toaster
                 closeButton
@@ -82,7 +83,7 @@ export default function RootLayout({
                 richColors
                 position="top-right"
               />
-            </UtilsProviderWrapper>
+            </MainLayoutWrapper>
           </ReactQueryClientProvider>
         </ThemeProvider>
       </body>

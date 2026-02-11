@@ -1,11 +1,9 @@
-import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
-import { UtilsProviderWrapper } from "@/Modules/Settings/UtilsProvider";
+"use client";
+
 import { ReactNode } from "react";
-import { PageLoader } from "./Alerts/PageLoader";
+import { UtilsProviderWrapper } from "@/Modules/Settings/UtilsProvider";
 
 const MainLayoutWrapper = ({ children }: { children: ReactNode }) => {
-  const { utilsLoading } = UseUtilsContext();
-  if (utilsLoading) return <PageLoader />;
   return <UtilsProviderWrapper>{children}</UtilsProviderWrapper>;
 };
 
