@@ -18,6 +18,8 @@ const ProfileImage = ({ url, name, size = 48, className }: Props) => {
     return (words[0][0] + words[1][0]).toUpperCase();
   })();
 
+  console.log({ url });
+
   return (
     <div
       className={cn(
@@ -34,6 +36,7 @@ const ProfileImage = ({ url, name, size = 48, className }: Props) => {
           sizes={`${size}px`}
           className="object-cover"
           priority={size > 100}
+          unoptimized
         />
       ) : (
         <span

@@ -33,6 +33,8 @@ export const LocalFsUpload = ({
     inputRef.current?.click();
   };
 
+  console.log({ value });
+
   const uploadFile = async (file: File) => {
     if (!file.type.startsWith("image/")) {
       throw new Error("Only image uploads are allowed.");
@@ -135,6 +137,7 @@ export const LocalFsUpload = ({
             className="object-cover"
             sizes="(max-width: 160px) 100vw, 160px"
             priority
+            unoptimized
           />
 
           {(isDeleting || isUploading) && (
