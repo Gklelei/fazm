@@ -46,10 +46,12 @@ import {
 } from "@/components/ui/table";
 import { Eye, Pen, Trash2Icon, MapPin } from "lucide-react";
 import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 const TrainingLocations = () => {
   const [isPending, startTransition] = useTransition();
   const { data } = UseUtilsContext();
+  const router = useRouter();
 
   const form = useForm<TrainingLocationSchemaType>({
     resolver: zodResolver(TrainingLocationSchema),
@@ -61,7 +63,9 @@ const TrainingLocations = () => {
       const results = await CreateTrainingLocations(payload);
 
       if (results.success) {
+        router.refresh();
         toast.success(results.message);
+
         form.reset({ name: "" });
       } else {
         toast.error(results.message);

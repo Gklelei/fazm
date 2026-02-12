@@ -107,7 +107,7 @@ export async function AthleteSeed(prisma: PrismaClient) {
           hand: "",
           height: "",
           weight: "",
-          batchesId: "cmldhgcc20003ulj6hpwqmzd7",
+          batchesId: "cmljx4uga0004pry1thpimjzy",
           emergencyContacts: {
             create: {
               name: row.contact_name,
