@@ -202,6 +202,7 @@ export type AssessmentOrderByWithRelationInput = {
 
 export type AssessmentWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  athleteId_trainingId?: Prisma.AssessmentAthleteIdTrainingIdCompoundUniqueInput
   AND?: Prisma.AssessmentWhereInput | Prisma.AssessmentWhereInput[]
   OR?: Prisma.AssessmentWhereInput[]
   NOT?: Prisma.AssessmentWhereInput | Prisma.AssessmentWhereInput[]
@@ -213,7 +214,7 @@ export type AssessmentWhereUniqueInput = Prisma.AtLeast<{
   training?: Prisma.XOR<Prisma.TrainingScalarRelationFilter, Prisma.trainingWhereInput>
   coach?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.staffWhereInput>
   responses?: Prisma.AssessmentResponseListRelationFilter
-}, "id">
+}, "id" | "athleteId_trainingId">
 
 export type AssessmentOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -292,6 +293,11 @@ export type AssessmentUncheckedUpdateManyInput = {
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
   trainingId?: Prisma.StringFieldUpdateOperationsInput | string
   coachId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
+export type AssessmentAthleteIdTrainingIdCompoundUniqueInput = {
+  athleteId: string
+  trainingId: string
 }
 
 export type AssessmentCountOrderByAggregateInput = {

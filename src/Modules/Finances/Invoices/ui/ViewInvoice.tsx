@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/table";
 
 import { InvoiceType } from "../Types";
-import { formatDate } from "@/utils/TansformWords";
+import { formatDate, formatCurrency } from "@/utils/TansformWords";
 import { useRouter } from "next/navigation";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 
@@ -25,8 +25,14 @@ interface Props {
   data: InvoiceType;
 }
 
+const asNumber = (v: unknown) => {
+  const n = Number(v ?? 0);
+  return Number.isFinite(n) ? n : 0;
+};
+
 const ViewInvoicePage = ({ data }: Props) => {
   const router = useRouter();
+
   const fullName = [
     data.athlete.firstName,
     data.athlete.middleName,
@@ -35,12 +41,28 @@ const ViewInvoicePage = ({ data }: Props) => {
     .filter(Boolean)
     .join(" ");
 
-  const balance = Number(data.amountDue) - Number(data.amountPaid);
-
   const { data: Utils } = UseUtilsContext();
+
+  const amountDue = asNumber(data.amountDue);
+  const discount = asNumber(data.discount);
+  const amountPaid = asNumber(data.amountPaid);
+
+  // ✅ Apply discount to total and balance
+  const totalAfterDiscount = Math.max(amountDue - discount, 0);
+  const balance = Math.max(totalAfterDiscount - amountPaid, 0);
+
+  const statusVariant =
+    data.status === "PAID"
+      ? "default"
+      : data.status === "PARTIAL"
+        ? "secondary"
+        : data.status === "CANCELED"
+          ? "outline"
+          : "destructive";
 
   return (
     <div className="mx-auto max-w-full px-4 py-6 md:px-8">
+      {/* Sticky header */}
       <div className="sticky top-0 z-20 mb-6 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 print:hidden">
         <div className="flex items-center justify-between border-b py-4">
           <div className="flex flex-1 items-center">
@@ -79,9 +101,10 @@ const ViewInvoicePage = ({ data }: Props) => {
           </div>
         </div>
       </div>
+
       <div id="print-receipt">
         <Card className="print:border print:shadow-none">
-          <CardContent className="space-y-10 p-8">
+          <CardContent className="space-y-10 p-6 md:p-8">
             {/* Header */}
             <section className="flex flex-col gap-8 md:flex-row md:justify-between">
               <div className="space-y-4">
@@ -121,15 +144,12 @@ const ViewInvoicePage = ({ data }: Props) => {
                   <p>
                     Due:{" "}
                     <span className="font-semibold text-foreground">
-                      {formatDate(data.dueDate)}
+                      {formatDate(new Date(data.dueDate))}
                     </span>
                   </p>
                 </div>
 
-                <Badge
-                  variant={data.status === "PAID" ? "default" : "destructive"}
-                  className="uppercase"
-                >
+                <Badge variant={statusVariant} className="uppercase">
                   {data.status}
                 </Badge>
               </div>
@@ -147,22 +167,32 @@ const ViewInvoicePage = ({ data }: Props) => {
                 <div className="space-y-1 text-sm">
                   <p className="text-base font-semibold">{fullName}</p>
                   <p>ID: {data.athleteId}</p>
-                  {data.athlete.email && <p>{data.athlete.email}</p>}
-                  {data.athlete.phoneNumber && (
+                  {data.athlete.email ? <p>{data.athlete.email}</p> : null}
+                  {data.athlete.phoneNumber ? (
                     <p>{data.athlete.phoneNumber}</p>
-                  )}
+                  ) : null}
                 </div>
               </div>
 
-              {data.subscriptionPlan?.name && (
+              {(data.subscriptionPlan?.name || data.description) && (
                 <div className="space-y-3">
                   <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
                     Notes
                   </h3>
-                  <p className="text-sm leading-relaxed">
-                    {data.subscriptionPlan.name}
-                    <br />
-                    {data.subscriptionPlan.description}
+                  <p className="text-sm leading-relaxed text-muted-foreground">
+                    {data.subscriptionPlan?.name || ""}
+                    {data.subscriptionPlan?.description ? (
+                      <>
+                        <br />
+                        {data.subscriptionPlan.description}
+                      </>
+                    ) : null}
+                    {data.description ? (
+                      <>
+                        <br />
+                        {data.description}
+                      </>
+                    ) : null}
                   </p>
                 </div>
               )}
@@ -177,6 +207,7 @@ const ViewInvoicePage = ({ data }: Props) => {
                     <TableHead>Description</TableHead>
                     <TableHead className="text-center">Qty</TableHead>
                     <TableHead className="text-right">Unit Price</TableHead>
+                    <TableHead className="text-right">Discount</TableHead>
                     <TableHead className="text-right">Total</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -190,11 +221,17 @@ const ViewInvoicePage = ({ data }: Props) => {
                         "General Services"}
                     </TableCell>
                     <TableCell className="text-center">1</TableCell>
-                    <TableCell className="text-right">
-                      KES {data.amountDue.toLocaleString()}
+
+                    <TableCell className="text-right font-mono">
+                      KES {formatCurrency(amountDue)}
                     </TableCell>
-                    <TableCell className="text-right font-bold">
-                      KES {data.amountDue.toLocaleString()}
+
+                    <TableCell className="text-right font-mono">
+                      KES {formatCurrency(discount)}
+                    </TableCell>
+
+                    <TableCell className="text-right font-mono font-bold">
+                      KES {formatCurrency(totalAfterDiscount)}
                     </TableCell>
                   </TableRow>
                 </TableBody>
@@ -205,20 +242,40 @@ const ViewInvoicePage = ({ data }: Props) => {
             <section className="flex justify-end">
               <div className="w-full space-y-2 md:w-1/3">
                 <div className="flex justify-between text-sm">
-                  <span>Total</span>
-                  <span>KES {data.amountDue.toLocaleString()}</span>
+                  <span className="text-muted-foreground">Subtotal</span>
+                  <span className="font-mono">
+                    KES {formatCurrency(amountDue)}
+                  </span>
                 </div>
 
                 <div className="flex justify-between text-sm">
-                  <span>Paid</span>
-                  <span>KES {data.amountPaid.toLocaleString()}</span>
+                  <span className="text-muted-foreground">Discount</span>
+                  <span className="font-mono">
+                    - KES {formatCurrency(discount)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm font-medium">
+                  <span>Total</span>
+                  <span className="font-mono">
+                    KES {formatCurrency(totalAfterDiscount)}
+                  </span>
+                </div>
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">Paid</span>
+                  <span className="font-mono text-emerald-600">
+                    KES {formatCurrency(amountPaid)}
+                  </span>
                 </div>
 
                 <Separator />
 
                 <div className="flex justify-between text-lg font-bold">
                   <span>Balance</span>
-                  <span>KES {balance.toLocaleString()}</span>
+                  <span className="font-mono">
+                    KES {formatCurrency(balance)}
+                  </span>
                 </div>
               </div>
             </section>
@@ -228,9 +285,9 @@ const ViewInvoicePage = ({ data }: Props) => {
               <h4 className="mb-2 text-xs font-bold uppercase">
                 Payment Instructions
               </h4>
-              <p className="text-sm">
+              <p className="text-sm text-muted-foreground">
                 {Utils?.academy?.paymentMethodType || "Mpesa Send money:"}
-                <span className="ml-2 font-mono font-bold">
+                <span className="ml-2 font-mono font-bold text-foreground">
                   {Utils?.academy?.paymentMathod || "0714401466"}
                 </span>
               </p>

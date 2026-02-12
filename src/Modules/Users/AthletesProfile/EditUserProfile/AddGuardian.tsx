@@ -11,25 +11,26 @@ import { UserPlus } from "lucide-react";
 import { Form } from "@/components/ui/form";
 import AthletesGuardian from "../../AthletesOnboarding/client/Components/AthletesGuardian";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetFooter,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { useTransition } from "react";
 import { AddAthleteGuardian } from "./Server/AddAthleteGuardian";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
+import { toast } from "sonner";
 
 type Props = {
   athleteId?: string;
 };
 
 const AddGuardian = ({ athleteId }: Props) => {
-  const [isPending, startTransistion] = useTransition();
+  const [isPending, startTransition] = useTransition();
+
   const form = useForm<AthleteGuardianSchemaType>({
     resolver: zodResolver(AthleteGuardianSchema),
     defaultValues: {
@@ -41,72 +42,67 @@ const AddGuardian = ({ athleteId }: Props) => {
   });
 
   async function handleSubmit(data: AthleteGuardianSchemaType) {
-    startTransistion(async () => {
+    startTransition(async () => {
       const result = await AddAthleteGuardian(data, athleteId!);
 
       if (result.success) {
-        Sweetalert({
-          icon: "success",
-          text: result.message,
-          title: "Success!",
-        });
+        toast.success(result.message);
         form.reset();
-      } else if (!result.success) {
-        Sweetalert({
-          icon: "error",
-          text: result.message,
-          title: "An error has occurred",
-        });
+      } else {
+        toast.error(result.message);
       }
     });
   }
 
   return (
-    <Sheet>
-      <SheetTrigger asChild>
+    <Dialog>
+      <DialogTrigger asChild>
         <Button size="sm" className="gap-1.5 h-8 text-xs">
           <UserPlus className="h-3.5 w-3.5" />
           Add Guardian
         </Button>
-      </SheetTrigger>
+      </DialogTrigger>
 
-      <SheetContent className="flex flex-col p-0 sm:max-w-lg">
-        <SheetHeader className="px-6 py-4 border-b">
-          <SheetTitle>Add Guardian</SheetTitle>
-          <SheetDescription>
+      <DialogContent className="sm:max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Add Guardian</DialogTitle>
+          <DialogDescription>
             Enter guardian details for emergency contact and communication.
-          </SheetDescription>
-        </SheetHeader>
+          </DialogDescription>
+        </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
-          <Form {...form}>
-            <form
-              id="add-guardian-form"
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-6"
-            >
-              <AthletesGuardian />
-            </form>
-          </Form>
-        </div>
+        <Form {...form}>
+          <form
+            id="add-guardian-form"
+            onSubmit={form.handleSubmit(handleSubmit)}
+            className="space-y-6 py-4"
+          >
+            <AthletesGuardian />
 
-        <SheetFooter className="px-6 py-4 border-t">
-          <div className="flex w-full gap-2">
-            <Button
-              variant="outline"
-              type="button"
-              className="flex-1"
-              onClick={() => form.reset()}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" form="add-guardian-form" className="flex-1">
-              {isPending ? <Loader2Spinner /> : "Save Guardian"}
-            </Button>
-          </div>
-        </SheetFooter>
-      </SheetContent>
-    </Sheet>
+            <DialogFooter className="pt-4">
+              <div className="flex w-full gap-2">
+                <Button
+                  variant="outline"
+                  type="button"
+                  className="flex-1"
+                  onClick={() => form.reset()}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  type="submit"
+                  form="add-guardian-form"
+                  className="flex-1"
+                  disabled={isPending}
+                >
+                  {isPending ? <Loader2Spinner /> : "Save Guardian"}
+                </Button>
+              </div>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

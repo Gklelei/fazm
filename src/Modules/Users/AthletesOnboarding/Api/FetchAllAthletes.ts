@@ -1,35 +1,30 @@
 "use client";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-interface Props {
+type AthletesPage = {
   allAthletes: AthleteListResponse;
-  nextCursor: number | null;
-}
+  nextCursor: string | null;
+  pageSize: number;
+};
 
 export const UseGetAllAthletes = ({ search }: { search: string }) => {
-  return useInfiniteQuery<Props>({
-    queryKey: ["all-athltes", search],
-    queryFn: async ({ pageParam = 1 }) => {
-      const page = pageParam as number;
+  return useInfiniteQuery<AthletesPage>({
+    queryKey: ["all-athletes", search],
+    queryFn: async ({ pageParam }) => {
+      const cursor = (pageParam as string | undefined) ?? "";
+
       const params = new URLSearchParams({
-        page: page.toString(),
         pageSize: "10",
-        search: search,
+        search,
       });
-      const response = await fetch(
-        `/api/athlete/athletes-all?${params.toString()}`,
-        {
-          method: "GET",
-        },
-      );
 
-      if (!response.ok) {
-        throw new Error("Error fetching data");
-      }
+      if (cursor) params.set("cursor", cursor);
 
-      return response.json();
+      const res = await fetch(`/api/athlete/athletes-all?${params.toString()}`);
+      if (!res.ok) throw new Error("Error fetching athletes");
+      return res.json();
     },
-    initialPageParam: 1,
+    initialPageParam: "",
     getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
   });
 };

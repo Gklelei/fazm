@@ -7,11 +7,11 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 
 type SaveAssessmentInput = {
-  athleteId: string;
-  trainingId: string;
-  coachId: string;
-  scores: Record<string, string>;
-  metricComments: Record<string, string>; // Changed from sectionComments
+  athleteId: string; // Athlete.athleteId
+  trainingId: string; // training.id
+  coachId: string; // staffId
+  scores: Record<string, string>; // metricId -> "1".."5"
+  metricComments: Record<string, string>; // metricId -> comment
 };
 
 const gradeMap: Record<string, GradeRating> = {
@@ -23,40 +23,49 @@ const gradeMap: Record<string, GradeRating> = {
 };
 
 export async function saveAssessment(input: SaveAssessmentInput) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return { status: "ERROR", errorMessage: "Unauthorized" };
-  }
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) return { status: "ERROR", errorMessage: "Unauthorized" };
 
   const { athleteId, trainingId, coachId, scores, metricComments } = input;
 
   try {
     await db.$transaction(async (tx) => {
-      const assessment = await tx.assessment.create({
-        data: {
-          athleteId,
-          trainingId,
-          coachId,
-        },
+      // 1) Upsert assessment (edit-friendly)
+      const assessment = await tx.assessment.upsert({
+        where: { athleteId_trainingId: { athleteId, trainingId } },
+        create: { athleteId, trainingId, coachId },
+        update: { coachId },
+        select: { id: true },
       });
-      const responseData = Object.keys(scores).map((metricId) => {
-        return {
-          assessmentId: assessment.id,
-          metricId: metricId,
-          grade: gradeMap[scores[metricId]],
-          comment: metricComments[metricId] || null,
-        };
-      });
-      await tx.assessmentResponse.createMany({
-        data: responseData,
-      });
+
+      // 2) Upsert each response (one per metric)
+      const metricIds = Object.keys(scores);
+
+      for (const metricId of metricIds) {
+        const grade = gradeMap[scores[metricId]];
+        if (!grade) continue;
+
+        await tx.assessmentResponse.upsert({
+          where: {
+            assessmentId_metricId: { assessmentId: assessment.id, metricId },
+          },
+          create: {
+            assessmentId: assessment.id,
+            metricId,
+            grade,
+            comment: (metricComments[metricId] || "").trim() || null,
+          },
+          update: {
+            grade,
+            comment: (metricComments[metricId] || "").trim() || null,
+          },
+        });
+      }
     });
 
     revalidatePath("/trainings/assessments");
     revalidatePath(`/assesments/${trainingId}/mark`);
+
     return {
       status: "SUCCESS",
       successMessage: "Assessment saved successfully",

@@ -13,6 +13,7 @@ model Assessment {
 
     responses AssessmentResponse[]
 
+    @@unique([athleteId, trainingId])
     @@map("assessments")
 }
 
@@ -43,6 +44,8 @@ model AssessmentResponse {
 
     grade   GradeRating
     comment String?
+
+    @@unique([assessmentId, metricId])
 }
 
 enum GradeRating {

@@ -25,13 +25,13 @@ import { useRouter } from "next/navigation";
 import { Textarea } from "@/components/ui/textarea";
 import { ClientFinanceSchema, ClientFinanceSchemaType } from "../Validators";
 import createFinancialTransaction from "../Server/CreateTransaction";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { useMemo, useTransition } from "react";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { GetAllFinanceAtheletesType, GetAllInvoicesType } from "../Type";
 import { SearchSelect } from "@/utils/ReusableSelectWithSearch";
 import { GenericSelect } from "@/utils/ReusableSelect";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 interface Props {
   id?: string;
@@ -94,11 +94,7 @@ const PaymentDialog = ({
     startTransition(async () => {
       const result = await createFinancialTransaction(values);
       if (result.success) {
-        Sweetalert({
-          icon: "success",
-          text: `${result.message}\nReceipt: ${result.receiptNumber}`,
-          title: "Success!",
-        });
+        toast.success(`${result.message}\nReceipt: ${result.receiptNumber}`);
         await queryClient.invalidateQueries({
           queryKey: ["FINANCE_TRANSACTION_DETAILS"],
         });
@@ -112,7 +108,7 @@ const PaymentDialog = ({
           invoiceId: "",
         });
       } else {
-        Sweetalert({ icon: "error", text: result.message, title: "Error" });
+        toast.error(result.message);
       }
     });
   };

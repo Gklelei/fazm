@@ -118,6 +118,7 @@ export const DeleteCouponsAction = async (
       },
       data: {
         voided: 1,
+        name: undefined,
       },
     });
     revalidatePath("/coupons");
@@ -201,6 +202,74 @@ export const EditCouponsAction = async (
     return {
       message: error instanceof Error ? error.message : "Internal server error",
       success: false,
+    };
+  }
+};
+
+export const toggleCouponStatus = async (
+  id: string,
+  status: 0 | 1,
+): Promise<ActionResult & { statusCode: number }> => {
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return {
+      success: false,
+      message: "Unauthorized access, please login to continue",
+      statusCode: 401,
+    };
+  }
+
+  if (!allowedRoles.includes(session.user.role || "")) {
+    return {
+      success: false,
+      message:
+        "Unauthorized access, you are not allowed to perform this action",
+      statusCode: 403,
+    };
+  }
+
+  try {
+    const updated = await db.coupon.updateMany({
+      where: {
+        id,
+        voided: 0,
+        expiryDate: {
+          equals: null,
+          gt: new Date(),
+        },
+      },
+      data: {
+        status,
+      },
+    });
+
+    if (updated.count === 0) {
+      return {
+        success: false,
+        message: "Coupon does not exist or has been voided or has expired",
+        statusCode: 404,
+      };
+    }
+
+    revalidatePath("/coupons");
+
+    return {
+      success: true,
+      message: status === 1 ? "Coupon activated" : "Coupon deactivated",
+      statusCode: 200,
+    };
+  } catch (error) {
+    console.log({ error });
+
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Internal server error",
+      statusCode: 500,
     };
   }
 };

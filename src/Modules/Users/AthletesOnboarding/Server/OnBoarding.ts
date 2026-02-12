@@ -147,6 +147,8 @@ const AthleteOnboardingAction = async (
       });
       const athleteId = `ATH-FFA-${String(sequence.current).padStart(3, "0")}`;
 
+      console.log(athleteId);
+
       // ---------- Subscription plan (required) ----------
       const subscriptionPlanId = validatedData.subscriptionPlanId;
       if (!subscriptionPlanId) {

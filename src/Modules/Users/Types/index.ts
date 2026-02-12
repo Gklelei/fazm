@@ -11,6 +11,15 @@ export const GetAthleteByIdQuery = (id: string) =>
       guardians: true,
       medical: true,
       finances: true,
+      athleteSubscriptions: {
+        where: {
+          status: "ACTIVE",
+        },
+        include: {
+          coupon: true,
+          subscriptionPlan: true,
+        },
+      },
       invoices: {
         include: {
           subscriptionPlan: true,

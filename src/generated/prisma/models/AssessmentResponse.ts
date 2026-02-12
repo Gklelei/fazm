@@ -198,6 +198,7 @@ export type AssessmentResponseOrderByWithRelationInput = {
 
 export type AssessmentResponseWhereUniqueInput = Prisma.AtLeast<{
   id?: string
+  assessmentId_metricId?: Prisma.AssessmentResponseAssessmentIdMetricIdCompoundUniqueInput
   AND?: Prisma.AssessmentResponseWhereInput | Prisma.AssessmentResponseWhereInput[]
   OR?: Prisma.AssessmentResponseWhereInput[]
   NOT?: Prisma.AssessmentResponseWhereInput | Prisma.AssessmentResponseWhereInput[]
@@ -207,7 +208,7 @@ export type AssessmentResponseWhereUniqueInput = Prisma.AtLeast<{
   comment?: Prisma.StringNullableFilter<"AssessmentResponse"> | string | null
   assessment?: Prisma.XOR<Prisma.AssessmentScalarRelationFilter, Prisma.AssessmentWhereInput>
   metric?: Prisma.XOR<Prisma.AssessmentMetricScalarRelationFilter, Prisma.AssessmentMetricWhereInput>
-}, "id">
+}, "id" | "assessmentId_metricId">
 
 export type AssessmentResponseOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -293,6 +294,11 @@ export type AssessmentResponseListRelationFilter = {
 
 export type AssessmentResponseOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type AssessmentResponseAssessmentIdMetricIdCompoundUniqueInput = {
+  assessmentId: string
+  metricId: string
 }
 
 export type AssessmentResponseCountOrderByAggregateInput = {

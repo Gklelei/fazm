@@ -279,6 +279,7 @@ export const InvoiceScalarFieldEnum = {
   unitAmount: 'unitAmount',
   quantity: 'quantity',
   amountDue: 'amountDue',
+  discount: 'discount',
   amountPaid: 'amountPaid',
   status: 'status',
   dueDate: 'dueDate',

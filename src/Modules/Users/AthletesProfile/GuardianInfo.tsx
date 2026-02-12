@@ -2,7 +2,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import {
-  UserPlus,
   Users,
   Phone,
   Mail,
@@ -110,10 +109,7 @@ const GuardianInfo = ({ data }: { data?: GetAthleteByIdQueryType }) => {
             <p className="text-xs text-muted-foreground mb-4">
               Add guardians for emergency contact
             </p>
-            <Button size="sm" className="gap-1.5 text-xs">
-              <UserPlus className="h-3.5 w-3.5" />
-              Add Guardian
-            </Button>
+            <AddGuardian athleteId={data && data.athleteId} />
           </div>
         )}
       </CardContent>

@@ -77,14 +77,24 @@ function normalizeStatus(raw?: string) {
   return s || "PENDING";
 }
 
+type AthleteRow = {
+  id: string;
+  athleteId: string;
+  firstName: string;
+  lastName: string;
+  email?: string | null;
+  profilePIcture?: string | null;
+  positions: string[];
+  status: string;
+};
+
 const AthletesData = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
   const [deletingId, setDeletingId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
-
-  const debouncedSearchValue = useDebounce(searchQuery, 1000);
+  const debouncedSearchValue = useDebounce(searchQuery, 800);
 
   const {
     data,
@@ -93,11 +103,10 @@ const AthletesData = () => {
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-  } = UseGetAllAthletes({
-    search: debouncedSearchValue,
-  });
+    isRefetching,
+  } = UseGetAllAthletes({ search: debouncedSearchValue });
 
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView({ rootMargin: "300px" });
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -105,13 +114,18 @@ const AthletesData = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const athletes = useMemo(() => {
-    return data?.pages.flatMap((page) => page.allAthletes) || [];
+  const athletes: AthleteRow[] = useMemo(() => {
+    const flat: AthleteRow[] = data?.pages.flatMap((p) => p.allAthletes) ?? [];
+    // defensive dedupe (prevents visual repeats if a page is refetched)
+    const map = new Map<string, AthleteRow>();
+    for (const a of flat) map.set(a.id, a);
+    return Array.from(map.values());
   }, [data?.pages]);
 
-  async function handleDeleteAthlete(id: string) {
-    setDeletingId(id);
-    const result = await DeleteAthlete(id);
+  async function handleDeleteAthlete(athleteId: string) {
+    setDeletingId(athleteId);
+
+    const result = await DeleteAthlete(athleteId);
 
     if (result.status === "SUCCESS") {
       Sweetalert({
@@ -127,17 +141,18 @@ const AthletesData = () => {
         title: "Error",
       });
     }
+
     setDeletingId("");
   }
 
   const handleChangeAthleteStatus = async ({
-    id,
+    athleteId,
     status,
   }: {
-    id: string;
+    athleteId: string;
     status: "PENDING" | "ACTIVE" | "SUSPENDED";
   }) => {
-    const result = await UpdateAthleteStatus({ athleteId: id, status });
+    const result = await UpdateAthleteStatus({ athleteId, status });
 
     if (result.success) {
       await queryClient.invalidateQueries({ queryKey: ["all-athletes"] });
@@ -156,6 +171,7 @@ const AthletesData = () => {
   };
 
   if (isLoading && !isFetchingNextPage) return <PageLoader />;
+
   if (isError) {
     return (
       <div className="p-8 text-center text-red-500 bg-red-50 rounded-lg border border-red-100">
@@ -171,7 +187,9 @@ const AthletesData = () => {
     );
   }
 
-  if (athletes.length === 0 && !debouncedSearchValue) {
+  const showEmpty =
+    athletes.length === 0 && !debouncedSearchValue && !isRefetching;
+  if (showEmpty) {
     return (
       <div className="flex items-center justify-center min-h-100">
         <Card className="w-full max-w-md text-center border-dashed">
@@ -202,6 +220,7 @@ const AthletesData = () => {
             Manage your team, track statuses, and update profiles.
           </p>
         </div>
+
         <Button onClick={() => router.push("/users/players/create")}>
           <UserPlus className="h-4 w-4 mr-2" /> Register Athlete
         </Button>
@@ -213,7 +232,7 @@ const AthletesData = () => {
             <div className="relative w-full sm:max-w-sm">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
-                placeholder="Search by name, ID, or position..."
+                placeholder="Search by name or ID..."
                 className="pl-10 pr-10"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -226,7 +245,7 @@ const AthletesData = () => {
         </CardHeader>
 
         <CardContent>
-          <div className="rounded-md border">
+          <div className="rounded-md border overflow-x-auto">
             <Table>
               <TableHeader className="bg-muted/50">
                 <TableRow>
@@ -243,9 +262,9 @@ const AthletesData = () => {
               <TableBody>
                 {athletes.length > 0 ? (
                   athletes.map((athlete, index) => {
-                    const normalizedStatus = normalizeStatus(athlete.status);
+                    const normalized = normalizeStatus(athlete.status);
                     const statusConfig =
-                      statusOptions.find((s) => s.value === normalizedStatus) ||
+                      statusOptions.find((s) => s.value === normalized) ||
                       statusOptions[0];
 
                     const StatusIcon = statusConfig.Icon;
@@ -273,7 +292,7 @@ const AthletesData = () => {
                             <span className="font-semibold text-sm">
                               {athlete.firstName} {athlete.lastName}
                             </span>
-                            <span className="text-xs text-muted-foreground truncate max-w-37.5">
+                            <span className="text-xs text-muted-foreground truncate max-w-60">
                               {athlete.email || "No email provided"}
                             </span>
                           </div>
@@ -281,15 +300,21 @@ const AthletesData = () => {
 
                         <TableCell>
                           <div className="flex flex-wrap gap-1">
-                            {athlete.positions.map((pos, idx) => (
-                              <Badge
-                                key={idx}
-                                variant="secondary"
-                                className="font-normal text-[10px] px-1.5"
-                              >
-                                {pos}
-                              </Badge>
-                            ))}
+                            {athlete.positions?.length ? (
+                              athlete.positions.map((pos, idx) => (
+                                <Badge
+                                  key={`${athlete.id}-${pos}-${idx}`}
+                                  variant="secondary"
+                                  className="font-normal text-[10px] px-1.5"
+                                >
+                                  {pos}
+                                </Badge>
+                              ))
+                            ) : (
+                              <span className="text-xs text-muted-foreground">
+                                —
+                              </span>
+                            )}
                           </div>
                         </TableCell>
 
@@ -309,6 +334,7 @@ const AthletesData = () => {
                                 <ChevronDown className="w-3 h-3 opacity-50 ml-1" />
                               </Button>
                             </DropdownMenuTrigger>
+
                             <DropdownMenuContent align="start">
                               <DropdownMenuLabel className="text-xs">
                                 Change Status
@@ -319,7 +345,7 @@ const AthletesData = () => {
                                   key={option.value}
                                   onClick={() =>
                                     handleChangeAthleteStatus({
-                                      id: athlete.athleteId,
+                                      athleteId: athlete.athleteId,
                                       status: option.value,
                                     })
                                   }
@@ -355,7 +381,8 @@ const AthletesData = () => {
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end" className="w-40">
+
+                            <DropdownMenuContent align="end" className="w-44">
                               <DropdownMenuItem
                                 onClick={() =>
                                   router.push(
@@ -365,6 +392,7 @@ const AthletesData = () => {
                               >
                                 <Eye className="mr-2 h-4 w-4" /> View Profile
                               </DropdownMenuItem>
+
                               <DropdownMenuItem
                                 onClick={() =>
                                   router.push(
@@ -374,7 +402,9 @@ const AthletesData = () => {
                               >
                                 <PenIcon className="mr-2 h-4 w-4" /> Edit
                               </DropdownMenuItem>
+
                               <DropdownMenuSeparator />
+
                               <DropdownMenuItem
                                 className="text-red-600 focus:bg-red-50"
                                 disabled={deletingId === athlete.athleteId}
@@ -396,7 +426,6 @@ const AthletesData = () => {
                     );
                   })
                 ) : (
-                  // 3. Search Results Empty State (Row inside the table)
                   <TableRow>
                     <TableCell colSpan={7} className="h-64 text-center">
                       <div className="flex flex-col items-center justify-center space-y-3">
@@ -408,16 +437,17 @@ const AthletesData = () => {
                             No matches found
                           </p>
                           <p className="text-sm text-muted-foreground max-w-xs mx-auto">
-                            We couldn&apos;t find any athletes matching
-                            {debouncedSearchValue}. Try checking your spelling
-                            or using different keywords.
+                            We couldn&apos;t find any athletes matching{" "}
+                            <span className="font-medium">
+                              {debouncedSearchValue}
+                            </span>
+                            .
                           </p>
                         </div>
                         <Button
                           variant="outline"
                           size="sm"
                           onClick={() => setSearchQuery("")}
-                          className="mt-2"
                         >
                           Clear Search and Show All
                         </Button>
@@ -429,7 +459,6 @@ const AthletesData = () => {
             </Table>
           </div>
 
-          {/* Loading / End of List Indicator */}
           {athletes.length > 0 && (
             <div
               ref={ref}
@@ -442,11 +471,12 @@ const AthletesData = () => {
                 </div>
               ) : !hasNextPage && debouncedSearchValue ? (
                 <p className="text-muted-foreground text-sm italic">
-                  Showing all results for {debouncedSearchValue}
+                  Showing all results for{" "}
+                  <span className="font-medium">{debouncedSearchValue}</span>
                 </p>
               ) : !hasNextPage ? (
                 <p className="text-muted-foreground text-sm italic">
-                  You&apos;ve reached the end of the roster.
+                  You&apos;ve reached the end.
                 </p>
               ) : null}
             </div>

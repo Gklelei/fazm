@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -11,8 +12,11 @@ import {
   Info,
   RefreshCcw,
   Loader2Icon,
+  PenIcon,
 } from "lucide-react";
+
 import { couponSchema, couponSchemaType } from "../Validation";
+import { CreateCouponsAction } from "../Server/CouponsAction";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,23 +45,37 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { useEffect, useTransition } from "react";
-import { CreateCouponsAction } from "../Server/CouponsAction";
-
 import { toast } from "sonner";
-import { GetCouponsByIdQueryType, GetCouponsQueryType } from "../Types/Index";
+
+import { GetCouponsQueryType } from "../Types/Index";
 
 interface Props {
-  coupon?: GetCouponsByIdQueryType;
-  id?: string;
+  coupon?: GetCouponsQueryType;
+  id?: string; // coupon id for editing
+}
+
+function toDateInputValue(d?: Date) {
+  if (!d) return "";
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${yyyy}-${mm}-${dd}`;
+}
+
+function parseDateInput(value: string): Date | undefined {
+  if (!value) return undefined;
+  // value is YYYY-MM-DD
+  const [y, m, d] = value.split("-").map(Number);
+  if (!y || !m || !d) return undefined;
+  return new Date(y, m - 1, d);
 }
 
 const CreateCoupons = ({ id, coupon }: Props) => {
-  const [isPending, startTransistion] = useTransition();
+  const [isPending, startTransition] = useTransition();
+  const [open, setOpen] = useState(false);
 
-  const Iseditting = !!id || !!coupon;
-
-  console.log({ coupon });
+  const isEditing = useMemo(() => Boolean(id || coupon?.id), [id, coupon?.id]);
+  // const couponId = id ?? coupon?.id;
 
   const form = useForm<couponSchemaType>({
     resolver: zodResolver(couponSchema),
@@ -73,30 +91,59 @@ const CreateCoupons = ({ id, coupon }: Props) => {
   });
 
   useEffect(() => {
+    if (!coupon) return;
+
     form.reset({
-      discountType: coupon?.discountType || "",
+      name: coupon.name ?? "",
+      discountType: coupon.discountType ?? "",
+      value: coupon.value ? Number(coupon.value) : 0,
+      interval: coupon.interval ?? "",
+      usageLimit: coupon.usageLimit ? Number(coupon.usageLimit) : 0,
+      startDate: coupon.startDate ? new Date(coupon.startDate) : new Date(),
+      expiryDate: coupon.expiryDate ? new Date(coupon.expiryDate) : undefined,
     });
-  }, []);
+  }, [coupon, form]);
 
   const handleSubmit = async (data: couponSchemaType) => {
-    startTransistion(async () => {
+    startTransition(async () => {
       const result = await CreateCouponsAction(data);
 
       if (result.success) {
         toast.success(result.message);
+        form.reset({
+          name: "",
+          discountType: "",
+          value: 0,
+          interval: "",
+          usageLimit: 0,
+          startDate: new Date(),
+          expiryDate: undefined,
+        });
+        setOpen(false);
       } else {
         toast.error(result.message);
       }
     });
   };
 
+  const title = isEditing ? "Edit Discount Coupon" : "New Discount Coupon";
+  const desc = isEditing
+    ? "Update coupon configuration and validity."
+    : "Configure promotional codes for athlete billing.";
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="gap-2 shadow-md hover:shadow-lg transition-all active:scale-95">
-          <PlusIcon className="h-4 w-4" />
-          Add Coupon
-        </Button>
+        {isEditing ? (
+          <Button variant="outline" className="gap-2">
+            <PenIcon className="h-4 w-4" /> Edit
+          </Button>
+        ) : (
+          <Button className="gap-2 shadow-md hover:shadow-lg transition-all active:scale-95">
+            <PlusIcon className="h-4 w-4" />
+            Add Coupon
+          </Button>
+        )}
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-2xl p-0 overflow-hidden border-none shadow-2xl">
@@ -107,12 +154,8 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                 <Ticket className="h-5 w-5" />
               </div>
               <div>
-                <DialogTitle className="text-xl font-bold">
-                  New Discount Coupon
-                </DialogTitle>
-                <DialogDescription>
-                  Configure promotional codes for athlete billing.
-                </DialogDescription>
+                <DialogTitle className="text-xl font-bold">{title}</DialogTitle>
+                <DialogDescription>{desc}</DialogDescription>
               </div>
             </div>
           </DialogHeader>
@@ -128,6 +171,7 @@ const CreateCoupons = ({ id, coupon }: Props) => {
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 <Info className="h-4 w-4" /> General Information
               </div>
+
               <FormField
                 name="name"
                 control={form.control}
@@ -140,6 +184,9 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                           placeholder="e.g. SIBLING_20"
                           className="h-11 pl-10 font-mono font-bold uppercase"
                           {...field}
+                          onChange={(e) =>
+                            field.onChange(e.target.value.toUpperCase())
+                          }
                         />
                         <Hash className="absolute left-3 top-3 h-5 w-5 text-muted-foreground/50" />
                       </div>
@@ -169,8 +216,8 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                     <FormItem>
                       <FormLabel>Type</FormLabel>
                       <Select
+                        value={field.value}
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="h-11">
@@ -202,9 +249,11 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                           <Input
                             type="number"
                             className="h-11 pr-12"
-                            {...field}
+                            value={
+                              Number.isFinite(field.value) ? field.value : 0
+                            }
                             onChange={(e) =>
-                              field.onChange(parseFloat(e.target.value))
+                              field.onChange(Number(e.target.value))
                             }
                           />
                           <div className="absolute right-3 top-3 text-sm font-bold text-muted-foreground">
@@ -232,8 +281,8 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                     <FormItem>
                       <FormLabel>Usage Frequency</FormLabel>
                       <Select
+                        value={field.value}
                         onValueChange={field.onChange}
-                        defaultValue={field.value}
                       >
                         <FormControl>
                           <SelectTrigger className="h-11">
@@ -265,9 +314,9 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                           type="number"
                           placeholder="0 for unlimited"
                           className="h-11"
-                          {...field}
+                          value={Number.isFinite(field.value) ? field.value : 0}
                           onChange={(e) =>
-                            field.onChange(parseInt(e.target.value))
+                            field.onChange(Number(e.target.value))
                           }
                         />
                       </FormControl>
@@ -285,6 +334,7 @@ const CreateCoupons = ({ id, coupon }: Props) => {
               <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground uppercase tracking-wider">
                 <Calendar className="h-4 w-4" /> Validity Period
               </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   name="startDate"
@@ -296,13 +346,11 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                         <Input
                           type="date"
                           className="h-11"
-                          value={
-                            field.value instanceof Date
-                              ? field.value.toISOString().split("T")[0]
-                              : ""
-                          }
+                          value={toDateInputValue(field.value)}
                           onChange={(e) =>
-                            field.onChange(new Date(e.target.value))
+                            field.onChange(
+                              parseDateInput(e.target.value) ?? new Date(),
+                            )
                           }
                         />
                       </FormControl>
@@ -321,17 +369,9 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                         <Input
                           type="date"
                           className="h-11"
-                          value={
-                            field.value instanceof Date
-                              ? field.value.toISOString().split("T")[0]
-                              : ""
-                          }
+                          value={toDateInputValue(field.value)}
                           onChange={(e) =>
-                            field.onChange(
-                              e.target.value
-                                ? new Date(e.target.value)
-                                : undefined,
-                            )
+                            field.onChange(parseDateInput(e.target.value))
                           }
                         />
                       </FormControl>
@@ -347,10 +387,33 @@ const CreateCoupons = ({ id, coupon }: Props) => {
                 type="button"
                 variant="ghost"
                 className="flex-1 h-11 text-muted-foreground"
-                onClick={() => form.reset()}
+                onClick={() => {
+                  if (coupon) {
+                    // reset back to coupon values
+                    form.reset({
+                      name: coupon.name ?? "",
+                      discountType: coupon.discountType ?? "",
+                      value: coupon.value ? Number(coupon.value) : 0,
+                      interval: coupon.interval ?? "",
+                      usageLimit: coupon.usageLimit
+                        ? Number(coupon.usageLimit)
+                        : 0,
+                      startDate: coupon.startDate
+                        ? new Date(coupon.startDate)
+                        : new Date(),
+                      expiryDate: coupon.expiryDate
+                        ? new Date(coupon.expiryDate)
+                        : undefined,
+                    });
+                  } else {
+                    form.reset();
+                  }
+                }}
+                disabled={isPending}
               >
                 Reset
               </Button>
+
               <Button
                 type="submit"
                 className="flex-2 h-11 font-bold"

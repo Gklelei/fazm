@@ -98,8 +98,6 @@ model AthleteSubscription {
   coupon    Coupon?   @relation(fields: [couponId], references: [id])
   couponId  String?
 
-  // Ensure an athlete can't have multiple active subscriptions of same plan
-  @@unique([athleteId, subscriptionPlanId, status])
   @@index([athleteId, status])
   @@index([currentPeriodEnd])
   @@index([endDate])
@@ -128,9 +126,10 @@ model Invoice {
   description String?
 
   // Pricing
-  unitAmount Decimal @db.Decimal(10, 2)
-  quantity   Int     @default(1)
-  amountDue  Decimal @db.Decimal(10, 2)
+  unitAmount Decimal  @db.Decimal(10, 2)
+  quantity   Int      @default(1)
+  amountDue  Decimal  @db.Decimal(10, 2)
+  discount   Decimal? @db.Decimal(10, 2)
 
   // Payment status
   amountPaid Decimal        @default(0) @db.Decimal(10, 2)
@@ -207,21 +206,21 @@ model Coupon {
   id   String @id @default(cuid())
   name String @unique
 
-  discountType DiscountType @default(PERCENTAGE)
+  discountType DiscountType @default(PERCENTAGE) @map("discount_type")
   value        Decimal      @db.Decimal(10, 2)
 
   interval CouponInterval @default(ONCE)
 
-  startDate  DateTime  @default(now())
-  expiryDate DateTime?
+  startDate  DateTime  @default(now()) @map("start_date")
+  expiryDate DateTime? @map("expiry_date")
 
-  usageLimit Int?
-  timesUsed  Int  @default(0)
-  status     Int  @default(0) /* 1 for active and 0 for inactive */
+  usageLimit Int? @map("usage_limit")
+  timesUsed  Int  @default(0) @map("times_used")
+  status     Int  @default(1) /* 1 for active and 0 for inactive */
   voided     Int  @default(0) /* 1 - voided 0 - not voided */
 
-  createdAt     DateTime              @default(now())
-  updatedAt     DateTime              @updatedAt
+  createdAt     DateTime              @default(now()) @map("created_at")
+  updatedAt     DateTime              @default(now()) @updatedAt @map("updated_at")
   subscriptions AthleteSubscription[]
   invoices      Invoice[]
 

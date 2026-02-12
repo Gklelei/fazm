@@ -1,0 +1,22 @@
+{
+"SELECT\n  a.athlete_id,\n  a.first_name,\n  a.last_name,\n  s.id                      AS subscription_id,\n  s.status                  AS subscription_status,\n  s.\"startDate\" ,\n  s.\"cancelAtPeriodEnd\" ,\n  s.\"currentPeriodEnd\" ,\n  sp.id                     AS plan_id,\n  sp.name                   AS plan_name,\n  sp.code                   AS plan_code,\n  sp.amount                 AS plan_amount,\n  sp.interval               AS plan_interval,\n  c.id                      AS coupon_id,\n  c.name                    AS coupon_code,\n  c.discount_type,\n  c.value                   AS coupon_value\nFROM athlete a\nJOIN athlete_subscriptions s\n  ON s.\"athleteId\"  = a.athlete_id\nJOIN subscription_plans sp\n  ON sp.id = s.\"subscriptionPlanId\" \nLEFT JOIN coupons c\n  ON c.id = s.\"couponId\" \nWHERE a.athlete_id = 'ATH-FFA-554'\n  AND s.status = 'ACTIVE'\nORDER BY s.\"currentPeriodEnd\" DESC\nLIMIT 1": [
+	{
+		"athlete_id" : "ATH-FFA-554",
+		"first_name" : "Abdulwadud",
+		"last_name" : "Aynash",
+		"subscription_id" : "eda17e59-af34-4053-b6ab-0b376d9eb1f6",
+		"subscription_status" : "ACTIVE",
+		"startDate" : "2026-02-11T17:23:45.519Z",
+		"cancelAtPeriodEnd" : false,
+		"currentPeriodEnd" : "2026-03-29T18:00:00.000Z",
+		"plan_id" : "90f0a0dc-8acd-46a5-a824-596c7e727799",
+		"plan_name" : "Platinum plan",
+		"plan_code" : "PLATINUM_PLAN",
+		"plan_amount" : 4000.00,
+		"plan_interval" : "MONTHLY",
+		"coupon_id" : "cmlebv6uv0000w6j6av6jxrqm",
+		"coupon_code" : "U15_ELITE",
+		"discount_type" : "PERCENTAGE",
+		"coupon_value" : 78.00
+	}
+]}

@@ -18,8 +18,16 @@ import AthleteInvoices from "./AthleteInvoices";
 import AthleteAssesments from "./AthleteAssesments";
 
 import { GetAthleteByIdQueryType } from "../Types";
+import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
+import { GetCouponsQueryType } from "@/app/(home)/users/players/user-profile/[id]/page";
 
-const AthleteProfile = ({ data }: { data: GetAthleteByIdQueryType }) => {
+const AthleteProfile = ({
+  data,
+  coupons,
+}: {
+  data: GetAthleteByIdQueryType;
+  coupons: GetCouponsQueryType[];
+}) => {
   const router = useRouter();
 
   if (!data) return <div className="p-10 text-center">Athlete not found.</div>;
@@ -51,6 +59,7 @@ const AthleteProfile = ({ data }: { data: GetAthleteByIdQueryType }) => {
             <TabsTrigger value="fees">Financials</TabsTrigger>
             <TabsTrigger value="invoice">Invoices</TabsTrigger>
             <TabsTrigger value="assesments">Assessments</TabsTrigger>
+            <TabsTrigger value="plan">Plan</TabsTrigger>
           </TabsList>
         </div>
 
@@ -76,6 +85,9 @@ const AthleteProfile = ({ data }: { data: GetAthleteByIdQueryType }) => {
             </TabsContent>
             <TabsContent value="assesments">
               <AthleteAssesments data={data} />
+            </TabsContent>
+            <TabsContent value="plan">
+              <AthleteSubscriptionPlans data={data} coupons={coupons} />
             </TabsContent>
           </CardContent>
         </Card>

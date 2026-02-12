@@ -4,7 +4,6 @@ import { JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
 import ReactQueryClientProvider from "@/lib/ReactQueryClientProvider";
-import { UtilsProviderWrapper } from "@/Modules/Settings/UtilsProvider";
 import { Toaster } from "sonner";
 import MainLayoutWrapper from "@/utils/MainLayoutWrapper";
 
@@ -82,6 +81,7 @@ export default function RootLayout({
                 duration={5000}
                 richColors
                 position="top-right"
+                theme="system"
               />
             </MainLayoutWrapper>
           </ReactQueryClientProvider>

@@ -1,5 +1,8 @@
 import { db } from "@/lib/prisma";
-import { GetCouponsQuery } from "@/Modules/Coupons/Types/Index";
+import {
+  GetCouponsQuery,
+  GetCouponsQueryType,
+} from "@/Modules/Coupons/Types/Index";
 import Coupons from "@/Modules/Coupons/ui/Coupons";
 
 const page = async () => {
@@ -10,6 +13,7 @@ const page = async () => {
       createdAt: "desc",
     },
   });
+
   return <Coupons coupons={coupons} />;
 };
 

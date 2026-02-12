@@ -28,6 +28,7 @@ export async function GET(
         emergencyContacts: true,
         guardians: true,
         medical: true,
+
       },
     });
     if (!athlete) {

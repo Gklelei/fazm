@@ -15,7 +15,6 @@ import {
   Loader2Icon,
 } from "lucide-react";
 
-// UI Components
 import {
   Card,
   CardContent,
@@ -48,7 +47,6 @@ import CreateCoupons from "./CreateCoupons";
 import { formatCurrency } from "@/utils/TansformWords";
 import { DeleteCouponsAction } from "../Server/CouponsAction";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
-import { useRouter } from "next/navigation";
 
 interface Props {
   coupons: GetCouponsQueryType[];
@@ -58,7 +56,6 @@ const Coupons = ({ coupons }: Props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [delId, setDelId] = useState("");
-  const router = useRouter();
 
   const handleCopy = async (text: string, id: string) => {
     try {
@@ -256,15 +253,7 @@ const Coupons = ({ coupons }: Props) => {
                             <Clipboard className="mr-2 h-4 w-4" /> Copy Code
                           </DropdownMenuItem>
                           <DropdownMenuSeparator />
-                          <DropdownMenuItem>
-                            <Pencil
-                              className="mr-2 h-4 w-4"
-                              onClick={() =>
-                                router.push(`/coupons/${coupon.id}`)
-                              }
-                            />
-                            Edit Details
-                          </DropdownMenuItem>
+                          <CreateCoupons coupon={coupon} id={coupon.id} />
                           <DropdownMenuItem
                             className="text-red-600 focus:text-red-600"
                             onClick={() => handleDeleteCoupon(coupon.id)}

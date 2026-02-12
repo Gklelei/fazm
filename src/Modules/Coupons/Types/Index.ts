@@ -19,3 +19,5 @@ export const GetCouponsByIdQuery = (id: string) =>
 export type GetCouponsByIdQueryType = Prisma.CouponGetPayload<
   ReturnType<typeof GetCouponsByIdQuery>
 >;
+
+export const GetCoupons = {} satisfies Prisma.CouponFindManyArgs;

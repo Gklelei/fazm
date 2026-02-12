@@ -312,7 +312,6 @@ export type AthleteSubscriptionOrderByWithRelationInput = {
 
 export type AthleteSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  athleteId_subscriptionPlanId_status?: Prisma.AthleteSubscriptionAthleteIdSubscriptionPlanIdStatusCompoundUniqueInput
   AND?: Prisma.AthleteSubscriptionWhereInput | Prisma.AthleteSubscriptionWhereInput[]
   OR?: Prisma.AthleteSubscriptionWhereInput[]
   NOT?: Prisma.AthleteSubscriptionWhereInput | Prisma.AthleteSubscriptionWhereInput[]
@@ -337,7 +336,7 @@ export type AthleteSubscriptionWhereUniqueInput = Prisma.AtLeast<{
   invoices?: Prisma.InvoiceListRelationFilter
   finances?: Prisma.FinanceListRelationFilter
   coupon?: Prisma.XOR<Prisma.CouponNullableScalarRelationFilter, Prisma.CouponWhereInput> | null
-}, "id" | "athleteId_subscriptionPlanId_status">
+}, "id">
 
 export type AthleteSubscriptionOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -538,12 +537,6 @@ export type AthleteSubscriptionListRelationFilter = {
 
 export type AthleteSubscriptionOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
-}
-
-export type AthleteSubscriptionAthleteIdSubscriptionPlanIdStatusCompoundUniqueInput = {
-  athleteId: string
-  subscriptionPlanId: string
-  status: $Enums.SUBSCRIPTION_STATUS
 }
 
 export type AthleteSubscriptionCountOrderByAggregateInput = {
