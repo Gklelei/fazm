@@ -1,37 +1,17 @@
-import { Prisma, ROLES } from "@/generated/prisma/client";
+import { Prisma } from "@/generated/prisma/client";
 
-export const GetStaffQuery = ({
-  role,
-  search,
-}: {
-  search?: string;
-  role?: string;
-}) =>
-  ({
-    where: {
-      fullNames: {
-        contains: search,
-        mode: "insensitive",
-      },
-      staffId: {
-        contains: search,
-        mode: "insensitive",
-      },
-      user: {
-        isArchived: false,
-        role: {
-          equals: role as ROLES,
-        },
-      },
+export const GetStaffQuery = {
+  where: {
+    user: {
+      isArchived: false,
     },
-    include: {
-      user: true,
-    },
-  }) satisfies Prisma.staffFindManyArgs;
+  },
+  include: {
+    user: true,
+  },
+} satisfies Prisma.staffFindManyArgs;
 
-export type GetStaffType = Prisma.staffGetPayload<
-  ReturnType<typeof GetStaffQuery>
->;
+export type GetStaffType = Prisma.staffGetPayload<typeof GetStaffQuery>;
 
 export const GetUserProfileQuery = (id: string) =>
   ({

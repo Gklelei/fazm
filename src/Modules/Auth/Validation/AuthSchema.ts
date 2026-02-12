@@ -7,7 +7,7 @@ export const AuthSchema = z.object({
     .min(1, "Required")
     .regex(
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-      "Please enter a valid email address"
+      "Please enter a valid email address",
     ),
   password: z.string().trim().min(8, "Password should be atleast 8 characters"),
 });

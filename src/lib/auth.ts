@@ -1,6 +1,7 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./prisma";
+import { toast } from "sonner";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -16,6 +17,13 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: false,
     requireEmailVerification: false,
+    sendResetPassword: async ({ token, url, user }) => {
+      console.log({ token, url, user });
+    },
+    onPasswordReset: async ({ user }, request) => {
+      // your logic here
+      toast.success(`Password for user ${user.email} has been reset.`);
+    },
   },
   user: {
     deleteUser: {

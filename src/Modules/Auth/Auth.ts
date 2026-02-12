@@ -6,7 +6,6 @@ import { db } from "@/lib/prisma";
 export async function ChangePassword({
   email,
   password,
-  oldPassword,
 }: {
   email: string;
   password: string;

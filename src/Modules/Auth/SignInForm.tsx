@@ -19,6 +19,7 @@ import { signIn } from "@/lib/auth-client";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { Eye, EyeOff } from "lucide-react";
+// import { PasswordResetDialog } from "./ForgotPassword";
 
 const SignInForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -132,6 +133,14 @@ const SignInForm = () => {
               <Button type="submit" disabled={isPending} className="w-full">
                 {isPending ? <Loader2Spinner /> : "Sign In"}
               </Button>
+              {/* <PasswordResetDialog
+                redirectTo={`${process.env.NEXT_PUBLIC_APP_URL}/reset-password`}
+                trigger={
+                  <Button variant="link" className="px-0">
+                    Forgot Password
+                  </Button>
+                }
+              /> */}
             </form>
           </Form>
         </CardContent>
