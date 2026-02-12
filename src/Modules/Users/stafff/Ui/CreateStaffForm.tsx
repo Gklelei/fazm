@@ -41,9 +41,10 @@ import {
 
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
-import { CloudinaryUpload } from "@/components/ImageUploader";
 import { GetStaffByIdQueryType } from "../types";
 import { AdminEditStaffProfile } from "../Server/EditStaff";
+import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
+import { authClient } from "@/lib/auth-client";
 
 interface Props {
   user?: GetStaffByIdQueryType;
@@ -104,6 +105,13 @@ const CreateStaffForm = ({ user }: Props) => {
             title: "Success!",
             text: res.message,
           });
+          await authClient.getSession({
+            fetchOptions: {
+              cache: "reload",
+            },
+          });
+
+          router.refresh();
           router.push("/users/staff");
         } else {
           Sweetalert({
@@ -122,6 +130,12 @@ const CreateStaffForm = ({ user }: Props) => {
             title: "Success!",
             text: res.message,
           });
+          await authClient.getSession({
+            fetchOptions: {
+              cache: "reload",
+            },
+          });
+          router.refresh();
           router.push("/users/staff");
         } else {
           Sweetalert({
@@ -274,10 +288,18 @@ const CreateStaffForm = ({ user }: Props) => {
                       <FormItem>
                         <FormLabel>Profile Image</FormLabel>
                         <FormControl>
-                          <CloudinaryUpload
+                          {/* <CloudinaryUpload
                             maxSizeMB={2}
                             value={field.value || ""}
                             onChange={field.onChange}
+                          /> */}
+                          <LocalFsUpload
+                            onChange={(url: string) => {
+                              field.onChange(url);
+                            }}
+                            value={field.value || ""}
+                            folder="BIRTH_CERTIFICATES"
+                            maxSizeMB={2}
                           />
                         </FormControl>
                         <FormMessage />
