@@ -8,6 +8,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { formatDuration, FormatParticipants } from "@/utils/TansformWords";
+import { formatDate } from "date-fns";
 import { Dumbbell } from "lucide-react";
 
 const WeeklyTrainings = ({ data }: { data: dashboardItems }) => {
@@ -51,9 +52,9 @@ const WeeklyTrainings = ({ data }: { data: dashboardItems }) => {
                     </TableCell>
                     <TableCell className="text-sm">
                       <div>
-                        <p>{training.date.toLocaleDateString()}</p>
+                        <p>{formatDate(training.date, "dd/MM/yy")}</p>
                         <p className="text-xs text-muted-foreground">
-                          {training.date.toLocaleTimeString()}
+                          {formatDate(training.date, "HH:mm")}
                         </p>
                       </div>
                     </TableCell>

@@ -42,6 +42,7 @@ declare global {
     id: string;
     athleteId: string;
     firstName: string;
+    middleName: string;
     lastName: string;
     email: string | null;
     phoneNumber: string;
@@ -214,6 +215,7 @@ declare global {
     id: string;
     athleteId: string;
     firstName: string;
+    middleName: string;
     lastName: string;
     middleName: string | null;
     email: string;

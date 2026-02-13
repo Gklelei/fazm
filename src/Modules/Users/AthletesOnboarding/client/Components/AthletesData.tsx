@@ -81,6 +81,7 @@ type AthleteRow = {
   id: string;
   athleteId: string;
   firstName: string;
+  middleName: string;
   lastName: string;
   email?: string | null;
   profilePIcture?: string | null;
@@ -290,7 +291,13 @@ const AthletesData = () => {
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-semibold text-sm">
-                              {athlete.firstName} {athlete.lastName}
+                              {[
+                                athlete.firstName,
+                                athlete.middleName,
+                                athlete.lastName,
+                              ]
+                                .filter(Boolean)
+                                .join(" ")}
                             </span>
                             <span className="text-xs text-muted-foreground truncate max-w-60">
                               {athlete.email || "No email provided"}
