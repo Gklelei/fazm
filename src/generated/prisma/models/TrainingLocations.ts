@@ -20,46 +20,70 @@ export type TrainingLocationsModel = runtime.Types.Result.DefaultSelection<Prism
 
 export type AggregateTrainingLocations = {
   _count: TrainingLocationsCountAggregateOutputType | null
+  _avg: TrainingLocationsAvgAggregateOutputType | null
+  _sum: TrainingLocationsSumAggregateOutputType | null
   _min: TrainingLocationsMinAggregateOutputType | null
   _max: TrainingLocationsMaxAggregateOutputType | null
+}
+
+export type TrainingLocationsAvgAggregateOutputType = {
+  voided: number | null
+}
+
+export type TrainingLocationsSumAggregateOutputType = {
+  voided: number | null
 }
 
 export type TrainingLocationsMinAggregateOutputType = {
   id: string | null
   name: string | null
   value: string | null
+  voided: number | null
 }
 
 export type TrainingLocationsMaxAggregateOutputType = {
   id: string | null
   name: string | null
   value: string | null
+  voided: number | null
 }
 
 export type TrainingLocationsCountAggregateOutputType = {
   id: number
   name: number
   value: number
+  voided: number
   _all: number
 }
 
+
+export type TrainingLocationsAvgAggregateInputType = {
+  voided?: true
+}
+
+export type TrainingLocationsSumAggregateInputType = {
+  voided?: true
+}
 
 export type TrainingLocationsMinAggregateInputType = {
   id?: true
   name?: true
   value?: true
+  voided?: true
 }
 
 export type TrainingLocationsMaxAggregateInputType = {
   id?: true
   name?: true
   value?: true
+  voided?: true
 }
 
 export type TrainingLocationsCountAggregateInputType = {
   id?: true
   name?: true
   value?: true
+  voided?: true
   _all?: true
 }
 
@@ -101,6 +125,18 @@ export type TrainingLocationsAggregateArgs<ExtArgs extends runtime.Types.Extensi
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: TrainingLocationsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: TrainingLocationsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: TrainingLocationsMinAggregateInputType
@@ -131,6 +167,8 @@ export type TrainingLocationsGroupByArgs<ExtArgs extends runtime.Types.Extension
   take?: number
   skip?: number
   _count?: TrainingLocationsCountAggregateInputType | true
+  _avg?: TrainingLocationsAvgAggregateInputType
+  _sum?: TrainingLocationsSumAggregateInputType
   _min?: TrainingLocationsMinAggregateInputType
   _max?: TrainingLocationsMaxAggregateInputType
 }
@@ -139,7 +177,10 @@ export type TrainingLocationsGroupByOutputType = {
   id: string
   name: string
   value: string
+  voided: number
   _count: TrainingLocationsCountAggregateOutputType | null
+  _avg: TrainingLocationsAvgAggregateOutputType | null
+  _sum: TrainingLocationsSumAggregateOutputType | null
   _min: TrainingLocationsMinAggregateOutputType | null
   _max: TrainingLocationsMaxAggregateOutputType | null
 }
@@ -166,6 +207,7 @@ export type TrainingLocationsWhereInput = {
   id?: Prisma.StringFilter<"TrainingLocations"> | string
   name?: Prisma.StringFilter<"TrainingLocations"> | string
   value?: Prisma.StringFilter<"TrainingLocations"> | string
+  voided?: Prisma.IntFilter<"TrainingLocations"> | number
   trainings?: Prisma.TrainingListRelationFilter
 }
 
@@ -173,6 +215,7 @@ export type TrainingLocationsOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
   trainings?: Prisma.trainingOrderByRelationAggregateInput
 }
 
@@ -183,6 +226,7 @@ export type TrainingLocationsWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.TrainingLocationsWhereInput | Prisma.TrainingLocationsWhereInput[]
   name?: Prisma.StringFilter<"TrainingLocations"> | string
   value?: Prisma.StringFilter<"TrainingLocations"> | string
+  voided?: Prisma.IntFilter<"TrainingLocations"> | number
   trainings?: Prisma.TrainingListRelationFilter
 }, "id">
 
@@ -190,9 +234,12 @@ export type TrainingLocationsOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
   _count?: Prisma.TrainingLocationsCountOrderByAggregateInput
+  _avg?: Prisma.TrainingLocationsAvgOrderByAggregateInput
   _max?: Prisma.TrainingLocationsMaxOrderByAggregateInput
   _min?: Prisma.TrainingLocationsMinOrderByAggregateInput
+  _sum?: Prisma.TrainingLocationsSumOrderByAggregateInput
 }
 
 export type TrainingLocationsScalarWhereWithAggregatesInput = {
@@ -202,12 +249,14 @@ export type TrainingLocationsScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"TrainingLocations"> | string
   name?: Prisma.StringWithAggregatesFilter<"TrainingLocations"> | string
   value?: Prisma.StringWithAggregatesFilter<"TrainingLocations"> | string
+  voided?: Prisma.IntWithAggregatesFilter<"TrainingLocations"> | number
 }
 
 export type TrainingLocationsCreateInput = {
   id?: string
   name: string
   value: string
+  voided?: number
   trainings?: Prisma.trainingCreateNestedManyWithoutLocationInput
 }
 
@@ -215,6 +264,7 @@ export type TrainingLocationsUncheckedCreateInput = {
   id?: string
   name: string
   value: string
+  voided?: number
   trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutLocationInput
 }
 
@@ -222,6 +272,7 @@ export type TrainingLocationsUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUpdateManyWithoutLocationNestedInput
 }
 
@@ -229,6 +280,7 @@ export type TrainingLocationsUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUncheckedUpdateManyWithoutLocationNestedInput
 }
 
@@ -236,18 +288,21 @@ export type TrainingLocationsCreateManyInput = {
   id?: string
   name: string
   value: string
+  voided?: number
 }
 
 export type TrainingLocationsUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TrainingLocationsUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TrainingLocationsScalarRelationFilter = {
@@ -259,18 +314,29 @@ export type TrainingLocationsCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
+}
+
+export type TrainingLocationsAvgOrderByAggregateInput = {
+  voided?: Prisma.SortOrder
 }
 
 export type TrainingLocationsMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
 }
 
 export type TrainingLocationsMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   value?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
+}
+
+export type TrainingLocationsSumOrderByAggregateInput = {
+  voided?: Prisma.SortOrder
 }
 
 export type TrainingLocationsCreateNestedOneWithoutTrainingsInput = {
@@ -291,12 +357,14 @@ export type TrainingLocationsCreateWithoutTrainingsInput = {
   id?: string
   name: string
   value: string
+  voided?: number
 }
 
 export type TrainingLocationsUncheckedCreateWithoutTrainingsInput = {
   id?: string
   name: string
   value: string
+  voided?: number
 }
 
 export type TrainingLocationsCreateOrConnectWithoutTrainingsInput = {
@@ -319,12 +387,14 @@ export type TrainingLocationsUpdateWithoutTrainingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type TrainingLocationsUncheckedUpdateWithoutTrainingsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.StringFieldUpdateOperationsInput | string
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -362,6 +432,7 @@ export type TrainingLocationsSelect<ExtArgs extends runtime.Types.Extensions.Int
   id?: boolean
   name?: boolean
   value?: boolean
+  voided?: boolean
   trainings?: boolean | Prisma.TrainingLocations$trainingsArgs<ExtArgs>
   _count?: boolean | Prisma.TrainingLocationsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["trainingLocations"]>
@@ -370,21 +441,24 @@ export type TrainingLocationsSelectCreateManyAndReturn<ExtArgs extends runtime.T
   id?: boolean
   name?: boolean
   value?: boolean
+  voided?: boolean
 }, ExtArgs["result"]["trainingLocations"]>
 
 export type TrainingLocationsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   name?: boolean
   value?: boolean
+  voided?: boolean
 }, ExtArgs["result"]["trainingLocations"]>
 
 export type TrainingLocationsSelectScalar = {
   id?: boolean
   name?: boolean
   value?: boolean
+  voided?: boolean
 }
 
-export type TrainingLocationsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "value", ExtArgs["result"]["trainingLocations"]>
+export type TrainingLocationsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "value" | "voided", ExtArgs["result"]["trainingLocations"]>
 export type TrainingLocationsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   trainings?: boolean | Prisma.TrainingLocations$trainingsArgs<ExtArgs>
   _count?: boolean | Prisma.TrainingLocationsCountOutputTypeDefaultArgs<ExtArgs>
@@ -401,6 +475,7 @@ export type $TrainingLocationsPayload<ExtArgs extends runtime.Types.Extensions.I
     id: string
     name: string
     value: string
+    voided: number
   }, ExtArgs["result"]["trainingLocations"]>
   composites: {}
 }
@@ -828,6 +903,7 @@ export interface TrainingLocationsFieldRefs {
   readonly id: Prisma.FieldRef<"TrainingLocations", 'String'>
   readonly name: Prisma.FieldRef<"TrainingLocations", 'String'>
   readonly value: Prisma.FieldRef<"TrainingLocations", 'String'>
+  readonly voided: Prisma.FieldRef<"TrainingLocations", 'Int'>
 }
     
 

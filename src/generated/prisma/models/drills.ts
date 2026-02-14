@@ -20,8 +20,18 @@ export type drillsModel = runtime.Types.Result.DefaultSelection<Prisma.$drillsPa
 
 export type AggregateDrills = {
   _count: DrillsCountAggregateOutputType | null
+  _avg: DrillsAvgAggregateOutputType | null
+  _sum: DrillsSumAggregateOutputType | null
   _min: DrillsMinAggregateOutputType | null
   _max: DrillsMaxAggregateOutputType | null
+}
+
+export type DrillsAvgAggregateOutputType = {
+  voided: number | null
+}
+
+export type DrillsSumAggregateOutputType = {
+  voided: number | null
 }
 
 export type DrillsMinAggregateOutputType = {
@@ -29,6 +39,7 @@ export type DrillsMinAggregateOutputType = {
   value: string | null
   name: string | null
   description: string | null
+  voided: number | null
 }
 
 export type DrillsMaxAggregateOutputType = {
@@ -36,6 +47,7 @@ export type DrillsMaxAggregateOutputType = {
   value: string | null
   name: string | null
   description: string | null
+  voided: number | null
 }
 
 export type DrillsCountAggregateOutputType = {
@@ -43,15 +55,25 @@ export type DrillsCountAggregateOutputType = {
   value: number
   name: number
   description: number
+  voided: number
   _all: number
 }
 
+
+export type DrillsAvgAggregateInputType = {
+  voided?: true
+}
+
+export type DrillsSumAggregateInputType = {
+  voided?: true
+}
 
 export type DrillsMinAggregateInputType = {
   id?: true
   value?: true
   name?: true
   description?: true
+  voided?: true
 }
 
 export type DrillsMaxAggregateInputType = {
@@ -59,6 +81,7 @@ export type DrillsMaxAggregateInputType = {
   value?: true
   name?: true
   description?: true
+  voided?: true
 }
 
 export type DrillsCountAggregateInputType = {
@@ -66,6 +89,7 @@ export type DrillsCountAggregateInputType = {
   value?: true
   name?: true
   description?: true
+  voided?: true
   _all?: true
 }
 
@@ -107,6 +131,18 @@ export type DrillsAggregateArgs<ExtArgs extends runtime.Types.Extensions.Interna
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: DrillsAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: DrillsSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: DrillsMinAggregateInputType
@@ -137,6 +173,8 @@ export type drillsGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
   take?: number
   skip?: number
   _count?: DrillsCountAggregateInputType | true
+  _avg?: DrillsAvgAggregateInputType
+  _sum?: DrillsSumAggregateInputType
   _min?: DrillsMinAggregateInputType
   _max?: DrillsMaxAggregateInputType
 }
@@ -146,7 +184,10 @@ export type DrillsGroupByOutputType = {
   value: string
   name: string
   description: string | null
+  voided: number
   _count: DrillsCountAggregateOutputType | null
+  _avg: DrillsAvgAggregateOutputType | null
+  _sum: DrillsSumAggregateOutputType | null
   _min: DrillsMinAggregateOutputType | null
   _max: DrillsMaxAggregateOutputType | null
 }
@@ -174,6 +215,7 @@ export type drillsWhereInput = {
   value?: Prisma.StringFilter<"drills"> | string
   name?: Prisma.StringFilter<"drills"> | string
   description?: Prisma.StringNullableFilter<"drills"> | string | null
+  voided?: Prisma.IntFilter<"drills"> | number
   trainings?: Prisma.TrainingListRelationFilter
 }
 
@@ -182,6 +224,7 @@ export type drillsOrderByWithRelationInput = {
   value?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided?: Prisma.SortOrder
   trainings?: Prisma.trainingOrderByRelationAggregateInput
 }
 
@@ -193,6 +236,7 @@ export type drillsWhereUniqueInput = Prisma.AtLeast<{
   value?: Prisma.StringFilter<"drills"> | string
   name?: Prisma.StringFilter<"drills"> | string
   description?: Prisma.StringNullableFilter<"drills"> | string | null
+  voided?: Prisma.IntFilter<"drills"> | number
   trainings?: Prisma.TrainingListRelationFilter
 }, "id">
 
@@ -201,9 +245,12 @@ export type drillsOrderByWithAggregationInput = {
   value?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
+  voided?: Prisma.SortOrder
   _count?: Prisma.drillsCountOrderByAggregateInput
+  _avg?: Prisma.drillsAvgOrderByAggregateInput
   _max?: Prisma.drillsMaxOrderByAggregateInput
   _min?: Prisma.drillsMinOrderByAggregateInput
+  _sum?: Prisma.drillsSumOrderByAggregateInput
 }
 
 export type drillsScalarWhereWithAggregatesInput = {
@@ -214,6 +261,7 @@ export type drillsScalarWhereWithAggregatesInput = {
   value?: Prisma.StringWithAggregatesFilter<"drills"> | string
   name?: Prisma.StringWithAggregatesFilter<"drills"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"drills"> | string | null
+  voided?: Prisma.IntWithAggregatesFilter<"drills"> | number
 }
 
 export type drillsCreateInput = {
@@ -221,6 +269,7 @@ export type drillsCreateInput = {
   value: string
   name: string
   description?: string | null
+  voided?: number
   trainings?: Prisma.trainingCreateNestedManyWithoutDrillsInput
 }
 
@@ -229,6 +278,7 @@ export type drillsUncheckedCreateInput = {
   value: string
   name: string
   description?: string | null
+  voided?: number
   trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutDrillsInput
 }
 
@@ -237,6 +287,7 @@ export type drillsUpdateInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUpdateManyWithoutDrillsNestedInput
 }
 
@@ -245,6 +296,7 @@ export type drillsUncheckedUpdateInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUncheckedUpdateManyWithoutDrillsNestedInput
 }
 
@@ -253,6 +305,7 @@ export type drillsCreateManyInput = {
   value: string
   name: string
   description?: string | null
+  voided?: number
 }
 
 export type drillsUpdateManyMutationInput = {
@@ -260,6 +313,7 @@ export type drillsUpdateManyMutationInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type drillsUncheckedUpdateManyInput = {
@@ -267,6 +321,7 @@ export type drillsUncheckedUpdateManyInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type DrillsListRelationFilter = {
@@ -284,6 +339,11 @@ export type drillsCountOrderByAggregateInput = {
   value?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
+}
+
+export type drillsAvgOrderByAggregateInput = {
+  voided?: Prisma.SortOrder
 }
 
 export type drillsMaxOrderByAggregateInput = {
@@ -291,6 +351,7 @@ export type drillsMaxOrderByAggregateInput = {
   value?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
 }
 
 export type drillsMinOrderByAggregateInput = {
@@ -298,6 +359,11 @@ export type drillsMinOrderByAggregateInput = {
   value?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
+  voided?: Prisma.SortOrder
+}
+
+export type drillsSumOrderByAggregateInput = {
+  voided?: Prisma.SortOrder
 }
 
 export type drillsCreateNestedManyWithoutTrainingsInput = {
@@ -343,6 +409,7 @@ export type drillsCreateWithoutTrainingsInput = {
   value: string
   name: string
   description?: string | null
+  voided?: number
 }
 
 export type drillsUncheckedCreateWithoutTrainingsInput = {
@@ -350,6 +417,7 @@ export type drillsUncheckedCreateWithoutTrainingsInput = {
   value: string
   name: string
   description?: string | null
+  voided?: number
 }
 
 export type drillsCreateOrConnectWithoutTrainingsInput = {
@@ -381,6 +449,7 @@ export type drillsScalarWhereInput = {
   value?: Prisma.StringFilter<"drills"> | string
   name?: Prisma.StringFilter<"drills"> | string
   description?: Prisma.StringNullableFilter<"drills"> | string | null
+  voided?: Prisma.IntFilter<"drills"> | number
 }
 
 export type drillsUpdateWithoutTrainingsInput = {
@@ -388,6 +457,7 @@ export type drillsUpdateWithoutTrainingsInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type drillsUncheckedUpdateWithoutTrainingsInput = {
@@ -395,6 +465,7 @@ export type drillsUncheckedUpdateWithoutTrainingsInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 export type drillsUncheckedUpdateManyWithoutTrainingsInput = {
@@ -402,6 +473,7 @@ export type drillsUncheckedUpdateManyWithoutTrainingsInput = {
   value?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
 }
 
 
@@ -440,6 +512,7 @@ export type drillsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   value?: boolean
   name?: boolean
   description?: boolean
+  voided?: boolean
   trainings?: boolean | Prisma.drills$trainingsArgs<ExtArgs>
   _count?: boolean | Prisma.DrillsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["drills"]>
@@ -449,6 +522,7 @@ export type drillsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   value?: boolean
   name?: boolean
   description?: boolean
+  voided?: boolean
 }, ExtArgs["result"]["drills"]>
 
 export type drillsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -456,6 +530,7 @@ export type drillsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   value?: boolean
   name?: boolean
   description?: boolean
+  voided?: boolean
 }, ExtArgs["result"]["drills"]>
 
 export type drillsSelectScalar = {
@@ -463,9 +538,10 @@ export type drillsSelectScalar = {
   value?: boolean
   name?: boolean
   description?: boolean
+  voided?: boolean
 }
 
-export type drillsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "value" | "name" | "description", ExtArgs["result"]["drills"]>
+export type drillsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "value" | "name" | "description" | "voided", ExtArgs["result"]["drills"]>
 export type drillsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   trainings?: boolean | Prisma.drills$trainingsArgs<ExtArgs>
   _count?: boolean | Prisma.DrillsCountOutputTypeDefaultArgs<ExtArgs>
@@ -483,6 +559,7 @@ export type $drillsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     value: string
     name: string
     description: string | null
+    voided: number
   }, ExtArgs["result"]["drills"]>
   composites: {}
 }
@@ -911,6 +988,7 @@ export interface drillsFieldRefs {
   readonly value: Prisma.FieldRef<"drills", 'String'>
   readonly name: Prisma.FieldRef<"drills", 'String'>
   readonly description: Prisma.FieldRef<"drills", 'String'>
+  readonly voided: Prisma.FieldRef<"drills", 'Int'>
 }
     
 

@@ -2,7 +2,6 @@
 
 import { db } from "@/lib/prisma";
 import { BatchesSchema, BatchesSchemaType } from "../Validation";
-import { revalidatePath } from "next/cache";
 
 export async function CreateBatches(
   data: BatchesSchemaType,
@@ -16,7 +15,6 @@ export async function CreateBatches(
         description: values.description,
       },
     });
-    revalidatePath("/settings/utils");
     return {
       success: true,
       message: "Batch Created succecifully",

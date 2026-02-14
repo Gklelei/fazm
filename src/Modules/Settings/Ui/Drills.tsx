@@ -20,10 +20,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { useTransition } from "react";
+import { useMemo, useState, useTransition } from "react";
 import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
 import { DrillsSchema, DrillsSchemaType } from "../Validation";
-import { CreateDrills } from "../Server/Drills";
+import { CreateDrills, DeleteDrills, EditDrills } from "../Server/Drills";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -32,7 +32,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Table,
@@ -42,34 +41,99 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Eye, Pen, Trash2Icon } from "lucide-react";
+import { Eye, Loader2Icon, Pen, Trash2Icon } from "lucide-react";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
+
+type Drill = {
+  id: string;
+  name: string;
+  description?: string | null;
+};
+
+type DialogMode = "create" | "view" | "edit" | null;
 
 const Drills = () => {
+  const queryClient = useQueryClient();
   const [isPending, startTransition] = useTransition();
+
   const { data } = UseUtilsContext();
+  const drills = useMemo(
+    () => (data?.drills.filter((d) => d.voided !== 1) ?? []) as Drill[],
+    [data],
+  );
+
+  const [delId, setDelId] = useState<string>("");
+  const [mode, setMode] = useState<DialogMode>(null);
+  const [selected, setSelected] = useState<Drill | null>(null);
+
+  const isOpen = mode !== null;
 
   const form = useForm<DrillsSchemaType>({
     resolver: zodResolver(DrillsSchema),
     defaultValues: {
-      description: "",
       name: "",
+      description: "",
     },
   });
 
-  const handleSubmit = async (payload: DrillsSchemaType) => {
+  const closeDialog = () => {
+    setMode(null);
+    setSelected(null);
+    form.reset({ name: "", description: "" });
+  };
+
+  const openCreate = () => {
+    setSelected(null);
+    setMode("create");
+    form.reset({ name: "", description: "" });
+  };
+
+  const openView = (d: Drill) => {
+    setSelected(d);
+    setMode("view");
+  };
+
+  const openEdit = (d: Drill) => {
+    setSelected(d);
+    setMode("edit");
+    form.reset({
+      name: d.name ?? "",
+      description: d.description ?? "",
+    });
+  };
+
+  const onSubmit = async (payload: DrillsSchemaType) => {
     startTransition(async () => {
-      const results = await CreateDrills(payload);
-      if (results.success) {
-        toast.success(results.message);
-        form.reset();
+      const res =
+        mode === "edit" && selected
+          ? await EditDrills(payload, selected.id)
+          : await CreateDrills(payload);
+
+      if (res.success) {
+        toast.success(res.message);
+        await queryClient.invalidateQueries({ queryKey: ["utils"] });
+        closeDialog();
       } else {
-        toast.error(results.message);
+        toast.error(res.message);
       }
     });
   };
 
-  const drills = data?.drills ?? [];
+  const handleDelete = async (id: string) => {
+    setDelId(id);
+
+    const res = await DeleteDrills({ drillId: id });
+
+    if (res.success) {
+      toast.success(res.message);
+      await queryClient.invalidateQueries({ queryKey: ["utils"] });
+    } else {
+      toast.error(res.message);
+    }
+
+    setDelId("");
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-2 sm:px-4 py-6">
@@ -85,93 +149,14 @@ const Drills = () => {
               </CardDescription>
             </div>
 
-            {/* CREATE DIALOG */}
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button className="w-full sm:w-auto">Create drill</Button>
-              </DialogTrigger>
-
-              <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Create a drill</DialogTitle>
-                  <DialogDescription>
-                    Add a drill name and an optional description.
-                  </DialogDescription>
-                </DialogHeader>
-
-                <Separator />
-
-                <div className="pt-2">
-                  <Form {...form}>
-                    <form
-                      onSubmit={form.handleSubmit(handleSubmit)}
-                      className="space-y-5"
-                    >
-                      <FormField
-                        name="name"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                              Drill name
-                            </FormLabel>
-                            <FormControl>
-                              <Input
-                                placeholder="e.g. Passing triangles"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <FormField
-                        name="description"
-                        control={form.control}
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                              Description
-                            </FormLabel>
-                            <FormControl>
-                              <Textarea
-                                placeholder="Optional description..."
-                                className="min-h-24 resize-none"
-                                {...field}
-                              />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                      <div className="flex items-center justify-end gap-2 pt-2">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() =>
-                            form.reset({ name: "", description: "" })
-                          }
-                          disabled={isPending}
-                        >
-                          Reset
-                        </Button>
-                        <Button type="submit" disabled={isPending}>
-                          {isPending ? <Loader2Spinner /> : "Create drill"}
-                        </Button>
-                      </div>
-                    </form>
-                  </Form>
-                </div>
-              </DialogContent>
-            </Dialog>
+            <Button className="w-full sm:w-auto" onClick={openCreate}>
+              Create drill
+            </Button>
           </div>
         </CardHeader>
 
         <Separator />
 
-        {/* TABLE */}
         <CardContent className="pt-6 space-y-4">
           <p className="text-sm text-muted-foreground">
             {drills.length} drill{drills.length === 1 ? "" : "s"} total
@@ -208,100 +193,37 @@ const Drills = () => {
 
                       <TableCell>
                         <div className="flex items-center justify-end gap-1">
-                          {/* VIEW DIALOG */}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                aria-label="View"
-                              >
-                                <Eye className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg">
-                              <DialogHeader>
-                                <DialogTitle>{d.name}</DialogTitle>
-                                <DialogDescription>
-                                  Drill details
-                                </DialogDescription>
-                              </DialogHeader>
-                              <Separator />
-                              <div className="space-y-3 pt-2 text-sm">
-                                <div>
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Name
-                                  </p>
-                                  <p className="font-medium">{d.name}</p>
-                                </div>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label="View"
+                            onClick={() => openView(d)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
 
-                                <div>
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Description
-                                  </p>
-                                  <p className="text-muted-foreground">
-                                    {d.description?.trim()
-                                      ? d.description
-                                      : "—"}
-                                  </p>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            aria-label="Edit"
+                            onClick={() => openEdit(d)}
+                          >
+                            <Pen className="h-4 w-4" />
+                          </Button>
 
-                          {/* EDIT DIALOG (UI ONLY) */}
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button
-                                size="icon"
-                                variant="ghost"
-                                aria-label="Edit"
-                              >
-                                <Pen className="h-4 w-4" />
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="sm:max-w-lg">
-                              <DialogHeader>
-                                <DialogTitle>Edit drill</DialogTitle>
-                                <DialogDescription>
-                                  UI only (no functionality wired).
-                                </DialogDescription>
-                              </DialogHeader>
-                              <Separator />
-                              <div className="pt-3 space-y-4">
-                                <div className="space-y-2">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Drill name
-                                  </p>
-                                  <Input defaultValue={d.name} />
-                                </div>
-                                <div className="space-y-2">
-                                  <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                                    Description
-                                  </p>
-                                  <Textarea
-                                    className="min-h-24 resize-none"
-                                    defaultValue={d.description ?? ""}
-                                  />
-                                </div>
-                                <div className="flex justify-end gap-2">
-                                  <Button variant="outline" type="button">
-                                    Cancel
-                                  </Button>
-                                  <Button type="button">Save</Button>
-                                </div>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-
-                          {/* DELETE (UI ONLY) */}
                           <Button
                             size="icon"
                             variant="ghost"
                             aria-label="Delete"
                             type="button"
+                            disabled={delId === d.id}
+                            onClick={() => handleDelete(d.id)}
                           >
-                            <Trash2Icon className="h-4 w-4 text-red-600" />
+                            {delId === d.id ? (
+                              <Loader2Icon className="animate-spin size-4" />
+                            ) : (
+                              <Trash2Icon className="h-4 w-4 text-red-600" />
+                            )}
                           </Button>
                         </div>
                       </TableCell>
@@ -313,6 +235,125 @@ const Drills = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* ONE DIALOG (create/view/edit) */}
+      <Dialog open={isOpen} onOpenChange={(v) => (!v ? closeDialog() : null)}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {mode === "create" && "Create a drill"}
+              {mode === "view" && (selected?.name ?? "Drill")}
+              {mode === "edit" && "Edit drill"}
+            </DialogTitle>
+
+            {mode === "create" && (
+              <DialogDescription>
+                Add a drill name and an optional description.
+              </DialogDescription>
+            )}
+            {mode === "view" && (
+              <DialogDescription>Drill details</DialogDescription>
+            )}
+          </DialogHeader>
+
+          <Separator />
+
+          {mode === "view" ? (
+            <div className="space-y-3 pt-2 text-sm">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Name
+                </p>
+                <p className="font-medium">{selected?.name ?? "—"}</p>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Description
+                </p>
+                <p className="text-muted-foreground">
+                  {selected?.description?.trim() ? selected.description : "—"}
+                </p>
+              </div>
+
+              <div className="flex justify-end pt-2">
+                <Button variant="outline" type="button" onClick={closeDialog}>
+                  Close
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="pt-2">
+              <Form {...form}>
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  className="space-y-5"
+                >
+                  <FormField
+                    name="name"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
+                          Drill name
+                        </FormLabel>
+                        <FormControl>
+                          <Input
+                            placeholder="e.g. Passing triangles"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="description"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
+                          Description
+                        </FormLabel>
+                        <FormControl>
+                          <Textarea
+                            placeholder="Optional description..."
+                            className="min-h-24 resize-none"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <div className="flex items-center justify-end gap-2 pt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={closeDialog}
+                      disabled={isPending}
+                    >
+                      Cancel
+                    </Button>
+
+                    <Button type="submit" disabled={isPending}>
+                      {isPending ? (
+                        <Loader2Spinner />
+                      ) : mode === "edit" ? (
+                        "Save changes"
+                      ) : (
+                        "Create drill"
+                      )}
+                    </Button>
+                  </div>
+                </form>
+              </Form>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

@@ -137,12 +137,14 @@ declare global {
       id: string;
       name: string;
       value: string;
+      voided: 0 | 1;
     }[];
     drills: {
       id: string;
       value: string;
       name: string;
       description: string;
+      voided: 0 | 1;
     }[];
     batches: {
       id: string;

@@ -3002,7 +3002,8 @@ export const DrillsScalarFieldEnum = {
   id: 'id',
   value: 'value',
   name: 'name',
-  description: 'description'
+  description: 'description',
+  voided: 'voided'
 } as const
 
 export type DrillsScalarFieldEnum = (typeof DrillsScalarFieldEnum)[keyof typeof DrillsScalarFieldEnum]
@@ -3025,7 +3026,8 @@ export type AttendanceScalarFieldEnum = (typeof AttendanceScalarFieldEnum)[keyof
 export const TrainingLocationsScalarFieldEnum = {
   id: 'id',
   name: 'name',
-  value: 'value'
+  value: 'value',
+  voided: 'voided'
 } as const
 
 export type TrainingLocationsScalarFieldEnum = (typeof TrainingLocationsScalarFieldEnum)[keyof typeof TrainingLocationsScalarFieldEnum]

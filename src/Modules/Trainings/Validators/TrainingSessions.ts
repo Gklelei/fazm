@@ -6,15 +6,7 @@ export const TrainingSessionSchema = z
   .object({
     title: requiredString,
     description: requiredString,
-    date: z.string().refine(
-      (val) => {
-        const selected = new Date(val);
-        return selected.getTime() >= Date.now();
-      },
-      {
-        message: "You cannot select a past date or time",
-      }
-    ),
+    date: z.string(),
     duration: z.coerce
       .number()
       .int()
