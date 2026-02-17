@@ -47,7 +47,16 @@ export const GetAllTrainingSessionsQuery = {
     isArchived: false,
   },
   include: {
-    coach: true,
+    coach: {
+      include: {
+        user: {
+          select: {
+            id: true,
+            role: true,
+          },
+        },
+      },
+    },
     location: true,
     _count: true,
   },

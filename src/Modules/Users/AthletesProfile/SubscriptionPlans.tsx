@@ -79,7 +79,7 @@ const SubscriptionPlans = ({ athleteId, activePlanId }: Props) => {
           text: result.message,
         });
         setOpen(false);
-        router.refresh(); // client refresh (server revalidatePath already runs too)
+        router.refresh();
       } else {
         Sweetalert({
           icon: "error",

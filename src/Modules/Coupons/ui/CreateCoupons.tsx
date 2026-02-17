@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/incompatible-library */
 "use client";
 
 import { useEffect, useMemo, useState, useTransition } from "react";
@@ -51,7 +52,7 @@ import { GetCouponsQueryType } from "../Types/Index";
 
 interface Props {
   coupon?: GetCouponsQueryType;
-  id?: string; // coupon id for editing
+  id?: string;
 }
 
 function toDateInputValue(d?: Date) {

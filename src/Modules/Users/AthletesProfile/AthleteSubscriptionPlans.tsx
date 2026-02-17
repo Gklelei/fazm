@@ -31,7 +31,6 @@ const AthleteSubscriptionPlans = ({
   data: GetAthleteByIdQueryType;
   coupons: GetCouponsQueryType[];
 }) => {
-  console.log({ coupons });
   const [couponCode, setCouponCode] = useState("");
   const [errorText, setErrorText] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();

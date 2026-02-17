@@ -2,7 +2,7 @@
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -15,9 +15,9 @@ import {
 import { formatDuration, FormatParticipants } from "@/utils/TansformWords";
 
 import { format } from "date-fns";
-import { ArrowLeftCircle, Loader2Icon, MoreHorizontalIcon } from "lucide-react";
+import { Loader2Icon, MoreHorizontalIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { DeleteTrainingSession } from "../Server/DeleteTrainingSession";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { GetAllTrainingSessionsQueryType } from "../Assesments/Types";
@@ -27,6 +27,8 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuthSession } from "@/Modules/Context/SessionProvider";
+import { useUserRole } from "@/components/app-sidebar";
 
 interface Props {
   data: GetAllTrainingSessionsQueryType[];
@@ -34,49 +36,51 @@ interface Props {
 
 const ViewTrainingSessions = ({ data }: Props) => {
   const router = useRouter();
+  const { user } = useAuthSession();
+  const { data: role } = useUserRole();
   const [tId, setTid] = useState<string | undefined>(undefined);
+
+  const filteredData = useMemo(() => {
+    if (!data?.length) return [];
+    if (!role) return [];
+    if (role.role === "COACH") {
+      return data.filter((d) => d.coach.user.id === user.id);
+    }
+    return data;
+  }, [data, role, user.id]);
+
+  const isRoleLoading = !role;
+  const isCoach = role?.role === "COACH";
+  const hasAnySessions = (data?.length ?? 0) > 0;
+  const hasFilteredSessions = filteredData.length > 0;
+
+  const emptyMessage = isRoleLoading
+    ? "Loading sessions..."
+    : isCoach
+      ? "No training sessions assigned to you yet."
+      : "No training sessions yet. Create one to get started.";
 
   const handleDelete = async (id: string) => {
     setTid(id);
 
     const result = await DeleteTrainingSession(id);
 
-    if (result.success) {
-      Sweetalert({
-        icon: "success",
-        text: result.message,
-        title: "Success!",
-      });
-    } else {
-      Sweetalert({
-        icon: "error",
-        text: result.message,
-        title: "An error has occurred",
-      });
-    }
+    Sweetalert(
+      result.success
+        ? { icon: "success", text: result.message, title: "Success!" }
+        : {
+            icon: "error",
+            text: result.message,
+            title: "An error has occurred",
+          },
+    );
 
     setTid(undefined);
   };
 
   return (
     <Card className="w-full">
-      <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <CardTitle className="text-lg font-semibold">
-          Training Sessions
-        </CardTitle>
-
-        <Button
-          onClick={() => router.back()}
-          variant="link"
-          className="flex items-center gap-2 text-sm"
-        >
-          <ArrowLeftCircle className="h-4 w-4" />
-          Back
-        </Button>
-      </CardHeader>
-
       <CardContent className="space-y-6">
-        {/* Search & Create */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <Input
             placeholder="Search training sessions"
@@ -90,7 +94,6 @@ const ViewTrainingSessions = ({ data }: Props) => {
           </Button>
         </div>
 
-        {/* Training Sessions Table */}
         <div className="overflow-x-auto">
           <Table className="min-w-full border border-border rounded-lg">
             <TableHeader>
@@ -108,111 +111,139 @@ const ViewTrainingSessions = ({ data }: Props) => {
             </TableHeader>
 
             <TableBody>
-              {data.map((item, i) => (
-                <TableRow
-                  key={item.id}
-                  className="hover:bg-muted/50 transition-colors duration-150"
-                >
-                  <TableCell className="text-muted-foreground py-2">
-                    {i + 1}
-                  </TableCell>
+              {!hasFilteredSessions ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={9}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
+                    {emptyMessage}
 
-                  <TableCell className="font-medium py-2 truncate max-w-xs">
-                    {item.name}
-                  </TableCell>
-
-                  <TableCell className="py-2">
-                    <div className="flex flex-col leading-tight">
-                      <span>{format(new Date(item.date), "MMM dd, yyyy")}</span>
-                      <span className="text-sm text-muted-foreground">
-                        {format(new Date(item.date), "p")}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="text-right tabular-nums py-2">
-                    {formatDuration(item.duration)}
-                  </TableCell>
-
-                  <TableCell className="py-2">
-                    <Badge variant="outline">{item.status}</Badge>
-                  </TableCell>
-
-                  <TableCell className="py-2 truncate">
-                    {item.location.name}
-                  </TableCell>
-
-                  <TableCell className="py-2">
-                    <div className="flex flex-col leading-tight truncate">
-                      <span>{item.coach.fullNames}</span>
-                      <span className="text-sm text-muted-foreground truncate">
-                        {item.coach.staffId}
-                      </span>
-                    </div>
-                  </TableCell>
-
-                  <TableCell className="text-right tabular-nums py-2">
-                    {FormatParticipants(item._count.athletes)}
-                  </TableCell>
-
-                  <TableCell className="text-right py-2">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon">
-                          <MoreHorizontalIcon className="h-4 w-4" />
+                    {!isRoleLoading && !isCoach && !hasAnySessions ? (
+                      <div className="mt-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            router.push("/training/sessions/create")
+                          }
+                        >
+                          Create first session
                         </Button>
-                      </DropdownMenuTrigger>
-
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/training/sessions/view/${item.id}`)
-                          }
-                        >
-                          View Session
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/training/sessions/edit/${item.id}`)
-                          }
-                        >
-                          Edit Session
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(`/assesments/${item.id}/mark`)
-                          }
-                        >
-                          Assessment
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          disabled={tId === item.id}
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          {tId === item.id ? (
-                            <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
-                          ) : (
-                            "Delete Session"
-                          )}
-                        </DropdownMenuItem>
-
-                        <DropdownMenuItem
-                          onClick={() =>
-                            router.push(
-                              `/training/sessions/attendance/mark/${item.id}`,
-                            )
-                          }
-                        >
-                          Mark Attendance
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                      </div>
+                    ) : null}
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                /* DATA ROWS */
+                filteredData.map((item, i) => (
+                  <TableRow
+                    key={item.id}
+                    className="hover:bg-muted/50 transition-colors duration-150"
+                  >
+                    <TableCell className="text-muted-foreground py-2">
+                      {i + 1}
+                    </TableCell>
+
+                    <TableCell className="font-medium py-2 truncate max-w-xs">
+                      {item.name}
+                    </TableCell>
+
+                    <TableCell className="py-2">
+                      <div className="flex flex-col leading-tight">
+                        <span>
+                          {format(new Date(item.date), "MMM dd, yyyy")}
+                        </span>
+                        <span className="text-sm text-muted-foreground">
+                          {format(new Date(item.date), "p")}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right tabular-nums py-2">
+                      {formatDuration(item.duration)}
+                    </TableCell>
+
+                    <TableCell className="py-2">
+                      <Badge variant="outline">{item.status}</Badge>
+                    </TableCell>
+
+                    <TableCell className="py-2 truncate">
+                      {item.location.name}
+                    </TableCell>
+
+                    <TableCell className="py-2">
+                      <div className="flex flex-col leading-tight truncate">
+                        <span>{item.coach.fullNames}</span>
+                        <span className="text-sm text-muted-foreground truncate">
+                          {item.coach.staffId}
+                        </span>
+                      </div>
+                    </TableCell>
+
+                    <TableCell className="text-right tabular-nums py-2">
+                      {FormatParticipants(item._count.athletes)}
+                    </TableCell>
+
+                    <TableCell className="text-right py-2">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="ghost" size="icon">
+                            <MoreHorizontalIcon className="h-4 w-4" />
+                          </Button>
+                        </DropdownMenuTrigger>
+
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(`/training/sessions/view/${item.id}`)
+                            }
+                          >
+                            View Session
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(`/training/sessions/edit/${item.id}`)
+                            }
+                          >
+                            Edit Session
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(`/assesments/${item.id}/mark`)
+                            }
+                          >
+                            Assessment
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            disabled={tId === item.id}
+                            onClick={() => handleDelete(item.id)}
+                          >
+                            {tId === item.id ? (
+                              <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+                            ) : (
+                              "Delete Session"
+                            )}
+                          </DropdownMenuItem>
+
+                          <DropdownMenuItem
+                            onClick={() =>
+                              router.push(
+                                `/training/sessions/attendance/mark/${item.id}`,
+                              )
+                            }
+                          >
+                            Mark Attendance
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>
