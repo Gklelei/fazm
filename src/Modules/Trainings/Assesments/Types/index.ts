@@ -43,18 +43,11 @@ export const AssesmentAthleteQuery = (id: string) =>
   }) satisfies Prisma.trainingFindManyArgs;
 
 export const GetAllTrainingSessionsQuery = {
-  where: {
-    isArchived: false,
-  },
   include: {
+    batch: { select: { id: true, name: true } },
     coach: {
       include: {
-        user: {
-          select: {
-            id: true,
-            role: true,
-          },
-        },
+        user: { select: { id: true, role: true } },
       },
     },
     location: true,
