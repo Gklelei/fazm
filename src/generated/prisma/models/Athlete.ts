@@ -20,8 +20,18 @@ export type AthleteModel = runtime.Types.Result.DefaultSelection<Prisma.$Athlete
 
 export type AggregateAthlete = {
   _count: AthleteCountAggregateOutputType | null
+  _avg: AthleteAvgAggregateOutputType | null
+  _sum: AthleteSumAggregateOutputType | null
   _min: AthleteMinAggregateOutputType | null
   _max: AthleteMaxAggregateOutputType | null
+}
+
+export type AthleteAvgAggregateOutputType = {
+  age: number | null
+}
+
+export type AthleteSumAggregateOutputType = {
+  age: number | null
 }
 
 export type AthleteMinAggregateOutputType = {
@@ -30,6 +40,7 @@ export type AthleteMinAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   email: string | null
+  age: number | null
   phoneNumber: string | null
   dateOfBirth: string | null
   profilePIcture: string | null
@@ -58,6 +69,7 @@ export type AthleteMaxAggregateOutputType = {
   firstName: string | null
   lastName: string | null
   email: string | null
+  age: number | null
   phoneNumber: string | null
   dateOfBirth: string | null
   profilePIcture: string | null
@@ -86,6 +98,7 @@ export type AthleteCountAggregateOutputType = {
   firstName: number
   lastName: number
   email: number
+  age: number
   phoneNumber: number
   dateOfBirth: number
   profilePIcture: number
@@ -111,12 +124,21 @@ export type AthleteCountAggregateOutputType = {
 }
 
 
+export type AthleteAvgAggregateInputType = {
+  age?: true
+}
+
+export type AthleteSumAggregateInputType = {
+  age?: true
+}
+
 export type AthleteMinAggregateInputType = {
   id?: true
   athleteId?: true
   firstName?: true
   lastName?: true
   email?: true
+  age?: true
   phoneNumber?: true
   dateOfBirth?: true
   profilePIcture?: true
@@ -145,6 +167,7 @@ export type AthleteMaxAggregateInputType = {
   firstName?: true
   lastName?: true
   email?: true
+  age?: true
   phoneNumber?: true
   dateOfBirth?: true
   profilePIcture?: true
@@ -173,6 +196,7 @@ export type AthleteCountAggregateInputType = {
   firstName?: true
   lastName?: true
   email?: true
+  age?: true
   phoneNumber?: true
   dateOfBirth?: true
   profilePIcture?: true
@@ -235,6 +259,18 @@ export type AthleteAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AthleteAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AthleteSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AthleteMinAggregateInputType
@@ -265,6 +301,8 @@ export type AthleteGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: AthleteCountAggregateInputType | true
+  _avg?: AthleteAvgAggregateInputType
+  _sum?: AthleteSumAggregateInputType
   _min?: AthleteMinAggregateInputType
   _max?: AthleteMaxAggregateInputType
 }
@@ -275,6 +313,7 @@ export type AthleteGroupByOutputType = {
   firstName: string
   lastName: string
   email: string | null
+  age: number | null
   phoneNumber: string | null
   dateOfBirth: string
   profilePIcture: string | null
@@ -297,6 +336,8 @@ export type AthleteGroupByOutputType = {
   isArchived: boolean
   ArchiveDate: Date | null
   _count: AthleteCountAggregateOutputType | null
+  _avg: AthleteAvgAggregateOutputType | null
+  _sum: AthleteSumAggregateOutputType | null
   _min: AthleteMinAggregateOutputType | null
   _max: AthleteMaxAggregateOutputType | null
 }
@@ -325,6 +366,7 @@ export type AthleteWhereInput = {
   firstName?: Prisma.StringFilter<"Athlete"> | string
   lastName?: Prisma.StringFilter<"Athlete"> | string
   email?: Prisma.StringNullableFilter<"Athlete"> | string | null
+  age?: Prisma.IntNullableFilter<"Athlete"> | number | null
   phoneNumber?: Prisma.StringNullableFilter<"Athlete"> | string | null
   dateOfBirth?: Prisma.StringFilter<"Athlete"> | string
   profilePIcture?: Prisma.StringNullableFilter<"Athlete"> | string | null
@@ -365,6 +407,7 @@ export type AthleteOrderByWithRelationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  age?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   profilePIcture?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -408,6 +451,7 @@ export type AthleteWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.AthleteWhereInput | Prisma.AthleteWhereInput[]
   firstName?: Prisma.StringFilter<"Athlete"> | string
   lastName?: Prisma.StringFilter<"Athlete"> | string
+  age?: Prisma.IntNullableFilter<"Athlete"> | number | null
   phoneNumber?: Prisma.StringNullableFilter<"Athlete"> | string | null
   dateOfBirth?: Prisma.StringFilter<"Athlete"> | string
   profilePIcture?: Prisma.StringNullableFilter<"Athlete"> | string | null
@@ -448,6 +492,7 @@ export type AthleteOrderByWithAggregationInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrderInput | Prisma.SortOrder
+  age?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrderInput | Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   profilePIcture?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -470,8 +515,10 @@ export type AthleteOrderByWithAggregationInput = {
   isArchived?: Prisma.SortOrder
   ArchiveDate?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AthleteCountOrderByAggregateInput
+  _avg?: Prisma.AthleteAvgOrderByAggregateInput
   _max?: Prisma.AthleteMaxOrderByAggregateInput
   _min?: Prisma.AthleteMinOrderByAggregateInput
+  _sum?: Prisma.AthleteSumOrderByAggregateInput
 }
 
 export type AthleteScalarWhereWithAggregatesInput = {
@@ -483,6 +530,7 @@ export type AthleteScalarWhereWithAggregatesInput = {
   firstName?: Prisma.StringWithAggregatesFilter<"Athlete"> | string
   lastName?: Prisma.StringWithAggregatesFilter<"Athlete"> | string
   email?: Prisma.StringNullableWithAggregatesFilter<"Athlete"> | string | null
+  age?: Prisma.IntNullableWithAggregatesFilter<"Athlete"> | number | null
   phoneNumber?: Prisma.StringNullableWithAggregatesFilter<"Athlete"> | string | null
   dateOfBirth?: Prisma.StringWithAggregatesFilter<"Athlete"> | string
   profilePIcture?: Prisma.StringNullableWithAggregatesFilter<"Athlete"> | string | null
@@ -512,6 +560,7 @@ export type AthleteCreateInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -551,6 +600,7 @@ export type AthleteUncheckedCreateInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -590,6 +640,7 @@ export type AthleteUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -629,6 +680,7 @@ export type AthleteUncheckedUpdateInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -668,6 +720,7 @@ export type AthleteCreateManyInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -697,6 +750,7 @@ export type AthleteUpdateManyMutationInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -725,6 +779,7 @@ export type AthleteUncheckedUpdateManyInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -767,6 +822,7 @@ export type AthleteCountOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  age?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   profilePIcture?: Prisma.SortOrder
@@ -790,12 +846,17 @@ export type AthleteCountOrderByAggregateInput = {
   ArchiveDate?: Prisma.SortOrder
 }
 
+export type AthleteAvgOrderByAggregateInput = {
+  age?: Prisma.SortOrder
+}
+
 export type AthleteMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   athleteId?: Prisma.SortOrder
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  age?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   profilePIcture?: Prisma.SortOrder
@@ -824,6 +885,7 @@ export type AthleteMinOrderByAggregateInput = {
   firstName?: Prisma.SortOrder
   lastName?: Prisma.SortOrder
   email?: Prisma.SortOrder
+  age?: Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   dateOfBirth?: Prisma.SortOrder
   profilePIcture?: Prisma.SortOrder
@@ -844,6 +906,10 @@ export type AthleteMinOrderByAggregateInput = {
   passportBioData?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   ArchiveDate?: Prisma.SortOrder
+}
+
+export type AthleteSumOrderByAggregateInput = {
+  age?: Prisma.SortOrder
 }
 
 export type AthleteListRelationFilter = {
@@ -872,6 +938,14 @@ export type AthleteUpdateOneRequiredWithoutAssessmentsNestedInput = {
 
 export type AthleteCreatepositionsInput = {
   set: string[]
+}
+
+export type NullableIntFieldUpdateOperationsInput = {
+  set?: number | null
+  increment?: number
+  decrement?: number
+  multiply?: number
+  divide?: number
 }
 
 export type NullableDateTimeFieldUpdateOperationsInput = {
@@ -1085,6 +1159,7 @@ export type AthleteCreateWithoutAssessmentsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1123,6 +1198,7 @@ export type AthleteUncheckedCreateWithoutAssessmentsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1177,6 +1253,7 @@ export type AthleteUpdateWithoutAssessmentsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1215,6 +1292,7 @@ export type AthleteUncheckedUpdateWithoutAssessmentsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1253,6 +1331,7 @@ export type AthleteCreateWithoutGuardiansInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1291,6 +1370,7 @@ export type AthleteUncheckedCreateWithoutGuardiansInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1345,6 +1425,7 @@ export type AthleteUpdateWithoutGuardiansInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1383,6 +1464,7 @@ export type AthleteUncheckedUpdateWithoutGuardiansInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1421,6 +1503,7 @@ export type AthleteCreateWithoutMedicalInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1459,6 +1542,7 @@ export type AthleteUncheckedCreateWithoutMedicalInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1513,6 +1597,7 @@ export type AthleteUpdateWithoutMedicalInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1551,6 +1636,7 @@ export type AthleteUncheckedUpdateWithoutMedicalInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1589,6 +1675,7 @@ export type AthleteCreateWithoutAddressInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1627,6 +1714,7 @@ export type AthleteUncheckedCreateWithoutAddressInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1681,6 +1769,7 @@ export type AthleteUpdateWithoutAddressInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1719,6 +1808,7 @@ export type AthleteUncheckedUpdateWithoutAddressInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1757,6 +1847,7 @@ export type AthleteCreateWithoutEmergencyContactsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1795,6 +1886,7 @@ export type AthleteUncheckedCreateWithoutEmergencyContactsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1849,6 +1941,7 @@ export type AthleteUpdateWithoutEmergencyContactsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1887,6 +1980,7 @@ export type AthleteUncheckedUpdateWithoutEmergencyContactsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1925,6 +2019,7 @@ export type AthleteCreateWithoutAthleteSubscriptionsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -1963,6 +2058,7 @@ export type AthleteUncheckedCreateWithoutAthleteSubscriptionsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2017,6 +2113,7 @@ export type AthleteUpdateWithoutAthleteSubscriptionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2055,6 +2152,7 @@ export type AthleteUncheckedUpdateWithoutAthleteSubscriptionsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2093,6 +2191,7 @@ export type AthleteCreateWithoutInvoicesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2131,6 +2230,7 @@ export type AthleteUncheckedCreateWithoutInvoicesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2185,6 +2285,7 @@ export type AthleteUpdateWithoutInvoicesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2223,6 +2324,7 @@ export type AthleteUncheckedUpdateWithoutInvoicesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2261,6 +2363,7 @@ export type AthleteCreateWithoutFinancesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2299,6 +2402,7 @@ export type AthleteUncheckedCreateWithoutFinancesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2353,6 +2457,7 @@ export type AthleteUpdateWithoutFinancesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2391,6 +2496,7 @@ export type AthleteUncheckedUpdateWithoutFinancesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2429,6 +2535,7 @@ export type AthleteCreateWithoutTrainingsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2467,6 +2574,7 @@ export type AthleteUncheckedCreateWithoutTrainingsInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2529,6 +2637,7 @@ export type AthleteScalarWhereInput = {
   firstName?: Prisma.StringFilter<"Athlete"> | string
   lastName?: Prisma.StringFilter<"Athlete"> | string
   email?: Prisma.StringNullableFilter<"Athlete"> | string | null
+  age?: Prisma.IntNullableFilter<"Athlete"> | number | null
   phoneNumber?: Prisma.StringNullableFilter<"Athlete"> | string | null
   dateOfBirth?: Prisma.StringFilter<"Athlete"> | string
   profilePIcture?: Prisma.StringNullableFilter<"Athlete"> | string | null
@@ -2558,6 +2667,7 @@ export type AthleteCreateWithoutBatchesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2596,6 +2706,7 @@ export type AthleteUncheckedCreateWithoutBatchesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2660,6 +2771,7 @@ export type AthleteCreateWithoutAttendancesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2698,6 +2810,7 @@ export type AthleteUncheckedCreateWithoutAttendancesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2752,6 +2865,7 @@ export type AthleteUpdateWithoutAttendancesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2790,6 +2904,7 @@ export type AthleteUncheckedUpdateWithoutAttendancesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2828,6 +2943,7 @@ export type AthleteUpdateWithoutTrainingsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2866,6 +2982,7 @@ export type AthleteUncheckedUpdateWithoutTrainingsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2904,6 +3021,7 @@ export type AthleteUncheckedUpdateManyWithoutTrainingsInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2933,6 +3051,7 @@ export type AthleteCreateManyBatchesInput = {
   firstName: string
   lastName: string
   email?: string | null
+  age?: number | null
   phoneNumber?: string | null
   dateOfBirth: string
   profilePIcture?: string | null
@@ -2961,6 +3080,7 @@ export type AthleteUpdateWithoutBatchesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -2999,6 +3119,7 @@ export type AthleteUncheckedUpdateWithoutBatchesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3037,6 +3158,7 @@ export type AthleteUncheckedUpdateManyWithoutBatchesInput = {
   firstName?: Prisma.StringFieldUpdateOperationsInput | string
   lastName?: Prisma.StringFieldUpdateOperationsInput | string
   email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
   profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -3159,6 +3281,7 @@ export type AthleteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   firstName?: boolean
   lastName?: boolean
   email?: boolean
+  age?: boolean
   phoneNumber?: boolean
   dateOfBirth?: boolean
   profilePIcture?: boolean
@@ -3200,6 +3323,7 @@ export type AthleteSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   firstName?: boolean
   lastName?: boolean
   email?: boolean
+  age?: boolean
   phoneNumber?: boolean
   dateOfBirth?: boolean
   profilePIcture?: boolean
@@ -3230,6 +3354,7 @@ export type AthleteSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   firstName?: boolean
   lastName?: boolean
   email?: boolean
+  age?: boolean
   phoneNumber?: boolean
   dateOfBirth?: boolean
   profilePIcture?: boolean
@@ -3260,6 +3385,7 @@ export type AthleteSelectScalar = {
   firstName?: boolean
   lastName?: boolean
   email?: boolean
+  age?: boolean
   phoneNumber?: boolean
   dateOfBirth?: boolean
   profilePIcture?: boolean
@@ -3283,7 +3409,7 @@ export type AthleteSelectScalar = {
   ArchiveDate?: boolean
 }
 
-export type AthleteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "athleteId" | "firstName" | "lastName" | "email" | "phoneNumber" | "dateOfBirth" | "profilePIcture" | "createdAt" | "updatedAt" | "middleName" | "nextBillingDate" | "status" | "batchesId" | "height" | "weight" | "foot" | "hand" | "positions" | "birthCertificate" | "nationalIdFront" | "nationalIdBack" | "passportCover" | "passportBioData" | "isArchived" | "ArchiveDate", ExtArgs["result"]["athlete"]>
+export type AthleteOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "athleteId" | "firstName" | "lastName" | "email" | "age" | "phoneNumber" | "dateOfBirth" | "profilePIcture" | "createdAt" | "updatedAt" | "middleName" | "nextBillingDate" | "status" | "batchesId" | "height" | "weight" | "foot" | "hand" | "positions" | "birthCertificate" | "nationalIdFront" | "nationalIdBack" | "passportCover" | "passportBioData" | "isArchived" | "ArchiveDate", ExtArgs["result"]["athlete"]>
 export type AthleteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batches?: boolean | Prisma.Athlete$batchesArgs<ExtArgs>
   address?: boolean | Prisma.Athlete$addressArgs<ExtArgs>
@@ -3326,6 +3452,7 @@ export type $AthletePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     firstName: string
     lastName: string
     email: string | null
+    age: number | null
     phoneNumber: string | null
     dateOfBirth: string
     profilePIcture: string | null
@@ -3786,6 +3913,7 @@ export interface AthleteFieldRefs {
   readonly firstName: Prisma.FieldRef<"Athlete", 'String'>
   readonly lastName: Prisma.FieldRef<"Athlete", 'String'>
   readonly email: Prisma.FieldRef<"Athlete", 'String'>
+  readonly age: Prisma.FieldRef<"Athlete", 'Int'>
   readonly phoneNumber: Prisma.FieldRef<"Athlete", 'String'>
   readonly dateOfBirth: Prisma.FieldRef<"Athlete", 'String'>
   readonly profilePIcture: Prisma.FieldRef<"Athlete", 'String'>

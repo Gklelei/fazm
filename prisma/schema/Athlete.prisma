@@ -4,6 +4,7 @@ model Athlete {
   firstName            String                      @map("first_name")
   lastName             String                      @map("last_name")
   email                String?                     @unique
+  age                  Int?
   phoneNumber          String?                     @map("phone_number")
   dateOfBirth          String                      @map("date_of_birth")
   profilePIcture       String?                     @map("profile_picture")

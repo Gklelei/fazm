@@ -59,6 +59,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { auth } from "@/lib/auth";
+import { authClient } from "@/lib/auth-client";
 
 interface Props {
   data: GetStaffType[];

@@ -163,7 +163,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               const parentActive = hasSubs
                 ? (item.items?.some((s) => isActivePath(pathname, s.url)) ??
                   false)
-                : isActivePath(pathname, item.url);
+                : isActivePath(pathname, "");
 
               return (
                 <SidebarMenuItem key={item.title}>
@@ -175,7 +175,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       tooltip={item.title}
                       className="group"
                     >
-                      <Link href={item.url}>
+                      <Link href={"#"}>
                         {item.icon && (
                           <span className="mr-2 h-5 w-5">{item.icon}</span>
                         )}

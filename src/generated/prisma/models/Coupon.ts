@@ -608,14 +608,6 @@ export type EnumCouponIntervalFieldUpdateOperationsInput = {
   set?: $Enums.CouponInterval
 }
 
-export type NullableIntFieldUpdateOperationsInput = {
-  set?: number | null
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
-}
-
 export type CouponCreateWithoutSubscriptionsInput = {
   id?: string
   name: string

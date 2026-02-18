@@ -148,6 +148,7 @@ export const AthleteScalarFieldEnum = {
   firstName: 'firstName',
   lastName: 'lastName',
   email: 'email',
+  age: 'age',
   phoneNumber: 'phoneNumber',
   dateOfBirth: 'dateOfBirth',
   profilePIcture: 'profilePIcture',

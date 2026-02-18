@@ -27,11 +27,7 @@ export const BatchesSchemaTest = z
   .object({
     name: z.string().trim().min(1, "Name is required"),
     description: z.string().trim().optional(),
-    startDate: z.coerce
-      .date({ message: "Enter a valid start date" })
-      .refine((val) => val >= startOfToday(), {
-        message: "Start Date cannot be in the past",
-      }),
+    startDate: z.coerce.date({ message: "Enter a valid start date" }),
     endDate: z.coerce
       .date({ message: "Enter a valid end date" })
       .refine((val) => val >= startOfToday(), {
