@@ -419,7 +419,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                       </DropdownMenu>
                     </div>
 
-                    <div className="flex gap-2">
+                    <div className="flex gap-2 flex-col">
                       <Button
                         variant="outline"
                         className="w-full"

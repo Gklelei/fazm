@@ -191,7 +191,7 @@ const MarkAttendance = ({
 
         <Button
           onClick={() => router.back()}
-          disabled={isLoading || !isEnoughAthletes}
+          disabled={isLoading}
           className="gap-1.5 h-9"
         >
           <ArrowLeftCircle /> Back
