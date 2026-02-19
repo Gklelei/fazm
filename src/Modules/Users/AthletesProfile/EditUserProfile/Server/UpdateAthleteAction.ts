@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/prisma";
+import { calculateAge } from "@/Modules/Users/AthletesOnboarding/Server/OnBoarding";
 import { editSchemaType } from "@/Modules/Users/AthletesOnboarding/validation";
 import { revalidatePath } from "next/cache";
 
@@ -44,6 +45,7 @@ export const UpdateAthleteAction = async (
         email: data.email,
         phoneNumber: data.phoneNumber,
         dateOfBirth: data.dateOfBirth,
+        age: calculateAge({ dob: data.dateOfBirth }),
         positions,
         batchesId: data.batch,
         profilePIcture: data.profilePIcture,

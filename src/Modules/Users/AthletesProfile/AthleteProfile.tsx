@@ -2,11 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { ChevronLeft } from "lucide-react";
-
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
 import PersonalInfo from "./PersonalInfo";
 import GuardianInfo from "./GuardianInfo";
@@ -16,32 +13,92 @@ import EmergencyContacts from "./EmergencyContacts";
 import FinancialRecords from "./FinancialRecords";
 import AthleteInvoices from "./AthleteInvoices";
 import AthleteAssesments from "./AthleteAssesments";
+import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
 
 import { GetAthleteByIdQueryType } from "../Types";
-import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
 import { GetCouponsQueryType } from "@/app/(home)/users/players/user-profile/[id]/page";
+import ResponsiveSections, { Section } from "@/utils/ResponsiveSections";
 
-const AthleteProfile = ({
+export default function AthleteProfile({
   data,
   coupons,
 }: {
   data: GetAthleteByIdQueryType;
   coupons: GetCouponsQueryType[];
-}) => {
+}) {
   const router = useRouter();
-
   if (!data) return <div className="p-10 text-center">Athlete not found.</div>;
 
+  const sections: Section[] = [
+    {
+      key: "guardian",
+      label: "Guardians",
+      description: "Parents/guardians contacts and relationships.",
+      content: <GuardianInfo data={data} />,
+    },
+    {
+      key: "address",
+      label: "Address",
+      description: "Residential details and location.",
+      content: <AddressInfo data={data} />,
+    },
+    {
+      key: "medical",
+      label: "Medical",
+      description: "Conditions, allergies and blood group.",
+      content: <MedicalEmergencyInformation data={data} />,
+    },
+    {
+      key: "emergency",
+      label: "Emergency",
+      description: "Emergency contacts for urgent situations.",
+      content: <EmergencyContacts data={data} />,
+    },
+    {
+      key: "fees",
+      label: "Financials",
+      description: "Payments history and receipts.",
+      content: <FinancialRecords data={data} />,
+    },
+    {
+      key: "invoice",
+      label: "Invoices",
+      description: "Billing records, due amounts and status.",
+      content: <AthleteInvoices data={data} />,
+    },
+    {
+      key: "assesments",
+      label: "Assessments",
+      description: "Coach assessments and performance notes.",
+      content: <AthleteAssesments data={data} />,
+    },
+    {
+      key: "plan",
+      label: "Plan",
+      description: "Subscription plan and coupon management.",
+      content: <AthleteSubscriptionPlans data={data} coupons={coupons} />,
+    },
+  ];
+
   return (
-    <div className="flex flex-col gap-6 p-4 md:p-8 max-w-7xl mx-auto">
-      <div className="flex items-center justify-between">
+    <div className="mx-auto flex max-w-7xl flex-col gap-5 p-3 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="truncate text-lg sm:text-xl font-bold">
+            Athlete profile
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Profile, guardians, medical, invoices and assessments.
+          </p>
+        </div>
+
         <Button
           variant="outline"
           size="sm"
           onClick={() => router.back()}
           className="gap-2"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="h-4 w-4" />
           Back
         </Button>
       </div>
@@ -49,51 +106,7 @@ const AthleteProfile = ({
       <PersonalInfo data={data} />
       <Separator />
 
-      <Tabs defaultValue="guardian" className="w-full">
-        <div className="w-full overflow-x-auto">
-          <TabsList className="inline-flex w-full md:w-auto justify-start mb-4">
-            <TabsTrigger value="guardian">Guardian</TabsTrigger>
-            <TabsTrigger value="address">Address</TabsTrigger>
-            <TabsTrigger value="medical">Medical</TabsTrigger>
-            <TabsTrigger value="emergency">Emergency</TabsTrigger>
-            <TabsTrigger value="fees">Financials</TabsTrigger>
-            <TabsTrigger value="invoice">Invoices</TabsTrigger>
-            <TabsTrigger value="assesments">Assessments</TabsTrigger>
-            <TabsTrigger value="plan">Plan</TabsTrigger>
-          </TabsList>
-        </div>
-
-        <Card className="border shadow-sm">
-          <CardContent className="pt-6">
-            <TabsContent value="guardian">
-              <GuardianInfo data={data} />
-            </TabsContent>
-            <TabsContent value="address">
-              <AddressInfo data={data} />
-            </TabsContent>
-            <TabsContent value="medical">
-              <MedicalEmergencyInformation data={data} />
-            </TabsContent>
-            <TabsContent value="emergency">
-              <EmergencyContacts data={data} />
-            </TabsContent>
-            <TabsContent value="fees">
-              <FinancialRecords data={data} />
-            </TabsContent>
-            <TabsContent value="invoice">
-              <AthleteInvoices data={data} />
-            </TabsContent>
-            <TabsContent value="assesments">
-              <AthleteAssesments data={data} />
-            </TabsContent>
-            <TabsContent value="plan">
-              <AthleteSubscriptionPlans data={data} coupons={coupons} />
-            </TabsContent>
-          </CardContent>
-        </Card>
-      </Tabs>
+      <ResponsiveSections sections={sections} defaultKey="guardian" />
     </div>
   );
-};
-
-export default AthleteProfile;
+}

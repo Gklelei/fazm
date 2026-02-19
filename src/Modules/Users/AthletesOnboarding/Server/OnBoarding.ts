@@ -104,6 +104,27 @@ function nextBillingByInterval(now: Date, interval: string) {
       return nextMonthlyBillingDate(now, BILLING_DAY);
   }
 }
+export function calculateAge({ dob }: { dob: Date | string }) {
+  if (!dob) return null;
+
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return null;
+
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+}
 
 const AthleteOnboardingAction = async (
   data: AthleteOnBoardingType,
@@ -187,6 +208,7 @@ const AthleteOnboardingAction = async (
           dateOfBirth: validatedData.dateOfBirth,
           profilePIcture: validatedData.profilePIcture ?? "",
           positions: parseCSV(validatedData.playingPositions),
+          age: calculateAge({ dob: validatedData.dateOfBirth }),
           batchesId: validatedData.batch,
           foot: validatedData.dominantFoot,
           hand: validatedData.dominantHand,

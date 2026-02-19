@@ -91,6 +91,7 @@ type AthleteRow = {
   firstName: string;
   middleName: string;
   lastName: string;
+  age?: number;
   email?: string | null;
   profilePIcture?: string | null;
   positions: string[];
@@ -101,6 +102,11 @@ function fullName(a: AthleteRow) {
   return [a.firstName, a.middleName, a.lastName].filter(Boolean).join(" ");
 }
 
+const ageText = (age?: number) => {
+  if (!age) return "—";
+  return age === 1 ? "1 year" : `${age} years`;
+};
+
 const AthletesData = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -110,7 +116,6 @@ const AthletesData = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchValue = useDebounce(searchQuery, 800);
 
-  // UX-only: “searching” indicator while debounce hasn’t caught up
   const isSearching = searchQuery.trim() !== debouncedSearchValue.trim();
 
   const {
@@ -368,6 +373,7 @@ const AthletesData = () => {
                           <div className="min-w-0">
                             <p className="font-semibold leading-tight truncate">
                               {fullName(athlete)}
+                              {ageText(athlete.age)}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">
                               {athlete.email || "No email provided"}
@@ -613,6 +619,9 @@ const AthletesData = () => {
                           <div className="flex flex-col">
                             <span className="font-semibold text-sm">
                               {fullName(athlete)}
+                            </span>
+                            <span className="font-semibold text-sm">
+                              {ageText(athlete.age)}
                             </span>
                             <span className="text-xs text-muted-foreground truncate max-w-60">
                               {athlete.email || "No email provided"}

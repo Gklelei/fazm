@@ -80,6 +80,7 @@ export async function DeleteAthlete(id: string): Promise<ActionResult> {
     await db.athlete.update({
       where: { athleteId: id },
       data: {
+        email: `archived_${id}_${existingAthlete.email}`,
         ArchiveDate: new Date(),
         isArchived: true,
       },

@@ -42,6 +42,7 @@ declare global {
     id: string;
     athleteId: string;
     firstName: string;
+    age: int;
     middleName: string;
     lastName: string;
     email: string | null;
