@@ -112,12 +112,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </div>
             <div>
               <h2 className="text-sm font-semibold leading-tight">
-                {utils?.academy?.academyName.split("")[0] || "Fazam"}
+                {utils?.academy?.academyName || "Fazam Football Academy"}
               </h2>
-              <p className="text-xs text-muted-foreground">
-                {utils?.academy?.academyName.split("").splice(0) ||
-                  "FootballAcademy"}
-              </p>
             </div>
           </div>
           {/* Smaller role badge */}
