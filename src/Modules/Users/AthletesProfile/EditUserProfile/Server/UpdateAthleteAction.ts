@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@/lib/prisma";
-import { calculateAge } from "@/Modules/Users/AthletesOnboarding/Server/OnBoarding";
 import { editSchemaType } from "@/Modules/Users/AthletesOnboarding/validation";
 import { revalidatePath } from "next/cache";
 
@@ -10,6 +9,28 @@ type ActionResult = {
   successMessage?: string;
   errorMessage?: string;
 };
+
+function calculateAge({ dob }: { dob: Date | string }) {
+  if (!dob) return null;
+
+  const birthDate = new Date(dob);
+  if (isNaN(birthDate.getTime())) return null;
+
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDiff = today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  return age;
+}
 
 export const UpdateAthleteAction = async (
   id: string,

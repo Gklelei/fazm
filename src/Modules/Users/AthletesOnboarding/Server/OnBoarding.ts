@@ -104,7 +104,7 @@ function nextBillingByInterval(now: Date, interval: string) {
       return nextMonthlyBillingDate(now, BILLING_DAY);
   }
 }
-export function calculateAge({ dob }: { dob: Date | string }) {
+function calculateAge({ dob }: { dob: Date | string }) {
   if (!dob) return null;
 
   const birthDate = new Date(dob);
