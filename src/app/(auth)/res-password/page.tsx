@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { redirect } from "next/navigation";
 import React from "react";
 
 const ResetPassword = () => {
+  redirect("/");
   const [pass, setPass] = React.useState("");
   const [email, setEmail] = React.useState("");
 
