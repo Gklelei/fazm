@@ -1,5 +1,7 @@
 "use client";
-import { useFormContext } from "react-hook-form";
+
+import { useMemo } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
 import {
   FormControl,
   FormDescription,
@@ -18,14 +20,38 @@ import {
 } from "@/components/ui/card";
 import { GenericSelect } from "@/utils/ReusableSelect";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
-// import { CloudinaryUpload } from "@/components/ImageUploader";
 import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
-// import { ChangeEvent } from "react";
-// import { file } from "zod";
+
+function calcAge(dob: Date, today = new Date()) {
+  let age = today.getFullYear() - dob.getFullYear();
+  const m = today.getMonth() - dob.getMonth();
+  if (m < 0 || (m === 0 && today.getDate() < dob.getDate())) age--;
+  return age;
+}
+
+function parseDob(v: unknown): Date | null {
+  if (!v) return null;
+  // RHF date input usually gives "YYYY-MM-DD"
+  if (typeof v === "string") {
+    const d = new Date(v);
+    return Number.isNaN(d.getTime()) ? null : d;
+  }
+  if (v instanceof Date) return Number.isNaN(v.getTime()) ? null : v;
+  return null;
+}
 
 const PersonalInformation = () => {
   const { control } = useFormContext();
   const { data } = UseUtilsContext();
+
+  const dobValue = useWatch({ control, name: "dateOfBirth" });
+
+  const ageText = useMemo(() => {
+    const dob = parseDob(dobValue);
+    if (!dob) return "—";
+    const age = calcAge(dob);
+    return age >= 0 ? `${age} years` : "—";
+  }, [dobValue]);
 
   return (
     <Card>
@@ -35,6 +61,7 @@ const PersonalInformation = () => {
         </CardTitle>
         <CardDescription>Enter the details of the user</CardDescription>
       </CardHeader>
+
       <CardContent className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
@@ -50,6 +77,7 @@ const PersonalInformation = () => {
               </FormItem>
             )}
           />
+
           <FormField
             name="middleName"
             control={control}
@@ -63,6 +91,7 @@ const PersonalInformation = () => {
               </FormItem>
             )}
           />
+
           <FormField
             name="lastName"
             control={control}
@@ -87,10 +116,18 @@ const PersonalInformation = () => {
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
+
+              {/* review display */}
+              <div className="mt-2 rounded-md border bg-muted/40 px-3 py-2 text-sm">
+                <span className="text-muted-foreground">Review:</span>{" "}
+                <span className="font-medium">Age {ageText}</span>
+              </div>
+
               <FormMessage />
             </FormItem>
           )}
         />
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <FormField
             name="email"
@@ -109,6 +146,7 @@ const PersonalInformation = () => {
               </FormItem>
             )}
           />
+
           <FormField
             name="phoneNumber"
             control={control}
@@ -131,7 +169,7 @@ const PersonalInformation = () => {
             render={({ field }) => (
               <FormItem className="w-full md:col-span-2">
                 <FormLabel>Batch</FormLabel>
-                <FormControl className="w-full ">
+                <FormControl className="w-full">
                   <GenericSelect
                     items={data?.batches ?? []}
                     valueKey="id"
@@ -156,9 +194,7 @@ const PersonalInformation = () => {
               <FormLabel>Profile Picture</FormLabel>
               <FormControl className="w-full">
                 <LocalFsUpload
-                  onChange={(url: string) => {
-                    field.onChange(url);
-                  }}
+                  onChange={(url: string) => field.onChange(url)}
                   value={field.value || ""}
                   folder="PROFILE"
                   maxSizeMB={2}
