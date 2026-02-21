@@ -116,7 +116,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
               </h2>
             </div>
           </div>
-          {/* Smaller role badge */}
           <Badge
             variant="outline"
             className={cn(
