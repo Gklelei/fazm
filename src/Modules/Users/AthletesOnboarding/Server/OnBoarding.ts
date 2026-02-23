@@ -22,7 +22,7 @@ const BILLING_DAY = 30; // unified monthly billing day
  * If you want the original rule, flip the ternary.
  */
 function proratedInitialFactor(now: Date) {
-  return now.getDate() > 15 ? 0.5 : 1;
+  return now.getDate() > 15 ? 1 : 1;
 }
 
 function toDecimal(value: number | Prisma.Decimal) {
@@ -279,9 +279,9 @@ const AthleteOnboardingAction = async (
       const amountDue = planAmount.mul(factor);
 
       const description =
-        factor === 0.5
-          ? `Initial ${planName} subscription (50% proration before 15th)`
-          : `Initial ${planName} subscription (full amount from 15th onwards)`;
+        factor === 1
+          ? `Initial ${planName} subscription (full amount)`
+          : `Initial ${planName} subscription (full amount)`;
 
       // For MONTHLY, currentPeriodEnd is the 30th of next month.
       // For others, it's based on interval.
