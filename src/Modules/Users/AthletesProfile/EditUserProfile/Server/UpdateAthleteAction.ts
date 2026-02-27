@@ -63,7 +63,7 @@ export const UpdateAthleteAction = async (
         firstName: data.firstName,
         lastName: data.lastName,
         middleName: data.middleName,
-        email: data.email,
+        email: data.email || undefined,
         phoneNumber: data.phoneNumber,
         dateOfBirth: data.dateOfBirth,
         age: calculateAge({ dob: data.dateOfBirth }),
