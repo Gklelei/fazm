@@ -150,7 +150,7 @@ const CreateInvoice = ({ athletes }: Props) => {
                   control={control}
                   render={({ field }) => (
                     <FormItem>
-                      <FormControl>
+                      <FormControl className="w-full">
                         <SearchSelect
                           multiple={true}
                           items={athletes}
@@ -159,11 +159,24 @@ const CreateInvoice = ({ athletes }: Props) => {
                           placeholder="Search names or batches..."
                           getValue={(a) => a.athleteId}
                           getLabel={(a) =>
-                            `${a.firstName} ${a.lastName} ${a.batches?.name || ""}`
+                            `${a.firstName} ${a.lastName} ${a.batches?.name || ""} ${a.athleteId}`
                           }
                           getSearchValue={(a) =>
-                            `${a.firstName} ${a.lastName} ${a.batches?.name || ""}`
+                            `${a.firstName} ${a.lastName} ${a.batches?.name || ""} ${a.athleteId}`
                           }
+                          renderItem={(a) => (
+                            <div className="flex flex-col py-1">
+                              <span className="font-medium">
+                                {a.firstName} {a.lastName}
+                              </span>
+                              <span className="text-xs text-muted-foreground uppercase">
+                                id:{a.athleteId}
+                              </span>
+                              <span className="text-xs text-muted-foreground uppercase">
+                                batch:{a.batches?.name}
+                              </span>
+                            </div>
+                          )}
                         />
                       </FormControl>
 
