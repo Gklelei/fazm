@@ -1,6 +1,9 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./prisma";
+import SendEmail from "@/Modules/Mail/SendEmail";
+import { SendMail } from "./mailtrap";
+import { SendResetPasswordMailTemplate } from "@/Modules/Mail/Templates/SendResetPasswordMail";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -16,11 +19,13 @@ export const auth = betterAuth({
     minPasswordLength: 8,
     autoSignIn: false,
     requireEmailVerification: false,
-    sendResetPassword: async ({ token, url, user }) => {
-      console.log({ token, url, user });
-    },
-    onPasswordReset: async ({ user }, request) => {
-      console.log(`Password for user ${user.email} has been reset.`);
+    sendResetPassword: async ({ url, user }) => {
+      SendMail({
+        to: [user.email],
+        subject: "Reset Password",
+        text: "Reset Password",
+        html: SendResetPasswordMailTemplate({resetLink:url}),
+      })
     },
   },
   user: {

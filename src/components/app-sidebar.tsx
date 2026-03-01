@@ -75,7 +75,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       .filter((item) => (item.items ? item.items.length > 0 : true));
   }, [userRole, isLoading, isError]);
 
-  // Expand the group that contains the active sub-route by default
   const defaultOpen = React.useMemo(() => {
     const activeParent = nav.find((p) =>
       p.items?.some((s) => isActivePath(pathname, s.url)),
@@ -178,7 +177,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                       </Link>
                     </SidebarMenuButton>
                   ) : (
-                    // Group with children
                     <>
                       <SidebarMenuButton
                         onClick={() =>

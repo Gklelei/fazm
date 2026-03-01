@@ -47,6 +47,7 @@ import {
 import { LocalFsUpload } from "@/components/FsUploader/LocalFsImageUploader";
 import { EditStaffProfile } from "../Server/EditStaff";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import SendPasswordResetLinkButton from "@/Modules/Auth/SendPasswordResetLinkButton";
 
 interface Props {
   data: GetUserProfileType;
@@ -98,7 +99,6 @@ const StaffProfilePage = ({ data }: Props) => {
 
   return (
     <div className="mx-auto max-w-5xl px-2 sm:px-4 py-6 lg:py-10 space-y-6">
-      {/* Page header */}
       <div className="space-y-1">
         <h1 className="text-3xl font-bold tracking-tight">Profile Settings</h1>
         <p className="text-muted-foreground">
@@ -108,7 +108,6 @@ const StaffProfilePage = ({ data }: Props) => {
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          {/* Profile Picture */}
           <Card className="shadow-sm">
             <CardHeader className="space-y-1">
               <CardTitle>Profile Picture</CardTitle>
@@ -258,6 +257,14 @@ const StaffProfilePage = ({ data }: Props) => {
                   </FormItem>
                 )}
               />
+              <div>
+                <SendPasswordResetLinkButton
+                  className="w-full md:grid-cols-2"
+                  showEmailPopUp={false}
+                  buttonText="Change Password"
+                  email={data.email}
+                />
+              </div>
             </CardContent>
           </Card>
 

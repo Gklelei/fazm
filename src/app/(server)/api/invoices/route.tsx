@@ -33,38 +33,38 @@ export async function GET(req: NextRequest) {
     ...(status ? { status: { equals: status } } : {}),
     ...(search
       ? {
-          OR: [
-            {
-              invoiceNumber: { contains: search, mode: "insensitive" as const },
+        OR: [
+          {
+            invoiceNumber: { contains: search, mode: "insensitive" as const },
+          },
+          {
+            athlete: {
+              firstName: { contains: search, mode: "insensitive" as const },
             },
-            {
-              athlete: {
-                firstName: { contains: search, mode: "insensitive" as const },
-              },
+          },
+          {
+            athlete: {
+              lastName: { contains: search, mode: "insensitive" as const },
             },
-            {
-              athlete: {
-                lastName: { contains: search, mode: "insensitive" as const },
-              },
+          },
+          {
+            athlete: {
+              athleteId: { contains: search, mode: "insensitive" as const },
             },
-            {
-              athlete: {
-                athleteId: { contains: search, mode: "insensitive" as const },
-              },
-            },
-          ],
-        }
+          },
+        ],
+      }
       : {}),
     ...(cursor
       ? {
-          OR: [
-            { createdAt: { lt: new Date(cursor.createdAt) } },
-            {
-              createdAt: new Date(cursor.createdAt),
-              id: { lt: cursor.id },
-            },
-          ],
-        }
+        OR: [
+          { createdAt: { lt: new Date(cursor.createdAt) } },
+          {
+            createdAt: new Date(cursor.createdAt),
+            id: { lt: cursor.id },
+          },
+        ],
+      }
       : {}),
   };
 
@@ -90,9 +90,9 @@ export async function GET(req: NextRequest) {
     const nextCursor =
       items.length === pageSize && last
         ? JSON.stringify({
-            createdAt: last.createdAt.toISOString(),
-            id: last.id,
-          } satisfies Cursor)
+          createdAt: last.createdAt.toISOString(),
+          id: last.id,
+        } satisfies Cursor)
         : null;
 
     return NextResponse.json({ items, nextCursor });

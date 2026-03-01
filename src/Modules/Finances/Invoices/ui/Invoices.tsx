@@ -527,8 +527,8 @@ const Invoices = ({ initialData }: Props) => {
                                       invoice.status === "PAID" ||
                                       invoice.status === "PARTIAL"
                                     ) && (
-                                      <ChevronDown className="ml-1 h-3 w-3 opacity-70" />
-                                    )}
+                                        <ChevronDown className="ml-1 h-3 w-3 opacity-70" />
+                                      )}
                                   </div>
                                 </Badge>
                               </DropdownMenuTrigger>
