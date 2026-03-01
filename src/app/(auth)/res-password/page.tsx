@@ -20,7 +20,9 @@ const ResetPasswordForm = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    router.push("/");
+    if (!token) {
+      router.push("/");
+    }
   }, [token, router]);
 
   const resetPassword = async () => {

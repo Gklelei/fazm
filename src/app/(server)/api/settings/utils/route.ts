@@ -35,6 +35,8 @@ export async function GET() {
       db.academy.findFirst(),
     ]);
 
+
+
     return NextResponse.json({
       locations,
       drills,
