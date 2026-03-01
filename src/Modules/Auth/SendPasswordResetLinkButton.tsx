@@ -96,6 +96,7 @@ const SendPasswordResetLinkButton = ({
         onClick={handleButtonClick}
         className={cn("gap-2", className)}
         variant={variant}
+        type="button"
         disabled={isLoading || props.disabled}
         {...props}
       >
@@ -116,13 +117,7 @@ const SendPasswordResetLinkButton = ({
             </DialogDescription>
           </DialogHeader>
 
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              executeReset(inputEmail);
-            }}
-            className="space-y-5 pt-4"
-          >
+          <form className="space-y-5 pt-4">
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-medium">
                 Email address
@@ -143,7 +138,15 @@ const SendPasswordResetLinkButton = ({
             </div>
 
             <DialogFooter className="pt-2">
-              <Button type="button" className="w-full" disabled={isLoading}>
+              <Button
+                type="button"
+                className="w-full"
+                disabled={isLoading}
+                onClick={(e) => {
+                  e.preventDefault();
+                  executeReset(inputEmail);
+                }}
+              >
                 {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Send reset link
               </Button>
