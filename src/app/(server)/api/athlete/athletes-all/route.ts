@@ -1,4 +1,3 @@
-import { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 
@@ -32,18 +31,13 @@ export async function GET(req: NextRequest) {
     isArchived: false,
     ...(search
       ? {
-        OR: [
-          { firstName: { contains: search, mode: "insensitive" as const } },
-          { lastName: { contains: search, mode: "insensitive" as const } },
-          { middleName: { contains: search, mode: "insensitive" as const } },
-          { athleteId: { contains: search, mode: "insensitive" as const } },
-          {
-            status: {
-              equals: search as ATHLETE_ACCOUNT_STATUS,
-            },
-          },
-        ],
-      }
+          OR: [
+            { firstName: { contains: search, mode: "insensitive" as const } },
+            { lastName: { contains: search, mode: "insensitive" as const } },
+            { middleName: { contains: search, mode: "insensitive" as const } },
+            { athleteId: { contains: search, mode: "insensitive" as const } },
+          ],
+        }
       : {}),
   };
 
@@ -56,9 +50,9 @@ export async function GET(req: NextRequest) {
       take: take + 1,
       ...(decoded
         ? {
-          cursor: { id: decoded.id },
-          skip: 1,
-        }
+            cursor: { id: decoded.id },
+            skip: 1,
+          }
         : {}),
     });
 
@@ -68,9 +62,9 @@ export async function GET(req: NextRequest) {
     const nextCursor =
       hasMore && items.length
         ? encodeCursor({
-          createdAt: items[items.length - 1].createdAt.toISOString(),
-          id: items[items.length - 1].id,
-        })
+            createdAt: items[items.length - 1].createdAt.toISOString(),
+            id: items[items.length - 1].id,
+          })
         : null;
 
     return NextResponse.json(
