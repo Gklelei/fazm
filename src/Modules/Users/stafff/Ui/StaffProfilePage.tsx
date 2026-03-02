@@ -309,60 +309,62 @@ const StaffProfilePage = ({ data }: Props) => {
                     </div>
                   </div>
 
-                  {data.sessions.map((session) => (
-                    <div
-                      key={session.id}
-                      className="grid grid-cols-12 border-b last:border-b-0"
-                    >
-                      <div className="col-span-12 md:col-span-4 px-3 py-3">
-                        <div className="text-sm font-medium truncate">
-                          {session.userAgent || "Unknown device"}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          Session ID: {session.id}
-                        </div>
-                      </div>
-
-                      <div className="col-span-6 md:col-span-3 px-3 py-3">
-                        <div className="text-sm">
-                          {session.ipAddress || "—"}
-                        </div>
-                      </div>
-
-                      <div className="col-span-6 md:col-span-2 px-3 py-3">
-                        <div className="text-sm">
-                          {format(new Date(session.createdAt), "PPP")}
-                        </div>
-                        <div className="text-xs text-muted-foreground">
-                          {format(new Date(session.createdAt), "p")}
-                        </div>
-                      </div>
-
-                      <div className="col-span-12 md:col-span-3 px-3 py-3 flex items-center justify-between gap-2">
-                        <div>
-                          <div className="text-sm">
-                            {format(new Date(session.expiresAt), "PPP")}
+                  {data.sessions
+                    .filter((session) => session.expiresAt > new Date())
+                    .map((session) => (
+                      <div
+                        key={session.id}
+                        className="grid grid-cols-12 border-b last:border-b-0"
+                      >
+                        <div className="col-span-12 md:col-span-4 px-3 py-3">
+                          <div className="text-sm font-medium truncate">
+                            {session.userAgent || "Unknown device"}
                           </div>
                           <div className="text-xs text-muted-foreground">
-                            {format(new Date(session.expiresAt), "p")}
+                            Session ID: {session.id}
                           </div>
                         </div>
 
-                        <Badge
-                          variant={
-                            new Date(session.expiresAt).getTime() > Date.now()
-                              ? "outline"
-                              : "secondary"
-                          }
-                          className="shrink-0"
-                        >
-                          {new Date(session.expiresAt).getTime() > Date.now()
-                            ? "Active"
-                            : "Expired"}
-                        </Badge>
+                        <div className="col-span-6 md:col-span-3 px-3 py-3">
+                          <div className="text-sm">
+                            {session.ipAddress || "—"}
+                          </div>
+                        </div>
+
+                        <div className="col-span-6 md:col-span-2 px-3 py-3">
+                          <div className="text-sm">
+                            {format(new Date(session.createdAt), "PPP")}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {format(new Date(session.createdAt), "p")}
+                          </div>
+                        </div>
+
+                        <div className="col-span-12 md:col-span-3 px-3 py-3 flex items-center justify-between gap-2">
+                          <div>
+                            <div className="text-sm">
+                              {format(new Date(session.expiresAt), "PPP")}
+                            </div>
+                            <div className="text-xs text-muted-foreground">
+                              {format(new Date(session.expiresAt), "p")}
+                            </div>
+                          </div>
+
+                          <Badge
+                            variant={
+                              new Date(session.expiresAt).getTime() > Date.now()
+                                ? "outline"
+                                : "secondary"
+                            }
+                            className="shrink-0"
+                          >
+                            {new Date(session.expiresAt).getTime() > Date.now()
+                              ? "Active"
+                              : "Expired"}
+                          </Badge>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
             </CardContent>
