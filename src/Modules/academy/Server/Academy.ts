@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 
+
 export const CreateAcademyUtils = async ({
   data,
 }: {
@@ -43,8 +44,11 @@ export const CreateAcademyUtils = async ({
         tagline: data.tagline,
         logoUrl: data.logoUrl,
         receiptFooterNotes: data.footerNotes,
+        primaryColor: data.primaryColor,
       },
     });
+
+
 
     return {
       success: true,
@@ -100,8 +104,11 @@ export const EditAcademyUtils = async ({
         contactEmail: data.email,
         tagline: data.tagline,
         logoUrl: data.logoUrl,
+        primaryColor: data.primaryColor,
       },
     });
+
+
 
     return {
       success: true,

@@ -1,5 +1,6 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import ServerPagination from "@/utils/ServerPagination";
 import { GetStaffType } from "../types";
 import { Button } from "@/components/ui/button";
 import {
@@ -61,14 +62,18 @@ import {
 } from "@/components/ui/alert-dialog";
 import { auth } from "@/lib/auth";
 import { authClient } from "@/lib/auth-client";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 interface Props {
   data: GetStaffType[];
+  page: number;
+  limit: number;
+  total: number;
 }
 
 const ROLES = ["COACH", "ADMIN", "DOCTOR"];
 
-const ViewAllStaff = ({ data }: Props) => {
+const ViewAllStaff = ({ data, page, limit, total }: Props) => {
   const router = useRouter();
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [roleFilter, setRoleFilter] = useState<string>("");
@@ -134,12 +139,35 @@ const ViewAllStaff = ({ data }: Props) => {
             </p>
           </div>
 
-          <Button
-            onClick={() => router.push("/users/staff/create")}
-            className="w-full lg:w-auto"
-          >
-            Create New User
-          </Button>
+          <div className="flex items-center gap-2">
+            <ExportDropdown
+              filename="Staff"
+              headers={["#", "Name", "Email", "Phone", "Role", "Staff ID"]}
+              rows={filteredStaff.map((s, i) => [
+                String(i + 1),
+                s.fullNames,
+                s.user.email,
+                s.phoneNumber === "null" || !s.phoneNumber ? "" : s.phoneNumber,
+                s.user.role,
+                s.staffId,
+              ])}
+              fetchAllUrl="/api/export?resource=staff"
+              mapRow={(s: any, i: number) => [
+                String(i + 1),
+                s.fullNames,
+                s.user?.email || "",
+                s.phoneNumber === "null" || !s.phoneNumber ? "" : s.phoneNumber,
+                s.user?.role || "",
+                s.staffId,
+              ]}
+            />
+            <Button
+              onClick={() => router.push("/staff/create")}
+              className="w-full lg:w-auto"
+            >
+              Create New User
+            </Button>
+          </div>
         </div>
 
         {/* Filters Section */}
@@ -218,7 +246,7 @@ const ViewAllStaff = ({ data }: Props) => {
 
         {/* Stats */}
         <div className="flex items-center gap-4 text-sm text-muted-foreground pt-2">
-          <span>Total: {filteredStaff.length} users</span>
+          <span>Total: {total} users</span>
           {activeFiltersCount > 0 && (
             <span>Filtered: {filteredStaff.length} users</span>
           )}
@@ -294,9 +322,7 @@ const ViewAllStaff = ({ data }: Props) => {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() =>
-                                  router.push(
-                                    `/users/staff/${staff.staffId}/view`,
-                                  )
+                                  router.push(`/staff/${staff.staffId}/view`)
                                 }
                               >
                                 <Eye className="h-4 w-4" />
@@ -313,7 +339,7 @@ const ViewAllStaff = ({ data }: Props) => {
                                 variant="ghost"
                                 size="icon"
                                 onClick={() =>
-                                  router.push(`/users/staff/${staff.staffId}`)
+                                  router.push(`/staff/${staff.staffId}`)
                                 }
                               >
                                 <PenBox className="h-4 w-4" />
@@ -377,6 +403,9 @@ const ViewAllStaff = ({ data }: Props) => {
             </Table>
           </div>
         )}
+        <div className="p-4 border-t">
+          <ServerPagination page={page} limit={limit} total={total} />
+        </div>
       </CardContent>
     </Card>
   );
@@ -397,7 +426,7 @@ function EmptyData() {
           </EmptyDescription>
         </EmptyHeader>
         <EmptyContent>
-          <Button onClick={() => router.push("/users/staff/create")}>
+          <Button onClick={() => router.push("/staff/create")}>
             Create First User
           </Button>
         </EmptyContent>

@@ -268,6 +268,15 @@ declare global {
     }[];
     totalWeeklyPayments: number;
     totalWeeklyTainings: number;
+    outstandingBalance?: number;
+    activeSubscriptions?: number;
+    invoices?: {
+      id: string;
+      dueDate: Date;
+      amountDue: import("@prisma/client/runtime/library").Decimal | number;
+      amountPaid: import("@prisma/client/runtime/library").Decimal | number;
+      status: string;
+    }[];
     weeklyTrainings: {
       _count: {
         athletes: number;

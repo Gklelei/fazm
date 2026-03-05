@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 export const DeleteTrainingSession = async (
   id: string,
@@ -42,7 +43,18 @@ export const DeleteTrainingSession = async (
         isArchived: true,
       },
     });
-    revalidatePath("/training/sessions");
+    revalidatePath("/sessions");
+
+    if (session?.user) {
+      await createAuditLog({
+        action: "DELETE_TRAINING_SESSION",
+        resource: "TrainingSession",
+        details: `Archived training session "${existingTrainingSession.name}"`,
+        userId: session.user.id,
+        trainingId: existingTrainingSession.id,
+      });
+    }
+
     return {
       success: true,
       message: "Training session deleted succecifully",

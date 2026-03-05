@@ -3,9 +3,10 @@
 import { auth } from "@/lib/auth";
 import { couponSchema, couponSchemaType } from "../Validation";
 import { headers } from "next/headers";
-import { db } from "@/lib/prisma";
 import { CouponInterval, DiscountType } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
+import { db } from "@/lib/prisma";
 
 export const CreateCouponsAction = async (
   data: couponSchemaType,
@@ -61,6 +62,14 @@ export const CreateCouponsAction = async (
       },
     });
     revalidatePath("/coupons");
+
+    await createAuditLog({
+      action: "CREATE_COUPON",
+      resource: "Coupon",
+      details: `Created coupon ${parsedData.name.toUpperCase()} for ${parsedData.value} off`,
+      userId: session.user.id,
+    });
+
     return {
       message: "Coupon created",
       success: true,
@@ -122,6 +131,13 @@ export const DeleteCouponsAction = async (
       },
     });
     revalidatePath("/coupons");
+
+    await createAuditLog({
+      action: "DELETE_COUPON",
+      resource: "Coupon",
+      details: `Voided coupon with ID ${id}`,
+      userId: session.user.id,
+    });
 
     return {
       success: true,
@@ -193,6 +209,14 @@ export const EditCouponsAction = async (
       },
     });
     revalidatePath("/coupons");
+
+    await createAuditLog({
+      action: "UPDATE_COUPON",
+      resource: "Coupon",
+      details: `Updated coupon ${parsedData.name.toUpperCase()}`,
+      userId: session.user.id,
+    });
+
     return {
       message: "Coupon created",
       success: true,
@@ -257,6 +281,13 @@ export const toggleCouponStatus = async (
     }
 
     revalidatePath("/coupons");
+
+    await createAuditLog({
+      action: "TOGGLE_COUPON_STATUS",
+      resource: "Coupon",
+      details: `Toggled coupon ${id} status to ${status === 1 ? "ACTIVE" : "INACTIVE"}`,
+      userId: session.user.id,
+    });
 
     return {
       success: true,

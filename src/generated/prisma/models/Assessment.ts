@@ -186,6 +186,7 @@ export type AssessmentWhereInput = {
   training?: Prisma.XOR<Prisma.TrainingScalarRelationFilter, Prisma.trainingWhereInput>
   coach?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.staffWhereInput>
   responses?: Prisma.AssessmentResponseListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type AssessmentOrderByWithRelationInput = {
@@ -198,6 +199,7 @@ export type AssessmentOrderByWithRelationInput = {
   training?: Prisma.trainingOrderByWithRelationInput
   coach?: Prisma.staffOrderByWithRelationInput
   responses?: Prisma.AssessmentResponseOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type AssessmentWhereUniqueInput = Prisma.AtLeast<{
@@ -214,6 +216,7 @@ export type AssessmentWhereUniqueInput = Prisma.AtLeast<{
   training?: Prisma.XOR<Prisma.TrainingScalarRelationFilter, Prisma.trainingWhereInput>
   coach?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.staffWhereInput>
   responses?: Prisma.AssessmentResponseListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id" | "athleteId_trainingId">
 
 export type AssessmentOrderByWithAggregationInput = {
@@ -245,6 +248,7 @@ export type AssessmentCreateInput = {
   training: Prisma.trainingCreateNestedOneWithoutAssessmentsInput
   coach: Prisma.staffCreateNestedOneWithoutAssessmentsInput
   responses?: Prisma.AssessmentResponseCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUncheckedCreateInput = {
@@ -254,6 +258,7 @@ export type AssessmentUncheckedCreateInput = {
   trainingId: string
   coachId: string
   responses?: Prisma.AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUpdateInput = {
@@ -263,6 +268,7 @@ export type AssessmentUpdateInput = {
   training?: Prisma.trainingUpdateOneRequiredWithoutAssessmentsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutAssessmentsNestedInput
   responses?: Prisma.AssessmentResponseUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateInput = {
@@ -272,6 +278,7 @@ export type AssessmentUncheckedUpdateInput = {
   trainingId?: Prisma.StringFieldUpdateOperationsInput | string
   coachId?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.AssessmentResponseUncheckedUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentCreateManyInput = {
@@ -339,6 +346,11 @@ export type AssessmentOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type AssessmentNullableScalarRelationFilter = {
+  is?: Prisma.AssessmentWhereInput | null
+  isNot?: Prisma.AssessmentWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -401,6 +413,22 @@ export type AssessmentUncheckedUpdateManyWithoutAthleteNestedInput = {
   update?: Prisma.AssessmentUpdateWithWhereUniqueWithoutAthleteInput | Prisma.AssessmentUpdateWithWhereUniqueWithoutAthleteInput[]
   updateMany?: Prisma.AssessmentUpdateManyWithWhereWithoutAthleteInput | Prisma.AssessmentUpdateManyWithWhereWithoutAthleteInput[]
   deleteMany?: Prisma.AssessmentScalarWhereInput | Prisma.AssessmentScalarWhereInput[]
+}
+
+export type AssessmentCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.AssessmentCreateWithoutAuditLogsInput, Prisma.AssessmentUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.AssessmentCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.AssessmentWhereUniqueInput
+}
+
+export type AssessmentUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.AssessmentCreateWithoutAuditLogsInput, Prisma.AssessmentUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.AssessmentCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.AssessmentUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.AssessmentWhereInput | boolean
+  delete?: Prisma.AssessmentWhereInput | boolean
+  connect?: Prisma.AssessmentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AssessmentUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.AssessmentUpdateWithoutAuditLogsInput>, Prisma.AssessmentUncheckedUpdateWithoutAuditLogsInput>
 }
 
 export type AssessmentCreateNestedManyWithoutTrainingInput = {
@@ -493,6 +521,7 @@ export type AssessmentCreateWithoutResponsesInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutAssessmentsInput
   training: Prisma.trainingCreateNestedOneWithoutAssessmentsInput
   coach: Prisma.staffCreateNestedOneWithoutAssessmentsInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUncheckedCreateWithoutResponsesInput = {
@@ -501,6 +530,7 @@ export type AssessmentUncheckedCreateWithoutResponsesInput = {
   athleteId: string
   trainingId: string
   coachId: string
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentCreateOrConnectWithoutResponsesInput = {
@@ -525,6 +555,7 @@ export type AssessmentUpdateWithoutResponsesInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAssessmentsNestedInput
   training?: Prisma.trainingUpdateOneRequiredWithoutAssessmentsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutAssessmentsNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateWithoutResponsesInput = {
@@ -533,6 +564,7 @@ export type AssessmentUncheckedUpdateWithoutResponsesInput = {
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
   trainingId?: Prisma.StringFieldUpdateOperationsInput | string
   coachId?: Prisma.StringFieldUpdateOperationsInput | string
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentCreateWithoutAthleteInput = {
@@ -541,6 +573,7 @@ export type AssessmentCreateWithoutAthleteInput = {
   training: Prisma.trainingCreateNestedOneWithoutAssessmentsInput
   coach: Prisma.staffCreateNestedOneWithoutAssessmentsInput
   responses?: Prisma.AssessmentResponseCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUncheckedCreateWithoutAthleteInput = {
@@ -549,6 +582,7 @@ export type AssessmentUncheckedCreateWithoutAthleteInput = {
   trainingId: string
   coachId: string
   responses?: Prisma.AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentCreateOrConnectWithoutAthleteInput = {
@@ -588,12 +622,65 @@ export type AssessmentScalarWhereInput = {
   coachId?: Prisma.StringFilter<"Assessment"> | string
 }
 
+export type AssessmentCreateWithoutAuditLogsInput = {
+  id?: string
+  createdAt?: Date | string
+  athlete: Prisma.AthleteCreateNestedOneWithoutAssessmentsInput
+  training: Prisma.trainingCreateNestedOneWithoutAssessmentsInput
+  coach: Prisma.staffCreateNestedOneWithoutAssessmentsInput
+  responses?: Prisma.AssessmentResponseCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  createdAt?: Date | string
+  athleteId: string
+  trainingId: string
+  coachId: string
+  responses?: Prisma.AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentInput
+}
+
+export type AssessmentCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.AssessmentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AssessmentCreateWithoutAuditLogsInput, Prisma.AssessmentUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type AssessmentUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.AssessmentUpdateWithoutAuditLogsInput, Prisma.AssessmentUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.AssessmentCreateWithoutAuditLogsInput, Prisma.AssessmentUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.AssessmentWhereInput
+}
+
+export type AssessmentUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.AssessmentWhereInput
+  data: Prisma.XOR<Prisma.AssessmentUpdateWithoutAuditLogsInput, Prisma.AssessmentUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type AssessmentUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athlete?: Prisma.AthleteUpdateOneRequiredWithoutAssessmentsNestedInput
+  training?: Prisma.trainingUpdateOneRequiredWithoutAssessmentsNestedInput
+  coach?: Prisma.staffUpdateOneRequiredWithoutAssessmentsNestedInput
+  responses?: Prisma.AssessmentResponseUpdateManyWithoutAssessmentNestedInput
+}
+
+export type AssessmentUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  trainingId?: Prisma.StringFieldUpdateOperationsInput | string
+  coachId?: Prisma.StringFieldUpdateOperationsInput | string
+  responses?: Prisma.AssessmentResponseUncheckedUpdateManyWithoutAssessmentNestedInput
+}
+
 export type AssessmentCreateWithoutTrainingInput = {
   id?: string
   createdAt?: Date | string
   athlete: Prisma.AthleteCreateNestedOneWithoutAssessmentsInput
   coach: Prisma.staffCreateNestedOneWithoutAssessmentsInput
   responses?: Prisma.AssessmentResponseCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUncheckedCreateWithoutTrainingInput = {
@@ -602,6 +689,7 @@ export type AssessmentUncheckedCreateWithoutTrainingInput = {
   athleteId: string
   coachId: string
   responses?: Prisma.AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentCreateOrConnectWithoutTrainingInput = {
@@ -636,6 +724,7 @@ export type AssessmentCreateWithoutCoachInput = {
   athlete: Prisma.AthleteCreateNestedOneWithoutAssessmentsInput
   training: Prisma.trainingCreateNestedOneWithoutAssessmentsInput
   responses?: Prisma.AssessmentResponseCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentUncheckedCreateWithoutCoachInput = {
@@ -644,6 +733,7 @@ export type AssessmentUncheckedCreateWithoutCoachInput = {
   athleteId: string
   trainingId: string
   responses?: Prisma.AssessmentResponseUncheckedCreateNestedManyWithoutAssessmentInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAssessmentInput
 }
 
 export type AssessmentCreateOrConnectWithoutCoachInput = {
@@ -685,6 +775,7 @@ export type AssessmentUpdateWithoutAthleteInput = {
   training?: Prisma.trainingUpdateOneRequiredWithoutAssessmentsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutAssessmentsNestedInput
   responses?: Prisma.AssessmentResponseUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateWithoutAthleteInput = {
@@ -693,6 +784,7 @@ export type AssessmentUncheckedUpdateWithoutAthleteInput = {
   trainingId?: Prisma.StringFieldUpdateOperationsInput | string
   coachId?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.AssessmentResponseUncheckedUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateManyWithoutAthleteInput = {
@@ -715,6 +807,7 @@ export type AssessmentUpdateWithoutTrainingInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAssessmentsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutAssessmentsNestedInput
   responses?: Prisma.AssessmentResponseUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateWithoutTrainingInput = {
@@ -723,6 +816,7 @@ export type AssessmentUncheckedUpdateWithoutTrainingInput = {
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
   coachId?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.AssessmentResponseUncheckedUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateManyWithoutTrainingInput = {
@@ -745,6 +839,7 @@ export type AssessmentUpdateWithoutCoachInput = {
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutAssessmentsNestedInput
   training?: Prisma.trainingUpdateOneRequiredWithoutAssessmentsNestedInput
   responses?: Prisma.AssessmentResponseUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateWithoutCoachInput = {
@@ -753,6 +848,7 @@ export type AssessmentUncheckedUpdateWithoutCoachInput = {
   athleteId?: Prisma.StringFieldUpdateOperationsInput | string
   trainingId?: Prisma.StringFieldUpdateOperationsInput | string
   responses?: Prisma.AssessmentResponseUncheckedUpdateManyWithoutAssessmentNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAssessmentNestedInput
 }
 
 export type AssessmentUncheckedUpdateManyWithoutCoachInput = {
@@ -769,10 +865,12 @@ export type AssessmentUncheckedUpdateManyWithoutCoachInput = {
 
 export type AssessmentCountOutputType = {
   responses: number
+  auditLogs: number
 }
 
 export type AssessmentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   responses?: boolean | AssessmentCountOutputTypeCountResponsesArgs
+  auditLogs?: boolean | AssessmentCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -792,6 +890,13 @@ export type AssessmentCountOutputTypeCountResponsesArgs<ExtArgs extends runtime.
   where?: Prisma.AssessmentResponseWhereInput
 }
 
+/**
+ * AssessmentCountOutputType without action
+ */
+export type AssessmentCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type AssessmentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -803,6 +908,7 @@ export type AssessmentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   training?: boolean | Prisma.trainingDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
   responses?: boolean | Prisma.Assessment$responsesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Assessment$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessment"]>
 
@@ -842,6 +948,7 @@ export type AssessmentInclude<ExtArgs extends runtime.Types.Extensions.InternalA
   training?: boolean | Prisma.trainingDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
   responses?: boolean | Prisma.Assessment$responsesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Assessment$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AssessmentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AssessmentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -862,6 +969,7 @@ export type $AssessmentPayload<ExtArgs extends runtime.Types.Extensions.Internal
     training: Prisma.$trainingPayload<ExtArgs>
     coach: Prisma.$staffPayload<ExtArgs>
     responses: Prisma.$AssessmentResponsePayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1267,6 +1375,7 @@ export interface Prisma__AssessmentClient<T, Null = never, ExtArgs extends runti
   training<T extends Prisma.trainingDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.trainingDefaultArgs<ExtArgs>>): Prisma.Prisma__trainingClient<runtime.Types.Result.GetResult<Prisma.$trainingPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   coach<T extends Prisma.staffDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.staffDefaultArgs<ExtArgs>>): Prisma.Prisma__staffClient<runtime.Types.Result.GetResult<Prisma.$staffPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   responses<T extends Prisma.Assessment$responsesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Assessment$responsesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentResponsePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.Assessment$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Assessment$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1718,6 +1827,30 @@ export type Assessment$responsesArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.AssessmentResponseScalarFieldEnum | Prisma.AssessmentResponseScalarFieldEnum[]
+}
+
+/**
+ * Assessment.auditLogs
+ */
+export type Assessment$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

@@ -1,8 +1,11 @@
 import { db } from "@/lib/prisma";
 import { NextResponse } from "next/server";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
+    // Query PostgreSQL
     const [
       locations,
       drills,
@@ -35,9 +38,7 @@ export async function GET() {
       db.academy.findFirst(),
     ]);
 
-
-
-    return NextResponse.json({
+    const resultPayload = {
       locations,
       drills,
       batches,
@@ -46,7 +47,9 @@ export async function GET() {
       expense,
       plans,
       academy,
-    });
+    };
+
+    return NextResponse.json(resultPayload);
   } catch (error) {
     console.log({ error });
     return NextResponse.json(

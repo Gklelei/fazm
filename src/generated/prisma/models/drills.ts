@@ -217,6 +217,7 @@ export type drillsWhereInput = {
   description?: Prisma.StringNullableFilter<"drills"> | string | null
   voided?: Prisma.IntFilter<"drills"> | number
   trainings?: Prisma.TrainingListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type drillsOrderByWithRelationInput = {
@@ -226,6 +227,7 @@ export type drillsOrderByWithRelationInput = {
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   voided?: Prisma.SortOrder
   trainings?: Prisma.trainingOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type drillsWhereUniqueInput = Prisma.AtLeast<{
@@ -238,6 +240,7 @@ export type drillsWhereUniqueInput = Prisma.AtLeast<{
   description?: Prisma.StringNullableFilter<"drills"> | string | null
   voided?: Prisma.IntFilter<"drills"> | number
   trainings?: Prisma.TrainingListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id">
 
 export type drillsOrderByWithAggregationInput = {
@@ -271,6 +274,7 @@ export type drillsCreateInput = {
   description?: string | null
   voided?: number
   trainings?: Prisma.trainingCreateNestedManyWithoutDrillsInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutDrillInput
 }
 
 export type drillsUncheckedCreateInput = {
@@ -280,6 +284,7 @@ export type drillsUncheckedCreateInput = {
   description?: string | null
   voided?: number
   trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutDrillsInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutDrillInput
 }
 
 export type drillsUpdateInput = {
@@ -289,6 +294,7 @@ export type drillsUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUpdateManyWithoutDrillsNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutDrillNestedInput
 }
 
 export type drillsUncheckedUpdateInput = {
@@ -298,6 +304,7 @@ export type drillsUncheckedUpdateInput = {
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voided?: Prisma.IntFieldUpdateOperationsInput | number
   trainings?: Prisma.trainingUncheckedUpdateManyWithoutDrillsNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutDrillNestedInput
 }
 
 export type drillsCreateManyInput = {
@@ -322,6 +329,11 @@ export type drillsUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voided?: Prisma.IntFieldUpdateOperationsInput | number
+}
+
+export type DrillsNullableScalarRelationFilter = {
+  is?: Prisma.drillsWhereInput | null
+  isNot?: Prisma.drillsWhereInput | null
 }
 
 export type DrillsListRelationFilter = {
@@ -366,6 +378,22 @@ export type drillsSumOrderByAggregateInput = {
   voided?: Prisma.SortOrder
 }
 
+export type drillsCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.drillsCreateWithoutAuditLogsInput, Prisma.drillsUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.drillsCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.drillsWhereUniqueInput
+}
+
+export type drillsUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.drillsCreateWithoutAuditLogsInput, Prisma.drillsUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.drillsCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.drillsUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.drillsWhereInput | boolean
+  delete?: Prisma.drillsWhereInput | boolean
+  connect?: Prisma.drillsWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.drillsUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.drillsUpdateWithoutAuditLogsInput>, Prisma.drillsUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type drillsCreateNestedManyWithoutTrainingsInput = {
   create?: Prisma.XOR<Prisma.drillsCreateWithoutTrainingsInput, Prisma.drillsUncheckedCreateWithoutTrainingsInput> | Prisma.drillsCreateWithoutTrainingsInput[] | Prisma.drillsUncheckedCreateWithoutTrainingsInput[]
   connectOrCreate?: Prisma.drillsCreateOrConnectWithoutTrainingsInput | Prisma.drillsCreateOrConnectWithoutTrainingsInput[]
@@ -404,12 +432,65 @@ export type drillsUncheckedUpdateManyWithoutTrainingsNestedInput = {
   deleteMany?: Prisma.drillsScalarWhereInput | Prisma.drillsScalarWhereInput[]
 }
 
+export type drillsCreateWithoutAuditLogsInput = {
+  id?: string
+  value: string
+  name: string
+  description?: string | null
+  voided?: number
+  trainings?: Prisma.trainingCreateNestedManyWithoutDrillsInput
+}
+
+export type drillsUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  value: string
+  name: string
+  description?: string | null
+  voided?: number
+  trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutDrillsInput
+}
+
+export type drillsCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.drillsWhereUniqueInput
+  create: Prisma.XOR<Prisma.drillsCreateWithoutAuditLogsInput, Prisma.drillsUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type drillsUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.drillsUpdateWithoutAuditLogsInput, Prisma.drillsUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.drillsCreateWithoutAuditLogsInput, Prisma.drillsUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.drillsWhereInput
+}
+
+export type drillsUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.drillsWhereInput
+  data: Prisma.XOR<Prisma.drillsUpdateWithoutAuditLogsInput, Prisma.drillsUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type drillsUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
+  trainings?: Prisma.trainingUpdateManyWithoutDrillsNestedInput
+}
+
+export type drillsUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  voided?: Prisma.IntFieldUpdateOperationsInput | number
+  trainings?: Prisma.trainingUncheckedUpdateManyWithoutDrillsNestedInput
+}
+
 export type drillsCreateWithoutTrainingsInput = {
   id?: string
   value: string
   name: string
   description?: string | null
   voided?: number
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutDrillInput
 }
 
 export type drillsUncheckedCreateWithoutTrainingsInput = {
@@ -418,6 +499,7 @@ export type drillsUncheckedCreateWithoutTrainingsInput = {
   name: string
   description?: string | null
   voided?: number
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutDrillInput
 }
 
 export type drillsCreateOrConnectWithoutTrainingsInput = {
@@ -458,6 +540,7 @@ export type drillsUpdateWithoutTrainingsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voided?: Prisma.IntFieldUpdateOperationsInput | number
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutDrillNestedInput
 }
 
 export type drillsUncheckedUpdateWithoutTrainingsInput = {
@@ -466,6 +549,7 @@ export type drillsUncheckedUpdateWithoutTrainingsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   voided?: Prisma.IntFieldUpdateOperationsInput | number
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutDrillNestedInput
 }
 
 export type drillsUncheckedUpdateManyWithoutTrainingsInput = {
@@ -483,10 +567,12 @@ export type drillsUncheckedUpdateManyWithoutTrainingsInput = {
 
 export type DrillsCountOutputType = {
   trainings: number
+  auditLogs: number
 }
 
 export type DrillsCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   trainings?: boolean | DrillsCountOutputTypeCountTrainingsArgs
+  auditLogs?: boolean | DrillsCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -506,6 +592,13 @@ export type DrillsCountOutputTypeCountTrainingsArgs<ExtArgs extends runtime.Type
   where?: Prisma.trainingWhereInput
 }
 
+/**
+ * DrillsCountOutputType without action
+ */
+export type DrillsCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type drillsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -514,6 +607,7 @@ export type drillsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   description?: boolean
   voided?: boolean
   trainings?: boolean | Prisma.drills$trainingsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.drills$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.DrillsCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["drills"]>
 
@@ -544,6 +638,7 @@ export type drillsSelectScalar = {
 export type drillsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "value" | "name" | "description" | "voided", ExtArgs["result"]["drills"]>
 export type drillsInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   trainings?: boolean | Prisma.drills$trainingsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.drills$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.DrillsCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type drillsIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -553,6 +648,7 @@ export type $drillsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "drills"
   objects: {
     trainings: Prisma.$trainingPayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -955,6 +1051,7 @@ readonly fields: drillsFieldRefs;
 export interface Prisma__drillsClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   trainings<T extends Prisma.drills$trainingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.drills$trainingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$trainingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.drills$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.drills$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1398,6 +1495,30 @@ export type drills$trainingsArgs<ExtArgs extends runtime.Types.Extensions.Intern
   take?: number
   skip?: number
   distinct?: Prisma.TrainingScalarFieldEnum | Prisma.TrainingScalarFieldEnum[]
+}
+
+/**
+ * drills.auditLogs
+ */
+export type drills$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

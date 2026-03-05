@@ -45,6 +45,7 @@ import {
 import { PageLoader } from "@/utils/Alerts/PageLoader";
 import ApplyCoupon from "./ApplyCoupon";
 import { cn } from "@/lib/utils";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 interface Props {
   initialData: {
@@ -155,9 +156,65 @@ const Invoices = ({ initialData }: Props) => {
             </div>
 
             <div className="flex items-center gap-3">
+              <ExportDropdown
+                filename="Invoices"
+                headers={[
+                  "#",
+                  "Invoice #",
+                  "Type",
+                  "Athlete",
+                  "Athlete ID",
+                  "Amount Due",
+                  "Discount",
+                  "Amount Paid",
+                  "Balance",
+                  "Status",
+                ]}
+                rows={invoices.map((inv, i) => {
+                  const due = Number(inv.amountDue ?? 0);
+                  const disc = Number(inv.discount ?? 0);
+                  const paid = Number(inv.amountPaid ?? 0);
+                  const bal = Math.max(due - disc - paid, 0);
+                  return [
+                    String(i + 1),
+                    inv.invoiceNumber,
+                    (inv.subscriptionPlan?.code || inv.type).toUpperCase(),
+                    `${inv.athlete.firstName} ${inv.athlete.lastName}`,
+                    inv.athleteId,
+                    money(due),
+                    money(disc),
+                    money(paid),
+                    money(bal),
+                    inv.status,
+                  ];
+                })}
+                fetchAllUrl="/api/export?resource=invoices"
+                mapRow={(inv: any, i: number) => {
+                  const due = Number(inv.amountDue ?? 0);
+                  const disc = Number(inv.discount ?? 0);
+                  const paid = Number(inv.amountPaid ?? 0);
+                  const bal = Math.max(due - disc - paid, 0);
+                  return [
+                    String(i + 1),
+                    inv.invoiceNumber,
+                    (
+                      inv.subscriptionPlan?.code ||
+                      inv.type ||
+                      ""
+                    ).toUpperCase(),
+                    `${inv.athlete?.firstName || ""} ${inv.athlete?.lastName || ""}`.trim(),
+                    inv.athleteId,
+                    money(due),
+                    money(disc),
+                    money(paid),
+                    money(bal),
+                    inv.status,
+                  ];
+                }}
+              />
               <Button
                 className="h-10 gap-2 px-4 font-medium shadow-sm hover:shadow-md"
-                onClick={() => router.push("/finances/invoice/create")}
+                onClick={() => router.push("/invoices/create")}
               >
                 <Plus className="h-4 w-4" />
                 Create Invoice
@@ -353,9 +410,7 @@ const Invoices = ({ initialData }: Props) => {
                           variant="ghost"
                           size="icon"
                           className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary"
-                          onClick={() =>
-                            router.push(`/finances/invoice/${invoice.id}`)
-                          }
+                          onClick={() => router.push(`/invoices/${invoice.id}`)}
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
@@ -365,7 +420,7 @@ const Invoices = ({ initialData }: Props) => {
                           className="h-9 w-9 rounded-lg hover:bg-blue-100/50 hover:text-blue-600"
                           onClick={() =>
                             router.push(
-                              `/finances/invoice/${invoice.invoiceNumber}/edit`,
+                              `/invoices/${invoice.invoiceNumber}/edit`,
                             )
                           }
                         >
@@ -527,8 +582,8 @@ const Invoices = ({ initialData }: Props) => {
                                       invoice.status === "PAID" ||
                                       invoice.status === "PARTIAL"
                                     ) && (
-                                        <ChevronDown className="ml-1 h-3 w-3 opacity-70" />
-                                      )}
+                                      <ChevronDown className="ml-1 h-3 w-3 opacity-70" />
+                                    )}
                                   </div>
                                 </Badge>
                               </DropdownMenuTrigger>
@@ -580,7 +635,7 @@ const Invoices = ({ initialData }: Props) => {
                                 size="icon"
                                 className="h-9 w-9 rounded-lg hover:bg-primary/10 hover:text-primary"
                                 onClick={() =>
-                                  router.push(`/finances/invoice/${invoice.id}`)
+                                  router.push(`/invoices/${invoice.id}`)
                                 }
                               >
                                 <Eye className="h-4 w-4" />
@@ -592,7 +647,7 @@ const Invoices = ({ initialData }: Props) => {
                                 className="h-9 w-9 rounded-lg hover:bg-blue-100/50 hover:text-blue-600"
                                 onClick={() =>
                                   router.push(
-                                    `/finances/invoice/${invoice.invoiceNumber}/edit`,
+                                    `/invoices/${invoice.invoiceNumber}/edit`,
                                   )
                                 }
                               >

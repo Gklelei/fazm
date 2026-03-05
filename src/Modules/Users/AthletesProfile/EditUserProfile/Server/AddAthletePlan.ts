@@ -152,7 +152,7 @@ export const AddAthleteToSubscriptionPlan = async ({
       });
     });
 
-    revalidatePath(`/users/players/user-profile/${athleteId}`);
+    revalidatePath(`/players/user-profile/${athleteId}`);
 
     return {
       success: true,

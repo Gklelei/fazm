@@ -5,6 +5,8 @@ import { DrillsSchema, DrillsSchemaType } from "../Validation";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { toUpperUnderscore } from "@/utils/TansformWords";
+import { createAuditLog } from "@/lib/audit";
+
 
 export const CreateDrills = async (
   data: DrillsSchemaType,
@@ -30,13 +32,24 @@ export const CreateDrills = async (
   }
   try {
     const upperValue = toUpperUnderscore(values.name);
-    await db.drills.create({
+    const newDrill = await db.drills.create({
       data: {
         name: values.name,
         description: values.description,
         value: upperValue,
       },
     });
+
+    await createAuditLog({
+      action: "CREATE_DRILL",
+      resource: "Drills",
+      details: `Created training drill "${values.name}"`,
+      userId: session.user.id,
+      drillId: newDrill.id,
+    });
+
+
+
     return {
       success: true,
       message: "Drill Created  successfully.",
@@ -86,7 +99,7 @@ export const EditDrills = async (
       };
     }
     const upperValue = toUpperUnderscore(values.name);
-    await db.drills.update({
+    const updatedDrill = await db.drills.update({
       where: { id: drillId },
       data: {
         name: values.name,
@@ -94,6 +107,17 @@ export const EditDrills = async (
         value: upperValue,
       },
     });
+
+    await createAuditLog({
+      action: "UPDATE_DRILL",
+      resource: "Drills",
+      details: `Updated training drill "${values.name}"`,
+      userId: session.user.id,
+      drillId: updatedDrill.id,
+    });
+
+
+
     return {
       success: true,
       message: "Drill Updated successfully.",
@@ -153,6 +177,16 @@ export const DeleteDrills = async ({
         voided: 1,
       },
     });
+
+    await createAuditLog({
+      action: "DELETE_DRILL",
+      resource: "Drills",
+      details: `Archived training drill "${existingDrill.name}"`,
+      userId: session.user.id,
+      drillId: existingDrill.id,
+    });
+
+
 
     return {
       message: "Drill updated",

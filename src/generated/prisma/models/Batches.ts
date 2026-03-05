@@ -201,6 +201,7 @@ export type BatchesWhereInput = {
   athletes?: Prisma.AthleteListRelationFilter
   sessions?: Prisma.TrainingListRelationFilter
   schedules?: Prisma.BatchScheduleListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type BatchesOrderByWithRelationInput = {
@@ -214,6 +215,7 @@ export type BatchesOrderByWithRelationInput = {
   athletes?: Prisma.AthleteOrderByRelationAggregateInput
   sessions?: Prisma.trainingOrderByRelationAggregateInput
   schedules?: Prisma.BatchScheduleOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type BatchesWhereUniqueInput = Prisma.AtLeast<{
@@ -230,6 +232,7 @@ export type BatchesWhereUniqueInput = Prisma.AtLeast<{
   athletes?: Prisma.AthleteListRelationFilter
   sessions?: Prisma.TrainingListRelationFilter
   schedules?: Prisma.BatchScheduleListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id">
 
 export type BatchesOrderByWithAggregationInput = {
@@ -269,6 +272,7 @@ export type BatchesCreateInput = {
   athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
   schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateInput = {
@@ -282,6 +286,7 @@ export type BatchesUncheckedCreateInput = {
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
   schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUpdateInput = {
@@ -295,6 +300,7 @@ export type BatchesUpdateInput = {
   athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
   schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateInput = {
@@ -308,6 +314,7 @@ export type BatchesUncheckedUpdateInput = {
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
   schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesCreateManyInput = {
@@ -396,6 +403,22 @@ export type BatchesUpdateOneWithoutAthletesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BatchesUpdateToOneWithWhereWithoutAthletesInput, Prisma.BatchesUpdateWithoutAthletesInput>, Prisma.BatchesUncheckedUpdateWithoutAthletesInput>
 }
 
+export type BatchesCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.BatchesCreateWithoutAuditLogsInput, Prisma.BatchesUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.BatchesCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.BatchesWhereUniqueInput
+}
+
+export type BatchesUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.BatchesCreateWithoutAuditLogsInput, Prisma.BatchesUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.BatchesCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.BatchesUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.BatchesWhereInput | boolean
+  delete?: Prisma.BatchesWhereInput | boolean
+  connect?: Prisma.BatchesWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BatchesUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.BatchesUpdateWithoutAuditLogsInput>, Prisma.BatchesUncheckedUpdateWithoutAuditLogsInput>
+}
+
 export type BatchesCreateNestedOneWithoutSessionsInput = {
   create?: Prisma.XOR<Prisma.BatchesCreateWithoutSessionsInput, Prisma.BatchesUncheckedCreateWithoutSessionsInput>
   connectOrCreate?: Prisma.BatchesCreateOrConnectWithoutSessionsInput
@@ -434,6 +457,7 @@ export type BatchesCreateWithoutAthletesInput = {
   updatedAt?: Date | string
   sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
   schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateWithoutAthletesInput = {
@@ -446,6 +470,7 @@ export type BatchesUncheckedCreateWithoutAthletesInput = {
   updatedAt?: Date | string
   sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
   schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesCreateOrConnectWithoutAthletesInput = {
@@ -474,6 +499,7 @@ export type BatchesUpdateWithoutAthletesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
   schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateWithoutAthletesInput = {
@@ -484,6 +510,75 @@ export type BatchesUncheckedUpdateWithoutAthletesInput = {
   endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutBatchNestedInput
+}
+
+export type BatchesCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
+  sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
+}
+
+export type BatchesUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  name: string
+  description?: string | null
+  startDate?: Date | string | null
+  endDate?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
+  sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
+  schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
+}
+
+export type BatchesCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.BatchesWhereUniqueInput
+  create: Prisma.XOR<Prisma.BatchesCreateWithoutAuditLogsInput, Prisma.BatchesUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type BatchesUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.BatchesUpdateWithoutAuditLogsInput, Prisma.BatchesUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.BatchesCreateWithoutAuditLogsInput, Prisma.BatchesUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.BatchesWhereInput
+}
+
+export type BatchesUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.BatchesWhereInput
+  data: Prisma.XOR<Prisma.BatchesUpdateWithoutAuditLogsInput, Prisma.BatchesUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type BatchesUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
+  sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
+  schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
+}
+
+export type BatchesUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  startDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  endDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
   schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
 }
@@ -498,6 +593,7 @@ export type BatchesCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
   schedules?: Prisma.BatchScheduleCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateWithoutSessionsInput = {
@@ -510,6 +606,7 @@ export type BatchesUncheckedCreateWithoutSessionsInput = {
   updatedAt?: Date | string
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
   schedules?: Prisma.BatchScheduleUncheckedCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesCreateOrConnectWithoutSessionsInput = {
@@ -538,6 +635,7 @@ export type BatchesUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
   schedules?: Prisma.BatchScheduleUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateWithoutSessionsInput = {
@@ -550,6 +648,7 @@ export type BatchesUncheckedUpdateWithoutSessionsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
   schedules?: Prisma.BatchScheduleUncheckedUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesCreateWithoutSchedulesInput = {
@@ -562,6 +661,7 @@ export type BatchesCreateWithoutSchedulesInput = {
   updatedAt?: Date | string
   athletes?: Prisma.AthleteCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesUncheckedCreateWithoutSchedulesInput = {
@@ -574,6 +674,7 @@ export type BatchesUncheckedCreateWithoutSchedulesInput = {
   updatedAt?: Date | string
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutBatchesInput
   sessions?: Prisma.trainingUncheckedCreateNestedManyWithoutBatchInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutBatchInput
 }
 
 export type BatchesCreateOrConnectWithoutSchedulesInput = {
@@ -602,6 +703,7 @@ export type BatchesUpdateWithoutSchedulesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutBatchNestedInput
 }
 
 export type BatchesUncheckedUpdateWithoutSchedulesInput = {
@@ -614,6 +716,7 @@ export type BatchesUncheckedUpdateWithoutSchedulesInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutBatchesNestedInput
   sessions?: Prisma.trainingUncheckedUpdateManyWithoutBatchNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutBatchNestedInput
 }
 
 
@@ -625,12 +728,14 @@ export type BatchesCountOutputType = {
   athletes: number
   sessions: number
   schedules: number
+  auditLogs: number
 }
 
 export type BatchesCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athletes?: boolean | BatchesCountOutputTypeCountAthletesArgs
   sessions?: boolean | BatchesCountOutputTypeCountSessionsArgs
   schedules?: boolean | BatchesCountOutputTypeCountSchedulesArgs
+  auditLogs?: boolean | BatchesCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -664,6 +769,13 @@ export type BatchesCountOutputTypeCountSchedulesArgs<ExtArgs extends runtime.Typ
   where?: Prisma.BatchScheduleWhereInput
 }
 
+/**
+ * BatchesCountOutputType without action
+ */
+export type BatchesCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type BatchesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -676,6 +788,7 @@ export type BatchesSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   athletes?: boolean | Prisma.Batches$athletesArgs<ExtArgs>
   sessions?: boolean | Prisma.Batches$sessionsArgs<ExtArgs>
   schedules?: boolean | Prisma.Batches$schedulesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Batches$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.BatchesCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["batches"]>
 
@@ -714,6 +827,7 @@ export type BatchesInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   athletes?: boolean | Prisma.Batches$athletesArgs<ExtArgs>
   sessions?: boolean | Prisma.Batches$sessionsArgs<ExtArgs>
   schedules?: boolean | Prisma.Batches$schedulesArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Batches$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.BatchesCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BatchesIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -725,6 +839,7 @@ export type $BatchesPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     athletes: Prisma.$AthletePayload<ExtArgs>[]
     sessions: Prisma.$trainingPayload<ExtArgs>[]
     schedules: Prisma.$BatchSchedulePayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1131,6 +1246,7 @@ export interface Prisma__BatchesClient<T, Null = never, ExtArgs extends runtime.
   athletes<T extends Prisma.Batches$athletesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$athletesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AthletePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   sessions<T extends Prisma.Batches$sessionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$sessionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$trainingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   schedules<T extends Prisma.Batches$schedulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$schedulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BatchSchedulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.Batches$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Batches$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1624,6 +1740,30 @@ export type Batches$schedulesArgs<ExtArgs extends runtime.Types.Extensions.Inter
   take?: number
   skip?: number
   distinct?: Prisma.BatchScheduleScalarFieldEnum | Prisma.BatchScheduleScalarFieldEnum[]
+}
+
+/**
+ * Batches.auditLogs
+ */
+export type Batches$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

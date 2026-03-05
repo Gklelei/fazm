@@ -283,9 +283,9 @@ export const ApplyCouponToInvoice = async ({
 
     // Revalidate pages that show invoices / athlete billing info
     // Adjust to your routes
-    revalidatePath("/finances/invoices");
+    revalidatePath("/invoices");
     // if you have a details page:
-    // revalidatePath(`/finances/invoices/${invoiceNumber}`);
+    // revalidatePath(`/invoices/${invoiceNumber}`);
 
     return {
       success: result.ok,

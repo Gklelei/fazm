@@ -24,9 +24,20 @@ import { useState, useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import { archiveSubscriptionPlan } from "../Server/EditSubscriptionFees";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import ServerPagination from "@/utils/ServerPagination";
 import EditSubscriptionForm from "./EditSubscriptionForm";
 
-const ViewSubscriptions = ({ data }: { data: GetAllSubsQueryType[] }) => {
+const ViewSubscriptions = ({
+  data,
+  page,
+  limit,
+  total,
+}: {
+  data: GetAllSubsQueryType[];
+  page: number;
+  limit: number;
+  total: number;
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [frequencyFilter, setFrequencyFilter] = useState<string>("all");
@@ -309,6 +320,10 @@ const ViewSubscriptions = ({ data }: { data: GetAllSubsQueryType[] }) => {
               )}
             </TableBody>
           </Table>
+        </div>
+
+        <div className="p-4 border-t mt-4">
+          <ServerPagination page={page} limit={limit} total={total} />
         </div>
 
         {/* Quick Stats */}

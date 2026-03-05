@@ -4,6 +4,7 @@ import { deleteCloudinaryImage } from "@/components/DeleteImage";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 type ActionResult = {
   status: "SUCCESS" | "ERROR";
@@ -84,6 +85,14 @@ export async function DeleteAthlete(id: string): Promise<ActionResult> {
         ArchiveDate: new Date(),
         isArchived: true,
       },
+    });
+
+    await createAuditLog({
+      action: "ARCHIVE_ATHLETE",
+      resource: "Athlete",
+      details: `Archived athlete ${existingAthlete.firstName} ${existingAthlete.lastName} and deleted documents`,
+      userId: session.user.id,
+      athleteId: existingAthlete.id,
     });
 
     return {

@@ -394,6 +394,7 @@ export const ModelName = {
   AthleteMedicalAndEmergency: 'AthleteMedicalAndEmergency',
   AthleteAddress: 'AthleteAddress',
   AthleteEmergencyContact: 'AthleteEmergencyContact',
+  AuditLog: 'AuditLog',
   SubscriptionPlan: 'SubscriptionPlan',
   AthleteSubscription: 'AthleteSubscription',
   Invoice: 'Invoice',
@@ -429,7 +430,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "coupon" | "expenses" | "expenseCategories" | "training" | "batches" | "batchSchedule" | "drills" | "attendance" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
+    modelProps: "assessment" | "assessmentTemplateSection" | "assessmentMetric" | "assessmentResponse" | "athlete" | "athleteSequence" | "athleteGuardian" | "athleteMedicalAndEmergency" | "athleteAddress" | "athleteEmergencyContact" | "auditLog" | "subscriptionPlan" | "athleteSubscription" | "invoice" | "finance" | "coupon" | "expenses" | "expenseCategories" | "training" | "batches" | "batchSchedule" | "drills" | "attendance" | "trainingLocations" | "tRAINING_ATTENDANCE_REASONS" | "user" | "session" | "account" | "verification" | "academy" | "staff"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1170,6 +1171,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         count: {
           args: Prisma.AthleteEmergencyContactCountArgs<ExtArgs>
           result: runtime.Types.Utils.Optional<Prisma.AthleteEmergencyContactCountAggregateOutputType> | number
+        }
+      }
+    }
+    AuditLog: {
+      payload: Prisma.$AuditLogPayload<ExtArgs>
+      fields: Prisma.AuditLogFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AuditLogFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AuditLogFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findFirst: {
+          args: Prisma.AuditLogFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AuditLogFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        findMany: {
+          args: Prisma.AuditLogFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        create: {
+          args: Prisma.AuditLogCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        createMany: {
+          args: Prisma.AuditLogCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AuditLogCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        delete: {
+          args: Prisma.AuditLogDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        update: {
+          args: Prisma.AuditLogUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        deleteMany: {
+          args: Prisma.AuditLogDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AuditLogUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AuditLogUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>[]
+        }
+        upsert: {
+          args: Prisma.AuditLogUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AuditLogPayload>
+        }
+        aggregate: {
+          args: Prisma.AuditLogAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAuditLog>
+        }
+        groupBy: {
+          args: Prisma.AuditLogGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AuditLogCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AuditLogCountAggregateOutputType> | number
         }
       }
     }
@@ -2823,6 +2898,25 @@ export const AthleteEmergencyContactScalarFieldEnum = {
 export type AthleteEmergencyContactScalarFieldEnum = (typeof AthleteEmergencyContactScalarFieldEnum)[keyof typeof AthleteEmergencyContactScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  resource: 'resource',
+  details: 'details',
+  userId: 'userId',
+  athleteId: 'athleteId',
+  invoiceId: 'invoiceId',
+  trainingId: 'trainingId',
+  assessmentId: 'assessmentId',
+  batchId: 'batchId',
+  drillId: 'drillId',
+  academyId: 'academyId',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -2969,7 +3063,8 @@ export const TrainingScalarFieldEnum = {
   duration: 'duration',
   isArchived: 'isArchived',
   trainingLocationsId: 'trainingLocationsId',
-  staffId: 'staffId'
+  staffId: 'staffId',
+  drillOrder: 'drillOrder'
 } as const
 
 export type TrainingScalarFieldEnum = (typeof TrainingScalarFieldEnum)[keyof typeof TrainingScalarFieldEnum]
@@ -3544,6 +3639,7 @@ export type GlobalOmitConfig = {
   athleteMedicalAndEmergency?: Prisma.AthleteMedicalAndEmergencyOmit
   athleteAddress?: Prisma.AthleteAddressOmit
   athleteEmergencyContact?: Prisma.AthleteEmergencyContactOmit
+  auditLog?: Prisma.AuditLogOmit
   subscriptionPlan?: Prisma.SubscriptionPlanOmit
   athleteSubscription?: Prisma.AthleteSubscriptionOmit
   invoice?: Prisma.InvoiceOmit

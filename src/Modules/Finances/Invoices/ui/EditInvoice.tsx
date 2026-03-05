@@ -82,7 +82,7 @@ const EditInvoice = ({ data }: props) => {
           text: result.message || "Invoice Updated",
           title: "Success!",
         });
-        router.push("/finances/invoice");
+        router.push("/invoices");
       } else {
         Sweetalert({
           icon: "error",

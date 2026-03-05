@@ -61,6 +61,7 @@ export const ModelName = {
   AthleteMedicalAndEmergency: 'AthleteMedicalAndEmergency',
   AthleteAddress: 'AthleteAddress',
   AthleteEmergencyContact: 'AthleteEmergencyContact',
+  AuditLog: 'AuditLog',
   SubscriptionPlan: 'SubscriptionPlan',
   AthleteSubscription: 'AthleteSubscription',
   Invoice: 'Invoice',
@@ -230,6 +231,25 @@ export const AthleteEmergencyContactScalarFieldEnum = {
 export type AthleteEmergencyContactScalarFieldEnum = (typeof AthleteEmergencyContactScalarFieldEnum)[keyof typeof AthleteEmergencyContactScalarFieldEnum]
 
 
+export const AuditLogScalarFieldEnum = {
+  id: 'id',
+  action: 'action',
+  resource: 'resource',
+  details: 'details',
+  userId: 'userId',
+  athleteId: 'athleteId',
+  invoiceId: 'invoiceId',
+  trainingId: 'trainingId',
+  assessmentId: 'assessmentId',
+  batchId: 'batchId',
+  drillId: 'drillId',
+  academyId: 'academyId',
+  createdAt: 'createdAt'
+} as const
+
+export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
+
+
 export const SubscriptionPlanScalarFieldEnum = {
   id: 'id',
   name: 'name',
@@ -376,7 +396,8 @@ export const TrainingScalarFieldEnum = {
   duration: 'duration',
   isArchived: 'isArchived',
   trainingLocationsId: 'trainingLocationsId',
-  staffId: 'staffId'
+  staffId: 'staffId',
+  drillOrder: 'drillOrder'
 } as const
 
 export type TrainingScalarFieldEnum = (typeof TrainingScalarFieldEnum)[keyof typeof TrainingScalarFieldEnum]

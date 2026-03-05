@@ -399,6 +399,7 @@ export type AthleteWhereInput = {
   invoices?: Prisma.InvoiceListRelationFilter
   assessments?: Prisma.AssessmentListRelationFilter
   athleteSubscriptions?: Prisma.AthleteSubscriptionListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type AthleteOrderByWithRelationInput = {
@@ -440,6 +441,7 @@ export type AthleteOrderByWithRelationInput = {
   invoices?: Prisma.InvoiceOrderByRelationAggregateInput
   assessments?: Prisma.AssessmentOrderByRelationAggregateInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type AthleteWhereUniqueInput = Prisma.AtLeast<{
@@ -484,6 +486,7 @@ export type AthleteWhereUniqueInput = Prisma.AtLeast<{
   invoices?: Prisma.InvoiceListRelationFilter
   assessments?: Prisma.AssessmentListRelationFilter
   athleteSubscriptions?: Prisma.AthleteSubscriptionListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id" | "athleteId" | "email">
 
 export type AthleteOrderByWithAggregationInput = {
@@ -592,6 +595,7 @@ export type AthleteCreateInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateInput = {
@@ -632,6 +636,7 @@ export type AthleteUncheckedCreateInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUpdateInput = {
@@ -672,6 +677,7 @@ export type AthleteUpdateInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateInput = {
@@ -712,6 +718,7 @@ export type AthleteUncheckedUpdateInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateManyInput = {
@@ -912,6 +919,11 @@ export type AthleteSumOrderByAggregateInput = {
   age?: Prisma.SortOrder
 }
 
+export type AthleteNullableScalarRelationFilter = {
+  is?: Prisma.AthleteWhereInput | null
+  isNot?: Prisma.AthleteWhereInput | null
+}
+
 export type AthleteListRelationFilter = {
   every?: Prisma.AthleteWhereInput
   some?: Prisma.AthleteWhereInput
@@ -1015,6 +1027,22 @@ export type AthleteUpdateOneRequiredWithoutEmergencyContactsNestedInput = {
   upsert?: Prisma.AthleteUpsertWithoutEmergencyContactsInput
   connect?: Prisma.AthleteWhereUniqueInput
   update?: Prisma.XOR<Prisma.XOR<Prisma.AthleteUpdateToOneWithWhereWithoutEmergencyContactsInput, Prisma.AthleteUpdateWithoutEmergencyContactsInput>, Prisma.AthleteUncheckedUpdateWithoutEmergencyContactsInput>
+}
+
+export type AthleteCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAuditLogsInput, Prisma.AthleteUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.AthleteWhereUniqueInput
+}
+
+export type AthleteUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.AthleteCreateWithoutAuditLogsInput, Prisma.AthleteUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.AthleteCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.AthleteUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.AthleteWhereInput | boolean
+  delete?: Prisma.AthleteWhereInput | boolean
+  connect?: Prisma.AthleteWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AthleteUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.AthleteUpdateWithoutAuditLogsInput>, Prisma.AthleteUncheckedUpdateWithoutAuditLogsInput>
 }
 
 export type AthleteCreateNestedOneWithoutAthleteSubscriptionsInput = {
@@ -1190,6 +1218,7 @@ export type AthleteCreateWithoutAssessmentsInput = {
   attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutAssessmentsInput = {
@@ -1229,6 +1258,7 @@ export type AthleteUncheckedCreateWithoutAssessmentsInput = {
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutAssessmentsInput = {
@@ -1284,6 +1314,7 @@ export type AthleteUpdateWithoutAssessmentsInput = {
   attendances?: Prisma.attendanceUpdateManyWithoutAthleteNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutAssessmentsInput = {
@@ -1323,6 +1354,7 @@ export type AthleteUncheckedUpdateWithoutAssessmentsInput = {
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutAthleteNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutGuardiansInput = {
@@ -1362,6 +1394,7 @@ export type AthleteCreateWithoutGuardiansInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutGuardiansInput = {
@@ -1401,6 +1434,7 @@ export type AthleteUncheckedCreateWithoutGuardiansInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutGuardiansInput = {
@@ -1456,6 +1490,7 @@ export type AthleteUpdateWithoutGuardiansInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutGuardiansInput = {
@@ -1495,6 +1530,7 @@ export type AthleteUncheckedUpdateWithoutGuardiansInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutMedicalInput = {
@@ -1534,6 +1570,7 @@ export type AthleteCreateWithoutMedicalInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutMedicalInput = {
@@ -1573,6 +1610,7 @@ export type AthleteUncheckedCreateWithoutMedicalInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutMedicalInput = {
@@ -1628,6 +1666,7 @@ export type AthleteUpdateWithoutMedicalInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutMedicalInput = {
@@ -1667,6 +1706,7 @@ export type AthleteUncheckedUpdateWithoutMedicalInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutAddressInput = {
@@ -1706,6 +1746,7 @@ export type AthleteCreateWithoutAddressInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutAddressInput = {
@@ -1745,6 +1786,7 @@ export type AthleteUncheckedCreateWithoutAddressInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutAddressInput = {
@@ -1800,6 +1842,7 @@ export type AthleteUpdateWithoutAddressInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutAddressInput = {
@@ -1839,6 +1882,7 @@ export type AthleteUncheckedUpdateWithoutAddressInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutEmergencyContactsInput = {
@@ -1878,6 +1922,7 @@ export type AthleteCreateWithoutEmergencyContactsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutEmergencyContactsInput = {
@@ -1917,6 +1962,7 @@ export type AthleteUncheckedCreateWithoutEmergencyContactsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutEmergencyContactsInput = {
@@ -1972,6 +2018,7 @@ export type AthleteUpdateWithoutEmergencyContactsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutEmergencyContactsInput = {
@@ -2003,6 +2050,183 @@ export type AthleteUncheckedUpdateWithoutEmergencyContactsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   ArchiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   address?: Prisma.AthleteAddressUncheckedUpdateOneWithoutAthleteNestedInput
+  guardians?: Prisma.AthleteGuardianUncheckedUpdateManyWithoutAthleteNestedInput
+  medical?: Prisma.AthleteMedicalAndEmergencyUncheckedUpdateOneWithoutAthleteNestedInput
+  finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteNestedInput
+  trainings?: Prisma.trainingUncheckedUpdateManyWithoutAthletesNestedInput
+  attendances?: Prisma.attendanceUncheckedUpdateManyWithoutAthleteNestedInput
+  invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
+  assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
+}
+
+export type AthleteCreateWithoutAuditLogsInput = {
+  id?: string
+  athleteId: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  age?: number | null
+  phoneNumber?: string | null
+  dateOfBirth: string
+  profilePIcture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  middleName?: string | null
+  nextBillingDate?: Date | string | null
+  status?: $Enums.ATHLETE_ACCOUNT_STATUS
+  height: string
+  weight: string
+  foot: string
+  hand: string
+  positions?: Prisma.AthleteCreatepositionsInput | string[]
+  birthCertificate?: string | null
+  nationalIdFront?: string | null
+  nationalIdBack?: string | null
+  passportCover?: string | null
+  passportBioData?: string | null
+  isArchived?: boolean
+  ArchiveDate?: Date | string | null
+  batches?: Prisma.BatchesCreateNestedOneWithoutAthletesInput
+  address?: Prisma.AthleteAddressCreateNestedOneWithoutAthleteInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactCreateNestedManyWithoutAthleteInput
+  guardians?: Prisma.AthleteGuardianCreateNestedManyWithoutAthleteInput
+  medical?: Prisma.AthleteMedicalAndEmergencyCreateNestedOneWithoutAthleteInput
+  finances?: Prisma.FinanceCreateNestedManyWithoutAthleteInput
+  trainings?: Prisma.trainingCreateNestedManyWithoutAthletesInput
+  attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
+  invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
+  assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+}
+
+export type AthleteUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  athleteId: string
+  firstName: string
+  lastName: string
+  email?: string | null
+  age?: number | null
+  phoneNumber?: string | null
+  dateOfBirth: string
+  profilePIcture?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  middleName?: string | null
+  nextBillingDate?: Date | string | null
+  status?: $Enums.ATHLETE_ACCOUNT_STATUS
+  batchesId: string
+  height: string
+  weight: string
+  foot: string
+  hand: string
+  positions?: Prisma.AthleteCreatepositionsInput | string[]
+  birthCertificate?: string | null
+  nationalIdFront?: string | null
+  nationalIdBack?: string | null
+  passportCover?: string | null
+  passportBioData?: string | null
+  isArchived?: boolean
+  ArchiveDate?: Date | string | null
+  address?: Prisma.AthleteAddressUncheckedCreateNestedOneWithoutAthleteInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactUncheckedCreateNestedManyWithoutAthleteInput
+  guardians?: Prisma.AthleteGuardianUncheckedCreateNestedManyWithoutAthleteInput
+  medical?: Prisma.AthleteMedicalAndEmergencyUncheckedCreateNestedOneWithoutAthleteInput
+  finances?: Prisma.FinanceUncheckedCreateNestedManyWithoutAthleteInput
+  trainings?: Prisma.trainingUncheckedCreateNestedManyWithoutAthletesInput
+  attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
+  invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
+  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+}
+
+export type AthleteCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.AthleteWhereUniqueInput
+  create: Prisma.XOR<Prisma.AthleteCreateWithoutAuditLogsInput, Prisma.AthleteUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type AthleteUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.AthleteUpdateWithoutAuditLogsInput, Prisma.AthleteUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.AthleteCreateWithoutAuditLogsInput, Prisma.AthleteUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.AthleteWhereInput
+}
+
+export type AthleteUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.AthleteWhereInput
+  data: Prisma.XOR<Prisma.AthleteUpdateWithoutAuditLogsInput, Prisma.AthleteUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type AthleteUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
+  profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumATHLETE_ACCOUNT_STATUSFieldUpdateOperationsInput | $Enums.ATHLETE_ACCOUNT_STATUS
+  height?: Prisma.StringFieldUpdateOperationsInput | string
+  weight?: Prisma.StringFieldUpdateOperationsInput | string
+  foot?: Prisma.StringFieldUpdateOperationsInput | string
+  hand?: Prisma.StringFieldUpdateOperationsInput | string
+  positions?: Prisma.AthleteUpdatepositionsInput | string[]
+  birthCertificate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nationalIdFront?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nationalIdBack?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passportCover?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passportBioData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ArchiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  batches?: Prisma.BatchesUpdateOneWithoutAthletesNestedInput
+  address?: Prisma.AthleteAddressUpdateOneWithoutAthleteNestedInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactUpdateManyWithoutAthleteNestedInput
+  guardians?: Prisma.AthleteGuardianUpdateManyWithoutAthleteNestedInput
+  medical?: Prisma.AthleteMedicalAndEmergencyUpdateOneWithoutAthleteNestedInput
+  finances?: Prisma.FinanceUpdateManyWithoutAthleteNestedInput
+  trainings?: Prisma.trainingUpdateManyWithoutAthletesNestedInput
+  attendances?: Prisma.attendanceUpdateManyWithoutAthleteNestedInput
+  invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
+  assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
+  athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+}
+
+export type AthleteUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  athleteId?: Prisma.StringFieldUpdateOperationsInput | string
+  firstName?: Prisma.StringFieldUpdateOperationsInput | string
+  lastName?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  age?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  phoneNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  dateOfBirth?: Prisma.StringFieldUpdateOperationsInput | string
+  profilePIcture?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  middleName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nextBillingDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.EnumATHLETE_ACCOUNT_STATUSFieldUpdateOperationsInput | $Enums.ATHLETE_ACCOUNT_STATUS
+  batchesId?: Prisma.StringFieldUpdateOperationsInput | string
+  height?: Prisma.StringFieldUpdateOperationsInput | string
+  weight?: Prisma.StringFieldUpdateOperationsInput | string
+  foot?: Prisma.StringFieldUpdateOperationsInput | string
+  hand?: Prisma.StringFieldUpdateOperationsInput | string
+  positions?: Prisma.AthleteUpdatepositionsInput | string[]
+  birthCertificate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nationalIdFront?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  nationalIdBack?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passportCover?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passportBioData?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  ArchiveDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  address?: Prisma.AthleteAddressUncheckedUpdateOneWithoutAthleteNestedInput
+  emergencyContacts?: Prisma.AthleteEmergencyContactUncheckedUpdateManyWithoutAthleteNestedInput
   guardians?: Prisma.AthleteGuardianUncheckedUpdateManyWithoutAthleteNestedInput
   medical?: Prisma.AthleteMedicalAndEmergencyUncheckedUpdateOneWithoutAthleteNestedInput
   finances?: Prisma.FinanceUncheckedUpdateManyWithoutAthleteNestedInput
@@ -2050,6 +2274,7 @@ export type AthleteCreateWithoutAthleteSubscriptionsInput = {
   attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutAthleteSubscriptionsInput = {
@@ -2089,6 +2314,7 @@ export type AthleteUncheckedCreateWithoutAthleteSubscriptionsInput = {
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutAthleteSubscriptionsInput = {
@@ -2144,6 +2370,7 @@ export type AthleteUpdateWithoutAthleteSubscriptionsInput = {
   attendances?: Prisma.attendanceUpdateManyWithoutAthleteNestedInput
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutAthleteSubscriptionsInput = {
@@ -2183,6 +2410,7 @@ export type AthleteUncheckedUpdateWithoutAthleteSubscriptionsInput = {
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutAthleteNestedInput
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutInvoicesInput = {
@@ -2222,6 +2450,7 @@ export type AthleteCreateWithoutInvoicesInput = {
   attendances?: Prisma.attendanceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutInvoicesInput = {
@@ -2261,6 +2490,7 @@ export type AthleteUncheckedCreateWithoutInvoicesInput = {
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutInvoicesInput = {
@@ -2316,6 +2546,7 @@ export type AthleteUpdateWithoutInvoicesInput = {
   attendances?: Prisma.attendanceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutInvoicesInput = {
@@ -2355,6 +2586,7 @@ export type AthleteUncheckedUpdateWithoutInvoicesInput = {
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutFinancesInput = {
@@ -2394,6 +2626,7 @@ export type AthleteCreateWithoutFinancesInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutFinancesInput = {
@@ -2433,6 +2666,7 @@ export type AthleteUncheckedCreateWithoutFinancesInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutFinancesInput = {
@@ -2488,6 +2722,7 @@ export type AthleteUpdateWithoutFinancesInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutFinancesInput = {
@@ -2527,6 +2762,7 @@ export type AthleteUncheckedUpdateWithoutFinancesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteCreateWithoutTrainingsInput = {
@@ -2566,6 +2802,7 @@ export type AthleteCreateWithoutTrainingsInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutTrainingsInput = {
@@ -2605,6 +2842,7 @@ export type AthleteUncheckedCreateWithoutTrainingsInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutTrainingsInput = {
@@ -2698,6 +2936,7 @@ export type AthleteCreateWithoutBatchesInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutBatchesInput = {
@@ -2737,6 +2976,7 @@ export type AthleteUncheckedCreateWithoutBatchesInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutBatchesInput = {
@@ -2802,6 +3042,7 @@ export type AthleteCreateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteUncheckedCreateWithoutAttendancesInput = {
@@ -2841,6 +3082,7 @@ export type AthleteUncheckedCreateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUncheckedCreateNestedManyWithoutAthleteInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutAthleteInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedCreateNestedManyWithoutAthleteInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutAthleteInput
 }
 
 export type AthleteCreateOrConnectWithoutAttendancesInput = {
@@ -2896,6 +3138,7 @@ export type AthleteUpdateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutAttendancesInput = {
@@ -2935,6 +3178,7 @@ export type AthleteUncheckedUpdateWithoutAttendancesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUpdateWithoutTrainingsInput = {
@@ -2974,6 +3218,7 @@ export type AthleteUpdateWithoutTrainingsInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutTrainingsInput = {
@@ -3013,6 +3258,7 @@ export type AthleteUncheckedUpdateWithoutTrainingsInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateManyWithoutTrainingsInput = {
@@ -3111,6 +3357,7 @@ export type AthleteUpdateWithoutBatchesInput = {
   invoices?: Prisma.InvoiceUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateWithoutBatchesInput = {
@@ -3150,6 +3397,7 @@ export type AthleteUncheckedUpdateWithoutBatchesInput = {
   invoices?: Prisma.InvoiceUncheckedUpdateManyWithoutAthleteNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutAthleteNestedInput
   athleteSubscriptions?: Prisma.AthleteSubscriptionUncheckedUpdateManyWithoutAthleteNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutAthleteNestedInput
 }
 
 export type AthleteUncheckedUpdateManyWithoutBatchesInput = {
@@ -3195,6 +3443,7 @@ export type AthleteCountOutputType = {
   invoices: number
   assessments: number
   athleteSubscriptions: number
+  auditLogs: number
 }
 
 export type AthleteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3206,6 +3455,7 @@ export type AthleteCountOutputTypeSelect<ExtArgs extends runtime.Types.Extension
   invoices?: boolean | AthleteCountOutputTypeCountInvoicesArgs
   assessments?: boolean | AthleteCountOutputTypeCountAssessmentsArgs
   athleteSubscriptions?: boolean | AthleteCountOutputTypeCountAthleteSubscriptionsArgs
+  auditLogs?: boolean | AthleteCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -3274,6 +3524,13 @@ export type AthleteCountOutputTypeCountAthleteSubscriptionsArgs<ExtArgs extends 
   where?: Prisma.AthleteSubscriptionWhereInput
 }
 
+/**
+ * AthleteCountOutputType without action
+ */
+export type AthleteCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type AthleteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -3314,6 +3571,7 @@ export type AthleteSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   invoices?: boolean | Prisma.Athlete$invoicesArgs<ExtArgs>
   assessments?: boolean | Prisma.Athlete$assessmentsArgs<ExtArgs>
   athleteSubscriptions?: boolean | Prisma.Athlete$athleteSubscriptionsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Athlete$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AthleteCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["athlete"]>
 
@@ -3422,6 +3680,7 @@ export type AthleteInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs
   invoices?: boolean | Prisma.Athlete$invoicesArgs<ExtArgs>
   assessments?: boolean | Prisma.Athlete$assessmentsArgs<ExtArgs>
   athleteSubscriptions?: boolean | Prisma.Athlete$athleteSubscriptionsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.Athlete$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.AthleteCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AthleteIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -3445,6 +3704,7 @@ export type $AthletePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     invoices: Prisma.$InvoicePayload<ExtArgs>[]
     assessments: Prisma.$AssessmentPayload<ExtArgs>[]
     athleteSubscriptions: Prisma.$AthleteSubscriptionPayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -3879,6 +4139,7 @@ export interface Prisma__AthleteClient<T, Null = never, ExtArgs extends runtime.
   invoices<T extends Prisma.Athlete$invoicesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Athlete$invoicesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$InvoicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessments<T extends Prisma.Athlete$assessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Athlete$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   athleteSubscriptions<T extends Prisma.Athlete$athleteSubscriptionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Athlete$athleteSubscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AthleteSubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.Athlete$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Athlete$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4577,6 +4838,30 @@ export type Athlete$athleteSubscriptionsArgs<ExtArgs extends runtime.Types.Exten
   take?: number
   skip?: number
   distinct?: Prisma.AthleteSubscriptionScalarFieldEnum | Prisma.AthleteSubscriptionScalarFieldEnum[]
+}
+
+/**
+ * Athlete.auditLogs
+ */
+export type Athlete$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

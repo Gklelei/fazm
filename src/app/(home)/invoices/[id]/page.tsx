@@ -13,7 +13,9 @@ const page = async ({ params }: Props) => {
 
   if (!invoice) notFound();
 
-  return <ViewInvoicePage data={invoice} />;
+  const safeInvoice = JSON.parse(JSON.stringify(invoice));
+
+  return <ViewInvoicePage data={safeInvoice as any} />;
 };
 
 export default page;

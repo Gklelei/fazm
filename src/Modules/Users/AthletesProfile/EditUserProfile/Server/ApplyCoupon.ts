@@ -111,7 +111,7 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
       },
     });
 
-    revalidatePath(`/users/players/user-profile/${athleteId}`);
+    revalidatePath(`/players/user-profile/${athleteId}`);
 
     return { success: true, message: "Coupon applied to subscription" };
   } catch (error) {

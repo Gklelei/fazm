@@ -14,7 +14,7 @@ import Link from "next/link";
 const items = [
   {
     title: "Personal Information",
-    url: "/users/staff/profile",
+    url: "/staff/profile",
     icon: UserCircle,
   },
   {
@@ -24,12 +24,12 @@ const items = [
   },
   // {
   //   title: "Account Security",
-  //   url: "/users/staff/profile/account-settings",
+  //   url: "/staff/profile/account-settings",
   //   icon: KeyRound,
   // },
   // {
   //   title: "Active Sessions",
-  //   url: "/users/staff/profile/sessions",
+  //   url: "/staff/profile/sessions",
   //   icon: MonitorSmartphone,
   // },
 ];

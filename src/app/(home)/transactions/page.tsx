@@ -21,9 +21,9 @@ const Page = async () => {
   return (
     <div>
       <ViewAllFinances
-        data={finances}
-        athletes={athletes}
-        invoices={invoices}
+        data={JSON.parse(JSON.stringify(finances))}
+        athletes={JSON.parse(JSON.stringify(athletes))}
+        invoices={JSON.parse(JSON.stringify(invoices))}
       />
     </div>
   );

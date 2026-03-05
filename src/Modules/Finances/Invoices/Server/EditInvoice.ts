@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { INVOICE_TYPE } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 interface Props {
   data: CreateInvoiceSchemaType;
@@ -58,7 +59,7 @@ const EditInvoiceAction = async ({
   try {
     const parsedData = CreateInvoiceSchema.parse(data);
 
-    await db.$transaction(async (ctx) => {
+    const invoiceResult = await db.$transaction(async (ctx) => {
       // 1. Fetch the invoice with its associated subscription instance
       const existingInvoice = await ctx.invoice.findUnique({
         where: { invoiceNumber: invoiceId },
@@ -104,10 +105,18 @@ const EditInvoiceAction = async ({
             : undefined,
         },
       });
+      return existingInvoice;
     });
 
-    revalidatePath("/finances/invoice");
-    revalidatePath("/finances/fees"); // Revalidate where subscriptions are listed
+    revalidatePath("/fees"); // Revalidate where subscriptions are listed
+
+    await createAuditLog({
+      action: "UPDATE_INVOICE",
+      resource: "Invoice",
+      details: `Updated invoice parameters for ${invoiceId} (Amount: ${parsedData.subScriptionAmount})`,
+      userId: session.user.id,
+      invoiceId: invoiceResult.id,
+    });
 
     return {
       success: true,
@@ -137,7 +146,7 @@ export const EditInvoiceStatus = async (
     };
   }
   try {
-    await db.$transaction(async (ctx) => {
+    const invoiceResult = await db.$transaction(async (ctx) => {
       const existingInvoice = await ctx.invoice.findUnique({
         where: {
           invoiceNumber: id,
@@ -156,9 +165,20 @@ export const EditInvoiceStatus = async (
           status,
         },
       });
+
+      return existingInvoice;
     });
 
-    revalidatePath("/finances/invoice");
+    revalidatePath("/invoices");
+
+    await createAuditLog({
+      action: "UPDATE_INVOICE_STATUS",
+      resource: "Invoice",
+      details: `Updated invoice ${id} status to ${status}`,
+      userId: session.user.id,
+      invoiceId: invoiceResult.id,
+    });
+
     return {
       success: true,
       message: "Invoice status Updated succecifully",

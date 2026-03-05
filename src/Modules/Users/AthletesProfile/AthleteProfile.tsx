@@ -16,7 +16,7 @@ import AthleteAssesments from "./AthleteAssesments";
 import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
 
 import { GetAthleteByIdQueryType } from "../Types";
-import { GetCouponsQueryType } from "@/app/(home)/users/players/user-profile/[id]/page";
+import { GetCouponsQueryType } from "@/app/(home)/players/user-profile/[id]/page";
 import ResponsiveSections, { Section } from "@/utils/ResponsiveSections";
 
 export default function AthleteProfile({

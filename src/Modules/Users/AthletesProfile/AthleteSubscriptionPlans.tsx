@@ -22,7 +22,7 @@ import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 import { ApplyCouponToAtheleteSubscriptionPlan } from "./EditUserProfile/Server/ApplyCoupon";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { formatDate } from "@/utils/TansformWords";
-import { GetCouponsQueryType } from "@/app/(home)/users/players/user-profile/[id]/page";
+import { GetCouponsQueryType } from "@/app/(home)/players/user-profile/[id]/page";
 
 const AthleteSubscriptionPlans = ({
   data,

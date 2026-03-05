@@ -17,8 +17,7 @@ import {
   DoorClosedLocked,
   UserCheck2Icon,
   TagIcon,
-  // Mail,
-  // MessageSquare,
+  TerminalSquare,
 } from "lucide-react";
 
 export type AppRole = "SUPER_ADMIN" | "ADMIN" | "COACH" | "FINANCE" | "STAFF";
@@ -40,6 +39,7 @@ type NavSubItem = {
 
 type NavItem = {
   title: string;
+  url?: string;
   icon: React.ReactNode;
   roles?: AppRole[];
   items?: NavSubItem[];
@@ -68,13 +68,13 @@ export const data: { navMain: NavItem[] } = {
       items: [
         {
           title: "Athletes",
-          url: "/users/players",
+          url: "/players",
           icon: <UserPlus className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
         },
         {
           title: "Staff & Coaches",
-          url: "/users/staff",
+          url: "/staff",
           icon: <Users2 className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN"],
         },
@@ -94,19 +94,19 @@ export const data: { navMain: NavItem[] } = {
       items: [
         {
           title: "Transactions",
-          url: "/finances/view",
+          url: "/transactions",
           icon: <Receipt className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
         },
         {
           title: "Fee Structure",
-          url: "/finances/fees",
+          url: "/fees",
           icon: <DoorClosedLocked className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
         },
         {
           title: "Invoices",
-          url: "/finances/invoice",
+          url: "/invoices",
           icon: <Receipt className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
         },
@@ -138,7 +138,7 @@ export const data: { navMain: NavItem[] } = {
       items: [
         {
           title: "Training Sessions",
-          url: "/training/sessions",
+          url: "/sessions",
           icon: <CheckSquare className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
         },
@@ -158,7 +158,7 @@ export const data: { navMain: NavItem[] } = {
       items: [
         {
           title: "General Configuration",
-          url: "/settings/utils",
+          url: "/settings",
           icon: <SlidersHorizontal className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN"],
         },
@@ -166,6 +166,12 @@ export const data: { navMain: NavItem[] } = {
           title: "Academy Profile",
           url: "/academy",
           icon: <UserCheck2Icon className="size-4" />,
+          roles: ["SUPER_ADMIN", "ADMIN"],
+        },
+        {
+          title: "System Logs",
+          url: "/settings/audit-logs",
+          icon: <TerminalSquare className="size-4" />,
           roles: ["SUPER_ADMIN", "ADMIN"],
         },
       ],

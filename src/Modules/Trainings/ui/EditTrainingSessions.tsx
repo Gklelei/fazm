@@ -25,6 +25,7 @@ import { GetTrainingByIdType } from "../Assesments/Types";
 import { useTransition } from "react";
 import { EditTrainingSessionAction } from "../Server/EditTrainingSessions";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { SortableDrillList } from "./SortableDrillList";
 
 interface Props {
   training: GetTrainingByIdType;
@@ -43,7 +44,10 @@ const EditTrainingSessions = ({ training }: Props) => {
         ? new Date(training.date).toISOString().slice(0, 16)
         : "",
       description: training.description || "",
-      drills: training.drills?.map((drill) => drill.id) || [],
+      drills:
+        training.drillOrder && training.drillOrder.length > 0
+          ? training.drillOrder
+          : training.drills?.map((drill) => drill.id) || [],
       duration: training.duration || "",
       location: training.trainingLocationsId || "",
       note: training.note || "",
@@ -248,41 +252,12 @@ const EditTrainingSessions = ({ training }: Props) => {
                         Drills
                       </FormLabel>
                       <FormControl>
-                        <div className="flex flex-col space-y-1">
-                          {data?.drills.map((drill) => (
-                            <label
-                              key={drill.id}
-                              className="flex items-center gap-2"
-                            >
-                              <input
-                                type="checkbox"
-                                value={drill.id}
-                                checked={
-                                  field.value?.includes(drill.id) || false
-                                }
-                                onChange={() => {
-                                  if (field.value?.includes(drill.id)) {
-                                    field.onChange(
-                                      field.value.filter((v) => v !== drill.id),
-                                    );
-                                  } else {
-                                    field.onChange([
-                                      ...(field.value || []),
-                                      drill.id,
-                                    ]);
-                                  }
-                                }}
-                              />
-                              {drill.name}
-                            </label>
-                          ))}
-                        </div>
+                        <SortableDrillList
+                          availableDrills={data?.drills || []}
+                          selectedDrillIds={field.value || []}
+                          onChange={(newOrder) => field.onChange(newOrder)}
+                        />
                       </FormControl>
-                      {data?.drills.length === 0 && (
-                        <span className="text-sm text-red-500">
-                          No drills available, contact admin
-                        </span>
-                      )}
                       <FormMessage />
                     </FormItem>
                   )}

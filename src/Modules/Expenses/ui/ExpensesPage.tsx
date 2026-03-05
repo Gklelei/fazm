@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Loader2, Trash } from "lucide-react";
+import ServerPagination from "@/utils/ServerPagination";
 import { useMemo, useState } from "react";
 import { GetExpensesQueryType } from "../Types";
 import {
@@ -20,12 +21,17 @@ import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import CreateExpenses from "./CreateExpenses";
 import EditExpenseForm from "./EditExpensesForm";
 import { formatCurrency } from "@/utils/TansformWords";
+import ExportDropdown from "@/utils/ExportDropdown";
+import { format as fmtDate } from "date-fns";
 
 interface Props {
   expenses: GetExpensesQueryType[];
+  page: number;
+  limit: number;
+  total: number;
 }
 
-const ExpensesPage = ({ expenses }: Props) => {
+const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
   const [query, setQuery] = useState("");
   const [delId, setDelId] = useState("");
 
@@ -61,7 +67,28 @@ const ExpensesPage = ({ expenses }: Props) => {
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg font-semibold">Expenses</CardTitle>
 
-          <CreateExpenses />
+          <div className="flex items-center gap-2">
+            <ExportDropdown
+              filename="Expenses"
+              headers={["#", "Title", "Amount", "Description", "Date"]}
+              rows={filteredExpenses.map((e, idx) => [
+                String(idx + 1),
+                e.name,
+                `KES ${formatCurrency(e.amount)}`,
+                e.description || "—",
+                fmtDate(new Date(e.date), "dd MMM yyyy"),
+              ])}
+              fetchAllUrl="/api/export?resource=expenses"
+              mapRow={(e: any, i: number) => [
+                String(i + 1),
+                e.name,
+                `KES ${formatCurrency(e.amount)}`,
+                e.description || "—",
+                fmtDate(new Date(e.date), "dd MMM yyyy"),
+              ]}
+            />
+            <CreateExpenses />
+          </div>
         </div>
 
         <Input
@@ -138,6 +165,9 @@ const ExpensesPage = ({ expenses }: Props) => {
             )}
           </TableBody>
         </Table>
+        <div className="p-4 border-t">
+          <ServerPagination page={page} limit={limit} total={total} />
+        </div>
       </CardContent>
     </Card>
   );

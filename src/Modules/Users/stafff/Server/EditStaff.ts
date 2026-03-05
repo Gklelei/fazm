@@ -49,7 +49,7 @@ export const EditStaffProfile = async ({
         },
       },
     });
-    revalidatePath("/users/staff/profile");
+    revalidatePath("/staff/profile");
     return {
       message: "Profile updated",
       success: true,
@@ -114,8 +114,8 @@ export const AdminEditStaffProfile = async ({
         },
       },
     });
-    revalidatePath("/users/staff/profile");
-    revalidatePath("/users/staff");
+    revalidatePath("/staff/profile");
+    revalidatePath("/staff");
     return {
       message: "User updated",
       success: true,
@@ -181,7 +181,7 @@ export const AdminDeleteStaff = async ({
       },
     });
 
-    revalidatePath("/users/staff");
+    revalidatePath("/staff");
 
     return {
       success: true,

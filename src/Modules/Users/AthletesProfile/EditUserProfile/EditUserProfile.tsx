@@ -1,5 +1,5 @@
 "use client";
-import { FullAthleteData } from "@/app/(home)/users/players/edit/[id]/page";
+import { FullAthleteData } from "@/app/(home)/players/edit/[id]/page";
 import { useForm } from "react-hook-form";
 import {
   editSchema,

@@ -13,7 +13,10 @@ const page = async ({ params }: Props) => {
   const invoice = await db.invoice.findUnique(EditInvoiceQuery(id));
 
   if (!invoice) return notFound();
-  return <EditInvoice data={invoice} />;
+
+  const safeInvoice = JSON.parse(JSON.stringify(invoice));
+
+  return <EditInvoice data={safeInvoice as any} />;
 };
 
 export default page;

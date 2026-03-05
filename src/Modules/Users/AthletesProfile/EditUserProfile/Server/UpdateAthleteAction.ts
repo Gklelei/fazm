@@ -1,8 +1,11 @@
 "use server";
 
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { editSchemaType } from "@/Modules/Users/AthletesOnboarding/validation";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 type ActionResult = {
   status: "SUCCESS" | "ERROR";
@@ -36,6 +39,8 @@ export const UpdateAthleteAction = async (
   id: string,
   data: editSchemaType,
 ): Promise<ActionResult> => {
+  const session = await auth.api.getSession({ headers: await headers() });
+
   const positions = data.playingPositions
     ? data.playingPositions
         .split(",")
@@ -57,7 +62,7 @@ export const UpdateAthleteAction = async (
         .filter(Boolean)
     : [];
   try {
-    await db.athlete.update({
+    const updatedAthlete = await db.athlete.update({
       where: { athleteId: id },
       data: {
         firstName: data.firstName,
@@ -117,8 +122,18 @@ export const UpdateAthleteAction = async (
       },
     });
 
-    revalidatePath("/users/players");
-    revalidatePath(`/users/players/edit/${id}`);
+    revalidatePath("/players");
+    revalidatePath(`/players/edit/${id}`);
+
+    if (session?.user) {
+      await createAuditLog({
+        action: "UPDATE_ATHLETE",
+        resource: "Athlete",
+        details: `Updated profile for athlete ${data.firstName} ${data.lastName}`,
+        userId: session.user.id,
+        athleteId: updatedAthlete.id,
+      });
+    }
 
     return {
       status: "SUCCESS",

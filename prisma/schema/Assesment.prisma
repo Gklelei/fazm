@@ -12,6 +12,7 @@ model Assessment {
     coach   staff  @relation(fields: [coachId], references: [staffId])
 
     responses AssessmentResponse[]
+    auditLogs AuditLog[]
 
     @@unique([athleteId, trainingId])
     @@map("assessments")

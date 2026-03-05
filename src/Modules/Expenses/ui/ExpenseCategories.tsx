@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import CreateExpenseCategory from "./CreateExpenseCategory";
 import { GetExpenseCategoriesQuery } from "../Types";
 import { Button } from "@/components/ui/button";
+import ServerPagination from "@/utils/ServerPagination";
 import { Loader2Icon, Trash2Icon } from "lucide-react";
 import {
   Table,
@@ -21,10 +22,18 @@ import {
 } from "../Server/CreateExpenseCategory";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import EditExpenseCategoryDialog from "./EditExpenseCategory";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 type Row = GetExpenseCategoriesQuery & { checked: boolean };
 
-const ExpenseCategories = ({ data }: { data: GetExpenseCategoriesQuery[] }) => {
+interface Props {
+  data: GetExpenseCategoriesQuery[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
+const ExpenseCategories = ({ data, page, limit, total }: Props) => {
   const [delId, setDelId] = useState("");
   const [savingId, setSavingId] = useState<string>("");
 
@@ -120,6 +129,21 @@ const ExpenseCategories = ({ data }: { data: GetExpenseCategoriesQuery[] }) => {
         </CardTitle>
 
         <div className="flex items-center gap-2">
+          <ExportDropdown
+            filename="Expense_Categories"
+            headers={["#", "Name", "Status"]}
+            rows={rows.map((item, idx) => [
+              String(idx + 1),
+              item.name,
+              item.status,
+            ])}
+            fetchAllUrl="/api/export?resource=expense-categories"
+            mapRow={(item: any, i: number) => [
+              String(i + 1),
+              item.name,
+              item.status,
+            ]}
+          />
           <CreateExpenseCategory />
         </div>
       </CardHeader>
@@ -193,6 +217,9 @@ const ExpenseCategories = ({ data }: { data: GetExpenseCategoriesQuery[] }) => {
             )}
           </TableBody>
         </Table>
+        <div className="p-4 border-t">
+          <ServerPagination page={page} limit={limit} total={total} />
+        </div>
       </CardContent>
     </Card>
   );

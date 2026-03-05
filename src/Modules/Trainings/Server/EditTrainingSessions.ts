@@ -103,11 +103,12 @@ export const EditTrainingSessionAction = async (
             validDrills.length > 0
               ? { set: validDrills.map((d) => ({ id: d.id })) }
               : { set: [] },
+          drillOrder: drills,
         },
       });
     });
 
-    revalidatePath("/training/sessions/view");
+    revalidatePath("/sessions/view");
 
     return { message: "Training session updated successfully", success: true };
   } catch (error) {

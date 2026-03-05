@@ -6,6 +6,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 
+
 export const CreateExpenseCategoryAction = async (
   values: ExpenseCategoryType,
 ): Promise<ActionResult> => {
@@ -40,7 +41,10 @@ export const CreateExpenseCategoryAction = async (
         },
       });
     });
+    
+
     revalidatePath("/expenses-categories");
+    
     return {
       message: "Expense category created",
       success: true,
@@ -100,6 +104,7 @@ export const UpdateExpenseCategoryStatus = async ({
         status,
       },
     });
+
 
     revalidatePath("/expenses-categories");
 
@@ -161,6 +166,7 @@ export const DeleteExpenseCategory = async ({
       },
     });
 
+
     revalidatePath("/expenses-categories");
 
     return {
@@ -213,6 +219,7 @@ export async function EditExpenseCategory(
         status: values.status,
       },
     });
+
 
     revalidatePath("/expenses-categories");
 

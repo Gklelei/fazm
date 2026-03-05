@@ -95,7 +95,7 @@ export async function saveAttendance(
       await Promise.all(upsertPromises);
     });
 
-    revalidatePath(`/training/sessions/attendance/mark/${trainingId}`);
+    revalidatePath(`/sessions/attendance/mark/${trainingId}`);
 
     return {
       success: true,

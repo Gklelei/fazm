@@ -18,11 +18,13 @@ model training {
   location TrainingLocations @relation(fields: [trainingLocationsId], references: [id])
 
   // DO NOT TOUCH (keeps drills relations stable)
-  drills drills[] @relation("TrainingToDrills")
+  drills     drills[] @relation("TrainingToDrills")
+  drillOrder String[] @default([])
 
   athletes    Athlete[]    @relation("TrainingToAthletes")
   attendances attendance[]
   assessments Assessment[]
+  auditLogs   AuditLog[]
 }
 
 model Batches {
@@ -44,6 +46,8 @@ model Batches {
 
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
+
+  auditLogs AuditLog[]
 
   @@map("batches")
 }
@@ -79,6 +83,7 @@ model drills {
   description String?
   voided      Int        @default(0)
   trainings   training[] @relation("TrainingToDrills")
+  auditLogs   AuditLog[]
 
   @@map("drills")
 }

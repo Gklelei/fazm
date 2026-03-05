@@ -5,13 +5,15 @@ import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 type SaveAssessmentInput = {
   athleteId: string; // Athlete.athleteId
   trainingId: string; // training.id
   coachId: string; // staffId
   scores: Record<string, string>; // metricId -> "1".."5"
-  metricComments: Record<string, string>; // metricId -> comment
+  sectionComments: Record<string, string>; // sectionId -> comment
+  sectionToFirstMetric: Record<string, string>; // sectionId -> firstMetricId
 };
 
 const gradeMap: Record<string, GradeRating> = {
@@ -26,10 +28,10 @@ export async function saveAssessment(input: SaveAssessmentInput) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { status: "ERROR", errorMessage: "Unauthorized" };
 
-  const { athleteId, trainingId, coachId, scores, metricComments } = input;
+  const { athleteId, trainingId, coachId, scores, sectionComments, sectionToFirstMetric } = input;
 
   try {
-    await db.$transaction(async (tx) => {
+    const assessmentResult = await db.$transaction(async (tx) => {
       // 1) Upsert assessment (edit-friendly)
       const assessment = await tx.assessment.upsert({
         where: { athleteId_trainingId: { athleteId, trainingId } },
@@ -45,6 +47,14 @@ export async function saveAssessment(input: SaveAssessmentInput) {
         const grade = gradeMap[scores[metricId]];
         if (!grade) continue;
 
+        // Check if this metric is the first metric of any section we have a comment for
+        const associatedSectionId = Object.keys(sectionToFirstMetric).find(
+          (secId) => sectionToFirstMetric[secId] === metricId,
+        );
+        const commentToSave = associatedSectionId 
+          ? (sectionComments[associatedSectionId] || "").trim() || null
+          : null;
+
         await tx.assessmentResponse.upsert({
           where: {
             assessmentId_metricId: { assessmentId: assessment.id, metricId },
@@ -53,18 +63,30 @@ export async function saveAssessment(input: SaveAssessmentInput) {
             assessmentId: assessment.id,
             metricId,
             grade,
-            comment: (metricComments[metricId] || "").trim() || null,
+            comment: commentToSave,
           },
           update: {
             grade,
-            comment: (metricComments[metricId] || "").trim() || null,
+            comment: commentToSave,
           },
         });
       }
+
+      return assessment;
     });
 
     revalidatePath("/trainings/assessments");
     revalidatePath(`/assesments/${trainingId}/mark`);
+
+    await createAuditLog({
+      action: "CREATE_ASSESSMENT",
+      resource: "Assessment",
+      details: `Created/updated assessment for athlete ${athleteId} in training session ${trainingId}`,
+      userId: session.user.id,
+      assessmentId: assessmentResult.id,
+      athleteId,
+      trainingId,
+    });
 
     return {
       status: "SUCCESS",

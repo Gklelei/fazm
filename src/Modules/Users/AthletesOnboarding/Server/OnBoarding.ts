@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
+import { createAuditLog } from "@/lib/audit";
 
 type ActionPromise =
   | { status: "SUCCESS"; successMessage: string }
@@ -149,7 +150,7 @@ const AthleteOnboardingAction = async (
   const validatedData = AthleteOnBoardingSchema.parse(data);
 
   try {
-    await db.$transaction(async (ctx) => {
+    const newAthleteId = await db.$transaction(async (ctx) => {
       const now = new Date();
 
       // ---------- Invoice number ----------
@@ -310,10 +311,20 @@ const AthleteOnboardingAction = async (
           issuedBy: session.user.email || "system",
         },
       });
+      
+      return newAthlete.id;
     });
 
-    revalidatePath("/athletes");
-    revalidatePath("/finances/invoices");
+    revalidatePath("/players");
+    revalidatePath("/invoices");
+
+    await createAuditLog({
+      action: "CREATE_ATHLETE",
+      resource: "Athlete",
+      details: `Created athlete profile for ${validatedData.firstName} ${validatedData.lastName}`,
+      userId: session.user.id,
+      athleteId: newAthleteId,
+    });
 
     return {
       status: "SUCCESS",

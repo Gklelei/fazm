@@ -6,6 +6,8 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { APIError } from "better-auth";
+import { createAuditLog } from "@/lib/audit";
+
 
 type ActionResult = {
   success: boolean;
@@ -55,7 +57,16 @@ export const CreateStaffAction = async (
       },
     });
 
-    revalidatePath("/users/staff");
+    revalidatePath("/staff");
+
+    await createAuditLog({
+      action: "CREATE_STAFF",
+      resource: "Staff",
+      details: `Created staff profile for ${parsedData.fullName}`,
+      userId: session.user.id,
+    });
+
+
 
     return { success: true, message: "User created successfully" };
   } catch (error) {

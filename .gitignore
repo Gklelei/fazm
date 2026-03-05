@@ -48,3 +48,8 @@ next-env.d.ts
 /public/uploads
 /nginx
 .idea
+package-lock.json
+yarn.lock/
+tasks.txt
+.agent/
+idea

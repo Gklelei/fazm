@@ -100,6 +100,16 @@ const MarkAttendance = ({
     );
   };
 
+  const markAll = (status: "PRESENT" | "ABSENT") => {
+    setAttendanceState((prev) =>
+      prev.map((item) => ({
+        ...item,
+        status,
+        reasonId: status === "PRESENT" ? null : item.reasonId,
+      })),
+    );
+  };
+
   const getStatusColor = (
     status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED",
   ) => {
@@ -221,11 +231,31 @@ const MarkAttendance = ({
       </div>
 
       <Card className="overflow-hidden">
-        <CardHeader className="p-4 border-b">
-          <CardTitle className="text-base">Athlete Roster</CardTitle>
-          <CardDescription className="text-xs">
-            Update status and provide reasons
-          </CardDescription>
+        <CardHeader className="p-4 border-b flex flex-row items-center justify-between">
+          <div>
+            <CardTitle className="text-base">Athlete Roster</CardTitle>
+            <CardDescription className="text-xs">
+              Update status and provide reasons
+            </CardDescription>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => markAll("PRESENT")}
+              className="h-8 text-xs text-primary border-primary/20 hover:bg-primary/10"
+            >
+              <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Mark All Present
+            </Button>
+            <Button
+              size="sm"
+              variant="outline"
+              onClick={() => markAll("ABSENT")}
+              className="h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
+            >
+              <XCircle className="mr-1.5 h-3.5 w-3.5" /> Mark All Absent
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <Table>

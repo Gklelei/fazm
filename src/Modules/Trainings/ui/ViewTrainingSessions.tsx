@@ -45,6 +45,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 // use your existing type
 import { GetAllTrainingSessionsQueryType } from "../Assesments/Types";
 import Paginator from "@/utils/Paginator";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 type Meta = {
   total: number;
@@ -67,7 +68,7 @@ function buildSessionsUrl(opts: {
   sp.set("page", String(opts.page));
   sp.set("pageSize", String(opts.pageSize));
   if (opts.search.trim()) sp.set("search", opts.search.trim());
-  return `/training/sessions?${sp.toString()}`;
+  return `/sessions?${sp.toString()}`;
 }
 
 export default function ViewTrainingSessions({ data, meta }: Props) {
@@ -155,7 +156,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
       cta: (
         <Button
           size="sm"
-          onClick={() => router.push("/training/sessions/create")}
+          onClick={() => router.push("/sessions/create")}
           className="gap-2"
         >
           <Plus className="h-4 w-4" />
@@ -222,14 +223,56 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
               <p className="text-sm text-muted-foreground">{headerSubtitle}</p>
             </div>
 
-            <Button
-              onClick={() => router.push("/training/sessions/create")}
-              type="button"
-              className="gap-2 w-full sm:w-auto"
-            >
-              <Plus className="h-4 w-4" />
-              Create session
-            </Button>
+            <div className="flex items-center gap-2 w-full sm:w-auto">
+              <ExportDropdown
+                filename="Training_Sessions"
+                headers={[
+                  "#",
+                  "Session",
+                  "Batch",
+                  "Date",
+                  "Time",
+                  "Duration",
+                  "Status",
+                  "Location",
+                  "Coach",
+                  "Athletes",
+                ]}
+                rows={data.map((item, i) => [
+                  String(rowStartNumber + i + 1),
+                  item.name,
+                  item.batch?.name ?? "—",
+                  format(new Date(item.date), "MMM dd, yyyy"),
+                  format(new Date(item.date), "p"),
+                  formatDuration(item.duration),
+                  item.status,
+                  item.location.name,
+                  item.coach.fullNames,
+                  String(item._count.athletes),
+                ])}
+                fetchAllUrl="/api/export?resource=sessions"
+                mapRow={(item: any, i: number) => [
+                  String(i + 1),
+                  item.name,
+                  item.batch?.name ?? "—",
+                  format(new Date(item.date), "MMM dd, yyyy"),
+                  format(new Date(item.date), "p"),
+                  formatDuration(item.duration),
+                  item.status,
+                  item.location?.name || "",
+                  item.coach?.fullNames || "",
+                  String(item._count?.athletes ?? 0),
+                ]}
+              />
+              <Button
+                onClick={() => router.push("/sessions/create")}
+                type="button"
+                className="gap-2 w-full sm:w-auto"
+              >
+                <Plus className="h-4 w-4" />
+                Create session
+              </Button>
+            </div>
           </div>
 
           {/* Search */}
@@ -356,7 +399,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem
                             onClick={() =>
-                              router.push(`/training/sessions/view/${item.id}`)
+                              router.push(`/sessions/view/${item.id}`)
                             }
                             className="gap-2"
                           >
@@ -366,7 +409,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
 
                           <DropdownMenuItem
                             onClick={() =>
-                              router.push(`/training/sessions/edit/${item.id}`)
+                              router.push(`/sessions/edit/${item.id}`)
                             }
                             className="gap-2"
                           >
@@ -387,7 +430,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                           <DropdownMenuItem
                             onClick={() =>
                               router.push(
-                                `/training/sessions/attendance/mark/${item.id}`,
+                                `/sessions/attendance/mark/${item.id}`,
                               )
                             }
                             className="gap-2"
@@ -423,18 +466,14 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                       <Button
                         variant="outline"
                         className="w-full"
-                        onClick={() =>
-                          router.push(`/training/sessions/view/${item.id}`)
-                        }
+                        onClick={() => router.push(`/sessions/view/${item.id}`)}
                       >
                         View
                       </Button>
                       <Button
                         className="w-full"
                         onClick={() =>
-                          router.push(
-                            `/training/sessions/attendance/mark/${item.id}`,
-                          )
+                          router.push(`/sessions/attendance/mark/${item.id}`)
                         }
                       >
                         Attendance
@@ -538,9 +577,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                           <DropdownMenuContent align="end">
                             <DropdownMenuItem
                               onClick={() =>
-                                router.push(
-                                  `/training/sessions/view/${item.id}`,
-                                )
+                                router.push(`/sessions/view/${item.id}`)
                               }
                               className="gap-2"
                             >
@@ -550,9 +587,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
 
                             <DropdownMenuItem
                               onClick={() =>
-                                router.push(
-                                  `/training/sessions/edit/${item.id}`,
-                                )
+                                router.push(`/sessions/edit/${item.id}`)
                               }
                               className="gap-2"
                             >
@@ -573,7 +608,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                             <DropdownMenuItem
                               onClick={() =>
                                 router.push(
-                                  `/training/sessions/attendance/mark/${item.id}`,
+                                  `/sessions/attendance/mark/${item.id}`,
                                 )
                               }
                               className="gap-2"

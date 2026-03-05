@@ -15,6 +15,8 @@ import {
   Calendar,
   Percent,
   CalendarDays,
+  Activity,
+  AlertCircle,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -90,10 +92,23 @@ const Dashboard = ({
               color="indigo"
             />
             <StatCard
+              label="Active Subscriptions"
+              value={data.activeSubscriptions || 0}
+              icon={Activity}
+              color="blue"
+            />
+            <StatCard
               label="Total Revenue"
               value={data.totalFinances._sum.amountPaid || 0}
               icon={TrendingUp}
               color="emerald"
+              isCurrency
+            />
+            <StatCard
+              label="Outstanding Balance"
+              value={data.outstandingBalance || 0}
+              icon={AlertCircle}
+              color="red"
               isCurrency
             />
           </>
@@ -178,6 +193,11 @@ const colorConfig = {
     bg: "bg-emerald-50 dark:bg-emerald-950/20",
     icon: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
     border: "border-emerald-200 dark:border-emerald-800",
+  },
+  red: {
+    bg: "bg-red-50 dark:bg-red-950/20",
+    icon: "bg-red-500/10 text-red-600 dark:text-red-400",
+    border: "border-red-200 dark:border-red-800",
   },
 };
 

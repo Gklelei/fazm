@@ -8,6 +8,7 @@ import {
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 type ActionResult = {
   success: boolean;
@@ -73,7 +74,14 @@ export const CreateSubscriptionFees = async (
       });
     });
 
-    revalidatePath("/finances/fees");
+    revalidatePath("/fees");
+
+    await createAuditLog({
+      action: "CREATE_SUBSCRIPTION_FEE",
+      resource: "SubscriptionPlan",
+      details: `Created new fee plan: ${parsedData.name} - ${parsedData.amount} (${parsedData.interval})`,
+      userId: session.user.id,
+    });
 
     return {
       success: true,

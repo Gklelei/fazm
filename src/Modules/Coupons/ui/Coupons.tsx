@@ -46,12 +46,17 @@ import CreateCoupons from "./CreateCoupons";
 import { formatCurrency } from "@/utils/TansformWords";
 import { DeleteCouponsAction } from "../Server/CouponsAction";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import ServerPagination from "@/utils/ServerPagination";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 interface Props {
   coupons: GetCouponsQueryType[];
+  page: number;
+  limit: number;
+  total: number;
 }
 
-const Coupons = ({ coupons }: Props) => {
+const Coupons = ({ coupons, page, limit, total }: Props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [delId, setDelId] = useState("");
@@ -115,6 +120,45 @@ const Coupons = ({ coupons }: Props) => {
             />
             <CreateCoupons />
           </div>
+          <ExportDropdown
+            filename="Coupons"
+            headers={[
+              "Code",
+              "Discount",
+              "Interval",
+              "Usage",
+              "Start Date",
+              "Expiry Date",
+              "Status",
+            ]}
+            rows={filteredCoupons.map((c) => [
+              c.name,
+              c.discountType === "PERCENTAGE"
+                ? `${c.value}%`
+                : formatCurrency(Number(c.value)),
+              c.interval,
+              `${c.timesUsed} / ${c.usageLimit && c.usageLimit > 0 ? c.usageLimit : "∞"}`,
+              format(new Date(c.startDate), "MMM d, yyyy"),
+              c.expiryDate
+                ? format(new Date(c.expiryDate), "MMM d, yyyy")
+                : "No expiry",
+              c.status === 1 ? "Active" : "Inactive",
+            ])}
+            fetchAllUrl="/api/export?resource=coupons"
+            mapRow={(c: any) => [
+              c.name,
+              c.discountType === "PERCENTAGE"
+                ? `${c.value}%`
+                : formatCurrency(Number(c.value)),
+              c.interval,
+              `${c.timesUsed} / ${c.usageLimit && c.usageLimit > 0 ? c.usageLimit : "∞"}`,
+              format(new Date(c.startDate), "MMM d, yyyy"),
+              c.expiryDate
+                ? format(new Date(c.expiryDate), "MMM d, yyyy")
+                : "No expiry",
+              c.status === 1 ? "Active" : "Inactive",
+            ]}
+          />
         </div>
       </CardHeader>
 
@@ -267,6 +311,9 @@ const Coupons = ({ coupons }: Props) => {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="p-4 border-t">
+          <ServerPagination page={page} limit={limit} total={total} />
         </div>
       </CardContent>
     </Card>

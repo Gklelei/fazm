@@ -74,6 +74,7 @@ export type TrainingCountAggregateOutputType = {
   isArchived: number
   trainingLocationsId: number
   staffId: number
+  drillOrder: number
   _all: number
 }
 
@@ -126,6 +127,7 @@ export type TrainingCountAggregateInputType = {
   isArchived?: true
   trainingLocationsId?: true
   staffId?: true
+  drillOrder?: true
   _all?: true
 }
 
@@ -227,6 +229,7 @@ export type TrainingGroupByOutputType = {
   isArchived: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder: string[]
   _count: TrainingCountAggregateOutputType | null
   _avg: TrainingAvgAggregateOutputType | null
   _sum: TrainingSumAggregateOutputType | null
@@ -264,6 +267,7 @@ export type trainingWhereInput = {
   isArchived?: Prisma.BoolFilter<"training"> | boolean
   trainingLocationsId?: Prisma.StringFilter<"training"> | string
   staffId?: Prisma.StringFilter<"training"> | string
+  drillOrder?: Prisma.StringNullableListFilter<"training">
   batch?: Prisma.XOR<Prisma.BatchesScalarRelationFilter, Prisma.BatchesWhereInput>
   coach?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.staffWhereInput>
   location?: Prisma.XOR<Prisma.TrainingLocationsScalarRelationFilter, Prisma.TrainingLocationsWhereInput>
@@ -271,6 +275,7 @@ export type trainingWhereInput = {
   athletes?: Prisma.AthleteListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   assessments?: Prisma.AssessmentListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }
 
 export type trainingOrderByWithRelationInput = {
@@ -285,6 +290,7 @@ export type trainingOrderByWithRelationInput = {
   isArchived?: Prisma.SortOrder
   trainingLocationsId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  drillOrder?: Prisma.SortOrder
   batch?: Prisma.BatchesOrderByWithRelationInput
   coach?: Prisma.staffOrderByWithRelationInput
   location?: Prisma.TrainingLocationsOrderByWithRelationInput
@@ -292,6 +298,7 @@ export type trainingOrderByWithRelationInput = {
   athletes?: Prisma.AthleteOrderByRelationAggregateInput
   attendances?: Prisma.attendanceOrderByRelationAggregateInput
   assessments?: Prisma.AssessmentOrderByRelationAggregateInput
+  auditLogs?: Prisma.AuditLogOrderByRelationAggregateInput
 }
 
 export type trainingWhereUniqueInput = Prisma.AtLeast<{
@@ -309,6 +316,7 @@ export type trainingWhereUniqueInput = Prisma.AtLeast<{
   isArchived?: Prisma.BoolFilter<"training"> | boolean
   trainingLocationsId?: Prisma.StringFilter<"training"> | string
   staffId?: Prisma.StringFilter<"training"> | string
+  drillOrder?: Prisma.StringNullableListFilter<"training">
   batch?: Prisma.XOR<Prisma.BatchesScalarRelationFilter, Prisma.BatchesWhereInput>
   coach?: Prisma.XOR<Prisma.StaffScalarRelationFilter, Prisma.staffWhereInput>
   location?: Prisma.XOR<Prisma.TrainingLocationsScalarRelationFilter, Prisma.TrainingLocationsWhereInput>
@@ -316,6 +324,7 @@ export type trainingWhereUniqueInput = Prisma.AtLeast<{
   athletes?: Prisma.AthleteListRelationFilter
   attendances?: Prisma.AttendanceListRelationFilter
   assessments?: Prisma.AssessmentListRelationFilter
+  auditLogs?: Prisma.AuditLogListRelationFilter
 }, "id">
 
 export type trainingOrderByWithAggregationInput = {
@@ -330,6 +339,7 @@ export type trainingOrderByWithAggregationInput = {
   isArchived?: Prisma.SortOrder
   trainingLocationsId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  drillOrder?: Prisma.SortOrder
   _count?: Prisma.trainingCountOrderByAggregateInput
   _avg?: Prisma.trainingAvgOrderByAggregateInput
   _max?: Prisma.trainingMaxOrderByAggregateInput
@@ -352,6 +362,7 @@ export type trainingScalarWhereWithAggregatesInput = {
   isArchived?: Prisma.BoolWithAggregatesFilter<"training"> | boolean
   trainingLocationsId?: Prisma.StringWithAggregatesFilter<"training"> | string
   staffId?: Prisma.StringWithAggregatesFilter<"training"> | string
+  drillOrder?: Prisma.StringNullableListFilter<"training">
 }
 
 export type trainingCreateInput = {
@@ -363,6 +374,7 @@ export type trainingCreateInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
@@ -370,6 +382,7 @@ export type trainingCreateInput = {
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateInput = {
@@ -384,10 +397,12 @@ export type trainingUncheckedCreateInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUpdateInput = {
@@ -399,6 +414,7 @@ export type trainingUpdateInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
@@ -406,6 +422,7 @@ export type trainingUpdateInput = {
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateInput = {
@@ -420,10 +437,12 @@ export type trainingUncheckedUpdateInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingCreateManyInput = {
@@ -438,6 +457,7 @@ export type trainingCreateManyInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
 }
 
 export type trainingUpdateManyMutationInput = {
@@ -449,6 +469,7 @@ export type trainingUpdateManyMutationInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type trainingUncheckedUpdateManyInput = {
@@ -463,6 +484,7 @@ export type trainingUncheckedUpdateManyInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type TrainingScalarRelationFilter = {
@@ -480,6 +502,11 @@ export type trainingOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
 }
 
+export type TrainingNullableScalarRelationFilter = {
+  is?: Prisma.trainingWhereInput | null
+  isNot?: Prisma.trainingWhereInput | null
+}
+
 export type trainingCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   batchesId?: Prisma.SortOrder
@@ -492,6 +519,7 @@ export type trainingCountOrderByAggregateInput = {
   isArchived?: Prisma.SortOrder
   trainingLocationsId?: Prisma.SortOrder
   staffId?: Prisma.SortOrder
+  drillOrder?: Prisma.SortOrder
 }
 
 export type trainingAvgOrderByAggregateInput = {
@@ -582,8 +610,33 @@ export type trainingUncheckedUpdateManyWithoutAthletesNestedInput = {
   deleteMany?: Prisma.trainingScalarWhereInput | Prisma.trainingScalarWhereInput[]
 }
 
+export type trainingCreateNestedOneWithoutAuditLogsInput = {
+  create?: Prisma.XOR<Prisma.trainingCreateWithoutAuditLogsInput, Prisma.trainingUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAuditLogsInput
+  connect?: Prisma.trainingWhereUniqueInput
+}
+
+export type trainingUpdateOneWithoutAuditLogsNestedInput = {
+  create?: Prisma.XOR<Prisma.trainingCreateWithoutAuditLogsInput, Prisma.trainingUncheckedCreateWithoutAuditLogsInput>
+  connectOrCreate?: Prisma.trainingCreateOrConnectWithoutAuditLogsInput
+  upsert?: Prisma.trainingUpsertWithoutAuditLogsInput
+  disconnect?: Prisma.trainingWhereInput | boolean
+  delete?: Prisma.trainingWhereInput | boolean
+  connect?: Prisma.trainingWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.trainingUpdateToOneWithWhereWithoutAuditLogsInput, Prisma.trainingUpdateWithoutAuditLogsInput>, Prisma.trainingUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type trainingCreatedrillOrderInput = {
+  set: string[]
+}
+
 export type EnumTRAINING_STATUSFieldUpdateOperationsInput = {
   set?: $Enums.TRAINING_STATUS
+}
+
+export type trainingUpdatedrillOrderInput = {
+  set?: string[]
+  push?: string | string[]
 }
 
 export type trainingCreateNestedManyWithoutBatchInput = {
@@ -773,12 +826,14 @@ export type trainingCreateWithoutAssessmentsInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutAssessmentsInput = {
@@ -793,9 +848,11 @@ export type trainingUncheckedCreateWithoutAssessmentsInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutAssessmentsInput = {
@@ -823,12 +880,14 @@ export type trainingUpdateWithoutAssessmentsInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutAssessmentsInput = {
@@ -843,9 +902,11 @@ export type trainingUncheckedUpdateWithoutAssessmentsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingCreateWithoutAthletesInput = {
@@ -857,12 +918,14 @@ export type trainingCreateWithoutAthletesInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutAthletesInput = {
@@ -877,9 +940,11 @@ export type trainingUncheckedCreateWithoutAthletesInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutAthletesInput = {
@@ -918,6 +983,99 @@ export type trainingScalarWhereInput = {
   isArchived?: Prisma.BoolFilter<"training"> | boolean
   trainingLocationsId?: Prisma.StringFilter<"training"> | string
   staffId?: Prisma.StringFilter<"training"> | string
+  drillOrder?: Prisma.StringNullableListFilter<"training">
+}
+
+export type trainingCreateWithoutAuditLogsInput = {
+  id?: string
+  date: Date | string
+  description: string
+  name: string
+  note?: string | null
+  status?: $Enums.TRAINING_STATUS
+  duration: number
+  isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
+  batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
+  coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
+  location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
+  drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
+  athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
+  attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
+  assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+}
+
+export type trainingUncheckedCreateWithoutAuditLogsInput = {
+  id?: string
+  batchesId: string
+  date: Date | string
+  description: string
+  name: string
+  note?: string | null
+  status?: $Enums.TRAINING_STATUS
+  duration: number
+  isArchived?: boolean
+  trainingLocationsId: string
+  staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
+  drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
+  athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
+  attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
+  assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+}
+
+export type trainingCreateOrConnectWithoutAuditLogsInput = {
+  where: Prisma.trainingWhereUniqueInput
+  create: Prisma.XOR<Prisma.trainingCreateWithoutAuditLogsInput, Prisma.trainingUncheckedCreateWithoutAuditLogsInput>
+}
+
+export type trainingUpsertWithoutAuditLogsInput = {
+  update: Prisma.XOR<Prisma.trainingUpdateWithoutAuditLogsInput, Prisma.trainingUncheckedUpdateWithoutAuditLogsInput>
+  create: Prisma.XOR<Prisma.trainingCreateWithoutAuditLogsInput, Prisma.trainingUncheckedCreateWithoutAuditLogsInput>
+  where?: Prisma.trainingWhereInput
+}
+
+export type trainingUpdateToOneWithWhereWithoutAuditLogsInput = {
+  where?: Prisma.trainingWhereInput
+  data: Prisma.XOR<Prisma.trainingUpdateWithoutAuditLogsInput, Prisma.trainingUncheckedUpdateWithoutAuditLogsInput>
+}
+
+export type trainingUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
+  batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
+  coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
+  location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
+  drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
+  athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
+  attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
+  assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+}
+
+export type trainingUncheckedUpdateWithoutAuditLogsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  batchesId?: Prisma.StringFieldUpdateOperationsInput | string
+  date?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  note?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
+  duration?: Prisma.IntFieldUpdateOperationsInput | number
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
+  staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
+  drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
+  athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
+  attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
+  assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingCreateWithoutBatchInput = {
@@ -929,12 +1087,14 @@ export type trainingCreateWithoutBatchInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutBatchInput = {
@@ -948,10 +1108,12 @@ export type trainingUncheckedCreateWithoutBatchInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutBatchInput = {
@@ -989,12 +1151,14 @@ export type trainingCreateWithoutDrillsInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutDrillsInput = {
@@ -1009,9 +1173,11 @@ export type trainingUncheckedCreateWithoutDrillsInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutDrillsInput = {
@@ -1044,12 +1210,14 @@ export type trainingCreateWithoutAttendancesInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutAttendancesInput = {
@@ -1064,9 +1232,11 @@ export type trainingUncheckedCreateWithoutAttendancesInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutAttendancesInput = {
@@ -1094,12 +1264,14 @@ export type trainingUpdateWithoutAttendancesInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutAttendancesInput = {
@@ -1114,9 +1286,11 @@ export type trainingUncheckedUpdateWithoutAttendancesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingCreateWithoutLocationInput = {
@@ -1128,12 +1302,14 @@ export type trainingCreateWithoutLocationInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   coach: Prisma.staffCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutLocationInput = {
@@ -1147,10 +1323,12 @@ export type trainingUncheckedCreateWithoutLocationInput = {
   duration: number
   isArchived?: boolean
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutLocationInput = {
@@ -1188,12 +1366,14 @@ export type trainingCreateWithoutCoachInput = {
   status?: $Enums.TRAINING_STATUS
   duration: number
   isArchived?: boolean
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   batch: Prisma.BatchesCreateNestedOneWithoutSessionsInput
   location: Prisma.TrainingLocationsCreateNestedOneWithoutTrainingsInput
   drills?: Prisma.drillsCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingUncheckedCreateWithoutCoachInput = {
@@ -1207,10 +1387,12 @@ export type trainingUncheckedCreateWithoutCoachInput = {
   duration: number
   isArchived?: boolean
   trainingLocationsId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedCreateNestedManyWithoutTrainingsInput
   athletes?: Prisma.AthleteUncheckedCreateNestedManyWithoutTrainingsInput
   attendances?: Prisma.attendanceUncheckedCreateNestedManyWithoutTrainingInput
   assessments?: Prisma.AssessmentUncheckedCreateNestedManyWithoutTrainingInput
+  auditLogs?: Prisma.AuditLogUncheckedCreateNestedManyWithoutTrainingInput
 }
 
 export type trainingCreateOrConnectWithoutCoachInput = {
@@ -1248,12 +1430,14 @@ export type trainingUpdateWithoutAthletesInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutAthletesInput = {
@@ -1268,9 +1452,11 @@ export type trainingUncheckedUpdateWithoutAthletesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateManyWithoutAthletesInput = {
@@ -1285,6 +1471,7 @@ export type trainingUncheckedUpdateManyWithoutAthletesInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type trainingCreateManyBatchInput = {
@@ -1298,6 +1485,7 @@ export type trainingCreateManyBatchInput = {
   isArchived?: boolean
   trainingLocationsId: string
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
 }
 
 export type trainingUpdateWithoutBatchInput = {
@@ -1309,12 +1497,14 @@ export type trainingUpdateWithoutBatchInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutBatchInput = {
@@ -1328,10 +1518,12 @@ export type trainingUncheckedUpdateWithoutBatchInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateManyWithoutBatchInput = {
@@ -1345,6 +1537,7 @@ export type trainingUncheckedUpdateManyWithoutBatchInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type trainingUpdateWithoutDrillsInput = {
@@ -1356,12 +1549,14 @@ export type trainingUpdateWithoutDrillsInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutDrillsInput = {
@@ -1376,9 +1571,11 @@ export type trainingUncheckedUpdateWithoutDrillsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateManyWithoutDrillsInput = {
@@ -1393,6 +1590,7 @@ export type trainingUncheckedUpdateManyWithoutDrillsInput = {
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type trainingCreateManyLocationInput = {
@@ -1406,6 +1604,7 @@ export type trainingCreateManyLocationInput = {
   duration: number
   isArchived?: boolean
   staffId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
 }
 
 export type trainingUpdateWithoutLocationInput = {
@@ -1417,12 +1616,14 @@ export type trainingUpdateWithoutLocationInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   coach?: Prisma.staffUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutLocationInput = {
@@ -1436,10 +1637,12 @@ export type trainingUncheckedUpdateWithoutLocationInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateManyWithoutLocationInput = {
@@ -1453,6 +1656,7 @@ export type trainingUncheckedUpdateManyWithoutLocationInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   staffId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 export type trainingCreateManyCoachInput = {
@@ -1466,6 +1670,7 @@ export type trainingCreateManyCoachInput = {
   duration: number
   isArchived?: boolean
   trainingLocationsId: string
+  drillOrder?: Prisma.trainingCreatedrillOrderInput | string[]
 }
 
 export type trainingUpdateWithoutCoachInput = {
@@ -1477,12 +1682,14 @@ export type trainingUpdateWithoutCoachInput = {
   status?: Prisma.EnumTRAINING_STATUSFieldUpdateOperationsInput | $Enums.TRAINING_STATUS
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   batch?: Prisma.BatchesUpdateOneRequiredWithoutSessionsNestedInput
   location?: Prisma.TrainingLocationsUpdateOneRequiredWithoutTrainingsNestedInput
   drills?: Prisma.drillsUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateWithoutCoachInput = {
@@ -1496,10 +1703,12 @@ export type trainingUncheckedUpdateWithoutCoachInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
   drills?: Prisma.drillsUncheckedUpdateManyWithoutTrainingsNestedInput
   athletes?: Prisma.AthleteUncheckedUpdateManyWithoutTrainingsNestedInput
   attendances?: Prisma.attendanceUncheckedUpdateManyWithoutTrainingNestedInput
   assessments?: Prisma.AssessmentUncheckedUpdateManyWithoutTrainingNestedInput
+  auditLogs?: Prisma.AuditLogUncheckedUpdateManyWithoutTrainingNestedInput
 }
 
 export type trainingUncheckedUpdateManyWithoutCoachInput = {
@@ -1513,6 +1722,7 @@ export type trainingUncheckedUpdateManyWithoutCoachInput = {
   duration?: Prisma.IntFieldUpdateOperationsInput | number
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   trainingLocationsId?: Prisma.StringFieldUpdateOperationsInput | string
+  drillOrder?: Prisma.trainingUpdatedrillOrderInput | string[]
 }
 
 
@@ -1525,6 +1735,7 @@ export type TrainingCountOutputType = {
   athletes: number
   attendances: number
   assessments: number
+  auditLogs: number
 }
 
 export type TrainingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1532,6 +1743,7 @@ export type TrainingCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensio
   athletes?: boolean | TrainingCountOutputTypeCountAthletesArgs
   attendances?: boolean | TrainingCountOutputTypeCountAttendancesArgs
   assessments?: boolean | TrainingCountOutputTypeCountAssessmentsArgs
+  auditLogs?: boolean | TrainingCountOutputTypeCountAuditLogsArgs
 }
 
 /**
@@ -1572,6 +1784,13 @@ export type TrainingCountOutputTypeCountAssessmentsArgs<ExtArgs extends runtime.
   where?: Prisma.AssessmentWhereInput
 }
 
+/**
+ * TrainingCountOutputType without action
+ */
+export type TrainingCountOutputTypeCountAuditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AuditLogWhereInput
+}
+
 
 export type trainingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1585,6 +1804,7 @@ export type trainingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   isArchived?: boolean
   trainingLocationsId?: boolean
   staffId?: boolean
+  drillOrder?: boolean
   batch?: boolean | Prisma.BatchesDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
   location?: boolean | Prisma.TrainingLocationsDefaultArgs<ExtArgs>
@@ -1592,6 +1812,7 @@ export type trainingSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   athletes?: boolean | Prisma.training$athletesArgs<ExtArgs>
   attendances?: boolean | Prisma.training$attendancesArgs<ExtArgs>
   assessments?: boolean | Prisma.training$assessmentsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.training$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.TrainingCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["training"]>
 
@@ -1607,6 +1828,7 @@ export type trainingSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isArchived?: boolean
   trainingLocationsId?: boolean
   staffId?: boolean
+  drillOrder?: boolean
   batch?: boolean | Prisma.BatchesDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
   location?: boolean | Prisma.TrainingLocationsDefaultArgs<ExtArgs>
@@ -1624,6 +1846,7 @@ export type trainingSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   isArchived?: boolean
   trainingLocationsId?: boolean
   staffId?: boolean
+  drillOrder?: boolean
   batch?: boolean | Prisma.BatchesDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
   location?: boolean | Prisma.TrainingLocationsDefaultArgs<ExtArgs>
@@ -1641,9 +1864,10 @@ export type trainingSelectScalar = {
   isArchived?: boolean
   trainingLocationsId?: boolean
   staffId?: boolean
+  drillOrder?: boolean
 }
 
-export type trainingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchesId" | "date" | "description" | "name" | "note" | "status" | "duration" | "isArchived" | "trainingLocationsId" | "staffId", ExtArgs["result"]["training"]>
+export type trainingOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "batchesId" | "date" | "description" | "name" | "note" | "status" | "duration" | "isArchived" | "trainingLocationsId" | "staffId" | "drillOrder", ExtArgs["result"]["training"]>
 export type trainingInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   batch?: boolean | Prisma.BatchesDefaultArgs<ExtArgs>
   coach?: boolean | Prisma.staffDefaultArgs<ExtArgs>
@@ -1652,6 +1876,7 @@ export type trainingInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   athletes?: boolean | Prisma.training$athletesArgs<ExtArgs>
   attendances?: boolean | Prisma.training$attendancesArgs<ExtArgs>
   assessments?: boolean | Prisma.training$assessmentsArgs<ExtArgs>
+  auditLogs?: boolean | Prisma.training$auditLogsArgs<ExtArgs>
   _count?: boolean | Prisma.TrainingCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type trainingIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1675,6 +1900,7 @@ export type $trainingPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     athletes: Prisma.$AthletePayload<ExtArgs>[]
     attendances: Prisma.$attendancePayload<ExtArgs>[]
     assessments: Prisma.$AssessmentPayload<ExtArgs>[]
+    auditLogs: Prisma.$AuditLogPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1688,6 +1914,7 @@ export type $trainingPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isArchived: boolean
     trainingLocationsId: string
     staffId: string
+    drillOrder: string[]
   }, ExtArgs["result"]["training"]>
   composites: {}
 }
@@ -2089,6 +2316,7 @@ export interface Prisma__trainingClient<T, Null = never, ExtArgs extends runtime
   athletes<T extends Prisma.training$athletesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.training$athletesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AthletePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   attendances<T extends Prisma.training$attendancesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.training$attendancesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$attendancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   assessments<T extends Prisma.training$assessmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.training$assessmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AssessmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  auditLogs<T extends Prisma.training$auditLogsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.training$auditLogsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AuditLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2129,6 +2357,7 @@ export interface trainingFieldRefs {
   readonly isArchived: Prisma.FieldRef<"training", 'Boolean'>
   readonly trainingLocationsId: Prisma.FieldRef<"training", 'String'>
   readonly staffId: Prisma.FieldRef<"training", 'String'>
+  readonly drillOrder: Prisma.FieldRef<"training", 'String[]'>
 }
     
 
@@ -2618,6 +2847,30 @@ export type training$assessmentsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.AssessmentScalarFieldEnum | Prisma.AssessmentScalarFieldEnum[]
+}
+
+/**
+ * training.auditLogs
+ */
+export type training$auditLogsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AuditLog
+   */
+  select?: Prisma.AuditLogSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AuditLog
+   */
+  omit?: Prisma.AuditLogOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AuditLogInclude<ExtArgs> | null
+  where?: Prisma.AuditLogWhereInput
+  orderBy?: Prisma.AuditLogOrderByWithRelationInput | Prisma.AuditLogOrderByWithRelationInput[]
+  cursor?: Prisma.AuditLogWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AuditLogScalarFieldEnum | Prisma.AuditLogScalarFieldEnum[]
 }
 
 /**

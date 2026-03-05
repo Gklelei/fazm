@@ -40,6 +40,7 @@ import {
   GetAllFinanceAtheletesType,
   GetAllInvoicesType,
 } from "../Type";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 const ViewAllFinances = ({
   data,
@@ -97,7 +98,30 @@ const ViewAllFinances = ({
               Showing {filteredData.length} of {data.length} transactions
             </p>
           </div>
-          <PaymentModal athletes={athletes} invoices={invoices} />
+          <div className="flex items-center gap-2">
+            <ExportDropdown
+              filename="Transactions"
+              headers={[
+                "#",
+                "Athlete",
+                "Amount",
+                "Payment Date",
+                "Invoice #",
+                "Method",
+                "Receipt #",
+              ]}
+              rows={filteredData.map((t, i) => [
+                String(i + 1),
+                `${t.athlete.firstName} ${t.athlete.lastName}`,
+                `KES ${Number(t.amountPaid).toLocaleString()}`,
+                format(new Date(t.paymentDate), "MMM dd, yyyy"),
+                t.invoice?.invoiceNumber || "—",
+                t.paymentType.replace(/_/g, " "),
+                t.receiptNumber,
+              ])}
+            />
+            <PaymentModal athletes={athletes} invoices={invoices} />
+          </div>
         </div>
       </CardHeader>
 
@@ -206,7 +230,7 @@ const ViewAllFinances = ({
                     </div>
                   </TableCell>
                   <TableCell className="text-right font-bold ">
-                    KES {trans.amountPaid.toLocaleString()}
+                    KES {Number(trans.amountPaid).toLocaleString()}
                   </TableCell>
                   <TableCell>
                     <div className="text-sm">

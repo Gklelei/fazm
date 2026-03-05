@@ -7,19 +7,8 @@ function safeText(v: unknown) {
   return String(v ?? "").trim();
 }
 
-function checkbox(checked: boolean) {
-  // simple, printable checkboxes that work in PDF fonts
-  return checked ? "☑" : "☐";
-}
 
-function statusFlags(status?: string) {
-  const s = safeText(status).toUpperCase();
-  return {
-    present: s === "PRESENT",
-    absent: s === "ABSENT",
-    excused: s === "EXCUSED",
-  };
-}
+
 
 function drawSectionTitle(doc: jsPDF, title: string, x: number, y: number) {
   doc.setFont("helvetica", "bold");

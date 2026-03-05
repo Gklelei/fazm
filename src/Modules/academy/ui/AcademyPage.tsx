@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -41,6 +42,7 @@ type FormValues = z.infer<typeof AcademySchema>;
 
 const AcademyPage = ({ academy }: Props) => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const editing = !!academy?.id;
 
   console.log({ academy });
@@ -57,6 +59,7 @@ const AcademyPage = ({ academy }: Props) => {
       phone: academy?.contactPhone || "",
       tagline: academy?.tagline || "",
       footerNotes: academy?.receiptFooterNotes || "",
+      primaryColor: academy?.primaryColor || "zinc",
     }),
     [academy],
   );
@@ -89,6 +92,7 @@ const AcademyPage = ({ academy }: Props) => {
     description: v.description?.trim() || "",
     logoUrl: v.logoUrl?.trim() || "",
     footerNotes: v.footerNotes?.trim() || "",
+    primaryColor: v.primaryColor || "zinc",
   });
 
   async function handleSubmit(values: FormValues) {
@@ -102,13 +106,19 @@ const AcademyPage = ({ academy }: Props) => {
 
       const result = await EditAcademyUtils({ id: academy.id, data: payload });
       toast(result.success, result.message);
-      if (result.success) form.reset(payload);
+      if (result.success) {
+        form.reset(payload);
+        queryClient.invalidateQueries({ queryKey: ["utils"] });
+      }
       return;
     }
 
     const result = await CreateAcademyUtils({ data: payload });
     toast(result.success, result.message);
-    if (result.success) form.reset(payload);
+    if (result.success) {
+      form.reset(payload);
+      queryClient.invalidateQueries({ queryKey: ["utils"] });
+    }
   }
 
   return (
@@ -375,6 +385,50 @@ const AcademyPage = ({ academy }: Props) => {
                         </FormControl>
                         <p className="text-xs text-muted-foreground">
                           PNG/JPG recommended.
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    name="primaryColor"
+                    control={form.control}
+                    render={({ field }) => (
+                      <FormItem className="w-full">
+                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
+                          Theme Color
+                        </FormLabel>
+                        <div className="grid grid-cols-5 gap-3 pt-2">
+                          {[
+                            {
+                              name: "zinc",
+                              bg: "bg-zinc-900 dark:bg-zinc-100",
+                            },
+                            { name: "blue", bg: "bg-blue-600" },
+                            { name: "green", bg: "bg-emerald-600" },
+                            { name: "orange", bg: "bg-orange-500" },
+                            { name: "rose", bg: "bg-rose-600" },
+                          ].map((theme) => (
+                            <button
+                              key={theme.name}
+                              type="button"
+                              onClick={() => field.onChange(theme.name)}
+                              className={`flex flex-col items-center gap-1 group`}
+                            >
+                              <div
+                                className={`h-10 w-10 rounded-full border-2 transition-all ${theme.bg} ${
+                                  field.value === theme.name
+                                    ? "ring-2 ring-primary ring-offset-2 border-primary/50"
+                                    : "border-transparent group-hover:scale-110"
+                                }`}
+                              />
+                            </button>
+                          ))}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-2">
+                          Pick a theme that reflects your academy brand. (Saves
+                          globally).
                         </p>
                         <FormMessage />
                       </FormItem>

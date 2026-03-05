@@ -147,11 +147,12 @@ model Invoice {
   issuedBy String? // Who created the invoice
   notes    String?
 
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   finances  Finance[]
-  coupon    Coupon?   @relation(fields: [couponId], references: [id])
+  coupon    Coupon?    @relation(fields: [couponId], references: [id])
   couponId  String?
+  auditLogs AuditLog[]
 
   @@index([athleteId])
   @@index([subscriptionPlanId])

@@ -108,7 +108,13 @@ export default function CreateAssesment({
           Object.entries(existing).map(([mid, v]) => [mid, v.grade]),
         ),
         comments: Object.fromEntries(
-          Object.entries(existing).map(([mid, v]) => [mid, v.comment]),
+          metrics.map((sec) => {
+            const firstMetricId = sec.metrics[0]?.id;
+            return [
+              sec.id,
+              firstMetricId ? existing[firstMetricId]?.comment || "" : "",
+            ];
+          }),
         ),
         isDirty: false,
       };
@@ -183,12 +189,12 @@ export default function CreateAssesment({
     }));
   };
 
-  const setComment = (metricId: string, value: string) => {
+  const setComment = (sectionId: string, value: string) => {
     setDrafts((prev) => ({
       ...prev,
       [selectedAthleteId]: {
         ...prev[selectedAthleteId],
-        comments: { ...prev[selectedAthleteId].comments, [metricId]: value },
+        comments: { ...prev[selectedAthleteId].comments, [sectionId]: value },
         isDirty: true,
       },
     }));
@@ -208,12 +214,19 @@ export default function CreateAssesment({
     }
 
     startTransition(async () => {
+      const sectionToFirstMetric = Object.fromEntries(
+        metrics
+          .map((sec) => [sec.id, sec.metrics[0]?.id])
+          .filter(([_, mid]) => mid),
+      ) as Record<string, string>;
+
       const res = await saveAssessment({
         athleteId: selectedAthleteId,
         trainingId,
         coachId,
         scores: payload.scores,
-        metricComments: payload.comments,
+        sectionComments: payload.comments,
+        sectionToFirstMetric,
       });
 
       if (res.status === "SUCCESS") {
@@ -443,19 +456,20 @@ export default function CreateAssesment({
                                 </SelectContent>
                               </Select>
                             </div>
-
-                            <Input
-                              className="h-11 text-sm"
-                              placeholder="Optional comment..."
-                              value={draft.comments[metric.id] ?? ""}
-                              onChange={(e) =>
-                                setComment(metric.id, e.target.value)
-                              }
-                            />
-
                             <Separator />
                           </div>
                         ))}
+
+                        <div className="pt-2">
+                          <Input
+                            className="h-11 text-sm bg-muted/20"
+                            placeholder={`Overall comment for ${section.name}...`}
+                            value={draft.comments[section.id] ?? ""}
+                            onChange={(e) =>
+                              setComment(section.id, e.target.value)
+                            }
+                          />
+                        </div>
                       </CardContent>
                     </Card>
                   ))}

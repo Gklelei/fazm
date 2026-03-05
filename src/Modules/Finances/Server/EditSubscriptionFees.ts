@@ -9,6 +9,7 @@ import {
   SubscriptionsSchemaType,
 } from "../Validators/Subs";
 
+
 export const UpdateSubscriptionPlan = async ({
   data,
   id,
@@ -76,7 +77,9 @@ export const UpdateSubscriptionPlan = async ({
       },
     });
 
-    revalidatePath("/finances/fees");
+    revalidatePath("/fees");
+
+
 
     return {
       success: true,
@@ -124,7 +127,9 @@ export const archiveSubscriptionPlan = async (
       },
     });
 
-    revalidatePath("/finances/fees");
+    revalidatePath("/fees");
+
+
 
     return {
       success: true,

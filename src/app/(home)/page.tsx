@@ -32,6 +32,8 @@ const HomePage = async () => {
     guardianCount,
     totalFinances,
     invoices,
+    activeSubscriptions,
+    overdueInvoicesAgg,
   ] = await db.$transaction([
     db.athlete.count({
       where: {
@@ -152,7 +154,18 @@ const HomePage = async () => {
         },
       },
     }),
+    db.athleteSubscription.count({
+      where: { status: "ACTIVE" },
+    }),
+    db.invoice.aggregate({
+      where: { status: { in: ["PENDING", "OVERDUE", "PARTIAL"] } },
+      _sum: { amountDue: true, amountPaid: true },
+    }),
   ]);
+  const outstandingBalance =
+    Number(overdueInvoicesAgg._sum.amountDue || 0) -
+    Number(overdueInvoicesAgg._sum.amountPaid || 0);
+
   const data = {
     totalPlayers,
     totalCoaches,
@@ -165,6 +178,8 @@ const HomePage = async () => {
     guardianCount,
     totalFinances,
     invoices,
+    activeSubscriptions,
+    outstandingBalance,
   };
 
   return <Dashboard data={data} role={(session?.user.role as AppRole) || ""} />;

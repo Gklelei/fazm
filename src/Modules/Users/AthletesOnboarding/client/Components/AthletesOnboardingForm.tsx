@@ -210,7 +210,7 @@ const AthletesOnboardingForm = () => {
           text: result.successMessage,
           title: "Success!",
         });
-        router.push("/users/players");
+        router.push("/players");
       } else {
         Sweetalert({
           icon: "error",
@@ -238,9 +238,9 @@ const AthletesOnboardingForm = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 md:space-y-8 px-2 sm:px-4 md:px-0">
       {/* Visual Progress Stepper with Status */}
-      <div className="px-4">
+      <div className="px-2 md:px-8">
         <Progress value={progress} className="h-2" />
         <div className="flex justify-between mt-2">
           {STEPS.map((step) => {
@@ -299,8 +299,8 @@ const AthletesOnboardingForm = () => {
             </CardHeader>
 
             {Object.keys(form.formState.errors).length > 0 && (
-              <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-md">
-                <h4 className="font-semibold text-red-700 mb-2">
+              <div className="mx-4 md:mx-6 mb-4 p-4 bg-destructive/10 border border-destructive/20 rounded-md">
+                <h4 className="font-semibold text-destructive mb-2">
                   Please fix the following errors:
                 </h4>
                 <ul className="text-sm text-red-600 list-disc pl-5">
@@ -315,27 +315,71 @@ const AthletesOnboardingForm = () => {
               </div>
             )}
 
-            <CardContent className="min-h-100">
-              <div className={currentStep === 1 ? "block" : "hidden"}>
-                <PersonalInformation />
-              </div>
-              <div className={currentStep === 2 ? "block" : "hidden"}>
-                <AthletesGuardian />
-              </div>
-              <div className={currentStep === 3 ? "block" : "hidden"}>
-                <AthleteAddress />
-              </div>
-              <div className={currentStep === 4 ? "block" : "hidden"}>
-                <AthleteDoccumnets />
-              </div>
-              <div className={currentStep === 5 ? "block" : "hidden"}>
-                <AthletePhysicals />
-              </div>
-              <div className={currentStep === 6 ? "block" : "hidden"}>
-                <AthletesMedical />
-              </div>
-              <div className={currentStep === 7 ? "block" : "hidden"}>
-                <PaymentPlan />
+            <CardContent className="min-h-[400px] p-4 md:p-8 flex flex-col justify-between">
+              <div>
+                <div
+                  className={
+                    currentStep === 1
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <PersonalInformation />
+                </div>
+                <div
+                  className={
+                    currentStep === 2
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <AthletesGuardian />
+                </div>
+                <div
+                  className={
+                    currentStep === 3
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <AthleteAddress />
+                </div>
+                <div
+                  className={
+                    currentStep === 4
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <AthleteDoccumnets />
+                </div>
+                <div
+                  className={
+                    currentStep === 5
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <AthletePhysicals />
+                </div>
+                <div
+                  className={
+                    currentStep === 6
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <AthletesMedical />
+                </div>
+                <div
+                  className={
+                    currentStep === 7
+                      ? "block animate-in fade-in slide-in-from-bottom-2 duration-500"
+                      : "hidden"
+                  }
+                >
+                  <PaymentPlan />
+                </div>
               </div>
 
               {/* Navigation Buttons */}
@@ -354,14 +398,14 @@ const AthletesOnboardingForm = () => {
                   <Button
                     type="button"
                     onClick={nextStep}
-                    className="gap-2 px-8"
+                    className="gap-2 px-4 md:px-8"
                   >
                     Next Step <ChevronRight className="h-4 w-4" />
                   </Button>
                 ) : (
                   <Button
                     type="submit"
-                    className="gap-2 px-8 bg-green-600 hover:bg-green-700"
+                    className="gap-2 px-4 md:px-8 bg-primary hover:bg-primary/90 text-primary-foreground"
                     disabled={isPending}
                   >
                     {isPending ? (

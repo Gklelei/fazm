@@ -1,12 +1,19 @@
 import { db } from "@/lib/prisma";
 import { renderToStream } from "@react-pdf/renderer";
 import InvoiceDocument from "@/Modules/Finances/Invoices/ui/InvoiceDocument";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 export async function GET(
   req: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
   const { id } = await params;
+
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
 
   const { protocol, host } = new URL(req.url);
   const baseUrl = `${protocol}//${host}`;
@@ -35,6 +42,20 @@ export async function GET(
   const stream = await renderToStream(
     <InvoiceDocument invoice={invoice} logoUrl={logoUrl} academy={academy} />,
   );
+
+  await createAuditLog({
+    action: "EXPORT_PDF",
+    resource: "Invoice",
+    details: JSON.stringify({
+      invoiceId: id,
+      athlete: invoice.athlete
+        ? `${invoice.athlete.firstName} ${invoice.athlete.lastName}`
+        : "Unknown",
+      amountPaid: Number(invoice.amountPaid),
+      amountDue: Number(invoice.amountDue),
+    }),
+    userId: session?.user.id,
+  });
 
   return new Response(stream as unknown as BodyInit, {
     headers: {

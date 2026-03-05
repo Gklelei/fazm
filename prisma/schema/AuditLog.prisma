@@ -1,0 +1,29 @@
+model AuditLog {
+    id       String  @id @default(cuid())
+    action   String
+    resource String
+    details  String?
+    userId   String?
+    user     User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+    athleteId String?
+    athlete   Athlete? @relation(fields: [athleteId], references: [id], onDelete: SetNull)
+
+    invoiceId String?
+    invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+
+    trainingId String?
+    training   training? @relation(fields: [trainingId], references: [id], onDelete: SetNull)
+
+    assessmentId String?
+    assessment   Assessment? @relation(fields: [assessmentId], references: [id], onDelete: SetNull)
+
+    batchId String?
+    batch   Batches? @relation(fields: [batchId], references: [id], onDelete: SetNull)
+
+    drillId String?
+    drill   drills? @relation(fields: [drillId], references: [id], onDelete: SetNull)
+
+    academyId String?
+    createdAt DateTime @default(now())
+}

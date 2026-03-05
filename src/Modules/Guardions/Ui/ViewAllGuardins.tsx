@@ -1,5 +1,6 @@
 "use client";
 import React, { useMemo, useState } from "react";
+import ServerPagination from "@/utils/ServerPagination";
 import { GuardiansResponseType } from "../types";
 import {
   Card,
@@ -29,13 +30,16 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { FilterIcon, RotateCcw } from "lucide-react";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+import ExportDropdown from "@/utils/ExportDropdown";
 
 interface Props {
   data: GuardiansResponseType[];
   noOfGuarddians: number;
+  page: number;
+  limit: number;
 }
 
-const ViewAllGuardins = ({ data, noOfGuarddians }: Props) => {
+const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
   const [searchQuery, setSearchQuery] = useState<string>("");
   const { data: Utils } = UseUtilsContext();
 
@@ -64,13 +68,38 @@ const ViewAllGuardins = ({ data, noOfGuarddians }: Props) => {
       <CardHeader className="pb-4">
         <div className="flex items-center justify-between">
           <div>
-            <CardTitle className="text-2xl font-bold">
+            <CardTitle className="text-2xl font-bold flex items-center gap-3">
               All Athlete Guardians
             </CardTitle>
             <CardDescription className="mt-1">
               {noOfGuarddians} guardians registered across all athletes
             </CardDescription>
           </div>
+          <ExportDropdown
+            filename="Guardians"
+            headers={[
+              "#",
+              "Guardian Name",
+              "Email",
+              "Phone",
+              "Athlete",
+              "Relationship",
+            ]}
+            rows={filteredData.map((item, i) => [
+              String(i + 1),
+              item.fullNames,
+              item.email,
+              item.phoneNumber,
+              [
+                item.athlete.firstName,
+                item.athlete.middleName,
+                item.athlete.lastName,
+              ]
+                .filter(Boolean)
+                .join(" "),
+              item.relationship,
+            ])}
+          />
         </div>
       </CardHeader>
 
@@ -210,6 +239,9 @@ const ViewAllGuardins = ({ data, noOfGuarddians }: Props) => {
               )}
             </TableBody>
           </Table>
+        </div>
+        <div className="p-4 border-t">
+          <ServerPagination page={page} limit={limit} total={noOfGuarddians} />
         </div>
       </CardContent>
     </Card>

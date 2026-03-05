@@ -7,6 +7,7 @@ import { db } from "@/lib/prisma";
 import { addMinutes } from "date-fns";
 import z from "zod";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 class TrainingConflictError extends Error {
   constructor() {
@@ -96,7 +97,15 @@ export const CreateTrainingSession = async (
         },
       });
     });
-    revalidatePath("/training/sessions");
+    revalidatePath("/sessions");
+
+    await createAuditLog({
+      action: "CREATE_TRAINING_SESSION",
+      resource: "TrainingSession",
+      details: `Created training session "${parsedData.title}"`,
+      userId: session.user.id,
+    });
+
     return {
       success: true,
       message: "Training session scheduled successfully.",

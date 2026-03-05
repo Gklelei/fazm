@@ -100,7 +100,7 @@ export async function CreateBatchWithSchedule(data: BatchSubmission) {
       return { batchId: batch.id, count: trainingsToCreate.length };
     });
 
-    revalidatePath("/settings/utils");
+    revalidatePath("/settings");
     return {
       success: true,
       message: `Batch created with ${result.count} sessions`,

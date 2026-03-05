@@ -25,13 +25,17 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { DeleteAssessmentSection } from "../server/DeleteMetric";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import ServerPagination from "@/utils/ServerPagination";
 import EditAssesmentMetric from "../server/EditAssesmentMetric";
 
 interface Props {
   data: GetAssesmentMetricsQueryType[];
+  page: number;
+  limit: number;
+  total: number;
 }
 
-const AssesmentMetrics = ({ data }: Props) => {
+const AssesmentMetrics = ({ data, page, limit, total }: Props) => {
   const [query, setQuery] = useState<string>("");
   const [metricId, setMetricId] = useState<string | undefined>(undefined);
 
@@ -181,6 +185,9 @@ const AssesmentMetrics = ({ data }: Props) => {
                 )}
               </TableBody>
             </Table>
+          </div>
+          <div className="p-4 border-t">
+            <ServerPagination page={page} limit={limit} total={total} />
           </div>
         </CardContent>
       </Card>

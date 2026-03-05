@@ -57,7 +57,7 @@ function ProfileModal() {
           <Button
             className="w-full flex justify-start"
             variant={"outline"}
-            onClick={() => router.push("/users/staff/profile")}
+            onClick={() => router.push("/staff/profile")}
           >
             Profile
           </Button>

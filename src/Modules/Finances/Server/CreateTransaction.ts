@@ -4,6 +4,7 @@ import { auth } from "@/lib/auth";
 import { FinanceSchema, FinanceSchemaType } from "../Validators";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 type returnPromise =
   | { success: true; message: string; receiptNumber?: string }
@@ -114,6 +115,15 @@ const createFinancialTransaction = async (
       }
 
       return finance;
+    });
+
+    await createAuditLog({
+      action: "CREATE_PAYMENT",
+      resource: "Finance",
+      details: `Generated receipt ${result.receiptNumber} for amount ${newPaymentAmount}`,
+      userId: session.user.id,
+      athleteId: existingUser.id,
+      invoiceId: existingInvoice.id,
     });
 
     return {

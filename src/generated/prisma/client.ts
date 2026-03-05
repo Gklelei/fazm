@@ -90,6 +90,11 @@ export type AthleteAddress = Prisma.AthleteAddressModel
  */
 export type AthleteEmergencyContact = Prisma.AthleteEmergencyContactModel
 /**
+ * Model AuditLog
+ * 
+ */
+export type AuditLog = Prisma.AuditLogModel
+/**
  * Model SubscriptionPlan
  * 
  */

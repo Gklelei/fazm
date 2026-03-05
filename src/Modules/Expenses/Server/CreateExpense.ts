@@ -5,9 +5,10 @@ import {
   ServerCreateExpenseType,
 } from "../Validators/CreateExpense";
 import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
+import { headers } from "next/headers";
 
 export async function CreateExpense(
   data: ServerCreateExpenseType,
@@ -44,6 +45,13 @@ export async function CreateExpense(
     });
 
     revalidatePath("/expenses");
+
+    await createAuditLog({
+      action: "CREATE_EXPENSE",
+      resource: "Expense",
+      details: `Logged expense of ${parsedData.amount} for ${parsedData.name}`,
+      userId: session.user.id,
+    });
 
     return {
       message: "Expense created",
@@ -100,6 +108,13 @@ export const VoidExpenses = async (id: string): Promise<ActionResult> => {
     });
 
     revalidatePath("/expenses");
+
+    await createAuditLog({
+      action: "VOID_EXPENSE",
+      resource: "Expense",
+      details: `Voided expense ${id}`,
+      userId: session.user.id,
+    });
 
     return {
       success: true,
@@ -165,6 +180,13 @@ export async function EditExpense(
     });
 
     revalidatePath("/expenses");
+
+    await createAuditLog({
+      action: "UPDATE_EXPENSE",
+      resource: "Expense",
+      details: `Updated details for expense ${id} - amount ${parsedData.amount}`,
+      userId: session.user.id,
+    });
 
     return {
       message: "Expense created",

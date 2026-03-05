@@ -7,6 +7,7 @@ import { db } from "@/lib/prisma";
 import { INVOICE_TYPE } from "@/generated/prisma/enums";
 import { Prisma } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -114,7 +115,14 @@ async function CreateAthleteInvoice(
       }
     });
 
-    revalidatePath("/finances/invoice");
+    revalidatePath("/invoices");
+
+    await createAuditLog({
+      action: "CREATE_INVOICES",
+      resource: "Invoice",
+      details: `Created manual/subscription invoices for ${parsed.athleteId.length} athletes.`,
+      userId: session.user.id,
+    });
 
     return {
       success: true,

@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,6 +10,8 @@ import {
   Loader2,
   AlertCircle,
   LayoutDashboard,
+  LogOut,
+  User as UserIcon,
 } from "lucide-react";
 import {
   Sidebar,
@@ -22,11 +24,14 @@ import {
   SidebarMenuSubItem,
   SidebarMenuSubButton,
   SidebarRail,
+  SidebarFooter,
 } from "@/components/ui/sidebar";
 import { data, type AppRole } from "./SideBarItems";
 import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { motion, AnimatePresence } from "framer-motion";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+import { authClient } from "@/lib/auth-client";
 
 type RoleResponse = { role: AppRole | null };
 
@@ -62,6 +67,11 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { data: roleData, isLoading, isError } = useUserRole();
   const userRole = roleData?.role ?? null;
   const { data: utils } = UseUtilsContext();
+  const router = useRouter();
+
+  // Try fetching current user session for the footer
+  const { data: session } = authClient.useSession();
+  const user = session?.user;
   const nav = React.useMemo(() => {
     const effectiveRole = isLoading || isError ? null : userRole;
     return data.navMain
@@ -102,23 +112,28 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   };
 
   return (
-    <Sidebar {...props} className="border-r">
-      <SidebarHeader className="border-b bg-muted/30 p-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-              <LayoutDashboard className="h-4 w-4" />
-            </div>
-            <div>
-              <h2 className="text-sm font-semibold leading-tight">
-                {utils?.academy?.academyName || "Fazam Football Academy"}
-              </h2>
+    <Sidebar {...props} className="border-r border-border/50 shadow-sm">
+      <SidebarHeader className="border-b border-border/50 bg-sidebar/50 backdrop-blur-md p-4 pb-6">
+        <div className="flex flex-col items-start gap-4">
+          <div className="flex w-full items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-primary/20">
+                <LayoutDashboard className="h-5 w-5 drop-shadow-md" />
+              </div>
+              <div className="flex flex-col">
+                <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
+                  Academy
+                </span>
+                <h2 className="text-sm font-bold leading-tight truncate max-w-[140px] text-foreground">
+                  {utils?.academy?.academyName || "Fazam FC"}
+                </h2>
+              </div>
             </div>
           </div>
           <Badge
             variant="outline"
             className={cn(
-              "px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider border",
+              "px-2.5 py-1 text-[10px] font-bold uppercase tracking-widest border shadow-sm w-fit",
               getRoleBadgeColor(userRole),
             )}
           >
@@ -131,7 +146,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         </div>
       </SidebarHeader>
 
-      <SidebarContent className="p-2">
+      <SidebarContent className="px-3 py-4 space-y-6">
         {isLoading && (
           <div className="flex flex-col items-center justify-center py-12 text-center space-y-2">
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
@@ -160,24 +175,47 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 : isActivePath(pathname, "");
 
               return (
-                <SidebarMenuItem key={item.title}>
+                <div key={item.title} className="mb-6">
+                  {/* Section Title */}
+                  <h3 className="mb-2 px-3 text-[10px] font-bold uppercase tracking-widest text-muted-foreground/70">
+                    {item.title}
+                  </h3>
+
                   {!hasSubs ? (
                     // Single item
-                    <SidebarMenuButton
-                      asChild
-                      isActive={parentActive}
-                      tooltip={item.title}
-                      className="group"
-                    >
-                      <Link href={"#"}>
-                        {item.icon && (
-                          <span className="mr-2 h-5 w-5">{item.icon}</span>
+                    <SidebarMenuItem>
+                      <SidebarMenuButton
+                        asChild
+                        isActive={parentActive}
+                        tooltip={item.title}
+                        className={cn(
+                          "group h-10 w-full rounded-lg transition-all hover:bg-muted duration-200",
+                          parentActive &&
+                            "bg-primary/10 text-primary font-semibold relative after:absolute after:left-[-12px] after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm",
                         )}
-                        <span>{item.title}</span>
-                      </Link>
-                    </SidebarMenuButton>
+                      >
+                        <Link
+                          href={item.url || "#"}
+                          className="flex items-center gap-3"
+                        >
+                          {item.icon && (
+                            <span
+                              className={cn(
+                                "flex h-8 w-8 items-center justify-center rounded-md transition-all duration-300 group-hover:scale-105",
+                                parentActive
+                                  ? "text-primary shadow-[inset_0_0_10px_rgba(0,0,0,0.05)] bg-background/50"
+                                  : "text-muted-foreground group-hover:text-foreground group-hover:bg-background shadow-sm",
+                              )}
+                            >
+                              {item.icon}
+                            </span>
+                          )}
+                          <span className="text-sm">{item.title}</span>
+                        </Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
                   ) : (
-                    <>
+                    <SidebarMenuItem>
                       <SidebarMenuButton
                         onClick={() =>
                           setOpenGroup((curr) =>
@@ -185,17 +223,33 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                           )
                         }
                         isActive={parentActive}
-                        className="group w-full justify-between"
+                        className={cn(
+                          "group h-10 w-full rounded-lg justify-between transition-all hover:bg-muted duration-200",
+                          parentActive && !isOpen
+                            ? "bg-primary/10 text-primary font-semibold relative after:absolute after:left-[-12px] after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm"
+                            : "",
+                        )}
                       >
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-3">
                           {item.icon && (
-                            <span className="h-5 w-5">{item.icon}</span>
+                            <span
+                              className={cn(
+                                "flex h-8 w-8 items-center justify-center rounded-md transition-colors",
+                                parentActive
+                                  ? "text-primary"
+                                  : "text-muted-foreground group-hover:text-foreground group-hover:bg-muted",
+                              )}
+                            >
+                              {item.icon}
+                            </span>
                           )}
-                          <span>{item.title}</span>
+                          <span className="text-sm font-medium transition-colors group-hover:text-foreground">
+                            {item.title}
+                          </span>
                         </div>
                         <ChevronDown
                           className={cn(
-                            "h-4 w-4 transition-transform duration-200",
+                            "h-4 w-4 text-muted-foreground transition-transform duration-200",
                             isOpen && "rotate-180",
                           )}
                         />
@@ -210,27 +264,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                             transition={{ duration: 0.2 }}
                             className="overflow-hidden"
                           >
-                            <SidebarMenuSub>
-                              {item.items?.map((sub) => (
-                                <SidebarMenuSubItem key={sub.url}>
-                                  <SidebarMenuSubButton
-                                    asChild
-                                    isActive={isActivePath(pathname, sub.url)}
-                                    className="pl-9"
-                                  >
-                                    <Link href={sub.url}>
-                                      <span>{sub.title}</span>
-                                    </Link>
-                                  </SidebarMenuSubButton>
-                                </SidebarMenuSubItem>
-                              ))}
+                            <SidebarMenuSub className="ml-5 mt-1 border-l-2 border-muted pl-4 space-y-1">
+                              {item.items?.map((sub) => {
+                                const isSubActive = isActivePath(
+                                  pathname,
+                                  sub.url,
+                                );
+                                return (
+                                  <SidebarMenuSubItem key={sub.url}>
+                                    <SidebarMenuSubButton
+                                      asChild
+                                      isActive={isSubActive}
+                                      className={cn(
+                                        "h-9 rounded-md transition-all duration-200 hover:text-foreground my-0.5",
+                                        isSubActive
+                                          ? "text-primary font-bold bg-primary/10 shadow-sm ring-1 ring-primary/20"
+                                          : "text-muted-foreground hover:bg-muted/60",
+                                      )}
+                                    >
+                                      <Link
+                                        href={sub.url}
+                                        className="flex items-center gap-2"
+                                      >
+                                        {/* Subtle active indicator dot */}
+                                        <span
+                                          className={cn(
+                                            "h-1.5 w-1.5 rounded-full transition-colors",
+                                            isSubActive
+                                              ? "bg-primary"
+                                              : "bg-transparent group-hover:bg-muted-foreground/30",
+                                          )}
+                                        />
+                                        <span>{sub.title}</span>
+                                      </Link>
+                                    </SidebarMenuSubButton>
+                                  </SidebarMenuSubItem>
+                                );
+                              })}
                             </SidebarMenuSub>
                           </motion.div>
                         )}
                       </AnimatePresence>
-                    </>
+                    </SidebarMenuItem>
                   )}
-                </SidebarMenuItem>
+                </div>
               );
             })}
 
@@ -243,7 +320,50 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
           </SidebarMenu>
         )}
       </SidebarContent>
-
+      <SidebarFooter className="border-t bg-sidebar p-4">
+        {user ? (
+          <div className="flex items-center justify-between gap-2 overflow-hidden rounded-xl border bg-gradient-to-tr from-muted/30 to-muted/10 p-2.5 shadow-sm transition-all hover:shadow-md">
+            <div className="flex items-center gap-3 truncate">
+              <Avatar className="h-9 w-9 border ring-2 ring-primary/20 shadow-sm">
+                <AvatarImage src={user.image ?? ""} alt={user.name} />
+                <AvatarFallback className="bg-primary text-primary-foreground font-bold">
+                  {user.name.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
+              <div className="flex flex-col truncate">
+                <span className="truncate text-sm font-semibold">
+                  {user.name}
+                </span>
+                <span className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={async () => {
+                await authClient.signOut();
+                router.push("/sign-in");
+              }}
+              className="group flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive focus:outline-none"
+              title="Sign Out"
+            >
+              <LogOut className="h-4 w-4 transition-transform group-hover:-translate-x-0.5" />
+            </button>
+          </div>
+        ) : (
+          <div className="flex items-center gap-3 truncate rounded-xl border bg-card p-2 shadow-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
+              <UserIcon className="h-4 w-4 text-muted-foreground" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-semibold">Guest User</span>
+              <span className="text-xs text-muted-foreground">
+                Sign in required
+              </span>
+            </div>
+          </div>
+        )}
+      </SidebarFooter>
       <SidebarRail />
     </Sidebar>
   );

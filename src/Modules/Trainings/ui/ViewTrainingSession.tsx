@@ -76,6 +76,14 @@ const ViewTrainingSession = ({ data, count, present }: Props) => {
     });
   }, [data.date, data.duration]);
 
+  const sortedDrills = useMemo(() => {
+    if (!data.drillOrder || data.drillOrder.length === 0) return data.drills;
+    const drillMap = new Map(data.drills.map((d) => [d.id, d]));
+    return data.drillOrder
+      .map((id) => drillMap.get(id))
+      .filter(Boolean) as typeof data.drills;
+  }, [data.drills, data.drillOrder]);
+
   const statsGridCols = isMobile ? "grid-cols-2" : "sm:grid-cols-4";
   const drillsCols = isMobile ? "grid-cols-1" : "md:grid-cols-3";
 
@@ -287,7 +295,7 @@ const ViewTrainingSession = ({ data, count, present }: Props) => {
           <h2 className="text-lg font-semibold">Drills</h2>
         </div>
 
-        {data.drills.length === 0 ? (
+        {sortedDrills.length === 0 ? (
           <Card className="border-dashed">
             <CardContent className="p-8 text-center text-muted-foreground text-sm">
               No drills have been assigned to this session.
@@ -295,7 +303,7 @@ const ViewTrainingSession = ({ data, count, present }: Props) => {
           </Card>
         ) : (
           <div className={`grid ${drillsCols} gap-3 sm:gap-4`}>
-            {data.drills.map((drill) => (
+            {sortedDrills.map((drill) => (
               <Card key={drill.id} className="shadow-sm">
                 <CardHeader className="p-4 pb-2">
                   <CardTitle className="text-sm font-medium wrap-break-word">
