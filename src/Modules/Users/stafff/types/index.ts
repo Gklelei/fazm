@@ -9,6 +9,7 @@ export const GetStaffQuery = {
   include: {
     user: true,
   },
+
 } satisfies Prisma.staffFindManyArgs;
 
 export type GetStaffType = Prisma.staffGetPayload<typeof GetStaffQuery>;

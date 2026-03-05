@@ -62,7 +62,7 @@ export const UpdateAthleteAction = async (
         .filter(Boolean)
     : [];
   try {
-    const updatedAthlete = await db.athlete.update({
+ const updatedAthlete = await db.athlete.update({
       where: { athleteId: id },
       data: {
         firstName: data.firstName,
@@ -83,19 +83,35 @@ export const UpdateAthleteAction = async (
         nationalIdBack: data.idBack,
         nationalIdFront: data.idFront,
         address: {
-          update: {
-            addressLine1: data.addressLine1,
-            addressLine2: data.addressLine2,
-            country: data.country,
-            town: data.town,
-            estate: data.estate,
+          upsert: {
+            create: {
+              addressLine1: data.addressLine1,
+              addressLine2: data.addressLine2 || "",
+              country: data.country,
+              town: data.town,
+              estate: data.estate,
+            },
+            update: {
+              addressLine1: data.addressLine1,
+              addressLine2: data.addressLine2,
+              country: data.country,
+              town: data.town,
+              estate: data.estate,
+            },
           },
         },
         medical: {
-          update: {
-            bloogGroup: data.bloodGroup,
-            allergies: allergies,
-            medicalConditions: medicalConditions,
+          upsert: {
+            create: {
+              bloogGroup: data.bloodGroup,
+              allergies: allergies,
+              medicalConditions: medicalConditions,
+            },
+            update: {
+              bloogGroup: data.bloodGroup,
+              allergies: allergies,
+              medicalConditions: medicalConditions,
+            },
           },
         },
         guardians: {
