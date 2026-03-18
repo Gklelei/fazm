@@ -22,7 +22,6 @@ import CreateExpenses from "./CreateExpenses";
 import EditExpenseForm from "./EditExpensesForm";
 import { formatCurrency } from "@/utils/TansformWords";
 import ExportDropdown from "@/utils/ExportDropdown";
-import { format as fmtDate } from "date-fns";
 
 interface Props {
   expenses: GetExpensesQueryType[];
@@ -76,15 +75,20 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
                 e.name,
                 `KES ${formatCurrency(e.amount)}`,
                 e.description || "—",
-                fmtDate(new Date(e.date), "dd MMM yyyy"),
+                format(new Date(e.date), "dd MMM yyyy"),
               ])}
-              fetchAllUrl="/api/export?resource=expenses"
+              fetchAllUrl={`/api/export?resource=expenses${
+                query ? `&query=${encodeURIComponent(query)}` : ""
+              }`}
+              filterFn={(e: any) =>
+                e.name.toLowerCase().includes(query.toLowerCase())
+              }
               mapRow={(e: any, i: number) => [
                 String(i + 1),
                 e.name,
                 `KES ${formatCurrency(e.amount)}`,
                 e.description || "—",
-                fmtDate(new Date(e.date), "dd MMM yyyy"),
+                format(new Date(e.date), "dd MMM yyyy"),
               ]}
             />
             <CreateExpenses />

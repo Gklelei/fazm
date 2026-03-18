@@ -23,3 +23,16 @@ export type FinanceSchemaType = z.infer<typeof FinanceSchema>;
 export const ClientFinanceSchema = FinanceSchema;
 
 export type ClientFinanceSchemaType = z.infer<typeof ClientFinanceSchema>;
+
+export const EditFinanceSchema = z.object({
+  id: requiredString,
+  amountPaid: requiredString,
+  paymentDate: requiredString,
+  paymentType: z.enum(PAYMENT_TYPE),
+  collectedBy: requiredString,
+  notes: z.string().optional(),
+});
+
+export type EditFinanceSchemaType = z.infer<typeof EditFinanceSchema>;
+export const ClientEditFinanceSchema = EditFinanceSchema;
+export type ClientEditFinanceSchemaType = z.infer<typeof ClientEditFinanceSchema>;

@@ -165,6 +165,34 @@ export default function PersonalInfo({
               </div>
             </div>
 
+            {/* Physical Attributes */}
+            <div className="rounded-xl border p-3 sm:p-4">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="grid place-items-center h-8 w-8 rounded-lg bg-primary/10">
+                  <Activity className="h-4 w-4 text-primary" />
+                </div>
+                <div className="text-sm font-semibold">Physical</div>
+              </div>
+              <div className="grid grid-cols-2 gap-y-1 text-sm text-muted-foreground">
+                <span className="text-xs font-medium text-foreground">
+                  Height
+                </span>
+                <span>{valueOrDash(data.height)}</span>
+                <span className="text-xs font-medium text-foreground">
+                  Weight
+                </span>
+                <span>{valueOrDash(data.weight)}</span>
+                <span className="text-xs font-medium text-foreground">
+                  Foot
+                </span>
+                <span>{valueOrDash(data.foot)}</span>
+                <span className="text-xs font-medium text-foreground">
+                  Hand
+                </span>
+                <span>{valueOrDash(data.hand)}</span>
+              </div>
+            </div>
+
             {/* Status (full width tile) */}
             <div className="rounded-xl border p-3 sm:p-4 sm:col-span-2 xl:col-span-3 bg-muted/20">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">

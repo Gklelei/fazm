@@ -33,6 +33,12 @@ interface ExportDropdownProps {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   mapRow?: (item: any, index: number) => string[];
+  /**
+   * Optional function to filter the raw API items before mapping.
+   * Useful when the client has a search query active but the API returns all items.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  filterFn?: (item: any) => boolean;
 }
 
 export default function ExportDropdown({
@@ -41,6 +47,7 @@ export default function ExportDropdown({
   rows,
   fetchAllUrl,
   mapRow,
+  filterFn,
 }: ExportDropdownProps) {
   const [loading, setLoading] = useState(false);
 
@@ -52,7 +59,12 @@ export default function ExportDropdown({
     try {
       const res = await fetch(fetchAllUrl);
       if (!res.ok) throw new Error("Export fetch failed");
-      const data = await res.json();
+      let data = await res.json();
+
+      if (filterFn) {
+        data = data.filter(filterFn);
+      }
+
       return (data as unknown[]).map(mapRow);
     } catch (error) {
       console.error(

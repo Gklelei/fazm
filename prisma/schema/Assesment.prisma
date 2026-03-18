@@ -1,58 +1,59 @@
 model Assessment {
-    id        String   @id @default(cuid())
-    createdAt DateTime @default(now())
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
 
-    athleteId String
-    athlete   Athlete @relation(fields: [athleteId], references: [athleteId])
+  athleteId String
+  athlete   Athlete @relation(fields: [athleteId], references: [athleteId])
 
-    trainingId String
-    training   training @relation(fields: [trainingId], references: [id])
+  trainingId String
+  training   training @relation(fields: [trainingId], references: [id])
 
-    coachId String
-    coach   staff  @relation(fields: [coachId], references: [staffId])
+  coachId String
+  coach   staff  @relation(fields: [coachId], references: [staffId])
 
-    responses AssessmentResponse[]
-    auditLogs AuditLog[]
+  responses AssessmentResponse[]
+  auditLogs AuditLog[]
 
-    @@unique([athleteId, trainingId])
-    @@map("assessments")
+  comment String?
+
+  @@unique([athleteId, trainingId])
+  @@map("assessments")
 }
 
 model AssessmentTemplateSection {
-    id          String             @id @default(cuid())
-    name        String
-    description String?
-    order       Int
-    isArchived  Boolean            @default(false)
-    metrics     AssessmentMetric[]
+  id          String             @id @default(cuid())
+  name        String
+  description String?
+  order       Int
+  isArchived  Boolean            @default(false)
+  metrics     AssessmentMetric[]
 }
 
 model AssessmentMetric {
-    id         String                    @id @default(cuid())
-    label      String
-    sectionId  String
-    isArchived Boolean                   @default(false)
-    section    AssessmentTemplateSection @relation(fields: [sectionId], references: [id])
-    responses  AssessmentResponse[]
+  id         String                    @id @default(cuid())
+  label      String
+  sectionId  String
+  isArchived Boolean                   @default(false)
+  section    AssessmentTemplateSection @relation(fields: [sectionId], references: [id])
+  responses  AssessmentResponse[]
 }
 
 model AssessmentResponse {
-    id           String           @id @default(cuid())
-    assessmentId String
-    assessment   Assessment       @relation(fields: [assessmentId], references: [id])
-    metricId     String
-    metric       AssessmentMetric @relation(fields: [metricId], references: [id])
+  id           String           @id @default(cuid())
+  assessmentId String
+  assessment   Assessment       @relation(fields: [assessmentId], references: [id])
+  metricId     String
+  metric       AssessmentMetric @relation(fields: [metricId], references: [id])
 
-    grade   GradeRating
-    comment String?
+  grade GradeRating
 
-    @@unique([assessmentId, metricId])
+  @@unique([assessmentId, metricId])
 }
 
 enum GradeRating {
-    BELOW_STANDARD
-    NEEDS_WORK
-    GOOD
-    VERY_GOOD
-    EXCELLENT
+  BELOW_STANDARD
+  NEEDS_WORK
+  GOOD
+  VERY_GOOD
+  EXCELLENT
 }

@@ -46,6 +46,8 @@ export type FinanceMinAggregateOutputType = {
   receiptNumber: string | null
   athleteSubscriptionId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
+  isArchived: boolean | null
 }
 
 export type FinanceMaxAggregateOutputType = {
@@ -60,6 +62,8 @@ export type FinanceMaxAggregateOutputType = {
   receiptNumber: string | null
   athleteSubscriptionId: string | null
   createdAt: Date | null
+  updatedAt: Date | null
+  isArchived: boolean | null
 }
 
 export type FinanceCountAggregateOutputType = {
@@ -74,6 +78,8 @@ export type FinanceCountAggregateOutputType = {
   receiptNumber: number
   athleteSubscriptionId: number
   createdAt: number
+  updatedAt: number
+  isArchived: number
   _all: number
 }
 
@@ -98,6 +104,8 @@ export type FinanceMinAggregateInputType = {
   receiptNumber?: true
   athleteSubscriptionId?: true
   createdAt?: true
+  updatedAt?: true
+  isArchived?: true
 }
 
 export type FinanceMaxAggregateInputType = {
@@ -112,6 +120,8 @@ export type FinanceMaxAggregateInputType = {
   receiptNumber?: true
   athleteSubscriptionId?: true
   createdAt?: true
+  updatedAt?: true
+  isArchived?: true
 }
 
 export type FinanceCountAggregateInputType = {
@@ -126,6 +136,8 @@ export type FinanceCountAggregateInputType = {
   receiptNumber?: true
   athleteSubscriptionId?: true
   createdAt?: true
+  updatedAt?: true
+  isArchived?: true
   _all?: true
 }
 
@@ -227,6 +239,8 @@ export type FinanceGroupByOutputType = {
   receiptNumber: string
   athleteSubscriptionId: string | null
   createdAt: Date
+  updatedAt: Date
+  isArchived: boolean
   _count: FinanceCountAggregateOutputType | null
   _avg: FinanceAvgAggregateOutputType | null
   _sum: FinanceSumAggregateOutputType | null
@@ -264,6 +278,8 @@ export type FinanceWhereInput = {
   receiptNumber?: Prisma.StringFilter<"Finance"> | string
   athleteSubscriptionId?: Prisma.StringNullableFilter<"Finance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  isArchived?: Prisma.BoolFilter<"Finance"> | boolean
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   athleteSubscription?: Prisma.XOR<Prisma.AthleteSubscriptionNullableScalarRelationFilter, Prisma.AthleteSubscriptionWhereInput> | null
@@ -281,6 +297,8 @@ export type FinanceOrderByWithRelationInput = {
   receiptNumber?: Prisma.SortOrder
   athleteSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   athlete?: Prisma.AthleteOrderByWithRelationInput
   invoice?: Prisma.InvoiceOrderByWithRelationInput
   athleteSubscription?: Prisma.AthleteSubscriptionOrderByWithRelationInput
@@ -301,6 +319,8 @@ export type FinanceWhereUniqueInput = Prisma.AtLeast<{
   paymentType?: Prisma.EnumPAYMENT_TYPEFilter<"Finance"> | $Enums.PAYMENT_TYPE
   athleteSubscriptionId?: Prisma.StringNullableFilter<"Finance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  isArchived?: Prisma.BoolFilter<"Finance"> | boolean
   athlete?: Prisma.XOR<Prisma.AthleteScalarRelationFilter, Prisma.AthleteWhereInput>
   invoice?: Prisma.XOR<Prisma.InvoiceNullableScalarRelationFilter, Prisma.InvoiceWhereInput> | null
   athleteSubscription?: Prisma.XOR<Prisma.AthleteSubscriptionNullableScalarRelationFilter, Prisma.AthleteSubscriptionWhereInput> | null
@@ -318,6 +338,8 @@ export type FinanceOrderByWithAggregationInput = {
   receiptNumber?: Prisma.SortOrder
   athleteSubscriptionId?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
   _count?: Prisma.FinanceCountOrderByAggregateInput
   _avg?: Prisma.FinanceAvgOrderByAggregateInput
   _max?: Prisma.FinanceMaxOrderByAggregateInput
@@ -340,6 +362,8 @@ export type FinanceScalarWhereWithAggregatesInput = {
   receiptNumber?: Prisma.StringWithAggregatesFilter<"Finance"> | string
   athleteSubscriptionId?: Prisma.StringNullableWithAggregatesFilter<"Finance"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Finance"> | Date | string
+  updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Finance"> | Date | string
+  isArchived?: Prisma.BoolWithAggregatesFilter<"Finance"> | boolean
 }
 
 export type FinanceCreateInput = {
@@ -351,6 +375,8 @@ export type FinanceCreateInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
   athlete: Prisma.AthleteCreateNestedOneWithoutFinancesInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutFinancesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutFinancesInput
@@ -368,6 +394,8 @@ export type FinanceUncheckedCreateInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceUpdateInput = {
@@ -379,6 +407,8 @@ export type FinanceUpdateInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutFinancesNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutFinancesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutFinancesNestedInput
@@ -396,6 +426,8 @@ export type FinanceUncheckedUpdateInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceCreateManyInput = {
@@ -410,6 +442,8 @@ export type FinanceCreateManyInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceUpdateManyMutationInput = {
@@ -421,6 +455,8 @@ export type FinanceUpdateManyMutationInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceUncheckedUpdateManyInput = {
@@ -435,6 +471,8 @@ export type FinanceUncheckedUpdateManyInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceListRelationFilter = {
@@ -459,6 +497,8 @@ export type FinanceCountOrderByAggregateInput = {
   receiptNumber?: Prisma.SortOrder
   athleteSubscriptionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
 }
 
 export type FinanceAvgOrderByAggregateInput = {
@@ -477,6 +517,8 @@ export type FinanceMaxOrderByAggregateInput = {
   receiptNumber?: Prisma.SortOrder
   athleteSubscriptionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
 }
 
 export type FinanceMinOrderByAggregateInput = {
@@ -491,6 +533,8 @@ export type FinanceMinOrderByAggregateInput = {
   receiptNumber?: Prisma.SortOrder
   athleteSubscriptionId?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+  updatedAt?: Prisma.SortOrder
+  isArchived?: Prisma.SortOrder
 }
 
 export type FinanceSumOrderByAggregateInput = {
@@ -644,6 +688,8 @@ export type FinanceCreateWithoutAthleteInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
   invoice?: Prisma.InvoiceCreateNestedOneWithoutFinancesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutFinancesInput
 }
@@ -659,6 +705,8 @@ export type FinanceUncheckedCreateWithoutAthleteInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceCreateOrConnectWithoutAthleteInput = {
@@ -702,6 +750,8 @@ export type FinanceScalarWhereInput = {
   receiptNumber?: Prisma.StringFilter<"Finance"> | string
   athleteSubscriptionId?: Prisma.StringNullableFilter<"Finance"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"Finance"> | Date | string
+  isArchived?: Prisma.BoolFilter<"Finance"> | boolean
 }
 
 export type FinanceCreateWithoutAthleteSubscriptionInput = {
@@ -713,6 +763,8 @@ export type FinanceCreateWithoutAthleteSubscriptionInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
   athlete: Prisma.AthleteCreateNestedOneWithoutFinancesInput
   invoice?: Prisma.InvoiceCreateNestedOneWithoutFinancesInput
 }
@@ -728,6 +780,8 @@ export type FinanceUncheckedCreateWithoutAthleteSubscriptionInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceCreateOrConnectWithoutAthleteSubscriptionInput = {
@@ -765,6 +819,8 @@ export type FinanceCreateWithoutInvoiceInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
   athlete: Prisma.AthleteCreateNestedOneWithoutFinancesInput
   athleteSubscription?: Prisma.AthleteSubscriptionCreateNestedOneWithoutFinancesInput
 }
@@ -780,6 +836,8 @@ export type FinanceUncheckedCreateWithoutInvoiceInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceCreateOrConnectWithoutInvoiceInput = {
@@ -819,6 +877,8 @@ export type FinanceCreateManyAthleteInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceUpdateWithoutAthleteInput = {
@@ -830,6 +890,8 @@ export type FinanceUpdateWithoutAthleteInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   invoice?: Prisma.InvoiceUpdateOneWithoutFinancesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutFinancesNestedInput
 }
@@ -845,6 +907,8 @@ export type FinanceUncheckedUpdateWithoutAthleteInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceUncheckedUpdateManyWithoutAthleteInput = {
@@ -858,6 +922,8 @@ export type FinanceUncheckedUpdateManyWithoutAthleteInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceCreateManyAthleteSubscriptionInput = {
@@ -871,6 +937,8 @@ export type FinanceCreateManyAthleteSubscriptionInput = {
   paymentType?: $Enums.PAYMENT_TYPE
   receiptNumber: string
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceUpdateWithoutAthleteSubscriptionInput = {
@@ -882,6 +950,8 @@ export type FinanceUpdateWithoutAthleteSubscriptionInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutFinancesNestedInput
   invoice?: Prisma.InvoiceUpdateOneWithoutFinancesNestedInput
 }
@@ -897,6 +967,8 @@ export type FinanceUncheckedUpdateWithoutAthleteSubscriptionInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceUncheckedUpdateManyWithoutAthleteSubscriptionInput = {
@@ -910,6 +982,8 @@ export type FinanceUncheckedUpdateManyWithoutAthleteSubscriptionInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceCreateManyInvoiceInput = {
@@ -923,6 +997,8 @@ export type FinanceCreateManyInvoiceInput = {
   receiptNumber: string
   athleteSubscriptionId?: string | null
   createdAt?: Date | string
+  updatedAt?: Date | string
+  isArchived?: boolean
 }
 
 export type FinanceUpdateWithoutInvoiceInput = {
@@ -934,6 +1010,8 @@ export type FinanceUpdateWithoutInvoiceInput = {
   paymentType?: Prisma.EnumPAYMENT_TYPEFieldUpdateOperationsInput | $Enums.PAYMENT_TYPE
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   athlete?: Prisma.AthleteUpdateOneRequiredWithoutFinancesNestedInput
   athleteSubscription?: Prisma.AthleteSubscriptionUpdateOneWithoutFinancesNestedInput
 }
@@ -949,6 +1027,8 @@ export type FinanceUncheckedUpdateWithoutInvoiceInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 export type FinanceUncheckedUpdateManyWithoutInvoiceInput = {
@@ -962,6 +1042,8 @@ export type FinanceUncheckedUpdateManyWithoutInvoiceInput = {
   receiptNumber?: Prisma.StringFieldUpdateOperationsInput | string
   athleteSubscriptionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
 }
 
 
@@ -978,6 +1060,8 @@ export type FinanceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   receiptNumber?: boolean
   athleteSubscriptionId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  isArchived?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Finance$invoiceArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Finance$athleteSubscriptionArgs<ExtArgs>
@@ -995,6 +1079,8 @@ export type FinanceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   receiptNumber?: boolean
   athleteSubscriptionId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  isArchived?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Finance$invoiceArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Finance$athleteSubscriptionArgs<ExtArgs>
@@ -1012,6 +1098,8 @@ export type FinanceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   receiptNumber?: boolean
   athleteSubscriptionId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  isArchived?: boolean
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Finance$invoiceArgs<ExtArgs>
   athleteSubscription?: boolean | Prisma.Finance$athleteSubscriptionArgs<ExtArgs>
@@ -1029,9 +1117,11 @@ export type FinanceSelectScalar = {
   receiptNumber?: boolean
   athleteSubscriptionId?: boolean
   createdAt?: boolean
+  updatedAt?: boolean
+  isArchived?: boolean
 }
 
-export type FinanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "notes" | "athleteId" | "invoiceId" | "amountPaid" | "collectedBy" | "paymentDate" | "paymentType" | "receiptNumber" | "athleteSubscriptionId" | "createdAt", ExtArgs["result"]["finance"]>
+export type FinanceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "notes" | "athleteId" | "invoiceId" | "amountPaid" | "collectedBy" | "paymentDate" | "paymentType" | "receiptNumber" | "athleteSubscriptionId" | "createdAt" | "updatedAt" | "isArchived", ExtArgs["result"]["finance"]>
 export type FinanceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   athlete?: boolean | Prisma.AthleteDefaultArgs<ExtArgs>
   invoice?: boolean | Prisma.Finance$invoiceArgs<ExtArgs>
@@ -1067,6 +1157,8 @@ export type $FinancePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     receiptNumber: string
     athleteSubscriptionId: string | null
     createdAt: Date
+    updatedAt: Date
+    isArchived: boolean
   }, ExtArgs["result"]["finance"]>
   composites: {}
 }
@@ -1504,6 +1596,8 @@ export interface FinanceFieldRefs {
   readonly receiptNumber: Prisma.FieldRef<"Finance", 'String'>
   readonly athleteSubscriptionId: Prisma.FieldRef<"Finance", 'String'>
   readonly createdAt: Prisma.FieldRef<"Finance", 'DateTime'>
+  readonly updatedAt: Prisma.FieldRef<"Finance", 'DateTime'>
+  readonly isArchived: Prisma.FieldRef<"Finance", 'Boolean'>
 }
     
 

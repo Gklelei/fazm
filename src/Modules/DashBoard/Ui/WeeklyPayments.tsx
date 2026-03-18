@@ -53,8 +53,8 @@ const WeeklyPayments = ({ data }: { data: dashboardItems }) => {
                         </p>
                       </div>
                     </TableCell>
-                    <TableCell className="font-semibold">
-                      {payment.amountPaid}
+                    <TableCell className="font-semibold text-emerald-700">
+                      KES {Number(payment.amountPaid).toLocaleString()}
                     </TableCell>
                     <TableCell>
                       <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-muted">

@@ -8,12 +8,11 @@ import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 
 type SaveAssessmentInput = {
-  athleteId: string; // Athlete.athleteId
-  trainingId: string; // training.id
-  coachId: string; // staffId
-  scores: Record<string, string>; // metricId -> "1".."5"
-  sectionComments: Record<string, string>; // sectionId -> comment
-  sectionToFirstMetric: Record<string, string>; // sectionId -> firstMetricId
+  athleteId: string;
+  trainingId: string;
+  coachId: string;
+  scores: Record<string, string>;
+  comment: string | null;
 };
 
 const gradeMap: Record<string, GradeRating> = {
@@ -28,15 +27,15 @@ export async function saveAssessment(input: SaveAssessmentInput) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { status: "ERROR", errorMessage: "Unauthorized" };
 
-  const { athleteId, trainingId, coachId, scores, sectionComments, sectionToFirstMetric } = input;
+  const { athleteId, trainingId, coachId, scores, comment } = input;
 
   try {
     const assessmentResult = await db.$transaction(async (tx) => {
       // 1) Upsert assessment (edit-friendly)
       const assessment = await tx.assessment.upsert({
         where: { athleteId_trainingId: { athleteId, trainingId } },
-        create: { athleteId, trainingId, coachId },
-        update: { coachId },
+        create: { athleteId, trainingId, coachId, comment },
+        update: { coachId, comment },
         select: { id: true },
       });
 
@@ -47,14 +46,6 @@ export async function saveAssessment(input: SaveAssessmentInput) {
         const grade = gradeMap[scores[metricId]];
         if (!grade) continue;
 
-        // Check if this metric is the first metric of any section we have a comment for
-        const associatedSectionId = Object.keys(sectionToFirstMetric).find(
-          (secId) => sectionToFirstMetric[secId] === metricId,
-        );
-        const commentToSave = associatedSectionId 
-          ? (sectionComments[associatedSectionId] || "").trim() || null
-          : null;
-
         await tx.assessmentResponse.upsert({
           where: {
             assessmentId_metricId: { assessmentId: assessment.id, metricId },
@@ -63,11 +54,9 @@ export async function saveAssessment(input: SaveAssessmentInput) {
             assessmentId: assessment.id,
             metricId,
             grade,
-            comment: commentToSave,
           },
           update: {
             grade,
-            comment: commentToSave,
           },
         });
       }

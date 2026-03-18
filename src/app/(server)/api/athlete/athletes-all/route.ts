@@ -1,4 +1,6 @@
 import { db } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 
 const PAGE_SIZE_DEFAULT = 10;
@@ -18,7 +20,14 @@ function decodeCursor(cursor: string): CursorPayload | null {
 }
 
 export async function GET(req: NextRequest) {
+  // ── Auth guard ──────────────────────────────────────────────────────
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
   const sp = req.nextUrl.searchParams;
+
 
   const take = Math.min(
     parseInt(sp.get("pageSize") || `${PAGE_SIZE_DEFAULT}`, 10),

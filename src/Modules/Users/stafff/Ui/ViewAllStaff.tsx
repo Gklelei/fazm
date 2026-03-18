@@ -152,6 +152,11 @@ const ViewAllStaff = ({ data, page, limit, total }: Props) => {
                 s.staffId,
               ])}
               fetchAllUrl="/api/export?resource=staff"
+              filterFn={(s: any) =>
+                (s.fullNames || "")
+                  .toLowerCase()
+                  .includes(searchQuery?.trim().toLowerCase() || "")
+              }
               mapRow={(s: any, i: number) => [
                 String(i + 1),
                 s.fullNames,

@@ -198,11 +198,7 @@ export function downloadTrainingSessionPdf(
                 .map((r) => safeText(r.grade).replaceAll("_", " "))
                 .join(", ") || "-";
 
-            const comments =
-              ass.responses
-                .map((r) => safeText(r.comment))
-                .filter(Boolean)
-                .join(" | ") || "-";
+            const comments = safeText(ass.comment) || "-";
 
             return [safeText(name), grades, comments];
           }),

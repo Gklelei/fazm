@@ -144,7 +144,12 @@ const Coupons = ({ coupons, page, limit, total }: Props) => {
                 : "No expiry",
               c.status === 1 ? "Active" : "Inactive",
             ])}
-            fetchAllUrl="/api/export?resource=coupons"
+            fetchAllUrl={`/api/export?resource=coupons${
+              searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : ""
+            }`}
+            filterFn={(c: any) =>
+              c.name.toLowerCase().includes(searchQuery.toLowerCase())
+            }
             mapRow={(c: any) => [
               c.name,
               c.discountType === "PERCENTAGE"

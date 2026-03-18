@@ -250,7 +250,20 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                   item.coach.fullNames,
                   String(item._count.athletes),
                 ])}
-                fetchAllUrl="/api/export?resource=sessions"
+                fetchAllUrl={`/api/export?resource=sessions${
+                  searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : ""
+                }`}
+                filterFn={(item: any) =>
+                  (item.name?.toLowerCase() || "").includes(
+                    searchQuery?.toLowerCase() || "",
+                  ) ||
+                  (item.batch?.name?.toLowerCase() || "").includes(
+                    searchQuery?.toLowerCase() || "",
+                  ) ||
+                  (item.location?.name?.toLowerCase() || "").includes(
+                    searchQuery?.toLowerCase() || "",
+                  )
+                }
                 mapRow={(item: any, i: number) => [
                   String(i + 1),
                   item.name,

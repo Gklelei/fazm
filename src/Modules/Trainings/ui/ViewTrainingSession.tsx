@@ -437,10 +437,7 @@ const ViewTrainingSession = ({ data, count, present }: Props) => {
                             </div>
                           </TableCell>
                           <TableCell className="text-xs text-muted-foreground wrap-break-word">
-                            {assessment.responses
-                              .map((r) => r.comment)
-                              .filter(Boolean)
-                              .join(", ") || "-"}
+                            {assessment.comment || "-"}
                           </TableCell>
                         </TableRow>
                       );

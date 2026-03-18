@@ -50,6 +50,7 @@ const HomePage = async () => {
     db.finance.aggregate({
       _sum: { amountPaid: true },
       where: {
+        isArchived: false,
         paymentDate: {
           gte: startOfMonth(now),
           lte: endOfMonth(now),
@@ -59,6 +60,7 @@ const HomePage = async () => {
 
     db.finance.findMany({
       where: {
+        isArchived: false,
         paymentDate: {
           gte: start,
         },
@@ -71,6 +73,7 @@ const HomePage = async () => {
 
     db.finance.findMany({
       where: {
+        isArchived: false,
         paymentDate: {
           gte: weekStart,
           lte: weekEnd,
@@ -92,6 +95,7 @@ const HomePage = async () => {
 
     db.finance.count({
       where: {
+        isArchived: false,
         paymentDate: {
           gte: weekStart,
           lte: weekEnd,
@@ -142,6 +146,9 @@ const HomePage = async () => {
 
     db.athleteGuardian.count(),
     db.finance.aggregate({
+      where: {
+        isArchived: false,
+      },
       _sum: {
         amountPaid: true,
       },

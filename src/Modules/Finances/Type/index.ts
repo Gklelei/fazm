@@ -2,6 +2,9 @@ import { Prisma } from "@/generated/prisma/client";
 import { InvoiceFindManyArgs } from "@/generated/prisma/models";
 
 export const GetFinancesQuery = {
+  where: {
+    isArchived: false,
+  },
   orderBy: {
     createdAt: "desc",
   },

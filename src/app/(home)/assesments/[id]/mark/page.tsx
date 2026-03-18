@@ -20,7 +20,8 @@ const page = async ({ params }: Props) => {
     db.training.findUnique({
       where: { id: trainingId },
       include: {
-        athletes: true, // assumes relation exists
+        athletes: true,
+        coach: { select: { fullNames: true } },
       },
     }),
     db.assessment.findMany({
@@ -36,13 +37,15 @@ const page = async ({ params }: Props) => {
     string,
     {
       assessmentId: string;
-      responses: Record<string, { grade: string; comment: string }>;
+      comment: string | null;
+      responses: Record<string, { grade: string }>;
     }
   > = {};
 
   for (const a of existing) {
     existingByAthlete[a.athleteId] = {
       assessmentId: a.id,
+      comment: a.comment,
       responses: Object.fromEntries(
         a.responses.map((r) => [
           r.metricId,
@@ -57,7 +60,6 @@ const page = async ({ params }: Props) => {
                     : r.grade === "VERY_GOOD"
                       ? "4"
                       : "5",
-            comment: r.comment ?? "",
           },
         ]),
       ),
@@ -67,7 +69,10 @@ const page = async ({ params }: Props) => {
   return (
     <CreateAssesment
       trainingId={training.id}
+      trainingName={training.name}
+      trainingDate={new Date(training.date).toLocaleDateString()}
       coachId={training.staffId}
+      coachName={training.coach?.fullNames ?? "Coach"}
       athletes={training.athletes}
       metrics={metrics}
       existingByAthlete={existingByAthlete}

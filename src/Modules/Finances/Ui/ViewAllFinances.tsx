@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
-import { CreditCard, Search, Calendar as CalendarIcon, X } from "lucide-react";
+import { Search, Calendar as CalendarIcon, X, Trash2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
@@ -24,13 +24,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTrigger,
-} from "@/components/ui/sheet";
 
 import ProfileAvatar from "@/utils/profile/ProfileAvatar";
 import TransactionDetails from "./TransactionDetails";
@@ -41,6 +34,11 @@ import {
   GetAllInvoicesType,
 } from "../Type";
 import ExportDropdown from "@/utils/ExportDropdown";
+import EditTransactionModal from "./EditTransactionModal";
+import deleteFinancialTransaction from "../Server/DeleteTransaction";
+import Swal from "sweetalert2";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 const ViewAllFinances = ({
   data,
@@ -57,6 +55,13 @@ const ViewAllFinances = ({
     from: undefined,
     to: undefined,
   });
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 10;
+  const router = useRouter();
+
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, dateRange]);
 
   // --- Filtering Logic ---
   const filteredData = React.useMemo(() => {
@@ -85,6 +90,35 @@ const ViewAllFinances = ({
       return matchesText && matchesDate;
     });
   }, [data, searchQuery, dateRange]);
+
+  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const paginatedData = React.useMemo(() => {
+    const start = (currentPage - 1) * itemsPerPage;
+    return filteredData.slice(start, start + itemsPerPage);
+  }, [filteredData, currentPage]);
+
+  const handleDelete = async (id: string) => {
+    const result = await Swal.fire({
+      title: "Are you sure?",
+      text: "You are about to delete this transaction. This cannot be  reversed.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+
+    if (result.isConfirmed) {
+      const res = await deleteFinancialTransaction(id);
+      if (res.success) {
+        toast.success(res.message);
+        router.refresh();
+      } else {
+        toast.error(res.message);
+      }
+    }
+  };
 
   return (
     <Card>
@@ -202,16 +236,16 @@ const ViewAllFinances = ({
                 <TableHead>Invoice #</TableHead>
                 <TableHead>Method</TableHead>
                 <TableHead>Receipt #</TableHead>
-                <TableHead className="text-center w-20 text-xs font-bold uppercase">
-                  Details
+                <TableHead className="text-center w-36 text-xs font-bold uppercase">
+                  Actions
                 </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredData.map((trans, i) => (
+              {paginatedData.map((trans, i) => (
                 <TableRow key={trans.id}>
                   <TableCell className="text-muted-foreground text-xs font-mono">
-                    {i + 1}
+                    {(currentPage - 1) * itemsPerPage + i + 1}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -254,7 +288,18 @@ const ViewAllFinances = ({
                     <p className="font-mono text-xs">{trans.receiptNumber}</p>
                   </TableCell>
                   <TableCell className="text-center">
-                    <TransactionDetails id={trans.id} />
+                    <div className="flex items-center justify-center gap-2">
+                      <TransactionDetails id={trans.id} />
+                      <EditTransactionModal data={trans} />
+                      <Button
+                        variant="destructive"
+                        size="icon"
+                        onClick={() => handleDelete(trans.id)}
+                        className="h-9 w-9 shrink-0"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
@@ -283,6 +328,39 @@ const ViewAllFinances = ({
                 Clear all filters
               </Button>
             )}
+          </div>
+        )}
+
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between mt-4 px-2">
+            <div className="text-sm text-muted-foreground">
+              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
+              {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
+              {filteredData.length} records
+            </div>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                disabled={currentPage === 1}
+              >
+                Previous
+              </Button>
+              <div className="text-sm font-medium">
+                Page {currentPage} of {totalPages}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() =>
+                  setCurrentPage((p) => Math.min(totalPages, p + 1))
+                }
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
+            </div>
           </div>
         )}
       </CardContent>

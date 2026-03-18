@@ -1,7 +1,6 @@
 import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./prisma";
-import SendEmail from "@/Modules/Mail/SendEmail";
 import { SendMail } from "./mailtrap";
 import { SendResetPasswordMailTemplate } from "@/Modules/Mail/Templates/SendResetPasswordMail";
 
@@ -24,8 +23,8 @@ export const auth = betterAuth({
         to: [user.email],
         subject: "Reset Password",
         text: "Reset Password",
-        html: SendResetPasswordMailTemplate({resetLink:url}),
-      })
+        html: SendResetPasswordMailTemplate({ resetLink: url }),
+      });
     },
   },
   user: {

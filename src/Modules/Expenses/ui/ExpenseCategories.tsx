@@ -138,6 +138,7 @@ const ExpenseCategories = ({ data, page, limit, total }: Props) => {
               item.status,
             ])}
             fetchAllUrl="/api/export?resource=expense-categories"
+            filterFn={(item: any) => true}
             mapRow={(item: any, i: number) => [
               String(i + 1),
               item.name,

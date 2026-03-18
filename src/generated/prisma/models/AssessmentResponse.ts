@@ -29,7 +29,6 @@ export type AssessmentResponseMinAggregateOutputType = {
   assessmentId: string | null
   metricId: string | null
   grade: $Enums.GradeRating | null
-  comment: string | null
 }
 
 export type AssessmentResponseMaxAggregateOutputType = {
@@ -37,7 +36,6 @@ export type AssessmentResponseMaxAggregateOutputType = {
   assessmentId: string | null
   metricId: string | null
   grade: $Enums.GradeRating | null
-  comment: string | null
 }
 
 export type AssessmentResponseCountAggregateOutputType = {
@@ -45,7 +43,6 @@ export type AssessmentResponseCountAggregateOutputType = {
   assessmentId: number
   metricId: number
   grade: number
-  comment: number
   _all: number
 }
 
@@ -55,7 +52,6 @@ export type AssessmentResponseMinAggregateInputType = {
   assessmentId?: true
   metricId?: true
   grade?: true
-  comment?: true
 }
 
 export type AssessmentResponseMaxAggregateInputType = {
@@ -63,7 +59,6 @@ export type AssessmentResponseMaxAggregateInputType = {
   assessmentId?: true
   metricId?: true
   grade?: true
-  comment?: true
 }
 
 export type AssessmentResponseCountAggregateInputType = {
@@ -71,7 +66,6 @@ export type AssessmentResponseCountAggregateInputType = {
   assessmentId?: true
   metricId?: true
   grade?: true
-  comment?: true
   _all?: true
 }
 
@@ -152,7 +146,6 @@ export type AssessmentResponseGroupByOutputType = {
   assessmentId: string
   metricId: string
   grade: $Enums.GradeRating
-  comment: string | null
   _count: AssessmentResponseCountAggregateOutputType | null
   _min: AssessmentResponseMinAggregateOutputType | null
   _max: AssessmentResponseMaxAggregateOutputType | null
@@ -181,7 +174,6 @@ export type AssessmentResponseWhereInput = {
   assessmentId?: Prisma.StringFilter<"AssessmentResponse"> | string
   metricId?: Prisma.StringFilter<"AssessmentResponse"> | string
   grade?: Prisma.EnumGradeRatingFilter<"AssessmentResponse"> | $Enums.GradeRating
-  comment?: Prisma.StringNullableFilter<"AssessmentResponse"> | string | null
   assessment?: Prisma.XOR<Prisma.AssessmentScalarRelationFilter, Prisma.AssessmentWhereInput>
   metric?: Prisma.XOR<Prisma.AssessmentMetricScalarRelationFilter, Prisma.AssessmentMetricWhereInput>
 }
@@ -191,7 +183,6 @@ export type AssessmentResponseOrderByWithRelationInput = {
   assessmentId?: Prisma.SortOrder
   metricId?: Prisma.SortOrder
   grade?: Prisma.SortOrder
-  comment?: Prisma.SortOrderInput | Prisma.SortOrder
   assessment?: Prisma.AssessmentOrderByWithRelationInput
   metric?: Prisma.AssessmentMetricOrderByWithRelationInput
 }
@@ -205,7 +196,6 @@ export type AssessmentResponseWhereUniqueInput = Prisma.AtLeast<{
   assessmentId?: Prisma.StringFilter<"AssessmentResponse"> | string
   metricId?: Prisma.StringFilter<"AssessmentResponse"> | string
   grade?: Prisma.EnumGradeRatingFilter<"AssessmentResponse"> | $Enums.GradeRating
-  comment?: Prisma.StringNullableFilter<"AssessmentResponse"> | string | null
   assessment?: Prisma.XOR<Prisma.AssessmentScalarRelationFilter, Prisma.AssessmentWhereInput>
   metric?: Prisma.XOR<Prisma.AssessmentMetricScalarRelationFilter, Prisma.AssessmentMetricWhereInput>
 }, "id" | "assessmentId_metricId">
@@ -215,7 +205,6 @@ export type AssessmentResponseOrderByWithAggregationInput = {
   assessmentId?: Prisma.SortOrder
   metricId?: Prisma.SortOrder
   grade?: Prisma.SortOrder
-  comment?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AssessmentResponseCountOrderByAggregateInput
   _max?: Prisma.AssessmentResponseMaxOrderByAggregateInput
   _min?: Prisma.AssessmentResponseMinOrderByAggregateInput
@@ -229,13 +218,11 @@ export type AssessmentResponseScalarWhereWithAggregatesInput = {
   assessmentId?: Prisma.StringWithAggregatesFilter<"AssessmentResponse"> | string
   metricId?: Prisma.StringWithAggregatesFilter<"AssessmentResponse"> | string
   grade?: Prisma.EnumGradeRatingWithAggregatesFilter<"AssessmentResponse"> | $Enums.GradeRating
-  comment?: Prisma.StringNullableWithAggregatesFilter<"AssessmentResponse"> | string | null
 }
 
 export type AssessmentResponseCreateInput = {
   id?: string
   grade: $Enums.GradeRating
-  comment?: string | null
   assessment: Prisma.AssessmentCreateNestedOneWithoutResponsesInput
   metric: Prisma.AssessmentMetricCreateNestedOneWithoutResponsesInput
 }
@@ -245,13 +232,11 @@ export type AssessmentResponseUncheckedCreateInput = {
   assessmentId: string
   metricId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessment?: Prisma.AssessmentUpdateOneRequiredWithoutResponsesNestedInput
   metric?: Prisma.AssessmentMetricUpdateOneRequiredWithoutResponsesNestedInput
 }
@@ -261,7 +246,6 @@ export type AssessmentResponseUncheckedUpdateInput = {
   assessmentId?: Prisma.StringFieldUpdateOperationsInput | string
   metricId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseCreateManyInput = {
@@ -269,13 +253,11 @@ export type AssessmentResponseCreateManyInput = {
   assessmentId: string
   metricId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseUncheckedUpdateManyInput = {
@@ -283,7 +265,6 @@ export type AssessmentResponseUncheckedUpdateManyInput = {
   assessmentId?: Prisma.StringFieldUpdateOperationsInput | string
   metricId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseListRelationFilter = {
@@ -306,7 +287,6 @@ export type AssessmentResponseCountOrderByAggregateInput = {
   assessmentId?: Prisma.SortOrder
   metricId?: Prisma.SortOrder
   grade?: Prisma.SortOrder
-  comment?: Prisma.SortOrder
 }
 
 export type AssessmentResponseMaxOrderByAggregateInput = {
@@ -314,7 +294,6 @@ export type AssessmentResponseMaxOrderByAggregateInput = {
   assessmentId?: Prisma.SortOrder
   metricId?: Prisma.SortOrder
   grade?: Prisma.SortOrder
-  comment?: Prisma.SortOrder
 }
 
 export type AssessmentResponseMinOrderByAggregateInput = {
@@ -322,7 +301,6 @@ export type AssessmentResponseMinOrderByAggregateInput = {
   assessmentId?: Prisma.SortOrder
   metricId?: Prisma.SortOrder
   grade?: Prisma.SortOrder
-  comment?: Prisma.SortOrder
 }
 
 export type AssessmentResponseCreateNestedManyWithoutAssessmentInput = {
@@ -416,7 +394,6 @@ export type EnumGradeRatingFieldUpdateOperationsInput = {
 export type AssessmentResponseCreateWithoutAssessmentInput = {
   id?: string
   grade: $Enums.GradeRating
-  comment?: string | null
   metric: Prisma.AssessmentMetricCreateNestedOneWithoutResponsesInput
 }
 
@@ -424,7 +401,6 @@ export type AssessmentResponseUncheckedCreateWithoutAssessmentInput = {
   id?: string
   metricId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseCreateOrConnectWithoutAssessmentInput = {
@@ -461,13 +437,11 @@ export type AssessmentResponseScalarWhereInput = {
   assessmentId?: Prisma.StringFilter<"AssessmentResponse"> | string
   metricId?: Prisma.StringFilter<"AssessmentResponse"> | string
   grade?: Prisma.EnumGradeRatingFilter<"AssessmentResponse"> | $Enums.GradeRating
-  comment?: Prisma.StringNullableFilter<"AssessmentResponse"> | string | null
 }
 
 export type AssessmentResponseCreateWithoutMetricInput = {
   id?: string
   grade: $Enums.GradeRating
-  comment?: string | null
   assessment: Prisma.AssessmentCreateNestedOneWithoutResponsesInput
 }
 
@@ -475,7 +449,6 @@ export type AssessmentResponseUncheckedCreateWithoutMetricInput = {
   id?: string
   assessmentId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseCreateOrConnectWithoutMetricInput = {
@@ -508,13 +481,11 @@ export type AssessmentResponseCreateManyAssessmentInput = {
   id?: string
   metricId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseUpdateWithoutAssessmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   metric?: Prisma.AssessmentMetricUpdateOneRequiredWithoutResponsesNestedInput
 }
 
@@ -522,27 +493,23 @@ export type AssessmentResponseUncheckedUpdateWithoutAssessmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   metricId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseUncheckedUpdateManyWithoutAssessmentInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   metricId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseCreateManyMetricInput = {
   id?: string
   assessmentId: string
   grade: $Enums.GradeRating
-  comment?: string | null
 }
 
 export type AssessmentResponseUpdateWithoutMetricInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   assessment?: Prisma.AssessmentUpdateOneRequiredWithoutResponsesNestedInput
 }
 
@@ -550,14 +517,12 @@ export type AssessmentResponseUncheckedUpdateWithoutMetricInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   assessmentId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AssessmentResponseUncheckedUpdateManyWithoutMetricInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   assessmentId?: Prisma.StringFieldUpdateOperationsInput | string
   grade?: Prisma.EnumGradeRatingFieldUpdateOperationsInput | $Enums.GradeRating
-  comment?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -567,7 +532,6 @@ export type AssessmentResponseSelect<ExtArgs extends runtime.Types.Extensions.In
   assessmentId?: boolean
   metricId?: boolean
   grade?: boolean
-  comment?: boolean
   assessment?: boolean | Prisma.AssessmentDefaultArgs<ExtArgs>
   metric?: boolean | Prisma.AssessmentMetricDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessmentResponse"]>
@@ -577,7 +541,6 @@ export type AssessmentResponseSelectCreateManyAndReturn<ExtArgs extends runtime.
   assessmentId?: boolean
   metricId?: boolean
   grade?: boolean
-  comment?: boolean
   assessment?: boolean | Prisma.AssessmentDefaultArgs<ExtArgs>
   metric?: boolean | Prisma.AssessmentMetricDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessmentResponse"]>
@@ -587,7 +550,6 @@ export type AssessmentResponseSelectUpdateManyAndReturn<ExtArgs extends runtime.
   assessmentId?: boolean
   metricId?: boolean
   grade?: boolean
-  comment?: boolean
   assessment?: boolean | Prisma.AssessmentDefaultArgs<ExtArgs>
   metric?: boolean | Prisma.AssessmentMetricDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["assessmentResponse"]>
@@ -597,10 +559,9 @@ export type AssessmentResponseSelectScalar = {
   assessmentId?: boolean
   metricId?: boolean
   grade?: boolean
-  comment?: boolean
 }
 
-export type AssessmentResponseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assessmentId" | "metricId" | "grade" | "comment", ExtArgs["result"]["assessmentResponse"]>
+export type AssessmentResponseOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "assessmentId" | "metricId" | "grade", ExtArgs["result"]["assessmentResponse"]>
 export type AssessmentResponseInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   assessment?: boolean | Prisma.AssessmentDefaultArgs<ExtArgs>
   metric?: boolean | Prisma.AssessmentMetricDefaultArgs<ExtArgs>
@@ -625,7 +586,6 @@ export type $AssessmentResponsePayload<ExtArgs extends runtime.Types.Extensions.
     assessmentId: string
     metricId: string
     grade: $Enums.GradeRating
-    comment: string | null
   }, ExtArgs["result"]["assessmentResponse"]>
   composites: {}
 }
@@ -1055,7 +1015,6 @@ export interface AssessmentResponseFieldRefs {
   readonly assessmentId: Prisma.FieldRef<"AssessmentResponse", 'String'>
   readonly metricId: Prisma.FieldRef<"AssessmentResponse", 'String'>
   readonly grade: Prisma.FieldRef<"AssessmentResponse", 'GradeRating'>
-  readonly comment: Prisma.FieldRef<"AssessmentResponse", 'String'>
 }
     
 

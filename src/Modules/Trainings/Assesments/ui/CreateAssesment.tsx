@@ -42,6 +42,7 @@ import {
   Users,
   Loader2,
 } from "lucide-react";
+import PrintCompletedAssessment from "./PrintCompletedAssessment";
 
 type Metric = { id: string; label: string };
 type Section = { id: string; name: string; metrics: Metric[] };
@@ -55,7 +56,7 @@ type Athlete = {
 
 type Draft = {
   scores: Record<string, string>;
-  comments: Record<string, string>;
+  comment: string;
   isDirty: boolean;
 };
 
@@ -63,29 +64,36 @@ type ListFilter = "ALL" | "PENDING" | "COMPLETED";
 
 type Props = {
   trainingId: string;
+  trainingName: string;
+  trainingDate: string;
   coachId: string;
+  coachName: string;
   athletes: Athlete[];
   metrics: Section[];
   existingByAthlete: Record<
     string,
     {
       assessmentId: string;
-      responses: Record<string, { grade: string; comment: string }>;
+      comment: string | null;
+      responses: Record<string, { grade: string }>;
     }
   >;
 };
 
 const GRADES = [
-  { value: "1", label: "1 - BELOW_STANDARD" },
-  { value: "2", label: "2 - NEEDS_WORK" },
-  { value: "3", label: "3 - GOOD" },
-  { value: "4", label: "4 - VERY_GOOD" },
-  { value: "5", label: "5 - EXCELLENT" },
+  { value: "1", label: "1 – Below Standard" },
+  { value: "2", label: "2 – Needs Work" },
+  { value: "3", label: "3 – Good" },
+  { value: "4", label: "4 – Very Good" },
+  { value: "5", label: "5 – Excellent" },
 ] as const;
 
 export default function CreateAssesment({
   trainingId,
+  trainingName,
+  trainingDate,
   coachId,
+  coachName,
   athletes,
   metrics,
   existingByAthlete,
@@ -102,20 +110,15 @@ export default function CreateAssesment({
   const [drafts, setDrafts] = useState<Record<string, Draft>>(() => {
     const initial: Record<string, Draft> = {};
     for (const a of athletes) {
-      const existing = existingByAthlete[a.athleteId]?.responses ?? {};
+      const existing = existingByAthlete[a.athleteId];
       initial[a.athleteId] = {
         scores: Object.fromEntries(
-          Object.entries(existing).map(([mid, v]) => [mid, v.grade]),
+          Object.entries(existing?.responses ?? {}).map(([mid, v]) => [
+            mid,
+            v.grade,
+          ]),
         ),
-        comments: Object.fromEntries(
-          metrics.map((sec) => {
-            const firstMetricId = sec.metrics[0]?.id;
-            return [
-              sec.id,
-              firstMetricId ? existing[firstMetricId]?.comment || "" : "",
-            ];
-          }),
-        ),
+        comment: existing?.comment || "",
         isDirty: false,
       };
     }
@@ -170,7 +173,7 @@ export default function CreateAssesment({
 
   const draft = drafts[selectedAthleteId] ?? {
     scores: {},
-    comments: {},
+    comment: "",
     isDirty: false,
   };
 
@@ -189,12 +192,12 @@ export default function CreateAssesment({
     }));
   };
 
-  const setComment = (sectionId: string, value: string) => {
+  const setComment = (value: string) => {
     setDrafts((prev) => ({
       ...prev,
       [selectedAthleteId]: {
         ...prev[selectedAthleteId],
-        comments: { ...prev[selectedAthleteId].comments, [sectionId]: value },
+        comment: value,
         isDirty: true,
       },
     }));
@@ -214,19 +217,12 @@ export default function CreateAssesment({
     }
 
     startTransition(async () => {
-      const sectionToFirstMetric = Object.fromEntries(
-        metrics
-          .map((sec) => [sec.id, sec.metrics[0]?.id])
-          .filter(([_, mid]) => mid),
-      ) as Record<string, string>;
-
       const res = await saveAssessment({
         athleteId: selectedAthleteId,
         trainingId,
         coachId,
         scores: payload.scores,
-        sectionComments: payload.comments,
-        sectionToFirstMetric,
+        comment: payload.comment || null,
       });
 
       if (res.status === "SUCCESS") {
@@ -412,14 +408,32 @@ export default function CreateAssesment({
                         ID: {selectedAthlete.athleteId}
                       </div>
                     </div>
-                    <Button size="sm" onClick={handleSave} disabled={isPending}>
-                      {isPending ? (
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                      ) : (
-                        <Save className="h-4 w-4 mr-2" />
+                    <div className="flex items-center gap-2">
+                      {Object.keys(draft.scores).length > 0 && (
+                        <PrintCompletedAssessment
+                          athleteName={`${selectedAthlete.firstName} ${selectedAthlete.lastName}`}
+                          athleteId={selectedAthlete.athleteId}
+                          trainingName={trainingName}
+                          trainingDate={trainingDate}
+                          coachName={coachName}
+                          comment={draft.comment || null}
+                          sections={metrics}
+                          scores={draft.scores}
+                        />
                       )}
-                      Save
-                    </Button>
+                      <Button
+                        size="sm"
+                        onClick={handleSave}
+                        disabled={isPending}
+                      >
+                        {isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                        ) : (
+                          <Save className="h-4 w-4 mr-2" />
+                        )}
+                        Save
+                      </Button>
+                    </div>
                   </div>
 
                   {metrics.map((section) => (
@@ -460,19 +474,23 @@ export default function CreateAssesment({
                           </div>
                         ))}
 
-                        <div className="pt-2">
-                          <Input
-                            className="h-11 text-sm bg-muted/20"
-                            placeholder={`Overall comment for ${section.name}...`}
-                            value={draft.comments[section.id] ?? ""}
-                            onChange={(e) =>
-                              setComment(section.id, e.target.value)
-                            }
-                          />
-                        </div>
+                        <div className="pt-2"></div>
                       </CardContent>
                     </Card>
                   ))}
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-base">Coach Notes</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Input
+                        className="h-11 text-sm bg-muted/20"
+                        placeholder="Add an overall comment for this assessment..."
+                        value={draft.comment}
+                        onChange={(e) => setComment(e.target.value)}
+                      />
+                    </CardContent>
+                  </Card>
                 </>
               )}
             </div>

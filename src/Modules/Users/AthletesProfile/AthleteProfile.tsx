@@ -11,9 +11,12 @@ import AddressInfo from "./AddressInfo";
 import MedicalEmergencyInformation from "./MedicalEmergencyInformation";
 import EmergencyContacts from "./EmergencyContacts";
 import FinancialRecords from "./FinancialRecords";
+import AthleteStatement from "./AthleteStatement";
 import AthleteInvoices from "./AthleteInvoices";
 import AthleteAssesments from "./AthleteAssesments";
 import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
+import AthleteDocuments from "./AthleteDocuments";
+import AthleteExportButton from "./AthleteExportButton";
 
 import { GetAthleteByIdQueryType } from "../Types";
 import { GetCouponsQueryType } from "@/app/(home)/players/user-profile/[id]/page";
@@ -61,6 +64,12 @@ export default function AthleteProfile({
       content: <FinancialRecords data={data} />,
     },
     {
+      key: "statement",
+      label: "Statement",
+      description: "Account statement showing charges, payments, and running balance.",
+      content: <AthleteStatement data={data} />,
+    },
+    {
       key: "invoice",
       label: "Invoices",
       description: "Billing records, due amounts and status.",
@@ -71,6 +80,12 @@ export default function AthleteProfile({
       label: "Assessments",
       description: "Coach assessments and performance notes.",
       content: <AthleteAssesments data={data} />,
+    },
+    {
+      key: "documents",
+      label: "Documents",
+      description: "ID, birth certificate, and official documents.",
+      content: <AthleteDocuments data={data} />,
     },
     {
       key: "plan",
@@ -92,15 +107,18 @@ export default function AthleteProfile({
           </p>
         </div>
 
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => router.back()}
-          className="gap-2"
-        >
-          <ChevronLeft className="h-4 w-4" />
-          Back
-        </Button>
+        <div className="flex items-center gap-2">
+          <AthleteExportButton data={data} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
       </div>
 
       <PersonalInfo data={data} />

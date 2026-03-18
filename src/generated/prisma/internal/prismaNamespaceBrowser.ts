@@ -105,7 +105,8 @@ export const AssessmentScalarFieldEnum = {
   createdAt: 'createdAt',
   athleteId: 'athleteId',
   trainingId: 'trainingId',
-  coachId: 'coachId'
+  coachId: 'coachId',
+  comment: 'comment'
 } as const
 
 export type AssessmentScalarFieldEnum = (typeof AssessmentScalarFieldEnum)[keyof typeof AssessmentScalarFieldEnum]
@@ -136,8 +137,7 @@ export const AssessmentResponseScalarFieldEnum = {
   id: 'id',
   assessmentId: 'assessmentId',
   metricId: 'metricId',
-  grade: 'grade',
-  comment: 'comment'
+  grade: 'grade'
 } as const
 
 export type AssessmentResponseScalarFieldEnum = (typeof AssessmentResponseScalarFieldEnum)[keyof typeof AssessmentResponseScalarFieldEnum]
@@ -330,7 +330,9 @@ export const FinanceScalarFieldEnum = {
   paymentType: 'paymentType',
   receiptNumber: 'receiptNumber',
   athleteSubscriptionId: 'athleteSubscriptionId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  isArchived: 'isArchived'
 } as const
 
 export type FinanceScalarFieldEnum = (typeof FinanceScalarFieldEnum)[keyof typeof FinanceScalarFieldEnum]

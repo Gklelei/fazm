@@ -189,6 +189,23 @@ const Invoices = ({ initialData }: Props) => {
                   ];
                 })}
                 fetchAllUrl="/api/export?resource=invoices"
+                filterFn={(inv: any) => {
+                  const matchSearch =
+                    !searchQuery ||
+                    [
+                      inv.invoiceNumber,
+                      inv.athlete?.firstName,
+                      inv.athlete?.lastName,
+                      inv.athleteId,
+                    ]
+                      .filter(Boolean)
+                      .join(" ")
+                      .toLowerCase()
+                      .includes(searchQuery.toLowerCase());
+                  const matchStatus =
+                    !statusFilter || inv.status === statusFilter;
+                  return matchSearch && matchStatus;
+                }}
                 mapRow={(inv: any, i: number) => {
                   const due = Number(inv.amountDue ?? 0);
                   const disc = Number(inv.discount ?? 0);
