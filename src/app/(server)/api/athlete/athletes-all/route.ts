@@ -28,24 +28,29 @@ export async function GET(req: NextRequest) {
 
   const sp = req.nextUrl.searchParams;
 
-
   const take = Math.min(
     parseInt(sp.get("pageSize") || `${PAGE_SIZE_DEFAULT}`, 10),
     50,
   );
+
   const search = (sp.get("search") || "").trim();
   const cursor = sp.get("cursor");
 
+  // Split the search string into individual words, removing any empty strings
+  const searchTerms = search.split(/\s+/).filter(Boolean);
+
   const where = {
     isArchived: false,
-    ...(search
+    ...(searchTerms.length > 0
       ? {
-          OR: [
-            { firstName: { contains: search, mode: "insensitive" as const } },
-            { lastName: { contains: search, mode: "insensitive" as const } },
-            { middleName: { contains: search, mode: "insensitive" as const } },
-            { athleteId: { contains: search, mode: "insensitive" as const } },
-          ],
+          AND: searchTerms.map((term) => ({
+            OR: [
+              { firstName: { contains: term, mode: "insensitive" as const } },
+              { lastName: { contains: term, mode: "insensitive" as const } },
+              { middleName: { contains: term, mode: "insensitive" as const } },
+              { athleteId: { contains: term, mode: "insensitive" as const } },
+            ],
+          })),
         }
       : {}),
   };
