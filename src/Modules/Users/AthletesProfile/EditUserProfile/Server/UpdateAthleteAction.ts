@@ -62,7 +62,7 @@ export const UpdateAthleteAction = async (
         .filter(Boolean)
     : [];
   try {
- const updatedAthlete = await db.athlete.update({
+    const updatedAthlete = await db.athlete.update({
       where: { athleteId: id },
       data: {
         firstName: data.firstName,
@@ -82,6 +82,8 @@ export const UpdateAthleteAction = async (
         passportCover: data.passportCover,
         nationalIdBack: data.idBack,
         nationalIdFront: data.idFront,
+        height: data.height,
+        weight: data.weight,
         address: {
           upsert: {
             create: {

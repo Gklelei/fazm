@@ -36,7 +36,7 @@ interface Props {
 const EditUserProfile = ({ athlete }: Props) => {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
-
+  console.log({ athlete });
   const form = useForm<editSchemaType>({
     resolver: zodResolver(editSchema),
     defaultValues: {
