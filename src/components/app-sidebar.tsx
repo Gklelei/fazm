@@ -117,14 +117,14 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <div className="flex flex-col items-start gap-4">
           <div className="flex w-full items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-primary/20">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-linear-to-br from-primary to-primary/80 text-primary-foreground shadow-md ring-1 ring-primary/20">
                 <LayoutDashboard className="h-5 w-5 drop-shadow-md" />
               </div>
               <div className="flex flex-col">
                 <span className="text-xs font-semibold text-muted-foreground uppercase tracking-widest">
                   Academy
                 </span>
-                <h2 className="text-sm font-bold leading-tight truncate max-w-[140px] text-foreground">
+                <h2 className="text-sm font-bold leading-tight truncate max-w-35 text-foreground">
                   {utils?.academy?.academyName || "Fazam FC"}
                 </h2>
               </div>
@@ -191,7 +191,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         className={cn(
                           "group h-10 w-full rounded-lg transition-all hover:bg-muted duration-200",
                           parentActive &&
-                            "bg-primary/10 text-primary font-semibold relative after:absolute after:left-[-12px] after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm",
+                            "bg-primary/10 text-primary font-semibold relative after:absolute after:-left-3 after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm",
                         )}
                       >
                         <Link
@@ -226,7 +226,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                         className={cn(
                           "group h-10 w-full rounded-lg justify-between transition-all hover:bg-muted duration-200",
                           parentActive && !isOpen
-                            ? "bg-primary/10 text-primary font-semibold relative after:absolute after:left-[-12px] after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm"
+                            ? "bg-primary/10 text-primary font-semibold relative after:absolute after:-left-3 after:top-1/2 after:-translate-y-1/2 after:h-6 after:w-1.5 after:rounded-r-full after:bg-primary shadow-sm"
                             : "",
                         )}
                       >
@@ -322,7 +322,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
       <SidebarFooter className="border-t bg-sidebar p-4">
         {user ? (
-          <div className="flex items-center justify-between gap-2 overflow-hidden rounded-xl border bg-gradient-to-tr from-muted/30 to-muted/10 p-2.5 shadow-sm transition-all hover:shadow-md">
+          <div className="flex items-center justify-between gap-2 overflow-hidden rounded-xl border bg-linear-to-tr from-muted/30 to-muted/10 p-2.5 shadow-sm transition-all hover:shadow-md">
             <div className="flex items-center gap-3 truncate">
               <Avatar className="h-9 w-9 border ring-2 ring-primary/20 shadow-sm">
                 <AvatarImage src={user.image ?? ""} alt={user.name} />

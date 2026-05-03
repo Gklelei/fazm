@@ -18,6 +18,7 @@ import {
   UserCheck2Icon,
   TagIcon,
   TerminalSquare,
+  BarChart2,
 } from "lucide-react";
 
 export type AppRole = "SUPER_ADMIN" | "ADMIN" | "COACH" | "FINANCE" | "STAFF";
@@ -176,25 +177,18 @@ export const data: { navMain: NavItem[] } = {
         },
       ],
     },
-
-    // {
-    //   title: "Communication",
-    //   icon: <Mail className="size-4" />,
-    //   roles: ["SUPER_ADMIN", "ADMIN"],
-    //   items: [
-    //     {
-    //       title: "Send Email",
-    //       url: "/mail",
-    //       icon: <Mail className="size-4" />,
-    //       roles: ["SUPER_ADMIN", "ADMIN"],
-    //     },
-    //     {
-    //       title: "Send SMS",
-    //       url: "/sms",
-    //       icon: <MessageSquare className="size-4" />,
-    //       roles: ["SUPER_ADMIN", "ADMIN"],
-    //     },
-    //   ],
-    // },
+    {
+      title: "Analytics",
+      icon: <BarChart3 className="size-4" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
+      items: [
+        {
+          title: "Overview",
+          url: "/stats",
+          icon: <BarChart2 className="size-4" />,
+          roles: ["SUPER_ADMIN", "ADMIN"],
+        },
+      ],
+    },
   ],
 };
