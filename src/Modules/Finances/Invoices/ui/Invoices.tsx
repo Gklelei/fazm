@@ -9,6 +9,7 @@ import { formatCurrency } from "@/utils/TansformWords";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { EditInvoiceStatus } from "../Server/EditInvoice";
 import { AllInvoicesType } from "../Types";
+import { format } from "date-fns";
 
 import {
   Table,
@@ -32,6 +33,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import {
   Search,
   RotateCcw,
   FilterIcon,
@@ -41,6 +48,7 @@ import {
   Eye,
   PenBoxIcon,
   ChevronDown,
+  CalendarIcon,
 } from "lucide-react";
 import { PageLoader } from "@/utils/Alerts/PageLoader";
 import ApplyCoupon from "./ApplyCoupon";
@@ -77,6 +85,8 @@ const Invoices = ({ initialData }: Props) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string | null>(null);
   const [statusId, setStatusId] = useState<string>("");
+  const [fromDate, setFromDate] = useState<Date | undefined>(undefined);
+  const [toDate, setToDate] = useState<Date | undefined>(undefined);
 
   const debounceSearch = useDebounce(searchQuery, 800);
   const router = useRouter();
@@ -85,14 +95,18 @@ const Invoices = ({ initialData }: Props) => {
   const { data, hasNextPage, fetchNextPage, isFetchingNextPage, isLoading } =
     useInfiniteQuery({
       initialData:
-        debounceSearch === "" && !statusFilter ? initialData : undefined,
+        debounceSearch === "" && !statusFilter && !fromDate && !toDate
+          ? initialData
+          : undefined,
       initialPageParam: null as string | null,
-      queryKey: ["INVOICES", debounceSearch, statusFilter],
+      queryKey: ["INVOICES", debounceSearch, statusFilter, fromDate, toDate],
       queryFn: async ({ pageParam }) => {
         const url = new URL("/api/invoices", window.location.origin);
         url.searchParams.set("pageSize", "10");
         url.searchParams.set("search", debounceSearch);
         if (statusFilter) url.searchParams.set("status", statusFilter);
+        if (fromDate) url.searchParams.set("from", fromDate.toISOString());
+        if (toDate) url.searchParams.set("to", toDate.toISOString());
         if (pageParam) url.searchParams.set("cursor", pageParam);
 
         const res = await fetch(url.toString());
@@ -113,6 +127,8 @@ const Invoices = ({ initialData }: Props) => {
   const resetFilters = () => {
     setSearchQuery("");
     setStatusFilter(null);
+    setFromDate(undefined);
+    setToDate(undefined);
   };
 
   const handleChangeInvoiceStatus = async (
@@ -140,6 +156,8 @@ const Invoices = ({ initialData }: Props) => {
   };
 
   if (isLoading && !isFetchingNextPage) return <PageLoader />;
+
+  const hasActiveFilters = searchQuery || statusFilter || fromDate || toDate;
 
   return (
     <div className="mx-auto max-w-screen-2xl space-y-6 p-4 md:p-6">
@@ -188,7 +206,16 @@ const Invoices = ({ initialData }: Props) => {
                     inv.status,
                   ];
                 })}
-                fetchAllUrl="/api/export?resource=invoices"
+                fetchAllUrl={(() => {
+                  const url = new URL(
+                    "/api/export?resource=invoices",
+                    window.location.origin,
+                  );
+                  if (fromDate)
+                    url.searchParams.set("from", fromDate.toISOString());
+                  if (toDate) url.searchParams.set("to", toDate.toISOString());
+                  return url.toString();
+                })()}
                 filterFn={(inv: any) => {
                   const matchSearch =
                     !searchQuery ||
@@ -240,51 +267,58 @@ const Invoices = ({ initialData }: Props) => {
           </div>
 
           {/* Filters */}
-          <div className="mt-6 flex flex-col gap-3 border-t border-border/60 pt-5 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
-              <Input
-                placeholder="Search invoice #, athlete name, or athlete ID..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-11 w-full bg-background pl-11 transition-colors hover:border-input focus:border-primary focus:ring-1 focus:ring-primary/20 sm:max-w-md"
-              />
-            </div>
+          <div className="mt-6 flex flex-col gap-3 border-t border-border/60 pt-5">
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="relative flex-1">
+                <Search className="absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/80" />
+                <Input
+                  placeholder="Search invoice #, athlete name, or athlete ID..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="h-11 w-full bg-background pl-11 transition-colors hover:border-input focus:border-primary focus:ring-1 focus:ring-primary/20 sm:max-w-md"
+                />
+              </div>
 
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className="h-11 gap-2 border-input/60 px-4 hover:border-input hover:bg-accent/50"
-                  >
-                    <FilterIcon className="h-4 w-4" />
-                    {statusFilter ? (
-                      <span className="font-medium">{statusFilter}</span>
-                    ) : (
-                      <span className="text-muted-foreground">
-                        All Statuses
-                      </span>
-                    )}
-                  </Button>
-                </DropdownMenuTrigger>
-
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel className="font-semibold">
-                    Filter by status
-                  </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuGroup>
-                    <DropdownMenuItem
-                      onClick={() => setStatusFilter(null)}
-                      className="cursor-pointer focus:bg-accent/50"
+              <div className="flex flex-wrap items-center gap-2">
+                {/* Status Filter */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="h-11 gap-2 border-input/60 px-4 hover:border-input hover:bg-accent/50"
                     >
-                      <span className="text-muted-foreground">
-                        Clear Filter
-                      </span>
-                    </DropdownMenuItem>
-                    {["PENDING", "PARTIAL", "PAID", "CANCELED", "OVERDUE"].map(
-                      (status) => (
+                      <FilterIcon className="h-4 w-4" />
+                      {statusFilter ? (
+                        <span className="font-medium">{statusFilter}</span>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          All Statuses
+                        </span>
+                      )}
+                    </Button>
+                  </DropdownMenuTrigger>
+
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuLabel className="font-semibold">
+                      Filter by status
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuGroup>
+                      <DropdownMenuItem
+                        onClick={() => setStatusFilter(null)}
+                        className="cursor-pointer focus:bg-accent/50"
+                      >
+                        <span className="text-muted-foreground">
+                          Clear Filter
+                        </span>
+                      </DropdownMenuItem>
+                      {[
+                        "PENDING",
+                        "PARTIAL",
+                        "PAID",
+                        "CANCELED",
+                        "OVERDUE",
+                      ].map((status) => (
                         <DropdownMenuItem
                           key={status}
                           onClick={() => setStatusFilter(status)}
@@ -292,22 +326,90 @@ const Invoices = ({ initialData }: Props) => {
                         >
                           {status}
                         </DropdownMenuItem>
-                      ),
-                    )}
-                  </DropdownMenuGroup>
-                </DropdownMenuContent>
-              </DropdownMenu>
+                      ))}
+                    </DropdownMenuGroup>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
-              {(searchQuery || statusFilter) && (
-                <Button
-                  variant="ghost"
-                  onClick={resetFilters}
-                  className="h-11 px-4 text-muted-foreground hover:bg-accent/50 hover:text-foreground"
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset
-                </Button>
-              )}
+                {/* Date Range Filter */}
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "h-11 gap-2 border-input/60 px-4 hover:border-input hover:bg-accent/50",
+                        (fromDate || toDate) && "border-primary/50",
+                      )}
+                    >
+                      <CalendarIcon className="h-4 w-4" />
+                      {fromDate || toDate ? (
+                        <span className="font-medium">
+                          {fromDate && format(fromDate, "MMM d")}
+                          {fromDate && toDate && " - "}
+                          {toDate && format(toDate, "MMM d, yyyy")}
+                        </span>
+                      ) : (
+                        <span className="text-muted-foreground">
+                          Date Range
+                        </span>
+                      )}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="end">
+                    <div className="space-y-4 p-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold">
+                          From Date
+                        </label>
+                        <Calendar
+                          mode="single"
+                          selected={fromDate}
+                          onSelect={setFromDate}
+                          initialFocus
+                          disabled={(date) =>
+                            toDate ? date > toDate : date > new Date()
+                          }
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold">To Date</label>
+                        <Calendar
+                          mode="single"
+                          selected={toDate}
+                          onSelect={setToDate}
+                          disabled={(date) =>
+                            fromDate ? date < fromDate : date > new Date()
+                          }
+                        />
+                      </div>
+                      {(fromDate || toDate) && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="w-full"
+                          onClick={() => {
+                            setFromDate(undefined);
+                            setToDate(undefined);
+                          }}
+                        >
+                          Clear dates
+                        </Button>
+                      )}
+                    </div>
+                  </PopoverContent>
+                </Popover>
+
+                {hasActiveFilters && (
+                  <Button
+                    variant="ghost"
+                    onClick={resetFilters}
+                    className="h-11 px-4 text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+                  >
+                    <RotateCcw className="mr-2 h-4 w-4" />
+                    Reset
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </CardHeader>
@@ -323,7 +425,7 @@ const Invoices = ({ initialData }: Props) => {
                 <p className="font-medium text-muted-foreground">
                   No invoices found
                 </p>
-                {(searchQuery || statusFilter) && (
+                {hasActiveFilters && (
                   <p className="mt-1 text-sm text-muted-foreground/70">
                     Try adjusting your search or filters
                   </p>
@@ -498,7 +600,7 @@ const Invoices = ({ initialData }: Props) => {
                           <p className="font-medium text-muted-foreground">
                             No invoices found
                           </p>
-                          {(searchQuery || statusFilter) && (
+                          {hasActiveFilters && (
                             <p className="text-sm text-muted-foreground/70">
                               Try adjusting your search or filters
                             </p>
@@ -511,10 +613,7 @@ const Invoices = ({ initialData }: Props) => {
                       const amountDue = Number(invoice.amountDue ?? 0);
                       const discount = Number(invoice.discount ?? 0);
                       const amountPaid = Number(invoice.amountPaid ?? 0);
-
-                      // ✅ correct balance
                       const balance = amountDue - discount - amountPaid;
-
                       const isUpdating = statusId === invoice.invoiceNumber;
 
                       return (
@@ -640,7 +739,6 @@ const Invoices = ({ initialData }: Props) => {
 
                           <TableCell className="py-4 text-right">
                             <div className="flex items-center justify-end gap-1">
-                              {/* ✅ correct props */}
                               <ApplyCoupon
                                 status={invoice.status}
                                 invoiceNumber={invoice.invoiceNumber}

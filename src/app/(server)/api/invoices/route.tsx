@@ -28,6 +28,35 @@ export async function GET(req: NextRequest) {
     ? (rawStatus as INVOICE_STATUS)
     : undefined;
 
+  // ── Date range parameters ──────────────────────────────────────────
+  const fromDate = searchParams.get("from");
+  const toDate = searchParams.get("to");
+
+  let dateFilter = {};
+  if (fromDate || toDate) {
+    const createdAtFilter: { gte?: Date; lte?: Date } = {};
+
+    if (fromDate) {
+      const from = new Date(fromDate);
+      if (!isNaN(from.getTime())) {
+        createdAtFilter.gte = from;
+      }
+    }
+
+    if (toDate) {
+      const to = new Date(toDate);
+      if (!isNaN(to.getTime())) {
+        // Set to end of day (23:59:59.999) to include the entire day
+        to.setHours(23, 59, 59, 999);
+        createdAtFilter.lte = to;
+      }
+    }
+
+    if (Object.keys(createdAtFilter).length > 0) {
+      dateFilter = { createdAt: createdAtFilter };
+    }
+  }
+
   // ── Cursor: base64url-encoded JSON { id } ──────────────────────────
   const rawCursor = searchParams.get("cursor");
   let cursorId: string | undefined;
@@ -42,9 +71,10 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ── Build where (search + status — cursor handled via Prisma cursor) ─
+  // ── Build where (search + status + dateRange — cursor handled via Prisma cursor) ─
   const where = {
     ...(status ? { status } : {}),
+    ...dateFilter,
     ...(search
       ? {
           OR: [

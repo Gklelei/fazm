@@ -177,18 +177,18 @@ export const data: { navMain: NavItem[] } = {
         },
       ],
     },
-    {
-      title: "Analytics",
-      icon: <BarChart3 className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
-      items: [
-        {
-          title: "Overview",
-          url: "/stats",
-          icon: <BarChart2 className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-      ],
-    },
+    // {
+    //   title: "Analytics",
+    //   icon: <BarChart3 className="size-4" />,
+    //   roles: ["SUPER_ADMIN", "ADMIN"],
+    //   items: [
+    //     {
+    //       title: "Overview",
+    //       url: "/stats",
+    //       icon: <BarChart2 className="size-4" />,
+    //       roles: ["SUPER_ADMIN", "ADMIN"],
+    //     },
+    //   ],
+    // },
   ],
 };

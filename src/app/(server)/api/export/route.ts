@@ -70,7 +70,9 @@ export async function GET(req: NextRequest) {
           whereClause.OR = [
             { code: { contains: query, mode: "insensitive" } },
             { description: { contains: query, mode: "insensitive" } },
-            { athlete: { firstName: { contains: query, mode: "insensitive" } } },
+            {
+              athlete: { firstName: { contains: query, mode: "insensitive" } },
+            },
             { athlete: { lastName: { contains: query, mode: "insensitive" } } },
           ];
         }
@@ -94,7 +96,7 @@ export async function GET(req: NextRequest) {
             { idNumber: { contains: query, mode: "insensitive" } },
           ];
         }
-        
+
         const data = await db.staff.findMany({
           ...GetStaffQuery,
           where: whereClause,
@@ -155,11 +157,43 @@ export async function GET(req: NextRequest) {
 
       case "invoices": {
         const whereClause: any = {};
+
+        // ── Date range filter ──────────────────────────────────────────
+        const fromDate = req.nextUrl.searchParams.get("from");
+        const toDate = req.nextUrl.searchParams.get("to");
+
+        if (fromDate || toDate) {
+          const createdAtFilter: { gte?: Date; lte?: Date } = {};
+
+          if (fromDate) {
+            const from = new Date(fromDate);
+            if (!isNaN(from.getTime())) {
+              createdAtFilter.gte = from;
+            }
+          }
+
+          if (toDate) {
+            const to = new Date(toDate);
+            if (!isNaN(to.getTime())) {
+              // Set to end of day (23:59:59.999) to include the entire day
+              to.setHours(23, 59, 59, 999);
+              createdAtFilter.lte = to;
+            }
+          }
+
+          if (Object.keys(createdAtFilter).length > 0) {
+            whereClause.createdAt = createdAtFilter;
+          }
+        }
+
+        // ── Search query filter ────────────────────────────────────────
         if (query) {
           whereClause.OR = [
             { invoiceNumber: { contains: query, mode: "insensitive" } },
             { athleteId: { contains: query, mode: "insensitive" } },
-            { athlete: { firstName: { contains: query, mode: "insensitive" } } },
+            {
+              athlete: { firstName: { contains: query, mode: "insensitive" } },
+            },
             { athlete: { lastName: { contains: query, mode: "insensitive" } } },
             { description: { contains: query, mode: "insensitive" } },
           ];
