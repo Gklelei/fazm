@@ -1,6 +1,9 @@
 import { db } from "@/lib/prisma";
 import { GetAssesmentMetricsQuery } from "@/Modules/Trainings/Assesments/Types";
 import AssesmentMetrics from "@/Modules/Trainings/Assesments/ui/AssesmentMetrics";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Assessments" };
 
 export default async function Page({
   searchParams,

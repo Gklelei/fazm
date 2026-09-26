@@ -4,6 +4,9 @@ import {
   GuardiansResponseType,
 } from "@/Modules/Guardions/types";
 import ViewAllGuardins from "@/Modules/Guardions/Ui/ViewAllGuardins";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Guardians" };
 
 export default async function Page({
   searchParams,

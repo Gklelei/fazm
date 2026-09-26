@@ -1,5 +1,8 @@
 import { getAuditLogs } from "@/Modules/Settings/AuditLogs/api/getAuditLogs";
 import AuditLogsTable from "@/Modules/Settings/AuditLogs/ui/AuditLogsTable";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Audit Logs" };
 
 export default async function AuditLogsPage() {
   const initialData = await getAuditLogs();

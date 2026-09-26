@@ -1,5 +1,8 @@
 import { db } from "@/lib/prisma";
 import Invoices from "@/Modules/Finances/Invoices/ui/Invoices";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Invoices" };
 
 export default async function Page() {
   const pageSize = 10;

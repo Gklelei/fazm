@@ -2,6 +2,9 @@ import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import { GetCouponsByIdQuery } from "@/Modules/Coupons/Types/Index";
 import CreateCoupons from "@/Modules/Coupons/ui/CreateCoupons";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Coupon Details" };
 
 const page = async ({ params }: { params: Promise<{ id: string }> }) => {
   const { id } = await params;

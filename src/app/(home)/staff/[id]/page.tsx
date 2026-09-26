@@ -2,6 +2,9 @@ import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import { GetStaffByIdQuery } from "@/Modules/Users/stafff/types";
 import CreateStaffForm from "@/Modules/Users/stafff/Ui/CreateStaffForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Edit Staff" };
 
 interface Props {
   params: Promise<{ id: string }>;

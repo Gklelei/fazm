@@ -1,6 +1,9 @@
 import { db } from "@/lib/prisma";
 import { GetExpenseCategoriesQuery } from "@/Modules/Expenses/Types";
 import ExpenseCategories from "@/Modules/Expenses/ui/ExpenseCategories";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Expense Categories" };
 
 export default async function Page({
   searchParams,

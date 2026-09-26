@@ -175,18 +175,48 @@ export const data: { navMain: NavItem[] } = {
         },
       ],
     },
-    // {
-    //   title: "Analytics",
-    //   icon: <BarChart3 className="size-4" />,
-    //   roles: ["SUPER_ADMIN", "ADMIN"],
-    //   items: [
-    //     {
-    //       title: "Overview",
-    //       url: "/stats",
-    //       icon: <BarChart2 className="size-4" />,
-    //       roles: ["SUPER_ADMIN", "ADMIN"],
-    //     },
-    //   ],
-    // },
+    {
+      title: "Analytics",
+      icon: <BarChart3 className="size-4" />,
+      roles: ["SUPER_ADMIN", "ADMIN"],
+      items: [
+        {
+          title: "Overview",
+          url: "/stats",
+          icon: <BarChart2 className="size-4" />,
+          roles: ["SUPER_ADMIN", "ADMIN"],
+        },
+      ],
+    },
   ],
 };
+
+/**
+ * Returns the roles allowed to access `pathname`, derived from this same
+ * nav config so the enforced access control (middleware.ts) can never drift
+ * from what the sidebar advertises. Returns `null` for any path not listed
+ * here (e.g. /mail, /stats, or a dynamic sub-route), meaning "no
+ * restriction beyond being logged in" rather than "deny" — pages this
+ * config doesn't know about are left exactly as permissive as before this
+ * check existed.
+ */
+export function getAllowedRolesForPath(pathname: string): AppRole[] | null {
+  const entries: { prefix: string; roles: AppRole[] }[] = [];
+
+  for (const group of data.navMain) {
+    if (group.url && group.roles) {
+      entries.push({ prefix: group.url, roles: group.roles });
+    }
+    for (const item of group.items ?? []) {
+      if (item.roles) {
+        entries.push({ prefix: item.url, roles: item.roles });
+      }
+    }
+  }
+
+  const matches = entries
+    .filter((e) => pathname === e.prefix || pathname.startsWith(`${e.prefix}/`))
+    .sort((a, b) => b.prefix.length - a.prefix.length);
+
+  return matches[0]?.roles ?? null;
+}

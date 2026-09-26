@@ -2,6 +2,9 @@ import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import { GetStaffByIdQuery } from "@/Modules/Users/stafff/types";
 import StaffViewPage from "@/Modules/Users/stafff/Ui/ViewStaffPage";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Staff Profile" };
 
 interface Props {
   params: Promise<{ id: string }>;

@@ -35,7 +35,7 @@ function isOneOf<T extends string>(
 export async function GET(req: NextRequest) {
   try {
     // Authentication
-    const allowedRoles = ["SUPER-ADMIN", "ADMIN"];
+    const allowedRoles = ["SUPER_ADMIN", "ADMIN"];
     const session = await auth.api.getSession({
       headers: await headers(),
     });

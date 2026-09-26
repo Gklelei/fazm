@@ -6,6 +6,9 @@ import {
   GetFinancesQuery,
 } from "@/Modules/Finances/Type";
 import ViewAllFinances from "@/Modules/Finances/Ui/ViewAllFinances";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Transactions" };
 
 const PAGE_SIZE = 10;
 

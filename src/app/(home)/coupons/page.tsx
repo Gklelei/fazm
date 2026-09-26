@@ -4,6 +4,9 @@ import {
   GetCouponsQueryType,
 } from "@/Modules/Coupons/Types/Index";
 import Coupons from "@/Modules/Coupons/ui/Coupons";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Coupons" };
 
 export default async function Page({
   searchParams,

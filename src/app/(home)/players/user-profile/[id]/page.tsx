@@ -2,6 +2,9 @@ import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import AthleteProfile from "@/Modules/Users/AthletesProfile/AthleteProfile";
 import { GetAthleteByIdQuery } from "@/Modules/Users/Types";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Athlete Profile" };
 
 type CouponRow = {
   id: string;

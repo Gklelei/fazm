@@ -2,6 +2,9 @@ import { db } from "@/lib/prisma";
 import { GetTrainingAthletesQuery } from "@/Modules/Trainings/Types";
 import MarkAttendance from "@/Modules/Trainings/ui/MarkAttendance";
 import { notFound } from "next/navigation";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Mark Attendance" };
 
 interface PageProps {
   params: Promise<{ id: string }>;
