@@ -1,5 +1,8 @@
 "use server";
 import { v2 as cloudinary } from "cloudinary";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
   api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
@@ -8,6 +11,11 @@ cloudinary.config({
 });
 
 export async function deleteCloudinaryImage(publicId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return { success: false, message: "Unauthorized access" };
+  }
+
   try {
     console.log("Attempting to delete image with publicId:", publicId);
 

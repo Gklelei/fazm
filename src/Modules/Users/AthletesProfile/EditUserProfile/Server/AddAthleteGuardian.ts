@@ -29,6 +29,14 @@ export const AddAthleteGuardian = async (
     };
   }
 
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN", "COACH"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      success: false,
+      message: "Unauthorized: You are not allowed to perform this action.",
+    };
+  }
+
   const parsedData = AthleteGuardianSchema.parse(data);
 
   try {

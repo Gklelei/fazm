@@ -2,21 +2,22 @@ import { NextResponse } from "next/server";
 import { db } from "@/lib/prisma";
 import { subMonths } from "date-fns";
 
-// Optional: if you want a simple shared secret to prevent random calls
-function assertCronAuth(req: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (!secret) return;
-
-  const header = req.headers.get("x-cron-secret");
-  if (header !== secret) {
-    throw new Error("Unauthorized cron request");
-  }
-}
+const CRON_SECRET = process.env.CRON_SECRET;
 
 export async function POST(req: Request) {
-  try {
-    assertCronAuth(req);
+  const authHeader = req.headers.get("authorization") ?? "";
+  const token = authHeader.startsWith("Bearer ")
+    ? authHeader.slice("Bearer ".length)
+    : "";
 
+  if (!CRON_SECRET || token !== CRON_SECRET) {
+    return NextResponse.json(
+      { ok: false, error: "Unauthorized" },
+      { status: 401 },
+    );
+  }
+
+  try {
     const cutoff = subMonths(new Date(), 3);
 
     // Strategy:

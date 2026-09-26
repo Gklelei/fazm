@@ -12,9 +12,14 @@ export async function GET(
   });
 
   if (!session) {
-    return NextResponse.json({
-      error: "Unauthorized access",
-    });
+    return NextResponse.json(
+      {
+        error: "Unauthorized access",
+      },
+      {
+        status: 401,
+      },
+    );
   }
   const { id } = await params;
   try {

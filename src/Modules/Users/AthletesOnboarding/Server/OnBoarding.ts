@@ -7,13 +7,11 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { createAuditLog } from "@/lib/audit";
+import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 
 type ActionPromise =
   | { status: "SUCCESS"; successMessage: string }
   | { status: "ERROR"; errorMessage: string };
-
-// ----------------- Billing policy -----------------
-const BILLING_DAY = 30; // unified monthly billing day
 
 /**
  * You said you reversed the rule:
@@ -51,34 +49,8 @@ function parseCSV(value?: string | null) {
     .filter(Boolean);
 }
 
-function daysInMonth(year: number, monthIndex0: number) {
-  return new Date(year, monthIndex0 + 1, 0).getDate();
-}
-
-function clampToDay(year: number, monthIndex0: number, day: number) {
-  const dim = daysInMonth(year, monthIndex0);
-  const clamped = Math.min(day, dim);
-  return new Date(year, monthIndex0, clamped, 0, 0, 0, 0);
-}
-
 /**
- * Returns the 30th of NEXT month (or last day if month doesn't have 30, e.g. Feb).
- * Example: any day in Feb -> Mar 30
- * Example: any day in Jan -> Feb 28/29 (clamped)
- */
-function nextMonthlyBillingDate(now: Date, billingDay = BILLING_DAY) {
-  const year = now.getFullYear();
-  const month = now.getMonth(); // 0-based
-  const nextMonthDate = new Date(year, month + 1, 1);
-  return clampToDay(
-    nextMonthDate.getFullYear(),
-    nextMonthDate.getMonth(),
-    billingDay,
-  );
-}
-
-/**
- * Monthly is unified to the 30th of next month.
+ * Monthly is unified to the 30th of next month (see src/lib/billing.ts).
  * Others stay interval-based.
  */
 function nextBillingByInterval(now: Date, interval: string) {

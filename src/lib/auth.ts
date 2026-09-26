@@ -34,7 +34,10 @@ export const auth = betterAuth({
     additionalFields: {
       role: {
         type: "string",
-        input: true,
+        // Never accept `role` from client-supplied request bodies (sign-up /
+        // update-user). Role is only ever set server-side, e.g. in
+        // CreateStaffAction via a direct DB update after account creation.
+        input: false,
         required: false,
       },
     },

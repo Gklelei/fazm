@@ -4,6 +4,8 @@ import { db } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
 import { TRAINING_STATUS } from "@/generated/prisma/enums";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 const DayOfWeekEnum = z.enum([
   "MONDAY",
@@ -37,6 +39,20 @@ const BatchSubmissionSchema = z.object({
 export type BatchSubmission = z.infer<typeof BatchSubmissionSchema>;
 
 export async function CreateBatchWithSchedule(data: BatchSubmission) {
+  const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session?.user) {
+    return { success: false, message: "Unauthorized access" };
+  }
+
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role || "")) {
+    return {
+      success: false,
+      message: "Unauthorized: You are not allowed to perform this action.",
+    };
+  }
+
   const parsed = BatchSubmissionSchema.safeParse(data);
   if (!parsed.success) {
     return {

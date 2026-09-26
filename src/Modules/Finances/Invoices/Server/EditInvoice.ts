@@ -145,6 +145,14 @@ export const EditInvoiceStatus = async (
       message: "Unauthorized access.",
     };
   }
+
+  if (session.user.role !== "ADMIN") {
+    return {
+      success: false,
+      message: "Unauthorized access",
+    };
+  }
+
   try {
     const invoiceResult = await db.$transaction(async (ctx) => {
       const existingInvoice = await ctx.invoice.findUnique({

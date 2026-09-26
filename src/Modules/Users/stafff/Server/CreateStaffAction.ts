@@ -42,8 +42,15 @@ export const CreateStaffAction = async (
         name: parsedData.fullName,
         password: parsedData.password,
         image: parsedData.image,
-        role: parsedData.role,
       },
+    });
+
+    // `role` is not accepted as client-settable input on the auth API (see
+    // src/lib/auth.ts), so it is set here via a direct, server-only DB write
+    // after the account is created, gated by the ADMIN check above.
+    await db.user.update({
+      where: { id: user.id },
+      data: { role: parsedData.role },
     });
 
     const ACADEMY_PREFIX = "STAFF-FFA";

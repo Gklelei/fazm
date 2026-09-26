@@ -1,12 +1,30 @@
 "use server";
 
+import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
+import { headers } from "next/headers";
 import { MetricsSchema, MetricsSchemaType } from "../Validators";
 import { revalidatePath } from "next/cache";
 
 export const CreateAssesmentMetricAction = async (
   data: MetricsSchemaType,
 ): Promise<ActionResult> => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return { message: "Unauthorized access", success: false };
+  }
+
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      message: "Unauthorized: You are not allowed to perform this action.",
+      success: false,
+    };
+  }
+
   const parsedData = MetricsSchema.parse(data);
 
   try {

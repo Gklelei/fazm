@@ -1,7 +1,6 @@
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
-import { redirect } from "next/navigation";
 import { NextResponse } from "next/server";
 
 export async function GET(
@@ -15,7 +14,6 @@ export async function GET(
 
   if (!session) {
     return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
-    redirect("/");
   }
 
   try {

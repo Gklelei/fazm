@@ -32,6 +32,14 @@ export const CreateTrainingSession = async (
     };
   }
 
+  const allowedRoles = ["ADMIN", "COACH"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      success: false,
+      message: "Unauthorized: You are not allowed to perform this action.",
+    };
+  }
+
   try {
     const start = new Date(parsedData.date);
     const duration = parsedData.duration;
