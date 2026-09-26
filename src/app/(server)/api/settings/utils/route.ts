@@ -1,16 +1,15 @@
 import { db } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiError } from "@/lib/api-response";
 import { getCachedAcademy } from "@/lib/academy-cache";
+import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return apiError(401, "Unauthorized");
+  const authz = await checkRole();
+  if (!authz.ok) {
+    return apiError(AUTHZ_HTTP_STATUS[authz.reason], "Unauthorized");
   }
 
   try {
