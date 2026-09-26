@@ -15,6 +15,10 @@ export async function GET(
     headers: await headers(),
   });
 
+  if (!session?.user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
   const { protocol, host } = new URL(req.url);
   const baseUrl = `${protocol}//${host}`;
   const logoUrl = `${baseUrl}/Fazam Logo Half.jpg`;

@@ -10,6 +10,8 @@ type returnPromise =
   | { success: true; message: string; receiptNumber?: string }
   | { success: false; message: string };
 
+class OverpaymentError extends Error {}
+
 const createFinancialTransaction = async (
   data: FinanceSchemaType,
 ): Promise<returnPromise> => {
@@ -43,17 +45,25 @@ const createFinancialTransaction = async (
     }
 
     const newPaymentAmount = parseFloat(parsedData.amountPaid);
-    const remainingBalance =
-      Number(existingInvoice.amountDue) - Number(existingInvoice.amountPaid);
-
-    if (newPaymentAmount > remainingBalance) {
-      return {
-        success: false,
-        message: `Overpayment detected. The balance is KES ${remainingBalance}`,
-      };
-    }
 
     const result = await db.$transaction(async (ctx) => {
+      // Re-read the invoice's current balance inside the transaction rather
+      // than relying on the snapshot fetched above, so two concurrent
+      // payments against the same invoice can't both compute their new
+      // balance from the same stale starting point (lost-update race).
+      const currentInvoice = await ctx.invoice.findUniqueOrThrow({
+        where: { id: existingInvoice.id },
+      });
+
+      const remainingBalance =
+        Number(currentInvoice.amountDue) - Number(currentInvoice.amountPaid);
+
+      if (newPaymentAmount > remainingBalance) {
+        throw new OverpaymentError(
+          `Overpayment detected. The balance is KES ${remainingBalance}`,
+        );
+      }
+
       const now = new Date();
       const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
       const startOfDay = new Date(
@@ -81,8 +91,8 @@ const createFinancialTransaction = async (
       const generatedReceipt = `FEES-${datePart}-${sequence}`;
 
       const totalPaidSoFar =
-        Number(existingInvoice.amountPaid) + newPaymentAmount;
-      const isFullyPaid = totalPaidSoFar >= Number(existingInvoice.amountDue);
+        Number(currentInvoice.amountPaid) + newPaymentAmount;
+      const isFullyPaid = totalPaidSoFar >= Number(currentInvoice.amountDue);
       const newStatus = isFullyPaid ? "PAID" : "PARTIAL";
 
       const finance = await ctx.finance.create({
@@ -94,18 +104,18 @@ const createFinancialTransaction = async (
           collectedBy: parsedData.collectedBy,
           notes: parsedData.notes || "",
           athleteId: existingUser.athleteId,
-          invoiceId: existingInvoice.id,
+          invoiceId: currentInvoice.id,
         },
       });
 
       await ctx.invoice.update({
-        where: { id: existingInvoice.id },
+        where: { id: currentInvoice.id },
         data: { amountPaid: totalPaidSoFar, status: newStatus },
       });
 
       const isInitial =
-        existingInvoice.description?.toLowerCase().includes("initial") ||
-        existingInvoice.type === "SUBSCRIPTION";
+        currentInvoice.description?.toLowerCase().includes("initial") ||
+        currentInvoice.type === "SUBSCRIPTION";
 
       if (isInitial && isFullyPaid) {
         await ctx.athlete.update({
@@ -132,6 +142,9 @@ const createFinancialTransaction = async (
       receiptNumber: result.receiptNumber,
     };
   } catch (error) {
+    if (error instanceof OverpaymentError) {
+      return { success: false, message: error.message };
+    }
     console.error("[FINANCE_ERROR]:", error);
     return { success: false, message: "Database transaction failed." };
   }

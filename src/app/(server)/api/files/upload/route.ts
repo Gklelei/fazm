@@ -1,6 +1,8 @@
 import * as fs from "fs/promises";
 import { NextRequest, NextResponse } from "next/server";
 import * as path from "path";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
 export const runtime = "nodejs";
 
@@ -12,8 +14,22 @@ const UPLOAD_ROOT =
 const SAFE_DIR_REGEX = /^[a-zA-Z0-9_-]+$/;
 const SAFE_FILE_REGEX = /^[a-zA-Z0-9._-]+$/;
 
+const ALLOWED_MIME_TYPES = new Set([
+  "image/jpeg",
+  "image/png",
+  "image/webp",
+  "image/gif",
+  "application/pdf",
+]);
+const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024; // 10MB
+
 export async function POST(req: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const formData = await req.formData();
 
     const file = formData.get("file");
@@ -29,6 +45,20 @@ export async function POST(req: NextRequest) {
     if (!SAFE_DIR_REGEX.test(directory)) {
       return NextResponse.json(
         { error: "Invalid directory name" },
+        { status: 400 },
+      );
+    }
+
+    if (!ALLOWED_MIME_TYPES.has(file.type)) {
+      return NextResponse.json(
+        { error: "Unsupported file type" },
+        { status: 400 },
+      );
+    }
+
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      return NextResponse.json(
+        { error: "File is too large" },
         { status: 400 },
       );
     }
@@ -66,6 +96,11 @@ export async function POST(req: NextRequest) {
 ========================= */
 export async function DELETE(req: NextRequest) {
   try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { url } = await req.json();
 
     if (typeof url !== "string") {

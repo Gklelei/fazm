@@ -35,11 +35,28 @@ function calculateAge({ dob }: { dob: Date | string }) {
   return age;
 }
 
+const acceptedRoles = ["ADMIN", "SUPER_ADMIN", "COACH"];
+
 export const UpdateAthleteAction = async (
   id: string,
   data: editSchemaType,
 ): Promise<ActionResult> => {
   const session = await auth.api.getSession({ headers: await headers() });
+
+  if (!session?.user) {
+    return {
+      status: "ERROR",
+      errorMessage: "You must be logged in to perform this action.",
+    };
+  }
+
+  if (!acceptedRoles.includes(session.user.role || "")) {
+    return {
+      status: "ERROR",
+      errorMessage:
+        "Access denied. You do not have permission to update athlete profiles.",
+    };
+  }
 
   const positions = data.playingPositions
     ? data.playingPositions
