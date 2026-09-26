@@ -7,6 +7,7 @@ import { GetExpenseCategoriesQuery } from "@/Modules/Expenses/Types";
 import { GetCouponsQuery } from "@/Modules/Coupons/Types/Index";
 import { GetStaffQuery } from "@/Modules/Users/stafff/types";
 import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
+import { Prisma } from "@/generated/prisma/client";
 
 export const dynamic = "force-dynamic";
 
@@ -14,7 +15,7 @@ export const dynamic = "force-dynamic";
 const MAX_EXPORT_ROWS = 5_000;
 
 /**
- * GET /api/export?resource=expenses|expense-categories|coupons|staff|sessions|athletes|invoices
+ * GET /api/export?resource=expenses|expense-categories|coupons|staff|sessions|athletes|invoices|finance
  *
  * Returns ALL rows (no pagination) so the client can export everything.
  */
@@ -36,7 +37,7 @@ export async function GET(req: NextRequest) {
   try {
     switch (resource) {
       case "expenses": {
-        const whereClause: any = {};
+        const whereClause: Prisma.ExpensesWhereInput = {};
         if (query) {
           whereClause.OR = [
             { name: { contains: query, mode: "insensitive" } },
@@ -46,7 +47,7 @@ export async function GET(req: NextRequest) {
         }
 
         const data = await db.expenses.findMany({
-          ...(GetExpensesQuery as any),
+          ...GetExpensesQuery,
           where: whereClause,
           orderBy: { date: "desc" },
           take: MAX_EXPORT_ROWS,
@@ -55,7 +56,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "expense-categories": {
-        const whereClause: any = {};
+        const whereClause: Prisma.ExpenseCategoriesWhereInput = {};
         if (query) {
           whereClause.name = { contains: query, mode: "insensitive" };
         }
@@ -70,7 +71,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "coupons": {
-        const whereClause: any = { status: 1, voided: 0 };
+        const whereClause: Prisma.CouponWhereInput = { status: 1, voided: 0 };
         if (query) {
           whereClause.OR = [
             { code: { contains: query, mode: "insensitive" } },
@@ -92,7 +93,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "staff": {
-        const whereClause: any = {};
+        const whereClause: Prisma.staffWhereInput = {};
         if (query) {
           whereClause.OR = [
             { fullNames: { contains: query, mode: "insensitive" } },
@@ -112,7 +113,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "sessions": {
-        const whereClause: any = { isArchived: false };
+        const whereClause: Prisma.trainingWhereInput = { isArchived: false };
         if (query) {
           whereClause.OR = [
             { name: { contains: query, mode: "insensitive" } },
@@ -131,7 +132,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "athletes": {
-        const whereClause: any = { isArchived: false };
+        const whereClause: Prisma.AthleteWhereInput = { isArchived: false };
         if (query) {
           whereClause.OR = [
             { firstName: { contains: query, mode: "insensitive" } },
@@ -161,7 +162,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "invoices": {
-        const whereClause: any = {};
+        const whereClause: Prisma.InvoiceWhereInput = {};
 
         // ── Date range filter ──────────────────────────────────────────
         const fromDate = req.nextUrl.searchParams.get("from");
@@ -218,6 +219,71 @@ export async function GET(req: NextRequest) {
             },
           },
           orderBy: { createdAt: "desc" },
+          take: MAX_EXPORT_ROWS,
+        });
+        return NextResponse.json(data);
+      }
+
+      case "finance": {
+        const whereClause: Prisma.FinanceWhereInput = { isArchived: false };
+
+        // ── Date range filter (on paymentDate) ─────────────────────────
+        const fromDate = req.nextUrl.searchParams.get("from");
+        const toDate = req.nextUrl.searchParams.get("to");
+
+        if (fromDate || toDate) {
+          const paymentDateFilter: { gte?: Date; lte?: Date } = {};
+
+          if (fromDate) {
+            const from = new Date(fromDate);
+            if (!isNaN(from.getTime())) {
+              paymentDateFilter.gte = from;
+            }
+          }
+
+          if (toDate) {
+            const to = new Date(toDate);
+            if (!isNaN(to.getTime())) {
+              to.setHours(23, 59, 59, 999);
+              paymentDateFilter.lte = to;
+            }
+          }
+
+          if (Object.keys(paymentDateFilter).length > 0) {
+            whereClause.paymentDate = paymentDateFilter;
+          }
+        }
+
+        // ── Search query filter ────────────────────────────────────────
+        if (query) {
+          whereClause.OR = [
+            { receiptNumber: { contains: query, mode: "insensitive" } },
+            { athleteId: { contains: query, mode: "insensitive" } },
+            {
+              athlete: { firstName: { contains: query, mode: "insensitive" } },
+            },
+            { athlete: { lastName: { contains: query, mode: "insensitive" } } },
+            {
+              invoice: {
+                invoiceNumber: { contains: query, mode: "insensitive" },
+              },
+            },
+          ];
+        }
+
+        const data = await db.finance.findMany({
+          where: whereClause,
+          include: {
+            athlete: {
+              select: {
+                firstName: true,
+                lastName: true,
+                profilePIcture: true,
+              },
+            },
+            invoice: true,
+          },
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           take: MAX_EXPORT_ROWS,
         });
         return NextResponse.json(data);

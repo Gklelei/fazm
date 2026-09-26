@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { format, isWithinInterval, startOfDay, endOfDay } from "date-fns";
+import { format } from "date-fns";
 import { Search, Calendar as CalendarIcon, X, Trash2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
@@ -37,66 +37,121 @@ import ExportDropdown from "@/utils/ExportDropdown";
 import EditTransactionModal from "./EditTransactionModal";
 import deleteFinancialTransaction from "../Server/DeleteTransaction";
 import Swal from "sweetalert2";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { toast } from "sonner";
+import { useDebounce } from "@/utils/Debounce";
 
 const ViewAllFinances = ({
   data,
   athletes,
   invoices,
+  page,
+  pageSize,
+  total,
+  initialSearch,
+  initialFrom,
+  initialTo,
 }: {
   data: FinancesTypes[];
   invoices: GetAllInvoicesType[];
   athletes: GetAllFinanceAtheletesType[];
+  page: number;
+  pageSize: number;
+  total: number;
+  initialSearch: string;
+  initialFrom: string;
+  initialTo: string;
 }) => {
-  // --- State for Filters ---
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [dateRange, setDateRange] = React.useState<DateRange | undefined>({
-    from: undefined,
-    to: undefined,
-  });
-  const [currentPage, setCurrentPage] = React.useState(1);
-  const itemsPerPage = 10;
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // --- State for Filters (initialized from, and kept in sync with, the URL
+  // so search/date-range/page are all resolved server-side against the
+  // full table rather than filtering an entire unpaginated table client-side) ---
+  const [searchQuery, setSearchQuery] = React.useState(initialSearch);
+  const [dateRange, setDateRange] = React.useState<DateRange | undefined>(
+    initialFrom
+      ? {
+          from: new Date(initialFrom),
+          to: initialTo ? new Date(initialTo) : undefined,
+        }
+      : undefined,
+  );
+
+  const debouncedSearch = useDebounce(searchQuery, 400);
+  const isFirstRender = React.useRef(true);
+
+  const updateQuery = React.useCallback(
+    (
+      updates: Record<string, string | null>,
+      options?: { resetPage?: boolean },
+    ) => {
+      const params = new URLSearchParams(searchParams.toString());
+      Object.entries(updates).forEach(([key, value]) => {
+        if (value === null || value === "") {
+          params.delete(key);
+        } else {
+          params.set(key, value);
+        }
+      });
+      if (options?.resetPage !== false) {
+        params.delete("page");
+      }
+      router.push(`${pathname}?${params.toString()}`);
+    },
+    [searchParams, pathname, router],
+  );
 
   React.useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery, dateRange]);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    updateQuery({ search: debouncedSearch || null });
+    // Only re-run when the debounced search value itself changes.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
 
-  // --- Filtering Logic ---
-  const filteredData = React.useMemo(() => {
-    return data.filter((item) => {
-      // 1. Text Search (Name, Athlete ID, Receipt, or Invoice Number)
-      const searchStr = searchQuery.toLowerCase();
-      const matchesText =
-        item.athlete.firstName.toLowerCase().includes(searchStr) ||
-        item.athlete.lastName.toLowerCase().includes(searchStr) ||
-        item.athleteId.toLowerCase().includes(searchStr) ||
-        item.receiptNumber.toLowerCase().includes(searchStr) ||
-        item.invoice?.invoiceNumber?.toLowerCase().includes(searchStr);
-
-      // 2. Date Range Filter
-      let matchesDate = true;
-      if (dateRange?.from) {
-        const paymentDate = new Date(item.paymentDate);
-        const start = startOfDay(dateRange.from);
-        const end = dateRange.to
-          ? endOfDay(dateRange.to)
-          : endOfDay(dateRange.from);
-
-        matchesDate = isWithinInterval(paymentDate, { start, end });
-      }
-
-      return matchesText && matchesDate;
+  const handleDateSelect = (range: DateRange | undefined) => {
+    setDateRange(range);
+    updateQuery({
+      from: range?.from ? format(range.from, "yyyy-MM-dd") : null,
+      to: range?.to
+        ? format(range.to, "yyyy-MM-dd")
+        : range?.from
+          ? format(range.from, "yyyy-MM-dd")
+          : null,
     });
-  }, [data, searchQuery, dateRange]);
+  };
 
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const clearFilters = () => {
+    setSearchQuery("");
+    setDateRange(undefined);
+    updateQuery({ search: null, from: null, to: null });
+  };
 
-  const paginatedData = React.useMemo(() => {
-    const start = (currentPage - 1) * itemsPerPage;
-    return filteredData.slice(start, start + itemsPerPage);
-  }, [filteredData, currentPage]);
+  const totalPages = Math.ceil(total / pageSize);
+
+  const goToPage = (nextPage: number) => {
+    updateQuery(
+      { page: String(Math.min(Math.max(1, nextPage), totalPages)) },
+      { resetPage: false },
+    );
+  };
+
+  const exportUrl = React.useMemo(() => {
+    const params = new URLSearchParams({ resource: "finance" });
+    if (searchQuery) params.set("query", searchQuery);
+    if (dateRange?.from) {
+      params.set("from", format(dateRange.from, "yyyy-MM-dd"));
+      params.set(
+        "to",
+        format(dateRange.to ?? dateRange.from, "yyyy-MM-dd"),
+      );
+    }
+    return `/api/export?${params.toString()}`;
+  }, [searchQuery, dateRange]);
 
   const handleDelete = async (id: string) => {
     const result = await Swal.fire({
@@ -129,7 +184,7 @@ const ViewAllFinances = ({
               Financial Records
             </CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
-              Showing {filteredData.length} of {data.length} transactions
+              Showing {data.length} of {total} transactions
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -144,8 +199,8 @@ const ViewAllFinances = ({
                 "Method",
                 "Receipt #",
               ]}
-              rows={filteredData.map((t, i) => [
-                String(i + 1),
+              rows={data.map((t, i) => [
+                String((page - 1) * pageSize + i + 1),
                 `${t.athlete.firstName} ${t.athlete.lastName}`,
                 `KES ${Number(t.amountPaid).toLocaleString()}`,
                 format(new Date(t.paymentDate), "MMM dd, yyyy"),
@@ -153,6 +208,27 @@ const ViewAllFinances = ({
                 t.paymentType.replace(/_/g, " "),
                 t.receiptNumber,
               ])}
+              fetchAllUrl={exportUrl}
+              filterFn={(t: FinancesTypes) => {
+                if (!searchQuery) return true;
+                const q = searchQuery.toLowerCase();
+                return (
+                  t.athlete.firstName.toLowerCase().includes(q) ||
+                  t.athlete.lastName.toLowerCase().includes(q) ||
+                  t.athleteId.toLowerCase().includes(q) ||
+                  t.receiptNumber.toLowerCase().includes(q) ||
+                  !!t.invoice?.invoiceNumber?.toLowerCase().includes(q)
+                );
+              }}
+              mapRow={(t: FinancesTypes, i: number) => [
+                String(i + 1),
+                `${t.athlete.firstName} ${t.athlete.lastName}`,
+                `KES ${Number(t.amountPaid).toLocaleString()}`,
+                format(new Date(t.paymentDate), "MMM dd, yyyy"),
+                t.invoice?.invoiceNumber || "—",
+                t.paymentType.replace(/_/g, " "),
+                t.receiptNumber,
+              ]}
             />
             <PaymentModal athletes={athletes} invoices={invoices} />
           </div>
@@ -203,7 +279,7 @@ const ViewAllFinances = ({
                   mode="range"
                   defaultMonth={dateRange?.from}
                   selected={dateRange}
-                  onSelect={setDateRange}
+                  onSelect={handleDateSelect}
                   numberOfMonths={2}
                 />
               </PopoverContent>
@@ -212,10 +288,7 @@ const ViewAllFinances = ({
             {(searchQuery || dateRange?.from) && (
               <Button
                 variant="ghost"
-                onClick={() => {
-                  setSearchQuery("");
-                  setDateRange(undefined);
-                }}
+                onClick={clearFilters}
                 className="h-11 px-3"
               >
                 <X className="h-4 w-4 mr-2" />
@@ -242,10 +315,10 @@ const ViewAllFinances = ({
               </TableRow>
             </TableHeader>
             <TableBody>
-              {paginatedData.map((trans, i) => (
+              {data.map((trans, i) => (
                 <TableRow key={trans.id}>
                   <TableCell className="text-muted-foreground text-xs font-mono">
-                    {(currentPage - 1) * itemsPerPage + i + 1}
+                    {(page - 1) * pageSize + i + 1}
                   </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-3">
@@ -307,7 +380,7 @@ const ViewAllFinances = ({
           </Table>
         </div>
 
-        {filteredData.length === 0 && (
+        {data.length === 0 && (
           <div className="text-center py-20 border-2 border-dashed rounded-lg mt-4">
             <Search className="h-10 w-10 text-slate-300 mx-auto mb-4" />
             <h3 className="text-base font-semibold text-slate-900">
@@ -319,10 +392,7 @@ const ViewAllFinances = ({
             {(searchQuery || dateRange?.from) && (
               <Button
                 variant="link"
-                onClick={() => {
-                  setSearchQuery("");
-                  setDateRange(undefined);
-                }}
+                onClick={clearFilters}
                 className="mt-4 text-primary"
               >
                 Clear all filters
@@ -334,29 +404,26 @@ const ViewAllFinances = ({
         {totalPages > 1 && (
           <div className="flex items-center justify-between mt-4 px-2">
             <div className="text-sm text-muted-foreground">
-              Showing {(currentPage - 1) * itemsPerPage + 1} to{" "}
-              {Math.min(currentPage * itemsPerPage, filteredData.length)} of{" "}
-              {filteredData.length} records
+              Showing {(page - 1) * pageSize + 1} to{" "}
+              {Math.min(page * pageSize, total)} of {total} records
             </div>
             <div className="flex items-center gap-2">
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
+                onClick={() => goToPage(page - 1)}
+                disabled={page === 1}
               >
                 Previous
               </Button>
               <div className="text-sm font-medium">
-                Page {currentPage} of {totalPages}
+                Page {page} of {totalPages}
               </div>
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() =>
-                  setCurrentPage((p) => Math.min(totalPages, p + 1))
-                }
-                disabled={currentPage === totalPages}
+                onClick={() => goToPage(page + 1)}
+                disabled={page === totalPages}
               >
                 Next
               </Button>

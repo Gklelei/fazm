@@ -25,6 +25,13 @@ const VALID_PERIODS = ["W", "M", "Y"] as const;
 const VALID_SORT_FIELDS = ["createdAt", "amount"] as const;
 const VALID_SORT_ORDERS = ["asc", "desc"] as const;
 
+function isOneOf<T extends string>(
+  allowed: readonly T[],
+  value: string,
+): value is T {
+  return (allowed as readonly string[]).includes(value);
+}
+
 export async function GET(req: NextRequest) {
   try {
     // Authentication
@@ -53,7 +60,7 @@ export async function GET(req: NextRequest) {
     const sortOrder = searchParams.get("sortOrder") || "desc";
 
     // Validate inputs
-    if (period && !VALID_PERIODS.includes(period as any)) {
+    if (period && !isOneOf(VALID_PERIODS, period)) {
       return NextResponse.json(
         {
           message: `Invalid period. Must be one of: ${VALID_PERIODS.join(", ")}`,
@@ -62,7 +69,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (!VALID_SORT_FIELDS.includes(sortBy as any)) {
+    if (!isOneOf(VALID_SORT_FIELDS, sortBy)) {
       return NextResponse.json(
         {
           message: `Invalid sortBy. Must be one of: ${VALID_SORT_FIELDS.join(", ")}`,
@@ -71,7 +78,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    if (!VALID_SORT_ORDERS.includes(sortOrder as any)) {
+    if (!isOneOf(VALID_SORT_ORDERS, sortOrder)) {
       return NextResponse.json(
         {
           message: `Invalid sortOrder. Must be one of: ${VALID_SORT_ORDERS.join(", ")}`,

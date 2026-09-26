@@ -14,6 +14,12 @@ const ReactQueryClientProvider = ({ children }: props) => {
           queries: {
             refetchOnWindowFocus: false,
             retry: 0,
+            // Previously unset (defaults to 0), so every remount refetched
+            // even near-static data. A short default avoids that while
+            // still keeping data reasonably fresh; any query that needs to
+            // be more (or less) live can still override this per-query.
+            staleTime: 30 * 1000,
+            gcTime: 5 * 60 * 1000,
           },
         },
       })
