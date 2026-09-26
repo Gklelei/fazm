@@ -2,6 +2,7 @@
 
 import { useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import type { Athlete } from "@/generated/prisma/client";
 
 import {
   Card,
