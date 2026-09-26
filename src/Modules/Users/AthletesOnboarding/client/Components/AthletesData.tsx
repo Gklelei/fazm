@@ -5,7 +5,10 @@ import { useRouter } from "next/navigation";
 import { useQueryClient } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
-import { UseGetAllAthletes } from "../../Api/FetchAllAthletes";
+import {
+  UseGetAllAthletes,
+  type AthletesInfiniteData,
+} from "../../Api/FetchAllAthletes";
 import { DeleteAthlete } from "../../Server/DeleteAthlete";
 import { UpdateAthleteStatus } from "../../Server/EditAthleteStatus";
 import { useDebounce } from "@/utils/Debounce";
@@ -26,7 +29,11 @@ import AthletesFilterBar from "./AthletesFilterBar";
 import ExportDropdown from "@/utils/ExportDropdown";
 import { fullName, ageText } from "./athlete-utils";
 
-const AthletesData = () => {
+const AthletesData = ({
+  initialData,
+}: {
+  initialData?: AthletesInfiniteData;
+}) => {
   const router = useRouter();
   const queryClient = useQueryClient();
   const isMobile = useIsMobile();
@@ -46,7 +53,7 @@ const AthletesData = () => {
     isFetchingNextPage,
     isRefetching,
     refetch,
-  } = UseGetAllAthletes({ search: debouncedSearchValue });
+  } = UseGetAllAthletes({ search: debouncedSearchValue, initialData });
 
   const { ref, inView } = useInView({ rootMargin: "300px" });
 

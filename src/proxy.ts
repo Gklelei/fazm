@@ -2,10 +2,10 @@ import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
 import { getAllowedRolesForPath } from "@/components/SideBarItems";
 
-// Requires the Node.js proxy runtime (not the default edge runtime) since
-// better-auth's session lookup goes through the Prisma/pg adapter.
+// Proxy files always run on the Node.js runtime (unlike the old
+// middleware.ts convention, which needed an explicit opt-in) — that's what
+// lets this call better-auth's session lookup through the Prisma/pg adapter.
 export const config = {
-  runtime: "nodejs",
   matcher: [
     /*
      * Match every request except:

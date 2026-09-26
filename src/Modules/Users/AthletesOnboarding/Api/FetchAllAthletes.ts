@@ -8,14 +8,29 @@ type AthleteListItem = Prisma.AthleteGetPayload<{
   include: { address: true; medical: true };
 }>;
 
-type AthletesPage = {
+export type AthletesPage = {
   allAthletes: AthleteListItem[];
   nextCursor: string | null;
   pageSize: number;
 };
 
-export const UseGetAllAthletes = ({ search }: { search: string }) => {
+export type AthletesInfiniteData = {
+  pages: AthletesPage[];
+  pageParams: (string | null)[];
+};
+
+export const UseGetAllAthletes = ({
+  search,
+  initialData,
+}: {
+  search: string;
+  initialData?: AthletesInfiniteData;
+}) => {
   return useInfiniteQuery<AthletesPage>({
+    // Only seed the query with the server-rendered first page when no
+    // filter is active — the same shape react-query is asked to fetch
+    // itself, so it's used as-is instead of triggering a redundant fetch.
+    initialData: search === "" ? initialData : undefined,
     queryKey: ["all-athletes", search],
     queryFn: async ({ pageParam }) => {
       const cursor = (pageParam as string | undefined) ?? "";
