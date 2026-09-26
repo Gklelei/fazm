@@ -16,6 +16,14 @@ export const DeleteAssessmentSection = async (
     return { message: "Unauthorized access", success: false };
   }
 
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      message: "Unauthorized: You are not allowed to perform this action.",
+      success: false,
+    };
+  }
+
   try {
     await db.$transaction(async (ctx) => {
       const section = await ctx.assessmentTemplateSection.findUnique({

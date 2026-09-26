@@ -34,6 +34,10 @@ async function CreateAthleteInvoice(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { success: false, message: "Unauthorized access" };
 
+  if (session.user.role !== "ADMIN") {
+    return { success: false, message: "Unauthorized access" };
+  }
+
   try {
     const parsed = CreateInvoiceSchema.parse(data);
 

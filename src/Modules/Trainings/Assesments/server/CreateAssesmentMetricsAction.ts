@@ -17,6 +17,14 @@ export const CreateAssesmentMetricAction = async (
     return { message: "Unauthorized access", success: false };
   }
 
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      message: "Unauthorized: You are not allowed to perform this action.",
+      success: false,
+    };
+  }
+
   const parsedData = MetricsSchema.parse(data);
 
   try {

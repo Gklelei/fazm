@@ -25,6 +25,11 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
   const resource = req.nextUrl.searchParams.get("resource");
   const query = req.nextUrl.searchParams.get("query")?.trim() || "";
 
