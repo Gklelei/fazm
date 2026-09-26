@@ -90,7 +90,7 @@ export default function StatsPage() {
         if (cancelled) return;
 
         if (!res.ok) {
-          setError(json?.message || "Failed to load statistics.");
+          setError(json?.error || "Failed to load statistics.");
           setData(null);
         } else {
           setData(json);

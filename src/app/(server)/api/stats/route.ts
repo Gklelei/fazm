@@ -10,6 +10,7 @@ import {
 } from "date-fns";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import { apiError } from "@/lib/api-response";
 
 // Validation helpers
 const parsePositiveInt = (
@@ -41,14 +42,11 @@ export async function GET(req: NextRequest) {
     });
 
     if (!session?.user) {
-      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+      return apiError(401, "Unauthorized");
     }
 
     if (!allowedRoles.includes(session?.user.role ?? "")) {
-      return NextResponse.json(
-        { message: "Unauthorized access" },
-        { status: 403 },
-      );
+      return apiError(403, "Unauthorized access");
     }
 
     // Parse query parameters
@@ -61,37 +59,28 @@ export async function GET(req: NextRequest) {
 
     // Validate inputs
     if (period && !isOneOf(VALID_PERIODS, period)) {
-      return NextResponse.json(
-        {
-          message: `Invalid period. Must be one of: ${VALID_PERIODS.join(", ")}`,
-        },
-        { status: 400 },
+      return apiError(
+        400,
+        `Invalid period. Must be one of: ${VALID_PERIODS.join(", ")}`,
       );
     }
 
     if (!isOneOf(VALID_SORT_FIELDS, sortBy)) {
-      return NextResponse.json(
-        {
-          message: `Invalid sortBy. Must be one of: ${VALID_SORT_FIELDS.join(", ")}`,
-        },
-        { status: 400 },
+      return apiError(
+        400,
+        `Invalid sortBy. Must be one of: ${VALID_SORT_FIELDS.join(", ")}`,
       );
     }
 
     if (!isOneOf(VALID_SORT_ORDERS, sortOrder)) {
-      return NextResponse.json(
-        {
-          message: `Invalid sortOrder. Must be one of: ${VALID_SORT_ORDERS.join(", ")}`,
-        },
-        { status: 400 },
+      return apiError(
+        400,
+        `Invalid sortOrder. Must be one of: ${VALID_SORT_ORDERS.join(", ")}`,
       );
     }
 
     if (limit > 100) {
-      return NextResponse.json(
-        { message: "Limit cannot exceed 100" },
-        { status: 400 },
-      );
+      return apiError(400, "Limit cannot exceed 100");
     }
 
     // Calculate date range
@@ -228,9 +217,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(data);
   } catch (e) {
     console.error("Error in GET /api/finance:", e);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 },
-    );
+    return apiError(500, "Internal server error");
   }
 }

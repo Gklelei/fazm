@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { apiError } from "@/lib/api-response";
 
 export async function GET(
   req: Request,
@@ -13,7 +14,7 @@ export async function GET(
   });
 
   if (!session) {
-    return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    return apiError(401, "Unauthorized access");
   }
 
   try {
@@ -32,18 +33,12 @@ export async function GET(
     });
 
     if (!transaction) {
-      return NextResponse.json(
-        { error: "Transaction not found" },
-        { status: 404 },
-      );
+      return apiError(404, "Transaction not found");
     }
 
     return NextResponse.json(transaction);
   } catch (error) {
     console.error("[TRANSACTION_GET_ERROR]:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 },
-    );
+    return apiError(500, "Internal server error");
   }
 }

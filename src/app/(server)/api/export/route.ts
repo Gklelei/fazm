@@ -8,6 +8,7 @@ import { GetCouponsQuery } from "@/Modules/Coupons/Types/Index";
 import { GetStaffQuery } from "@/Modules/Users/stafff/types";
 import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
 import { Prisma } from "@/generated/prisma/client";
+import { apiError } from "@/lib/api-response";
 
 export const dynamic = "force-dynamic";
 
@@ -23,12 +24,12 @@ export async function GET(req: NextRequest) {
   // ── Auth guard ──────────────────────────────────────────────────────
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return apiError(401, "Unauthorized");
   }
 
   const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
   if (!allowedRoles.includes(session.user.role ?? "")) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return apiError(403, "Forbidden");
   }
 
   const resource = req.nextUrl.searchParams.get("resource");
@@ -290,16 +291,10 @@ export async function GET(req: NextRequest) {
       }
 
       default:
-        return NextResponse.json(
-          { error: `Unknown resource: ${resource}` },
-          { status: 400 },
-        );
+        return apiError(400, `Unknown resource: ${resource}`);
     }
   } catch (error) {
     console.error("[EXPORT API]", error);
-    return NextResponse.json(
-      { error: "Failed to fetch data for export" },
-      { status: 500 },
-    );
+    return apiError(500, "Failed to fetch data for export");
   }
 }

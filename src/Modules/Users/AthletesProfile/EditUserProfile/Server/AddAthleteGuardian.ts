@@ -8,11 +8,6 @@ import {
 } from "@/Modules/Users/AthletesOnboarding/validation/AthleteGuardian";
 import { headers } from "next/headers";
 
-type ActionResult = {
-  success: boolean;
-  message: string;
-};
-
 export const AddAthleteGuardian = async (
   data: AthleteGuardianSchemaType,
   athleteId: string
