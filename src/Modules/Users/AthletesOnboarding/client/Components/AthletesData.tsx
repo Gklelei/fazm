@@ -202,14 +202,14 @@ const AthletesData = () => {
                 a.status,
               ])}
               fetchAllUrl="/api/export?resource=athletes"
-              filterFn={(a: any) =>
+              filterFn={(a: AthleteRow) =>
                 [a.firstName, a.middleName, a.lastName, a.athleteId]
                   .filter(Boolean)
                   .join(" ")
                   .toLowerCase()
                   .includes(debouncedSearchValue.toLowerCase())
               }
-              mapRow={(a: any, i: number) => [
+              mapRow={(a: AthleteRow) => [
                 a.athleteId,
                 [a.firstName, a.middleName, a.lastName]
                   .filter(Boolean)

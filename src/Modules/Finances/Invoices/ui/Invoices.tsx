@@ -216,7 +216,7 @@ const Invoices = ({ initialData }: Props) => {
                   if (toDate) url.searchParams.set("to", toDate.toISOString());
                   return url.toString();
                 })()}
-                filterFn={(inv: any) => {
+                filterFn={(inv: AllInvoicesType) => {
                   const matchSearch =
                     !searchQuery ||
                     [
@@ -233,7 +233,7 @@ const Invoices = ({ initialData }: Props) => {
                     !statusFilter || inv.status === statusFilter;
                   return matchSearch && matchStatus;
                 }}
-                mapRow={(inv: any, i: number) => {
+                mapRow={(inv: AllInvoicesType, i: number) => {
                   const due = Number(inv.amountDue ?? 0);
                   const disc = Number(inv.discount ?? 0);
                   const paid = Number(inv.amountPaid ?? 0);

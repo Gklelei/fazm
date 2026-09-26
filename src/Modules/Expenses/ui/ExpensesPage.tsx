@@ -80,10 +80,10 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
               fetchAllUrl={`/api/export?resource=expenses${
                 query ? `&query=${encodeURIComponent(query)}` : ""
               }`}
-              filterFn={(e: any) =>
+              filterFn={(e: GetExpensesQueryType) =>
                 e.name.toLowerCase().includes(query.toLowerCase())
               }
-              mapRow={(e: any, i: number) => [
+              mapRow={(e: GetExpensesQueryType, i: number) => [
                 String(i + 1),
                 e.name,
                 `KES ${formatCurrency(e.amount)}`,

@@ -17,7 +17,7 @@ import {
 } from "lucide-react";
 import { exportToCSV, exportToExcel, exportToPDF } from "./exportData";
 
-interface ExportDropdownProps {
+interface ExportDropdownProps<T> {
   filename: string;
   headers: string[];
   /** Rows currently loaded on-screen (fallback when no fetchAllUrl). */
@@ -31,24 +31,22 @@ interface ExportDropdownProps {
    * Map each raw API item to a string[] row matching `headers`.
    * Required when `fetchAllUrl` is provided.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  mapRow?: (item: any, index: number) => string[];
+  mapRow?: (item: T, index: number) => string[];
   /**
    * Optional function to filter the raw API items before mapping.
    * Useful when the client has a search query active but the API returns all items.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  filterFn?: (item: any) => boolean;
+  filterFn?: (item: T) => boolean;
 }
 
-export default function ExportDropdown({
+export default function ExportDropdown<T = unknown>({
   filename,
   headers,
   rows,
   fetchAllUrl,
   mapRow,
   filterFn,
-}: ExportDropdownProps) {
+}: ExportDropdownProps<T>) {
   const [loading, setLoading] = useState(false);
 
   /** Get the rows to export — either from the API or from the prop. */
@@ -59,13 +57,13 @@ export default function ExportDropdown({
     try {
       const res = await fetch(fetchAllUrl);
       if (!res.ok) throw new Error("Export fetch failed");
-      let data = await res.json();
+      let data: T[] = await res.json();
 
       if (filterFn) {
         data = data.filter(filterFn);
       }
 
-      return (data as unknown[]).map(mapRow);
+      return data.map(mapRow);
     } catch (error) {
       console.error(
         "[ExportDropdown] fetch-all failed, using visible rows",

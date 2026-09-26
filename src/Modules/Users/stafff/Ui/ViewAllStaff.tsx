@@ -152,12 +152,12 @@ const ViewAllStaff = ({ data, page, limit, total }: Props) => {
                 s.staffId,
               ])}
               fetchAllUrl="/api/export?resource=staff"
-              filterFn={(s: any) =>
+              filterFn={(s: GetStaffType) =>
                 (s.fullNames || "")
                   .toLowerCase()
                   .includes(searchQuery?.trim().toLowerCase() || "")
               }
-              mapRow={(s: any, i: number) => [
+              mapRow={(s: GetStaffType, i: number) => [
                 String(i + 1),
                 s.fullNames,
                 s.user?.email || "",

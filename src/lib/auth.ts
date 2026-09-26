@@ -3,6 +3,7 @@ import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./prisma";
 import { SendMail } from "./mailtrap";
 import { SendResetPasswordMailTemplate } from "@/Modules/Mail/Templates/SendResetPasswordMail";
+import { createAuditLog } from "./audit";
 
 export const auth = betterAuth({
   database: prismaAdapter(db, {
@@ -54,6 +55,30 @@ export const auth = betterAuth({
     cookieCache: {
       enabled: true,
       maxAge: 5 * 60,
+    },
+  },
+  databaseHooks: {
+    session: {
+      create: {
+        after: async (session) => {
+          await createAuditLog({
+            action: "LOGIN",
+            resource: "Session",
+            details: "User signed in",
+            userId: session.userId,
+          });
+        },
+      },
+      delete: {
+        after: async (session) => {
+          await createAuditLog({
+            action: "LOGOUT",
+            resource: "Session",
+            details: "User signed out",
+            userId: session.userId,
+          });
+        },
+      },
     },
   },
 });

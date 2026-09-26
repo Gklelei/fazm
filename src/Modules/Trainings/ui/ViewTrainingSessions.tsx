@@ -253,7 +253,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                 fetchAllUrl={`/api/export?resource=sessions${
                   searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : ""
                 }`}
-                filterFn={(item: any) =>
+                filterFn={(item: GetAllTrainingSessionsQueryType) =>
                   (item.name?.toLowerCase() || "").includes(
                     searchQuery?.toLowerCase() || "",
                   ) ||
@@ -264,7 +264,7 @@ export default function ViewTrainingSessions({ data, meta }: Props) {
                     searchQuery?.toLowerCase() || "",
                   )
                 }
-                mapRow={(item: any, i: number) => [
+                mapRow={(item: GetAllTrainingSessionsQueryType, i: number) => [
                   String(i + 1),
                   item.name,
                   item.batch?.name ?? "—",
