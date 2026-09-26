@@ -3,6 +3,9 @@ import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
 import SignUp from "@/Modules/Auth/SignUpForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Sign Up" };
 
 const page = async () => {
   if (process.env.NODE_ENV === "production") return redirect("/");

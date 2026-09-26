@@ -4,6 +4,7 @@ import InvoiceDocument from "@/Modules/Finances/Invoices/ui/InvoiceDocument";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { getCachedAcademy } from "@/lib/academy-cache";
 
 export async function GET(
   req: Request,
@@ -38,7 +39,7 @@ export async function GET(
       subscriptionPlan: true,
     },
   });
-  const academy = await db.academy.findFirst();
+  const academy = await getCachedAcademy();
   if (!invoice) {
     return new Response("Invoice not found", { status: 404 });
   }

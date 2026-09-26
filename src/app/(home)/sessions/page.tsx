@@ -5,6 +5,9 @@ import { auth } from "@/lib/auth";
 import ViewTrainingSessions from "@/Modules/Trainings/ui/ViewTrainingSessions";
 import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
 import { Prisma } from "@/generated/prisma/client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Training Sessions" };
 
 function toInt(v: unknown, fallback: number) {
   const n = Number(v);

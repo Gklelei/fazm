@@ -9,11 +9,6 @@ import { APIError } from "better-auth";
 import { createAuditLog } from "@/lib/audit";
 
 
-type ActionResult = {
-  success: boolean;
-  message: string;
-};
-
 export const CreateStaffAction = async (
   data: CreateStaffSchemaType,
 ): Promise<ActionResult> => {

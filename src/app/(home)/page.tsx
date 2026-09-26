@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { AppRole } from "@/components/SideBarItems";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -10,6 +11,8 @@ import {
   subMonths,
 } from "date-fns";
 import { headers } from "next/headers";
+
+export const metadata: Metadata = { title: "Dashboard" };
 
 const HomePage = async () => {
   const now = new Date();

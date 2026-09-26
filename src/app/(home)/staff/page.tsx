@@ -1,6 +1,9 @@
 import { db } from "@/lib/prisma";
 import { GetStaffQuery } from "@/Modules/Users/stafff/types";
 import ViewAllStaff from "@/Modules/Users/stafff/Ui/ViewAllStaff";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Staff & Coaches" };
 
 export default async function Page({
   searchParams,

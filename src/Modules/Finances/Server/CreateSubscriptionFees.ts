@@ -10,11 +10,6 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 
-type ActionResult = {
-  success: boolean;
-  message: string;
-};
-
 export const CreateSubscriptionFees = async (
   data: SubscriptionsSchemaType,
 ): Promise<ActionResult> => {

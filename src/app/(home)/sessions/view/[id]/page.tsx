@@ -2,6 +2,9 @@ import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import { GetAllTrainingSessionsByIdQuery } from "@/Modules/Trainings/Assesments/Types";
 import ViewTrainingSession from "@/Modules/Trainings/ui/ViewTrainingSession";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Training Session Details" };
 
 interface Props {
   params: Promise<{ id: string }>;

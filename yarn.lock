@@ -910,9 +910,9 @@
   resolved "https://registry.yarnpkg.com/@oxc-project/types/-/types-0.151.0.tgz#37206ed3fdebb8c4c5fc49ae20d53d9b4eed2bfe"
   integrity sha512-J1yXrIlNDZVzE3ada310xeAw7nH8yCAyLPuUIsjKatFPmfn5bS1oW+cM+QsGOtVWd5nhSpbwZWx/rue+r5Z+PA==
 
-"@prisma/adapter-pg@^7.2.0":
+"@prisma/adapter-pg@7.2.0":
   version "7.2.0"
-  resolved "https://registry.npmjs.org/@prisma/adapter-pg/-/adapter-pg-7.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/@prisma/adapter-pg/-/adapter-pg-7.2.0.tgz#a956ae4b6b168ed2e1c687a0b45e0d1633959bf0"
   integrity sha512-euIdQ13cRB2wZ3jPsnDnFhINquo1PYFPCg6yVL8b2rp3EdinQHsX9EDdCtRr489D5uhphcRk463OdQAFlsCr0w==
   dependencies:
     "@prisma/driver-adapter-utils" "7.2.0"
@@ -924,9 +924,9 @@
   resolved "https://registry.npmjs.org/@prisma/client-runtime-utils/-/client-runtime-utils-7.2.0.tgz"
   integrity sha512-dn7oB53v0tqkB0wBdMuTNFNPdEbfICEUe82Tn9FoKAhJCUkDH+fmyEp0ClciGh+9Hp2Tuu2K52kth2MTLstvmA==
 
-"@prisma/client@^7.2.0":
+"@prisma/client@7.2.0":
   version "7.2.0"
-  resolved "https://registry.npmjs.org/@prisma/client/-/client-7.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/@prisma/client/-/client-7.2.0.tgz#75681fe23843093d3b07730aaddc654ae12fbc0e"
   integrity sha512-JdLF8lWZ+LjKGKpBqyAlenxd/kXjd1Abf/xK+6vUA7R7L2Suo6AFTHFRpPSdAKCan9wzdFApsUpSa/F6+t1AtA==
   dependencies:
     "@prisma/client-runtime-utils" "7.2.0"
@@ -5208,9 +5208,9 @@ prettier@^3.7.4:
   resolved "https://registry.npmjs.org/prettier/-/prettier-3.7.4.tgz"
   integrity sha512-v6UNi1+3hSlVvv8fSaoUbggEM5VErKmmpGA7Pl3HF8V6uKY7rvClBOJlH6yNwQtfTueNkGVpOv/mtWL9L4bgRA==
 
-prisma@^7.2.0:
+prisma@7.2.0:
   version "7.2.0"
-  resolved "https://registry.npmjs.org/prisma/-/prisma-7.2.0.tgz"
+  resolved "https://registry.yarnpkg.com/prisma/-/prisma-7.2.0.tgz#ae7a4da8de0cbd078d9400888cd0533abfdca648"
   integrity sha512-jSdHWgWOgFF24+nRyyNRVBIgGDQEsMEF8KPHvhBBg3jWyR9fUAK0Nq9ThUmiGlNgq2FA7vSk/ZoCvefod+a8qg==
   dependencies:
     "@prisma/config" "7.2.0"

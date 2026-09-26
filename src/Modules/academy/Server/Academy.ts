@@ -2,9 +2,9 @@
 
 import z from "zod";
 import { AcademySchema } from "../Validation";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
+import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
 
 
 export const CreateAcademyUtils = async ({
@@ -12,24 +12,10 @@ export const CreateAcademyUtils = async ({
 }: {
   data: z.infer<typeof AcademySchema>;
 }): Promise<ActionResult> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const authz = await checkRole(["ADMIN", "SUPER_ADMIN"]);
 
-  if (!session?.user) {
-    return {
-      success: false,
-      message: "Unauthorized access,Please login to continue",
-    };
-  }
-
-  const allowedRoles = ["ADMIN", "SUPER"];
-
-  if (!allowedRoles.includes(session?.user.role ?? "")) {
-    return {
-      success: false,
-      message: "You are not allowed to perform this operation",
-    };
+  if (!authz.ok) {
+    return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
   }
   try {
     await db.academy.create({
@@ -48,7 +34,7 @@ export const CreateAcademyUtils = async ({
       },
     });
 
-
+    revalidateTag("academy");
 
     return {
       success: true,
@@ -69,24 +55,10 @@ export const EditAcademyUtils = async ({
   data: z.infer<typeof AcademySchema>;
   id: string;
 }): Promise<ActionResult> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  const authz = await checkRole(["ADMIN", "SUPER_ADMIN"]);
 
-  if (!session?.user) {
-    return {
-      success: false,
-      message: "Unauthorized access,Please login to continue",
-    };
-  }
-
-  const allowedRoles = ["ADMIN", "SUPER"];
-
-  if (!allowedRoles.includes(session?.user.role ?? "")) {
-    return {
-      success: false,
-      message: "You are not allowed to perform this operation",
-    };
+  if (!authz.ok) {
+    return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
   }
 
   try {
@@ -108,7 +80,7 @@ export const EditAcademyUtils = async ({
       },
     });
 
-
+    revalidateTag("academy");
 
     return {
       success: true,

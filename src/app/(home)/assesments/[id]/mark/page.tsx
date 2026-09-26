@@ -1,6 +1,9 @@
 import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
 import CreateAssesment from "@/Modules/Trainings/Assesments/ui/CreateAssesment";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Mark Assessment" };
 
 interface Props {
   params: Promise<{ id: string }>;

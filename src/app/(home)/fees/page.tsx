@@ -1,6 +1,9 @@
 import { db } from "@/lib/prisma";
 import { GetAllSubsQuery } from "@/Modules/Finances/Type/Subs";
 import ViewSubscriptions from "@/Modules/Finances/Ui/ViewSubscriptions";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "Fee Structure" };
 
 export default async function Page({
   searchParams,

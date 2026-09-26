@@ -1,14 +1,15 @@
 import { db } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { NextResponse } from "next/server";
+import { apiError } from "@/lib/api-response";
+import { getCachedAcademy } from "@/lib/academy-cache";
+import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
 
 export const dynamic = "force-dynamic";
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  const authz = await checkRole();
+  if (!authz.ok) {
+    return apiError(AUTHZ_HTTP_STATUS[authz.reason], "Unauthorized");
   }
 
   try {
@@ -42,7 +43,7 @@ export async function GET() {
         where: { isArchived: false },
         select: { id: true, name: true, amount: true },
       }),
-      db.academy.findFirst(),
+      getCachedAcademy(),
     ]);
 
     const resultPayload = {
@@ -59,9 +60,6 @@ export async function GET() {
     return NextResponse.json(resultPayload);
   } catch (error) {
     console.log({ error });
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 },
-    );
+    return apiError(500, "Internal server error");
   }
 }

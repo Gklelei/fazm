@@ -4,6 +4,9 @@ import { db } from "@/lib/prisma";
 import { GetUserProfileQuery } from "@/Modules/Users/stafff/types";
 import StaffProfilePage from "@/Modules/Users/stafff/Ui/StaffProfilePage";
 import { headers } from "next/headers";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = { title: "My Profile" };
 
 const page = async () => {
   const profile = await auth.api.getSession({

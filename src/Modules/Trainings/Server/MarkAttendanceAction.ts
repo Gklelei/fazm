@@ -14,11 +14,6 @@ export type SaveAttendanceInput = {
   reasonId: string | null;
 }[];
 
-type ActionResult = {
-  success: boolean;
-  message: string;
-};
-
 export async function saveAttendance(
   input: SaveAttendanceInput,
   trainingId: string,

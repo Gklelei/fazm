@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { EditStaffSchemaType } from "../Validation";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 export const EditStaffProfile = async ({
   data,
@@ -91,6 +92,7 @@ export const AdminEditStaffProfile = async ({
       where: {
         staffId: id,
       },
+      include: { user: { select: { id: true, role: true } } },
     });
     if (!existingUser) {
       return {
@@ -98,6 +100,8 @@ export const AdminEditStaffProfile = async ({
         message: "User  does not exist",
       };
     }
+    const previousRole = existingUser.user?.role;
+
     await db.staff.update({
       where: {
         staffId: id,
@@ -114,6 +118,16 @@ export const AdminEditStaffProfile = async ({
         },
       },
     });
+
+    if (previousRole !== data.role && existingUser.user) {
+      await createAuditLog({
+        action: "ROLE_CHANGE",
+        resource: "User",
+        details: `Changed role for ${data.fullName} from ${previousRole ?? "none"} to ${data.role}`,
+        userId: session.user.id,
+      });
+    }
+
     revalidatePath("/staff/profile");
     revalidatePath("/staff");
     return {

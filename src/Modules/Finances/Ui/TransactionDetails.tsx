@@ -16,7 +16,6 @@ import {
   Receipt,
   CheckCircle,
   Loader2,
-  Download,
 } from "lucide-react";
 import { UseFetchTransactionDetails } from "../Api/FetchTransactionDetails";
 import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
@@ -25,9 +24,24 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
-import { PDFDownloadLink } from "@react-pdf/renderer";
-import { ReceiptPDF } from "./ReceiptPDF";
+import dynamic from "next/dynamic";
 import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
+
+// @react-pdf/renderer is a large, client-only dependency — load it lazily
+// so it's only fetched once a user actually opens this sheet, instead of
+// being bundled into every page that renders TransactionDetails.
+const ReceiptDownloadButton = dynamic(
+  () => import("./ReceiptDownloadButton"),
+  {
+    ssr: false,
+    loading: () => (
+      <Button variant="outline" size="sm" disabled className="gap-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Download
+      </Button>
+    ),
+  },
+);
 
 const TransactionDetails = ({ id }: { id: string }) => {
   const [open, setIsOpen] = useState<boolean>(false);
@@ -56,26 +70,7 @@ const TransactionDetails = ({ id }: { id: string }) => {
               Transaction Details
             </SheetTitle>
             {data && (
-              <PDFDownloadLink
-                document={<ReceiptPDF data={data} academyConfig={utils} />}
-                fileName={`Receipt-${data.receiptNumber}.pdf`}
-              >
-                {({ loading }) => (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    disabled={loading}
-                    className="gap-2"
-                  >
-                    {loading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Download className="h-4 w-4" />
-                    )}
-                    Download
-                  </Button>
-                )}
-              </PDFDownloadLink>
+              <ReceiptDownloadButton data={data} academyConfig={utils} />
             )}
           </SheetHeader>
           {isLoading ? (

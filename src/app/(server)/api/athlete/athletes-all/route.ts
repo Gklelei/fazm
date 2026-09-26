@@ -7,7 +7,7 @@ const PAGE_SIZE_DEFAULT = 10;
 
 type CursorPayload = { createdAt: string; id: string };
 
-function encodeCursor(payload: CursorPayload) {
+export function encodeCursor(payload: CursorPayload) {
   return Buffer.from(JSON.stringify(payload)).toString("base64url");
 }
 
