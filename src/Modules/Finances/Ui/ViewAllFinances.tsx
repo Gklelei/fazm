@@ -6,6 +6,7 @@ import { Search, Calendar as CalendarIcon, X, Trash2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 
 import { cn } from "@/lib/utils";
+import { Empty, EmptyDescription, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -381,24 +382,20 @@ const ViewAllFinances = ({
         </div>
 
         {data.length === 0 && (
-          <div className="text-center py-20 border-2 border-dashed rounded-lg mt-4">
-            <Search className="h-10 w-10 text-slate-300 mx-auto mb-4" />
-            <h3 className="text-base font-semibold text-slate-900">
-              No results found
-            </h3>
-            <p className="text-sm text-muted-foreground max-w-62.5 mx-auto mt-1">
+          <Empty className="mt-4 border-2">
+            <EmptyMedia>
+              <Search className="h-10 w-10 text-muted-foreground" />
+            </EmptyMedia>
+            <EmptyTitle>No results found</EmptyTitle>
+            <EmptyDescription>
               Try adjusting your search query or date range filter.
-            </p>
+            </EmptyDescription>
             {(searchQuery || dateRange?.from) && (
-              <Button
-                variant="link"
-                onClick={clearFilters}
-                className="mt-4 text-primary"
-              >
+              <Button variant="link" onClick={clearFilters} className="text-primary">
                 Clear all filters
               </Button>
             )}
-          </div>
+          </Empty>
         )}
 
         {totalPages > 1 && (
