@@ -1,6 +1,5 @@
 "use client";
 
-import axios from "axios";
 import { useRef, useState } from "react";
 import Image from "next/image";
 import { AlertCircle, Image as ImageIcon, Loader2, Trash2 } from "lucide-react";
@@ -45,12 +44,20 @@ export const LocalFsUpload = ({
     formData.append("file", file);
     formData.append("dir", folder);
 
-    // Axios will set the correct multipart boundary automatically
-    const res = await axios.post("/api/files/upload", formData, {
-      withCredentials: true,
+    // The browser sets the correct multipart boundary automatically.
+    const res = await fetch("/api/files/upload", {
+      method: "POST",
+      credentials: "include",
+      body: formData,
     });
 
-    const url = res.data?.url as string | undefined;
+    const data = await res.json().catch(() => null);
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Upload failed");
+    }
+
+    const url = data?.url as string | undefined;
     if (!url) {
       throw new Error("Upload succeeded but no URL was returned.");
     }
@@ -60,11 +67,17 @@ export const LocalFsUpload = ({
 
   const deleteFile = async (url: string) => {
     // Your endpoint is DELETE /api/files/upload with JSON body: { url }
-    await axios.delete("/api/files/upload", {
-      withCredentials: true,
-      data: { url },
+    const res = await fetch("/api/files/upload", {
+      method: "DELETE",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
     });
+
+    if (!res.ok) {
+      const data = await res.json().catch(() => null);
+      throw new Error(data?.error || "Delete failed");
+    }
   };
 
   const onFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -78,11 +91,7 @@ export const LocalFsUpload = ({
       const url = await uploadFile(file);
       onChange(url);
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error || err.message || "Upload failed");
-      } else {
-        setError(err instanceof Error ? err.message : "Upload failed");
-      }
+      setError(err instanceof Error ? err.message : "Upload failed");
     } finally {
       setIsUploading(false);
     }
@@ -98,11 +107,7 @@ export const LocalFsUpload = ({
       await deleteFile(value);
       onChange("");
     } catch (err) {
-      if (axios.isAxiosError(err)) {
-        setError(err.response?.data?.error || err.message || "Delete failed");
-      } else {
-        setError(err instanceof Error ? err.message : "Delete failed");
-      }
+      setError(err instanceof Error ? err.message : "Delete failed");
     } finally {
       setIsDeleting(false);
     }

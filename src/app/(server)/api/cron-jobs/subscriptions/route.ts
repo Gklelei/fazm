@@ -2,9 +2,9 @@ import { NextResponse } from "next/server";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
+import { nextMonthlyBillingDate } from "@/lib/billing";
 
 const CRON_SECRET = process.env.CRON_SECRET;
-const BILLING_DAY = 30;
 
 function startOfDay(d: Date) {
   const x = new Date(d);
@@ -23,25 +23,6 @@ function invoiceDatePart(now: Date) {
   const m = String(now.getMonth() + 1).padStart(2, "0");
   const d = String(now.getDate()).padStart(2, "0");
   return `${y}${m}${d}`;
-}
-
-function daysInMonth(year: number, monthIndex0: number) {
-  return new Date(year, monthIndex0 + 1, 0).getDate();
-}
-
-function clampToDay(year: number, monthIndex0: number, day: number) {
-  const dim = daysInMonth(year, monthIndex0);
-  return new Date(year, monthIndex0, Math.min(day, dim), 0, 0, 0, 0);
-}
-
-/** 30th of next month (clamped) */
-function nextMonthlyBillingDate(from: Date) {
-  const nextMonthFirst = new Date(from.getFullYear(), from.getMonth() + 1, 1);
-  return clampToDay(
-    nextMonthFirst.getFullYear(),
-    nextMonthFirst.getMonth(),
-    BILLING_DAY,
-  );
 }
 
 /** Generic next billing (MONTHLY uses your unified 30th rule) */

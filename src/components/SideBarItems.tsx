@@ -20,16 +20,14 @@ import {
   TerminalSquare,
   BarChart2,
 } from "lucide-react";
+import { ROLES } from "@/generated/prisma/enums";
 
-export type AppRole = "SUPER_ADMIN" | "ADMIN" | "COACH" | "FINANCE" | "STAFF";
+// Derived from the Prisma `ROLES` enum so this can never drift from the
+// database's real set of roles (it previously hand-declared a parallel
+// union that included a nonexistent "STAFF" role and omitted "DOCTOR").
+export type AppRole = ROLES;
 
-export const ALL_ROLES: AppRole[] = [
-  "SUPER_ADMIN",
-  "ADMIN",
-  "COACH",
-  "FINANCE",
-  "STAFF",
-];
+export const ALL_ROLES: AppRole[] = Object.values(ROLES);
 
 type NavSubItem = {
   title: string;
@@ -65,13 +63,13 @@ export const data: { navMain: NavItem[] } = {
     {
       title: "User Management",
       icon: <Users className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
+      roles: ["SUPER_ADMIN", "ADMIN", "DOCTOR"],
       items: [
         {
           title: "Athletes",
           url: "/players",
           icon: <UserPlus className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
+          roles: ["SUPER_ADMIN", "ADMIN", "COACH", "DOCTOR"],
         },
         {
           title: "Staff & Coaches",
