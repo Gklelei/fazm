@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiError } from "@/lib/api-response";
+import { getCachedAcademy } from "@/lib/academy-cache";
 
 export const dynamic = "force-dynamic";
 
@@ -43,7 +44,7 @@ export async function GET() {
         where: { isArchived: false },
         select: { id: true, name: true, amount: true },
       }),
-      db.academy.findFirst(),
+      getCachedAcademy(),
     ]);
 
     const resultPayload = {

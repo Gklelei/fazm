@@ -5,6 +5,7 @@ import { AcademySchema } from "../Validation";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
+import { revalidateTag } from "next/cache";
 
 
 export const CreateAcademyUtils = async ({
@@ -23,7 +24,7 @@ export const CreateAcademyUtils = async ({
     };
   }
 
-  const allowedRoles = ["ADMIN", "SUPER"];
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
 
   if (!allowedRoles.includes(session?.user.role ?? "")) {
     return {
@@ -48,7 +49,7 @@ export const CreateAcademyUtils = async ({
       },
     });
 
-
+    revalidateTag("academy");
 
     return {
       success: true,
@@ -80,7 +81,7 @@ export const EditAcademyUtils = async ({
     };
   }
 
-  const allowedRoles = ["ADMIN", "SUPER"];
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
 
   if (!allowedRoles.includes(session?.user.role ?? "")) {
     return {
@@ -108,7 +109,7 @@ export const EditAcademyUtils = async ({
       },
     });
 
-
+    revalidateTag("academy");
 
     return {
       success: true,

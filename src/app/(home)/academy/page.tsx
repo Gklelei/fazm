@@ -1,12 +1,11 @@
-import { db } from "@/lib/prisma";
+import { getCachedAcademy } from "@/lib/academy-cache";
 import AcademyPage from "@/Modules/academy/ui/AcademyPage";
-import { getAcademyQuery } from "@/Modules/academy/Validation/Types";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Academy Profile" };
 
 const page = async () => {
-  const academy = await db.academy.findFirst(getAcademyQuery);
+  const academy = await getCachedAcademy();
 
   const isEditing = !!academy;
 
