@@ -4,7 +4,7 @@ model User {
   email         String     @unique
   emailVerified Boolean    @default(false)
   image         String?
-  role          ROLES      @default(ADMIN)
+  role          ROLES      @default(COACH)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   accounts      Account[]

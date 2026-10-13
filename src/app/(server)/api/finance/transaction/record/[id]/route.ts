@@ -1,3 +1,4 @@
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -15,6 +16,9 @@ export async function GET(
 
   if (!session) {
     return apiError(401, "Unauthorized access");
+  }
+  if (!hasRole(session.user.role, "finance")) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
   try {

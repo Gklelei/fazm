@@ -7,14 +7,6 @@ const nextConfig: NextConfig = {
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === "production",
   },
-  async rewrites() {
-    return [
-      {
-        source: "/uploads/:path*",
-        destination: "http://127.0.0.1:80/uploads/:path*",
-      },
-    ];
-  },
   images: {
     unoptimized: true,
     remotePatterns: [

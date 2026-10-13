@@ -5,6 +5,23 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
 import { getCachedAcademy } from "@/lib/academy-cache";
+import { hasRole } from "@/lib/roles";
+import { readFile } from "node:fs/promises";
+import { MIME_BY_EXT, resolveUpload } from "@/lib/uploads";
+
+/** Uploaded logos are private files; embed them for the server-side PDF renderer. */
+async function embeddableLogo(url: string | null | undefined) {
+  if (!url?.startsWith("/uploads/")) return url ?? null;
+  const [, , dir, file] = url.split("/");
+  const target = resolveUpload(dir ?? "", file ?? "");
+  const mime = MIME_BY_EXT[file?.split(".").pop()?.toLowerCase() ?? ""];
+  if (!target || !mime) return null;
+  try {
+    return `data:${mime};base64,${(await readFile(target)).toString("base64")}`;
+  } catch {
+    return null;
+  }
+}
 
 export async function GET(
   req: Request,
@@ -18,6 +35,9 @@ export async function GET(
 
   if (!session?.user) {
     return new Response("Unauthorized", { status: 401 });
+  }
+  if (!hasRole(session.user.role, "finance")) {
+    return new Response("Forbidden", { status: 403 });
   }
 
   const { protocol, host } = new URL(req.url);
@@ -39,7 +59,8 @@ export async function GET(
       subscriptionPlan: true,
     },
   });
-  const academy = await getCachedAcademy();
+  const cached = await getCachedAcademy();
+  const academy = cached ? { ...cached, logoUrl: await embeddableLogo(cached.logoUrl) } : cached;
   if (!invoice) {
     return new Response("Invoice not found", { status: 404 });
   }

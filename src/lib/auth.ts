@@ -66,6 +66,9 @@ export const auth = betterAuth({
     database: {
       generateId: false,
     },
+    // nginx sets X-Real-IP to the connecting address; X-Forwarded-For's first
+    // entry can be forged by the client, which would dodge sign-in rate limits
+    ipAddress: { ipAddressHeaders: ["x-real-ip"] },
   },
   session: {
     expiresIn: 30 * 60,

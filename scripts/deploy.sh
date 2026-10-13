@@ -40,7 +40,6 @@ set -euo pipefail
 source ~/.nvm/nvm.sh >/dev/null
 R=~/apps/fazm-releases/$1
 eval cp "$2" "$R/.env" && chmod 600 "$R/.env"
-mkdir -p "$R/public/uploads" && cp -a ~/apps/fazm/public/uploads/. "$R/public/uploads/" 2>/dev/null || true
 cd "$R"
 PORT=3002 HOSTNAME=127.0.0.1 nohup node --env-file=.env server.js >/tmp/fazam-canary.log 2>&1 &
 CANARY=$!
