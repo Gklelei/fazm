@@ -59,7 +59,7 @@ const AcademyPage = ({ academy }: Props) => {
       phone: academy?.contactPhone || "",
       tagline: academy?.tagline || "",
       footerNotes: academy?.receiptFooterNotes || "",
-      primaryColor: academy?.primaryColor || "zinc",
+      primaryColor: academy?.primaryColor || "fazam",
     }),
     [academy],
   );
@@ -92,7 +92,7 @@ const AcademyPage = ({ academy }: Props) => {
     description: v.description?.trim() || "",
     logoUrl: v.logoUrl?.trim() || "",
     footerNotes: v.footerNotes?.trim() || "",
-    primaryColor: v.primaryColor || "zinc",
+    primaryColor: v.primaryColor || "fazam",
   });
 
   async function handleSubmit(values: FormValues) {
@@ -399,8 +399,12 @@ const AcademyPage = ({ academy }: Props) => {
                         <FormLabel className="text-xs font-semibold uppercase tracking-wide">
                           Theme Color
                         </FormLabel>
-                        <div className="grid grid-cols-5 gap-3 pt-2">
+                        <div className="grid grid-cols-6 gap-3 pt-2">
                           {[
+                            {
+                              name: "fazam",
+                              bg: "bg-gradient-to-br from-brand-navy from-50% to-brand-gold to-50%",
+                            },
                             {
                               name: "zinc",
                               bg: "bg-zinc-900 dark:bg-zinc-100",
@@ -413,6 +417,9 @@ const AcademyPage = ({ academy }: Props) => {
                             <button
                               key={theme.name}
                               type="button"
+                              title={theme.name}
+                              aria-label={`${theme.name} theme`}
+                              aria-pressed={field.value === theme.name}
                               onClick={() => field.onChange(theme.name)}
                               className={`flex flex-col items-center gap-1 group`}
                             >

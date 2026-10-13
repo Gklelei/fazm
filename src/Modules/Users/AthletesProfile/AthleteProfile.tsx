@@ -19,7 +19,7 @@ import AthleteDocuments from "./AthleteDocuments";
 import AthleteExportButton from "./AthleteExportButton";
 
 import { GetAthleteByIdQueryType } from "../Types";
-import { GetCouponsQueryType } from "@/app/(home)/players/user-profile/[id]/page";
+import type { AthleteCouponOption } from "@/Modules/Coupons/Types/Index";
 import ResponsiveSections, { Section } from "@/utils/ResponsiveSections";
 
 export default function AthleteProfile({
@@ -27,7 +27,7 @@ export default function AthleteProfile({
   coupons,
 }: {
   data: GetAthleteByIdQueryType;
-  coupons: GetCouponsQueryType[];
+  coupons: AthleteCouponOption[];
 }) {
   const router = useRouter();
   if (!data) return <div className="p-10 text-center">Athlete not found.</div>;

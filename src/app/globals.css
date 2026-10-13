@@ -8,6 +8,8 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+  --color-brand-navy: var(--brand-navy);
+  --color-brand-gold: var(--brand-gold);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -48,6 +50,9 @@
 
 :root {
   --radius: 0.65rem;
+  /* Fazam crest colours — fixed across themes, used by auth screens & swatches */
+  --brand-navy: oklch(0.2 0.05 260);
+  --brand-gold: oklch(0.83 0.16 85);
   /* Slightly tinted background for a premium, non-blinding feel */
   --background: oklch(0.97 0.01 285);
   --foreground: oklch(0.141 0.005 285.823);
@@ -72,19 +77,19 @@
   --border: oklch(0.92 0.004 286.32);
   --input: oklch(0.92 0.004 286.32);
   --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --chart-1: oklch(0.45 0.16 262);
+  --chart-2: oklch(0.78 0.16 80);
+  --chart-3: oklch(0.6 0.14 160);
+  --chart-4: oklch(0.6 0.2 25);
+  --chart-5: oklch(0.55 0.18 300);
   --sidebar: oklch(0.985 0 0);
   --sidebar-foreground: oklch(0.141 0.005 285.823);
-  --sidebar-primary: oklch(0.546 0.245 262.881);
-  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.967 0.001 286.375);
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
-  --sidebar-ring: oklch(0.708 0 0);
+  --sidebar-ring: var(--ring);
 }
 
 .dark {
@@ -108,22 +113,39 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 15%);
   --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
+  --chart-1: oklch(0.7 0.15 255);
+  --chart-2: oklch(0.83 0.16 85);
+  --chart-3: oklch(0.72 0.14 160);
+  --chart-4: oklch(0.7 0.18 25);
+  --chart-5: oklch(0.7 0.16 300);
   --sidebar: oklch(0.18 0.006 285.885);
   --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.623 0.214 259.815);
-  --sidebar-primary-foreground: oklch(0.97 0.014 254.604);
+  --sidebar-primary: var(--primary);
+  --sidebar-primary-foreground: var(--primary-foreground);
   --sidebar-accent: oklch(0.274 0.006 286.033);
   --sidebar-accent-foreground: oklch(0.985 0 0);
   --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.439 0 0);
+  --sidebar-ring: var(--ring);
 }
 
-/* Base Theme - Zinc (default) */
+/* Theme - Fazam (default): navy primary, gold accents; gold leads in dark mode */
+[data-theme-color="fazam"] {
+  --primary: oklch(0.32 0.11 262);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: oklch(0.32 0.11 262);
+  --accent: oklch(0.95 0.05 90);
+  --accent-foreground: oklch(0.32 0.11 262);
+}
+[data-theme-color="fazam"].dark,
+.dark[data-theme-color="fazam"] {
+  --primary: oklch(0.83 0.16 85);
+  --primary-foreground: oklch(0.2 0.05 260);
+  --ring: oklch(0.83 0.16 85);
+  --accent: oklch(0.3 0.06 262);
+  --accent-foreground: oklch(0.985 0 0);
+}
+
+/* Theme - Zinc */
 [data-theme-color="zinc"] {
   --primary: oklch(0.21 0.006 285.885);
   --primary-foreground: oklch(0.985 0 0);

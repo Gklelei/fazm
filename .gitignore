@@ -52,3 +52,6 @@ yarn.lock/
 tasks.txt
 .agent/
 idea
+
+# graphify knowledge-graph output (regenerate with /graphify)
+graphify-out/

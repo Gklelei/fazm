@@ -67,7 +67,7 @@ const SignInForm = () => {
         priority
       />
       {/* Single dark overlay — no split, one seamless canvas */}
-      <div className="absolute inset-0 bg-[#050d1a]/80" />
+      <div className="absolute inset-0 bg-brand-navy/80" />
 
       {/* Centered form card */}
       <div className="relative z-10 w-full max-w-md space-y-8 rounded-3xl border border-white/10 bg-white/5 px-8 py-10 shadow-2xl backdrop-blur-xl">
@@ -84,7 +84,7 @@ const SignInForm = () => {
             <p className="text-base font-black uppercase tracking-widest text-white">
               Fazam FC
             </p>
-            <p className="text-xs uppercase tracking-widest text-yellow-400">
+            <p className="text-xs uppercase tracking-widest text-brand-gold">
               Football Academy Portal
             </p>
           </div>
@@ -117,7 +117,7 @@ const SignInForm = () => {
                       {...field}
                       type="email"
                       placeholder="you@example.com"
-                      className="h-11 border-white/10 bg-white/10 text-white placeholder:text-white/30 focus-visible:border-yellow-400/60 focus-visible:ring-yellow-400/10"
+                      className="h-11 border-white/10 bg-white/10 text-white placeholder:text-white/30 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10"
                     />
                   </FormControl>
                   <FormMessage />
@@ -137,7 +137,7 @@ const SignInForm = () => {
                     <SendPasswordResetLinkButton
                       showEmailPopUp={true}
                       redirectTo="/res-password"
-                      className="h-auto p-0 text-xs text-yellow-400 hover:text-yellow-300 transition-colors"
+                      className="h-auto p-0 text-xs text-brand-gold hover:text-brand-gold/80 transition-colors"
                       buttonText="Forgot password?"
                     />
                   </div>
@@ -147,7 +147,7 @@ const SignInForm = () => {
                         {...field}
                         type={showPassword ? "text" : "password"}
                         placeholder="••••••••"
-                        className="h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/30 focus-visible:border-yellow-400/60 focus-visible:ring-yellow-400/10"
+                        className="h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/30 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10"
                       />
                       <button
                         type="button"
@@ -171,7 +171,7 @@ const SignInForm = () => {
             <Button
               type="submit"
               disabled={isPending}
-              className="h-11 w-full bg-yellow-400 font-semibold text-[#050d1a] shadow-lg shadow-yellow-400/10 hover:bg-yellow-300 active:scale-[0.98] transition-all"
+              className="h-11 w-full bg-brand-gold font-semibold text-brand-navy shadow-lg shadow-brand-gold/10 hover:bg-brand-gold/90 active:scale-[0.98] transition-all"
             >
               {isPending ? <Loader2Spinner /> : "Sign in →"}
             </Button>

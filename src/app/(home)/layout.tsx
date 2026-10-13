@@ -27,18 +27,18 @@ export default async function MainLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="flex h-16 shrink-0 items-center justify-between border-b px-4">
+          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="flex items-center gap-2">
               <SidebarTrigger />
             </div>
 
-            <div className="flex items-center gap-10">
+            <div className="flex items-center gap-2">
               <ProfileModal />
               <ModeToggle />
             </div>
           </header>
 
-          <main className="p-4">{children}</main>
+          <main className="p-4 md:p-6">{children}</main>
         </SidebarInset>
       </SidebarProvider>
     </SessionContextProvider>

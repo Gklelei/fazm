@@ -14,7 +14,7 @@ export const UtilsContextProvider = ({
   children,
   utilsLoading,
 }: React.PropsWithChildren<{
-  value: UtilsResponse;
+  value: UtilsResponse | null;
   utilsLoading: boolean;
 }>) => (
   <UtilsContext.Provider value={{ data: value, utilsLoading }}>

@@ -22,14 +22,14 @@ import { UseUtilsContext } from "@/Modules/Context/UtilsContext";
 import { ApplyCouponToAtheleteSubscriptionPlan } from "./EditUserProfile/Server/ApplyCoupon";
 import { Sweetalert } from "@/utils/Alerts/Sweetalert";
 import { formatDate } from "@/utils/TansformWords";
-import { GetCouponsQueryType } from "@/app/(home)/players/user-profile/[id]/page";
+import type { AthleteCouponOption } from "@/Modules/Coupons/Types/Index";
 
 const AthleteSubscriptionPlans = ({
   data,
   coupons,
 }: {
   data: GetAthleteByIdQueryType;
-  coupons: GetCouponsQueryType[];
+  coupons: AthleteCouponOption[];
 }) => {
   const [couponCode, setCouponCode] = useState("");
   const [errorText, setErrorText] = useState<string | null>(null);
@@ -88,13 +88,13 @@ const AthleteSubscriptionPlans = ({
     });
   };
 
-  const formatCouponValue = (c: GetCouponsQueryType) =>
+  const formatCouponValue = (c: AthleteCouponOption) =>
     c.discountType === "PERCENTAGE" ? `${c.value}%` : `KES ${c.value}`;
 
-  const isCouponDisabled = (c: GetCouponsQueryType) =>
+  const isCouponDisabled = (c: AthleteCouponOption) =>
     c.status !== 1 || isPending;
 
-  const isSelected = (c: GetCouponsQueryType) =>
+  const isSelected = (c: AthleteCouponOption) =>
     c.name === couponCode.trim().toUpperCase();
 
   return (

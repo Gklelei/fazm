@@ -6,8 +6,10 @@ import AppLoader from "@/utils/Alerts/Apploader";
 
 const REFRESH_INTERVAL = 30 * 60 * 1000;
 
-async function fetchUtils(): Promise<UtilsResponse> {
+async function fetchUtils(): Promise<UtilsResponse | null> {
   const res = await fetch("/api/settings/utils", { cache: "no-store" });
+  // Signed-out pages (sign-in, reset password) render without settings
+  if (res.status === 401) return null;
   if (!res.ok) {
     throw new Error("Failed to fetch utils");
   }
@@ -27,12 +29,12 @@ export function UtilsProviderWrapper({
     refetchIntervalInBackground: true,
   });
 
-  if (isLoading || !data) {
+  if (isLoading) {
     return <AppLoader />;
   }
 
   return (
-    <UtilsContextProvider value={data} utilsLoading={false}>
+    <UtilsContextProvider value={data ?? null} utilsLoading={false}>
       {children}
     </UtilsContextProvider>
   );

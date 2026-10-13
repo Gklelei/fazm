@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { JetBrains_Mono } from "next/font/google";
+import { Geist, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -7,8 +7,13 @@ import ReactQueryClientProvider from "@/lib/ReactQueryClientProvider";
 import { Toaster } from "sonner";
 import MainLayoutWrapper from "@/utils/MainLayoutWrapper";
 
+const geist = Geist({
+  variable: "--font-geist-sans",
+  subsets: ["latin"],
+});
+
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
+  variable: "--font-geist-mono",
   subsets: ["latin"],
 });
 
@@ -65,8 +70,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${jetbrainsMono.className} antialiased`}>
+    <html lang="en" data-theme-color="fazam" suppressHydrationWarning>
+      <body
+        className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="system"

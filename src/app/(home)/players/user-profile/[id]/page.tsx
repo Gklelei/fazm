@@ -3,6 +3,7 @@ import { db } from "@/lib/prisma";
 import AthleteProfile from "@/Modules/Users/AthletesProfile/AthleteProfile";
 import { GetAthleteByIdQuery } from "@/Modules/Users/Types";
 import type { Metadata } from "next";
+import type { AthleteCouponOption } from "@/Modules/Coupons/Types/Index";
 
 export const metadata: Metadata = { title: "Athlete Profile" };
 
@@ -18,20 +19,6 @@ type CouponRow = {
   times_used: number;
   status: number; // 0 | 1
   voided: number; // 0 | 1
-};
-
-export type GetCouponsQueryType = {
-  id: string;
-  name: string;
-  discountType: "PERCENTAGE" | "FIXED_AMOUNT";
-  value: number; // UI-friendly
-  interval: "ONCE" | "REPEATING";
-  startDate: Date;
-  expiryDate: Date | null;
-  usageLimit: number | null;
-  timesUsed: number;
-  status: number;
-  voided: number;
 };
 
 interface PageProps {
@@ -58,7 +45,7 @@ const page = async ({ params }: PageProps) => {
     ORDER BY created_at DESC
   `;
 
-  const normalized: GetCouponsQueryType[] = activeCoupons.map((c) => ({
+  const normalized: AthleteCouponOption[] = activeCoupons.map((c) => ({
     id: c.id,
     name: c.name,
     discountType: c.discount_type,

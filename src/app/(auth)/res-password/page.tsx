@@ -108,7 +108,7 @@ const ResetPasswordForm = () => {
             value={pass}
             onChange={(e) => setPass(e.target.value)}
             disabled={loading}
-            className="h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/40 focus-visible:border-yellow-400/60 focus-visible:ring-yellow-400/10"
+            className="h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/40 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10"
           />
           <button
             type="button"
@@ -129,7 +129,7 @@ const ResetPasswordForm = () => {
               value={confirmPass}
               onChange={(e) => setConfirmPass(e.target.value)}
               disabled={loading}
-              className={`h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/40 focus-visible:border-yellow-400/60 focus-visible:ring-yellow-400/10 ${
+              className={`h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/40 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10 ${
                 mismatch ? "border-red-500/60" : ""
               }`}
             />
@@ -148,7 +148,7 @@ const ResetPasswordForm = () => {
         </div>
 
         <Button
-          className="h-11 w-full bg-yellow-400 font-semibold text-[#050d1a] hover:bg-yellow-300 active:scale-[0.98] transition-all shadow-lg shadow-yellow-400/10 disabled:opacity-60"
+          className="h-11 w-full bg-brand-gold font-semibold text-brand-navy hover:bg-brand-gold/90 active:scale-[0.98] transition-all shadow-lg shadow-brand-gold/10 disabled:opacity-60"
           onClick={resetPassword}
           disabled={loading || mismatch}
         >
@@ -180,13 +180,13 @@ const ResetPasswordPage = () => (
       className="object-cover object-center"
       priority
     />
-    <div className="absolute inset-0 bg-[#050d1a]/80" />
+    <div className="absolute inset-0 bg-brand-navy/80" />
 
     <div className="relative z-10">
       <Suspense
         fallback={
           <div className="flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-yellow-400" />
+            <Loader2 className="h-8 w-8 animate-spin text-brand-gold" />
           </div>
         }
       >

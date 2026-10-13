@@ -1,6 +1,5 @@
 "use client";
 
-import * as React from "react";
 import {
   Select,
   SelectContent,
@@ -14,15 +13,12 @@ type GenericSelectProps<T> = {
   items: T[];
   valueKey: keyof T;
   labelKey: keyof T;
-
   placeholder: string;
   label?: string;
-
   value?: string;
   onValueChange?: (value: string) => void;
-
   className?: string;
-  disabled?: boolean; // <-- new prop
+  disabled?: boolean;
 };
 
 export function GenericSelect<T extends Record<string, any>>({
@@ -34,7 +30,7 @@ export function GenericSelect<T extends Record<string, any>>({
   value,
   onValueChange,
   className,
-  disabled = false, // default to false
+  disabled = false,
 }: GenericSelectProps<T>) {
   return (
     <Select value={value} onValueChange={onValueChange} disabled={disabled}>
