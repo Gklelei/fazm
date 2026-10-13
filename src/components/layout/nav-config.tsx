@@ -37,6 +37,9 @@ export type NavItem = {
 
 export type NavSection = { label: string; items: NavItem[] };
 
+/** Cookie holding which sidebar groups are expanded (read on the server). */
+export const NAV_GROUPS_COOKIE = "nav_groups";
+
 /**
  * Single source of truth for navigation AND route access: the proxy calls
  * getAllowedRolesForPath() with these same entries, so the sidebar can never
