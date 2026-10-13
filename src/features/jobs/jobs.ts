@@ -1,6 +1,7 @@
 import { startOfDay, subDays, startOfMonth, format } from "date-fns";
 import { db } from "@/lib/prisma";
 import { SendMail } from "@/lib/mailtrap";
+import { invoiceBalance } from "@/features/invoices/lib/status";
 import { formatCurrency } from "@/lib/format";
 import { ageFromDob } from "./age";
 
@@ -152,17 +153,16 @@ export async function financeReport({ now = new Date(), dryRun = false }: JobOpt
     }),
     db.invoice.aggregate({
       where: { status: "OVERDUE" },
-      _sum: { amountDue: true, amountPaid: true },
+      _sum: { amountDue: true, amountPaid: true, discount: true },
       _count: { _all: true },
     }),
     db.invoice.aggregate({
       where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
-      _sum: { amountDue: true, amountPaid: true },
+      _sum: { amountDue: true, amountPaid: true, discount: true },
     }),
   ]);
 
-  const owed = (s: { amountDue: unknown; amountPaid: unknown }) =>
-    Math.max(Number(s.amountDue ?? 0) - Number(s.amountPaid ?? 0), 0);
+  const owed = invoiceBalance;
   const rows: [string, string][] = [
     [`Received ${format(weekStart, "d MMM")} – ${format(now, "d MMM")}`, `${formatCurrency(week._sum.amountPaid ?? 0)} (${week._count._all} payments)`],
     ["Collected so far this month", formatCurrency(month._sum.amountPaid ?? 0)],

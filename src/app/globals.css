@@ -223,7 +223,12 @@
   }
 
   @media print {
-    body * {
+    /* Pages print without the app chrome */
+    [data-slot="sidebar"] {
+      display: none !important;
+    }
+    /* A page with a receipt prints only the receipt */
+    body:has(#print-receipt) * {
       visibility: hidden;
     }
     #print-receipt,

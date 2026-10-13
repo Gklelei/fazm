@@ -1,6 +1,8 @@
 import {
   addDays,
   endOfMonth,
+  min,
+  subDays,
   endOfWeek,
   startOfDay,
   startOfMonth,
@@ -11,6 +13,7 @@ import { Prisma } from "@/generated/prisma/client";
 import type { ROLES } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { hasRole } from "@/lib/roles";
+import { invoiceBalance } from "@/features/invoices/lib/status";
 
 const canSeeMoney = (role: ROLES | null) => hasRole(role, "finance");
 const canSeeTraining = (role: ROLES | null) => hasRole(role, "coaching");
@@ -21,9 +24,11 @@ const batchOrder = (name: string) =>
 
 /** Squad numbers every signed-in role may see. */
 async function getSquad() {
-  const [active, total, byBatch] = await Promise.all([
+  const [active, total, pending, joined, byBatch] = await Promise.all([
     db.athlete.count({ where: { isArchived: false, status: "ACTIVE" } }),
     db.athlete.count({ where: { isArchived: false } }),
+    db.athlete.count({ where: { isArchived: false, status: "PENDING" } }),
+    db.athlete.count({ where: { isArchived: false, createdAt: { gte: startOfMonth(new Date()) } } }),
     db.athlete.groupBy({
       by: ["batchesId"],
       where: { isArchived: false },
@@ -38,12 +43,14 @@ async function getSquad() {
   return {
     active,
     total,
+    pending,
+    joined,
     byBatch: byBatch
       .map((b) => ({
         name: names.get(b.batchesId) ?? "Unknown",
         count: b._count._all,
       }))
-      .sort((a, b) => batchOrder(a.name) - batchOrder(b.name)),
+      .sort((a, b) => b.count - a.count || batchOrder(a.name) - batchOrder(b.name)),
   };
 }
 
@@ -61,7 +68,8 @@ async function getWeek(userId: string, role: ROLES | null) {
     ...(role === "COACH" ? { coach: { userId } } : {}),
   };
 
-  const sessions = await db.training.findMany({
+  const [sessions, unmarked] = await Promise.all([
+    db.training.findMany({
     where,
     orderBy: { date: "asc" },
     select: {
@@ -75,11 +83,25 @@ async function getWeek(userId: string, role: ROLES | null) {
       location: { select: { name: true } },
       _count: { select: { athletes: true, attendances: true } },
     },
-  });
+  }),
+    // Sessions that have happened but nobody took attendance
+    db.training.count({
+      where: {
+        isArchived: false,
+        date: { gte: subDays(now, 14), lt: now },
+        status: { not: "CANCELLED" },
+        attendances: { none: {} },
+        athletes: { some: {} },
+        ...(role === "COACH" ? { coach: { userId } } : {}),
+      },
+    }),
+  ]);
 
   const today = startOfDay(now);
   return {
     sessions,
+    upcoming: sessions.filter((s) => s.date >= today),
+    unmarked,
     todayCount: sessions.filter(
       (s) => s.date >= today && s.date < addDays(today, 1),
     ).length,
@@ -92,7 +114,8 @@ async function getMoney() {
   const now = new Date();
   const yearStart = startOfMonth(subMonths(now, 11));
 
-  const [month, outstanding, overdue, recent, monthly] = await Promise.all([
+  const lastMonthStart = startOfMonth(subMonths(now, 1));
+  const [month, lastMonthToDate, outstanding, overdue, recent, monthly] = await Promise.all([
     db.finance.aggregate({
       _sum: { amountPaid: true },
       where: {
@@ -100,11 +123,19 @@ async function getMoney() {
         paymentDate: { gte: startOfMonth(now), lte: endOfMonth(now) },
       },
     }),
+    // Last month up to the same day, for a like-for-like comparison
+    db.finance.aggregate({
+      _sum: { amountPaid: true },
+      where: {
+        isArchived: false,
+        paymentDate: { gte: lastMonthStart, lte: min([subMonths(now, 1), endOfMonth(lastMonthStart)]) },
+      },
+    }),
     db.invoice.aggregate({
       where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
-      _sum: { amountDue: true, amountPaid: true },
+      _sum: { amountDue: true, amountPaid: true, discount: true },
     }),
-    db.invoice.count({ where: { status: "OVERDUE" } }),
+    db.invoice.aggregate({ where: { status: "OVERDUE" }, _sum: { amountDue: true, amountPaid: true, discount: true }, _count: { _all: true } }),
     db.finance.findMany({
       where: { isArchived: false },
       orderBy: { paymentDate: "desc" },
@@ -144,12 +175,14 @@ async function getMoney() {
     };
   });
 
+  const collectedThisMonth = month._sum.amountPaid ?? 0;
+  const lastMonth = lastMonthToDate._sum.amountPaid ?? 0;
   return {
-    collectedThisMonth: month._sum.amountPaid ?? 0,
-    outstanding:
-      Number(outstanding._sum.amountDue ?? 0) -
-      Number(outstanding._sum.amountPaid ?? 0),
-    overdueInvoices: overdue,
+    collectedThisMonth,
+    change: lastMonth ? (collectedThisMonth - lastMonth) / lastMonth : null,
+    outstanding: invoiceBalance(outstanding._sum),
+    overdueInvoices: overdue._count._all,
+    overdueAmount: invoiceBalance(overdue._sum),
     recent,
     income,
   };

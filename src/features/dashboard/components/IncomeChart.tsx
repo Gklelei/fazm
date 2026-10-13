@@ -50,7 +50,7 @@ export function IncomeChart({
             />
           }
         />
-        <Bar dataKey="total" radius={[4, 4, 0, 0]} maxBarSize={36}>
+        <Bar dataKey="total" radius={[4, 4, 0, 0]} maxBarSize={36} isAnimationActive={false}>
           {data.map((d, i) => (
             <Cell
               key={d.key}

@@ -27,7 +27,7 @@ export function StatCard({
       </p>
       <p
         className={cn(
-          "font-display tabular mt-1 text-4xl leading-none font-bold",
+          "font-display tabular mt-1 text-[clamp(1.5rem,6vw,2.25rem)] leading-none font-bold break-words",
           tone === "success" && "text-success",
           tone === "warning" && "text-warning-foreground dark:text-warning",
           tone === "danger" && "text-destructive",

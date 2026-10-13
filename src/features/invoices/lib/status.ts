@@ -15,3 +15,10 @@ export function invoiceStatusFor(
   if (dueDate < now) return "OVERDUE";
   return totalPaid > 0 ? "PARTIAL" : "PENDING";
 }
+
+type Amount = number | string | { toString(): string } | null | undefined;
+
+/** What is still owed on an invoice (or a sum of invoices): due, less discount, less paid. */
+export function invoiceBalance(i: { amountDue: Amount; discount?: Amount; amountPaid: Amount }) {
+  return Math.max(Number(i.amountDue ?? 0) - Number(i.discount ?? 0) - Number(i.amountPaid ?? 0), 0);
+}
