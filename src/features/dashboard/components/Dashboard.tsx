@@ -1,246 +1,268 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { eachMonthOfInterval, startOfMonth, subMonths, format } from "date-fns";
-import Chart from "@/features/dashboard/components/Chart";
-import WeeklyPayments from "@/features/dashboard/components/WeeklyPayments";
-import WeeklyTrainings from "@/features/dashboard/components/WeeklyTrainings";
+import Link from "next/link";
+import { format, isToday } from "date-fns";
+import { ArrowRight, CalendarPlus, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { StatCard } from "@/components/shared/StatCard";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatCurrency } from "@/lib/format";
-import { AppRole } from "@/components/layout/nav-config";
-import {
-  Users,
-  UserCheck,
-  Dumbbell,
-  DollarSign,
-  Shield,
-  TrendingUp,
-  Calendar,
-  Percent,
-  CalendarDays,
-  Activity,
-  AlertCircle,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { DashboardData } from "../queries/get-dashboard";
+import { IncomeChart } from "./IncomeChart";
 
-const Dashboard = ({
-  data,
-  role,
+const PAYMENT_LABEL: Record<string, string> = {
+  CASH: "Cash",
+  BANK_TRANSFER: "Bank",
+  MPESA_SEND_MONEY: "M-Pesa",
+  MPESA_PAYBILL: "M-Pesa paybill",
+};
+
+function Panel({
+  title,
+  href,
+  linkLabel,
+  children,
+  className,
 }: {
-  data: dashboardItems;
-  role: AppRole | undefined;
-}) => {
-  const start = startOfMonth(subMonths(new Date(), 11));
-  const now = new Date();
+  title: string;
+  href?: string;
+  linkLabel?: string;
+  children: React.ReactNode;
+  className?: string;
+}) {
+  return (
+    <section className={cn("rounded-lg border bg-card", className)}>
+      <header className="flex items-center justify-between border-b px-4 py-3">
+        <h2 className="font-display text-lg font-semibold tracking-wide uppercase">
+          {title}
+        </h2>
+        {href && (
+          <Link
+            href={href}
+            className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
+          >
+            {linkLabel} <ArrowRight className="size-3.5" />
+          </Link>
+        )}
+      </header>
+      {children}
+    </section>
+  );
+}
 
-  const months = eachMonthOfInterval({ start, end: now });
+function greeting(now = new Date()) {
+  const h = now.getHours();
+  return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
+}
 
-  const yearlyIncome = months.map((m) => {
-    const key = format(m, "yyyy-MM");
-
-    const total = data.yearlyIncome
-      .filter((p) => format(p.paymentDate, "yyyy-MM") === key)
-      .reduce((acc, v) => acc + v.amountPaid, 0);
-
-    return {
-      month: format(m, "MMM yyyy"),
-      total,
-    };
-  });
-
-  const isAdmin = role === "ADMIN" || role === "SUPER_ADMIN";
+export function Dashboard({
+  data,
+  name,
+}: {
+  data: DashboardData;
+  name: string;
+}) {
+  const { squad, week, money } = data;
+  const maxBatch = Math.max(1, ...squad.byBatch.map((b) => b.count));
 
   return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">
-          Dashboard Overview
-        </h1>
-        <p className="text-sm text-muted-foreground">
-          Academy performance and activity summary
-        </p>
-      </div>
-
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {isAdmin ? (
+    <div className="space-y-6">
+      <PageHeader
+        title={`${greeting()}, ${name.split(" ")[0]}`}
+        description={format(new Date(), "EEEE d MMMM yyyy")}
+        actions={
           <>
-            <StatCard
-              label="Total Players"
-              value={data.totalPlayers}
-              icon={Users}
-              color="blue"
-            />
-            <StatCard
-              label="Total Coaches"
-              value={data.totalCoaches}
-              icon={UserCheck}
-              color="purple"
-            />
-            <StatCard
-              label="Trainings This Week"
-              value={data.totalWeeklyTainings}
-              icon={Dumbbell}
-              color="orange"
-            />
-            <StatCard
-              label="Payments This Week"
-              value={data.totalWeeklyPayments}
-              icon={DollarSign}
-              color="green"
-            />
-            <StatCard
-              label="Total Guardians"
-              value={data.guardianCount}
-              icon={Shield}
-              color="indigo"
-            />
-            <StatCard
-              label="Active Subscriptions"
-              value={data.activeSubscriptions || 0}
-              icon={Activity}
-              color="blue"
-            />
-            <StatCard
-              label="Total Revenue"
-              value={data.totalFinances._sum.amountPaid || 0}
-              icon={TrendingUp}
-              color="emerald"
-              isCurrency
-            />
-            <StatCard
-              label="Outstanding Balance"
-              value={data.outstandingBalance || 0}
-              icon={AlertCircle}
-              color="red"
-              isCurrency
-            />
+            {week && (
+              <Button variant="outline" asChild>
+                <Link href="/sessions">
+                  <CalendarPlus /> Plan a session
+                </Link>
+              </Button>
+            )}
+            <Button asChild>
+              <Link href="/players/create">
+                <UserPlus /> Register athlete
+              </Link>
+            </Button>
           </>
-        ) : (
+        }
+      />
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard
+          label="Active athletes"
+          value={squad.active}
+          note={`${squad.total} on the roster`}
+          href="/players"
+        />
+        {week && (
+          <StatCard
+            label="Sessions this week"
+            value={week.sessions.length}
+            note={
+              week.todayCount
+                ? `${week.todayCount} today`
+                : "None scheduled today"
+            }
+            href="/sessions"
+          />
+        )}
+        {money && (
           <>
             <StatCard
-              label="My Trainings This Week"
-              value={data.totalWeeklyTainings}
-              icon={Dumbbell}
-              color="orange"
+              label="Collected this month"
+              value={formatCurrency(money.collectedThisMonth)}
+              tone="success"
+              href="/transactions"
             />
             <StatCard
-              label="My Sessions"
-              value={data.totalPlayers || 0}
-              icon={Calendar}
-              color="blue"
-            />
-            <StatCard
-              label="Attendance Rate"
-              value={85}
-              icon={Percent}
-              color="green"
-              isPercentage
-            />
-            <StatCard
-              label="Upcoming Events"
-              value={data.totalWeeklyPayments || 0}
-              icon={CalendarDays}
-              color="purple"
+              label="Outstanding fees"
+              value={formatCurrency(money.outstanding)}
+              tone={money.overdueInvoices ? "danger" : "default"}
+              note={
+                money.overdueInvoices
+                  ? `${money.overdueInvoices} overdue invoice${money.overdueInvoices === 1 ? "" : "s"}`
+                  : "Nothing overdue"
+              }
+              href="/invoices"
             />
           </>
         )}
       </div>
 
-      {isAdmin && (
-        <>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <Chart data={yearlyIncome} />
-            <div className="items-center justify-center border rounded-lg p-6 hidden">
-              <p className="text-muted-foreground">
-                Additional chart or stats here
+      <div className="grid gap-6 xl:grid-cols-5">
+        {week && (
+          <Panel
+            title="This week"
+            href="/sessions"
+            linkLabel="All sessions"
+            className="xl:col-span-3"
+          >
+            {week.sessions.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-muted-foreground">
+                No sessions this week.{" "}
+                <Link href="/sessions" className="font-medium text-primary">
+                  Plan one
+                </Link>
               </p>
-            </div>
-          </div>
-          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <WeeklyPayments data={data} />
-            <WeeklyTrainings data={data} />
-          </div>
-        </>
-      )}
+            ) : (
+              <ul className="divide-y">
+                {week.sessions.map((s) => (
+                  <li key={s.id}>
+                    <Link
+                      href={`/sessions/view/${s.id}`}
+                      className={cn(
+                        "grid grid-cols-[3.5rem_1fr_auto] items-center gap-3 px-4 py-3 hover:bg-muted/50",
+                        isToday(s.date) && "bg-accent/40",
+                      )}
+                    >
+                      <div className="text-center leading-none">
+                        <p className="text-[11px] font-medium text-muted-foreground uppercase">
+                          {format(s.date, "EEE")}
+                        </p>
+                        <p className="font-display text-2xl font-bold">
+                          {format(s.date, "d")}
+                        </p>
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate font-medium">{s.name}</p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {format(s.date, "HH:mm")} · {s.batch.name} ·{" "}
+                          {s.location.name} · {s.coach.fullNames}
+                        </p>
+                      </div>
+                      <div className="flex flex-col items-end gap-1">
+                        <StatusBadge status={s.status} />
+                        <span className="tabular text-xs text-muted-foreground">
+                          {s._count.athletes} athletes
+                        </span>
+                      </div>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        )}
+
+        {money && (
+          <Panel
+            title="Latest payments"
+            href="/transactions"
+            linkLabel="All payments"
+            className={week ? "xl:col-span-2" : "xl:col-span-5"}
+          >
+            {money.recent.length === 0 ? (
+              <p className="px-4 py-10 text-center text-sm text-muted-foreground">
+                No payments recorded yet.
+              </p>
+            ) : (
+              <ul className="divide-y">
+                {money.recent.map((p) => (
+                  <li
+                    key={p.id}
+                    className="flex items-center justify-between gap-3 px-4 py-3"
+                  >
+                    <div className="min-w-0">
+                      <p className="truncate font-medium">
+                        {p.athlete.firstName} {p.athlete.lastName}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {PAYMENT_LABEL[p.paymentType] ?? p.paymentType} ·{" "}
+                        {format(p.paymentDate, "d MMM")} ·{" "}
+                        <span className="font-mono">{p.receiptNumber}</span>
+                      </p>
+                    </div>
+                    <p className="tabular shrink-0 font-mono text-sm font-semibold">
+                      {formatCurrency(p.amountPaid)}
+                    </p>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        )}
+      </div>
+
+      <div className="grid gap-6 xl:grid-cols-5">
+        {money && (
+          <Panel title="Collections, last 12 months" className="xl:col-span-3">
+            {money.income.some((m) => m.total > 0) ? (
+              <div className="p-4">
+                <IncomeChart data={money.income} />
+              </div>
+            ) : (
+              <p className="px-4 py-16 text-center text-sm text-muted-foreground">
+                Collections will chart here once payments are recorded.
+              </p>
+            )}
+          </Panel>
+        )}
+
+        <Panel
+          title="Squad by batch"
+          href="/players"
+          linkLabel="Roster"
+          className={money ? "xl:col-span-2" : "xl:col-span-5"}
+        >
+          <ul className="space-y-3 p-4">
+            {squad.byBatch.map((b) => (
+              <li key={b.name} className="grid grid-cols-[6rem_1fr_2.5rem] items-center gap-3 text-sm">
+                <span className="truncate font-medium">{b.name}</span>
+                <span className="h-2 overflow-hidden rounded-full bg-muted">
+                  <span
+                    className="block h-full rounded-full bg-primary"
+                    style={{ width: `${(b.count / maxBatch) * 100}%` }}
+                  />
+                </span>
+                <span className="tabular text-right text-muted-foreground">
+                  {b.count}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </Panel>
+      </div>
     </div>
   );
-};
-
-const colorConfig = {
-  blue: {
-    bg: "bg-blue-50 dark:bg-blue-950/20",
-    icon: "bg-blue-500/10 text-blue-600 dark:text-blue-400",
-    border: "border-blue-200 dark:border-blue-800",
-  },
-  purple: {
-    bg: "bg-purple-50 dark:bg-purple-950/20",
-    icon: "bg-purple-500/10 text-purple-600 dark:text-purple-400",
-    border: "border-purple-200 dark:border-purple-800",
-  },
-  orange: {
-    bg: "bg-orange-50 dark:bg-orange-950/20",
-    icon: "bg-orange-500/10 text-orange-600 dark:text-orange-400",
-    border: "border-orange-200 dark:border-orange-800",
-  },
-  green: {
-    bg: "bg-green-50 dark:bg-green-950/20",
-    icon: "bg-green-500/10 text-green-600 dark:text-green-400",
-    border: "border-green-200 dark:border-green-800",
-  },
-  indigo: {
-    bg: "bg-indigo-50 dark:bg-indigo-950/20",
-    icon: "bg-indigo-500/10 text-indigo-600 dark:text-indigo-400",
-    border: "border-indigo-200 dark:border-indigo-800",
-  },
-  emerald: {
-    bg: "bg-emerald-50 dark:bg-emerald-950/20",
-    icon: "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400",
-    border: "border-emerald-200 dark:border-emerald-800",
-  },
-  red: {
-    bg: "bg-red-50 dark:bg-red-950/20",
-    icon: "bg-red-500/10 text-red-600 dark:text-red-400",
-    border: "border-red-200 dark:border-red-800",
-  },
-};
-
-const StatCard = ({
-  label,
-  value,
-  icon: Icon,
-  color = "blue",
-  isCurrency = false,
-  isPercentage = false,
-}: {
-  label: string;
-  value: number;
-  icon: React.ElementType;
-  color?: keyof typeof colorConfig;
-  isCurrency?: boolean;
-  isPercentage?: boolean;
-}) => {
-  const displayValue = isCurrency
-    ? formatCurrency(value)
-    : isPercentage
-      ? `${value}%`
-      : value;
-
-  const colors = colorConfig[color];
-
-  return (
-    <Card className={cn("border-2", colors.border)}>
-      <CardContent className={cn("p-6", colors.bg)}>
-        <div className="flex items-start justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground mb-2">
-              {label}
-            </p>
-            <p className="text-3xl font-bold tracking-tight">{displayValue}</p>
-          </div>
-          <div className={cn("p-3 rounded-lg", colors.icon)}>
-            <Icon className="h-6 w-6" />
-          </div>
-        </div>
-      </CardContent>
-    </Card>
-  );
-};
-
-export default Dashboard;
+}

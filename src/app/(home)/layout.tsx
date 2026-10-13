@@ -1,25 +1,17 @@
-import { AppSidebar } from "@/components/layout/AppSidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { auth } from "@/lib/auth";
-import SessionContextProvider from "@/providers/SessionProvider";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import ProfileModal from "@/features/profile/components/ProfileModal";
-import { ModeToggle } from "@/components/layout/ThemeToggle";
+import { auth } from "@/lib/auth";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { AppHeader } from "@/components/layout/AppHeader";
+import SessionContextProvider from "@/providers/SessionProvider";
 
-export default async function MainLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
 
   return (
@@ -27,18 +19,10 @@ export default async function MainLayout({
       <SidebarProvider>
         <AppSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <ProfileModal />
-              <ModeToggle />
-            </div>
-          </header>
-
-          <main className="p-4 md:p-6">{children}</main>
+          <AppHeader />
+          <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-6 lg:p-8">
+            {children}
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </SessionContextProvider>

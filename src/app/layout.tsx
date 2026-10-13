@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, JetBrains_Mono } from "next/font/google";
+import { Barlow, Barlow_Condensed, JetBrains_Mono } from "next/font/google";
 
 import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
@@ -7,13 +7,20 @@ import ReactQueryClientProvider from "@/providers/ReactQueryProvider";
 import { Toaster } from "sonner";
 import MainLayoutWrapper from "@/providers/AppProviders";
 
-const geist = Geist({
-  variable: "--font-geist-sans",
+const barlow = Barlow({
+  variable: "--font-barlow",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const barlowCondensed = Barlow_Condensed({
+  variable: "--font-barlow-condensed",
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
 });
 
 const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-geist-mono",
+  variable: "--font-jetbrains-mono",
   subsets: ["latin"],
 });
 
@@ -72,7 +79,7 @@ export default function RootLayout({
   return (
     <html lang="en" data-theme-color="fazam" suppressHydrationWarning>
       <body
-        className={`${geist.variable} ${jetbrainsMono.variable} font-sans antialiased`}
+        className={`${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
         <ThemeProvider
           attribute="class"

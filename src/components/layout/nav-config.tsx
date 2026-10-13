@@ -1,222 +1,157 @@
 import {
-  CalendarDays,
-  CheckSquare,
-  DollarSign,
-  Receipt,
-  Users,
-  UserPlus,
-  User,
-  Settings,
-  SlidersHorizontal,
-  Users2,
-  LayoutDashboard,
   BarChart3,
+  Building2,
   ClipboardCheck,
-  CreditCardIcon,
-  TrophyIcon,
-  DoorClosedLocked,
-  UserCheck2Icon,
-  TagIcon,
-  TerminalSquare,
-  BarChart2,
+  CalendarDays,
+  HeartHandshake,
+  LayoutDashboard,
+  ListTree,
+  Receipt,
+  ScrollText,
+  Settings2,
+  Shirt,
+  Tag,
+  UserCog,
+  Wallet,
+  WalletCards,
+  Banknote,
+  type LucideIcon,
 } from "lucide-react";
 import { ROLES } from "@/generated/prisma/enums";
 
-// Derived from the Prisma `ROLES` enum so this can never drift from the
-// database's real set of roles (it previously hand-declared a parallel
-// union that included a nonexistent "STAFF" role and omitted "DOCTOR").
+// Derived from the Prisma enum so it can never drift from the database.
 export type AppRole = ROLES;
-
 export const ALL_ROLES: AppRole[] = Object.values(ROLES);
 
-type NavSubItem = {
+const ADMINS: AppRole[] = ["SUPER_ADMIN", "ADMIN"];
+const FINANCE: AppRole[] = [...ADMINS, "FINANCE"];
+const COACHING: AppRole[] = [...ADMINS, "COACH"];
+
+export type NavItem = {
   title: string;
   url: string;
-  icon: React.ReactNode;
-  roles?: AppRole[];
+  icon: LucideIcon;
+  roles: AppRole[];
 };
 
-type NavItem = {
-  title: string;
-  url?: string;
-  icon: React.ReactNode;
-  roles?: AppRole[];
-  items?: NavSubItem[];
-};
-
-export const data: { navMain: NavItem[] } = {
-  navMain: [
-    {
-      title: "Overview",
-      icon: <LayoutDashboard className="size-4" />,
-      roles: ALL_ROLES,
-      items: [
-        {
-          title: "Dashboard",
-          url: "/",
-          icon: <BarChart3 className="size-4" />,
-          roles: ALL_ROLES,
-        },
-      ],
-    },
-
-    {
-      title: "User Management",
-      icon: <Users className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN", "DOCTOR"],
-      items: [
-        {
-          title: "Athletes",
-          url: "/players",
-          icon: <UserPlus className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "COACH", "DOCTOR"],
-        },
-        {
-          title: "Staff & Coaches",
-          url: "/staff",
-          icon: <Users2 className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-        {
-          title: "Guardians",
-          url: "/guardians",
-          icon: <User className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-      ],
-    },
-
-    {
-      title: "Finance & Billing",
-      icon: <DollarSign className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-      items: [
-        {
-          title: "Transactions",
-          url: "/transactions",
-          icon: <Receipt className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-        {
-          title: "Fee Structure",
-          url: "/fees",
-          icon: <DoorClosedLocked className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-        {
-          title: "Invoices",
-          url: "/invoices",
-          icon: <Receipt className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-        {
-          title: "Expenses",
-          url: "/expenses",
-          icon: <CreditCardIcon className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-        {
-          title: "Expense Categories",
-          url: "/expenses-categories",
-          icon: <TrophyIcon className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-        {
-          title: "Coupons",
-          url: "/coupons",
-          icon: <TagIcon className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
-        },
-      ],
-    },
-
-    {
-      title: "Training & Performance",
-      icon: <CalendarDays className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
-      items: [
-        {
-          title: "Training Sessions",
-          url: "/sessions",
-          icon: <CheckSquare className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
-        },
-        {
-          title: "Assessments",
-          url: "/assesments",
-          icon: <ClipboardCheck className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN", "COACH"],
-        },
-      ],
-    },
-
-    {
-      title: "System Settings",
-      icon: <Settings className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
-      items: [
-        {
-          title: "General Configuration",
-          url: "/settings",
-          icon: <SlidersHorizontal className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-        {
-          title: "Academy Profile",
-          url: "/academy",
-          icon: <UserCheck2Icon className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-        {
-          title: "System Logs",
-          url: "/settings/audit-logs",
-          icon: <TerminalSquare className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-      ],
-    },
-    {
-      title: "Analytics",
-      icon: <BarChart3 className="size-4" />,
-      roles: ["SUPER_ADMIN", "ADMIN"],
-      items: [
-        {
-          title: "Overview",
-          url: "/stats",
-          icon: <BarChart2 className="size-4" />,
-          roles: ["SUPER_ADMIN", "ADMIN"],
-        },
-      ],
-    },
-  ],
-};
+export type NavSection = { label: string; items: NavItem[] };
 
 /**
- * Returns the roles allowed to access `pathname`, derived from this same
- * nav config so the enforced access control (middleware.ts) can never drift
- * from what the sidebar advertises. Returns `null` for any path not listed
- * here (e.g. /mail, /stats, or a dynamic sub-route), meaning "no
- * restriction beyond being logged in" rather than "deny" — pages this
- * config doesn't know about are left exactly as permissive as before this
- * check existed.
+ * Single source of truth for navigation AND route access: the proxy calls
+ * getAllowedRolesForPath() with these same entries, so the sidebar can never
+ * advertise a page a role is blocked from (or hide one it may open).
  */
-export function getAllowedRolesForPath(pathname: string): AppRole[] | null {
-  const entries: { prefix: string; roles: AppRole[] }[] = [];
+export const NAV: NavSection[] = [
+  {
+    label: "Overview",
+    items: [
+      { title: "Dashboard", url: "/", icon: LayoutDashboard, roles: ALL_ROLES },
+    ],
+  },
+  {
+    label: "Squad",
+    items: [
+      {
+        title: "Athletes",
+        url: "/players",
+        icon: Shirt,
+        roles: [...COACHING, "DOCTOR"],
+      },
+      {
+        title: "Guardians",
+        url: "/guardians",
+        icon: HeartHandshake,
+        roles: ADMINS,
+      },
+      { title: "Staff", url: "/staff", icon: UserCog, roles: ADMINS },
+    ],
+  },
+  {
+    label: "Training",
+    items: [
+      {
+        title: "Sessions",
+        url: "/sessions",
+        icon: CalendarDays,
+        roles: COACHING,
+      },
+      {
+        title: "Assessments",
+        url: "/assesments",
+        icon: ClipboardCheck,
+        roles: COACHING,
+      },
+    ],
+  },
+  {
+    label: "Money",
+    items: [
+      { title: "Invoices", url: "/invoices", icon: Receipt, roles: FINANCE },
+      { title: "Payments", url: "/transactions", icon: Banknote, roles: FINANCE },
+      { title: "Fee plans", url: "/fees", icon: WalletCards, roles: FINANCE },
+      { title: "Coupons", url: "/coupons", icon: Tag, roles: FINANCE },
+      { title: "Expenses", url: "/expenses", icon: Wallet, roles: FINANCE },
+      {
+        title: "Expense categories",
+        url: "/expenses-categories",
+        icon: ListTree,
+        roles: FINANCE,
+      },
+    ],
+  },
+  {
+    label: "Club",
+    items: [
+      { title: "Reports", url: "/stats", icon: BarChart3, roles: ADMINS },
+      {
+        title: "Academy profile",
+        url: "/academy",
+        icon: Building2,
+        roles: ADMINS,
+      },
+      { title: "Settings", url: "/settings", icon: Settings2, roles: ADMINS },
+      {
+        title: "Activity log",
+        url: "/settings/audit-logs",
+        icon: ScrollText,
+        roles: ADMINS,
+      },
+    ],
+  },
+];
 
-  for (const group of data.navMain) {
-    if (group.url && group.roles) {
-      entries.push({ prefix: group.url, roles: group.roles });
-    }
-    for (const item of group.items ?? []) {
-      if (item.roles) {
-        entries.push({ prefix: item.url, roles: item.roles });
+export function navForRole(role: AppRole | null | undefined): NavSection[] {
+  return NAV.map((s) => ({
+    ...s,
+    items: s.items.filter((i) => role && i.roles.includes(role)),
+  })).filter((s) => s.items.length > 0);
+}
+
+export const isActivePath = (pathname: string, href: string) =>
+  href === "/"
+    ? pathname === "/"
+    : pathname === href || pathname.startsWith(`${href}/`);
+
+/** The deepest nav entry matching `pathname` (for titles and access). */
+export function findNavItem(pathname: string) {
+  let best: { section: NavSection; item: NavItem } | null = null;
+  for (const section of NAV) {
+    for (const item of section.items) {
+      if (
+        isActivePath(pathname, item.url) &&
+        (!best || item.url.length > best.item.url.length)
+      ) {
+        best = { section, item };
       }
     }
   }
+  return best;
+}
 
-  const matches = entries
-    .filter((e) => pathname === e.prefix || pathname.startsWith(`${e.prefix}/`))
-    .sort((a, b) => b.prefix.length - a.prefix.length);
-
-  return matches[0]?.roles ?? null;
+/**
+ * Roles allowed to open `pathname`, or null when the path is not in the nav
+ * (e.g. /mail) — meaning "any signed-in user", exactly as before.
+ */
+export function getAllowedRolesForPath(pathname: string): AppRole[] | null {
+  return findNavItem(pathname)?.item.roles ?? null;
 }
