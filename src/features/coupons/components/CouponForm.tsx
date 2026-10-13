@@ -1,6 +1,7 @@
 /* eslint-disable react-hooks/incompatible-library */
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -17,7 +18,7 @@ import {
 } from "lucide-react";
 
 import { couponSchema, couponSchemaType } from "@/features/coupons/schemas";
-import { CreateCouponsAction } from "@/features/coupons/actions/coupons";
+import { CreateCouponsAction, EditCouponsAction } from "@/features/coupons/actions/coupons";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -75,6 +76,7 @@ const CreateCoupons = ({ id, coupon }: Props) => {
   const [isPending, startTransition] = useTransition();
   const [open, setOpen] = useState(false);
 
+  const router = useRouter();
   const isEditing = useMemo(() => Boolean(id || coupon?.id), [id, coupon?.id]);
   // const couponId = id ?? coupon?.id;
 
@@ -107,10 +109,19 @@ const CreateCoupons = ({ id, coupon }: Props) => {
 
   const handleSubmit = async (data: couponSchemaType) => {
     startTransition(async () => {
-      const result = await CreateCouponsAction(data);
+      // Editing an existing coupon must update it, not create a second one
+      const couponId = id ?? coupon?.id;
+      const result = couponId
+        ? await EditCouponsAction(data, couponId)
+        : await CreateCouponsAction(data);
 
       if (result.success) {
         toast.success(result.message);
+        router.refresh();
+        if (couponId) {
+          setOpen(false);
+          return;
+        }
         form.reset({
           name: "",
           discountType: "",
