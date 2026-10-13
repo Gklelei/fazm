@@ -17,7 +17,7 @@ export const config = {
      * - files served from /public (images etc.) — otherwise a logged-out
      *   request for /login-hero.png is redirected to /sign-in and breaks
      */
-    "/((?!api|_next/static|_next/image|favicon.ico|uploads|sign-in|sign-up|res-password|.*\\.(?:png|jpe?g|gif|svg|webp|ico|txt)$).*)",
+    "/((?!api|_next/static|_next/image|favicon.ico|uploads|sign-in|res-password|.*\\.(?:png|jpe?g|gif|svg|webp|ico|txt)$).*)",
   ],
 };
 
