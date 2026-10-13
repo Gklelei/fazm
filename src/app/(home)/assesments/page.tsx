@@ -17,7 +17,7 @@ export default async function Page({
 
   const [metricsResponse, total] = await db.$transaction([
     db.assessmentTemplateSection.findMany({
-      ...(GetAssesmentMetricsQuery as any),
+      ...GetAssesmentMetricsQuery,
       skip,
       take: limit,
       orderBy: { order: "asc" },
@@ -25,7 +25,7 @@ export default async function Page({
     db.assessmentTemplateSection.count(),
   ]);
 
-  const metrics = metricsResponse as any;
+  const metrics = metricsResponse;
 
   return (
     <div>

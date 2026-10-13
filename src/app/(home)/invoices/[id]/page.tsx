@@ -18,7 +18,7 @@ const page = async ({ params }: Props) => {
 
   const safeInvoice = JSON.parse(JSON.stringify(invoice));
 
-  return <ViewInvoicePage data={safeInvoice as any} />;
+  return <ViewInvoicePage data={safeInvoice} />;
 };
 
 export default page;

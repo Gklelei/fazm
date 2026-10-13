@@ -1,6 +1,5 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/format";
 import { CreditCard } from "lucide-react";
 import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
 import {
@@ -12,13 +11,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { format } from "date-fns";
-
-const STATUS_STYLES: Record<string, string> = {
-  PAID: "bg-success/10 text-success border-success/30",
-  PARTIAL: "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30",
-  UNPAID: "bg-destructive/10 text-destructive border-destructive/30",
-  PENDING: "bg-muted text-muted-foreground border-border",
-};
 
 const FinancialRecords = ({ data }: { data: GetAthleteByIdQueryType }) => {
   const total = data.finances.reduce((sum, f) => sum + Number(f.amountPaid), 0);

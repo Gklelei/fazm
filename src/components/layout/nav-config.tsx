@@ -151,7 +151,7 @@ export function findNavItem(pathname: string) {
 
 /**
  * Roles allowed to open `pathname`, or null when the path is not in the nav
- * (e.g. /mail) — meaning "any signed-in user", exactly as before.
+ * — meaning "any signed-in user", exactly as before.
  */
 export function getAllowedRolesForPath(pathname: string): AppRole[] | null {
   return findNavItem(pathname)?.item.roles ?? null;

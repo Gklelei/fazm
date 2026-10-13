@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useTransition } from "react";
+import { useState, useTransition } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -41,21 +41,13 @@ const AthleteSubscriptionPlans = ({
   const activePlanId = activeSub?.subscriptionPlanId ?? null;
 
   const { data: utils } = UseUtilsContext();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   const plans = utils?.plans ?? [];
-
-  const activePlan = useMemo(
-    () => plans.find((p) => p.id === activePlanId),
-    [plans, activePlanId],
-  );
+  const activePlan = plans.find((p) => p.id === activePlanId);
 
   const canApply = Boolean(activeSub?.id) && couponCode.trim().length > 0;
 
   const normalizedInput = couponCode.trim().toUpperCase();
-  const selectedCoupon = useMemo(
-    () => coupons.find((c) => c.name === normalizedInput) ?? null,
-    [coupons, normalizedInput],
-  );
+  const selectedCoupon = coupons.find((c) => c.name === normalizedInput) ?? null;
 
   const applyCoupon = (code?: string) => {
     const finalCode = (code ?? couponCode).trim().toUpperCase();

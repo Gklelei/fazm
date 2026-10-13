@@ -132,7 +132,7 @@ const AssesmentMetrics = ({ data, page, limit, total }: Props) => {
                   },
                 });
 
-                y = ((doc as any).lastAutoTable?.finalY ?? y) + 14;
+                y = ((doc as typeof doc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 14;
 
                 // Sections
                 for (const section of data) {
@@ -194,7 +194,7 @@ const AssesmentMetrics = ({ data, page, limit, total }: Props) => {
                     },
                   });
 
-                  y = ((doc as any).lastAutoTable?.finalY ?? y) + 12;
+                  y = ((doc as typeof doc & { lastAutoTable?: { finalY: number } }).lastAutoTable?.finalY ?? y) + 12;
 
                   if (y > doc.internal.pageSize.getHeight() - 100) {
                     doc.addPage();

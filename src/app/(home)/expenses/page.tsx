@@ -17,7 +17,7 @@ export default async function Page({
 
   const [expensesResponse, total] = await db.$transaction([
     db.expenses.findMany({
-      ...(GetExpensesQuery as any),
+      ...GetExpensesQuery,
       skip,
       take: limit,
       orderBy: { date: "desc" },
@@ -25,7 +25,7 @@ export default async function Page({
     db.expenses.count(),
   ]);
 
-  const expenses = expensesResponse as any;
+  const expenses = expensesResponse;
 
   return (
     <ExpensesPage expenses={expenses} page={page} limit={limit} total={total} />

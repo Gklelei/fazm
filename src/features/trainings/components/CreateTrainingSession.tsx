@@ -93,8 +93,7 @@ const CreateTrainingSession = () => {
 
   const nextStep = async () => {
     const fields = STEPS[currentStep - 1].fields;
-    // @ts-ignore
-    const isValid = await form.trigger(fields);
+    const isValid = await form.trigger(fields as Parameters<typeof form.trigger>[0]);
     if (isValid) {
       setCurrentStep((prev) => Math.min(prev + 1, STEPS.length));
     }

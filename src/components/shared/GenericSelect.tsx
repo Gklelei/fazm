@@ -21,7 +21,7 @@ type GenericSelectProps<T> = {
   disabled?: boolean;
 };
 
-export function GenericSelect<T extends Record<string, any>>({
+export function GenericSelect<T extends object>({
   items,
   valueKey,
   labelKey,

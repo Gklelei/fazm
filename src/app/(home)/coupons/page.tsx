@@ -1,8 +1,5 @@
 import { db } from "@/lib/prisma";
-import {
-  GetCouponsQuery,
-  GetCouponsQueryType,
-} from "@/features/coupons/queries";
+import { GetCouponsQuery } from "@/features/coupons/queries";
 import Coupons from "@/features/coupons/components/CouponsTable";
 import type { Metadata } from "next";
 

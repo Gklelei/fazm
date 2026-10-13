@@ -20,7 +20,7 @@ export default async function Page({
 
   const [guardiansResponse, guardinsCount] = await db.$transaction([
     db.athleteGuardian.findMany({
-      ...(GuardiansQuery as any),
+      ...GuardiansQuery,
       skip,
       take: limit,
     }),
