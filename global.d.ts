@@ -32,6 +32,7 @@ declare global {
       id: string;
       name: string;
       amount: string;
+      interval: string;
     }[];
     expense: {
       name: string;

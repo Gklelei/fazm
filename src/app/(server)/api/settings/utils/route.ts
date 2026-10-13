@@ -41,7 +41,7 @@ export async function GET() {
       }),
       db.subscriptionPlan.findMany({
         where: { isArchived: false },
-        select: { id: true, name: true, amount: true },
+        select: { id: true, name: true, amount: true, interval: true },
       }),
       getCachedAcademy(),
     ]);

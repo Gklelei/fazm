@@ -14,6 +14,15 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { formatCurrency } from "@/lib/format";
+
+const INTERVAL_LABEL: Record<string, string> = {
+  MONTHLY: "Billed monthly",
+  WEEKLY: "Billed weekly",
+  YEARLY: "Billed yearly",
+  DAILY: "Billed daily",
+  ONCE: "One-off payment",
+};
 import { cn } from "@/lib/utils";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { useFormContext } from "react-hook-form";
@@ -56,39 +65,27 @@ const PaymentPlan = () => {
 
                     return (
                       <FormItem key={plan.id}>
-                        <button
-                          type="button"
-                          onClick={() => field.onChange(plan.id)}
+                        <label
+                          htmlFor={`plan-${plan.id}`}
                           className={cn(
-                            "w-full text-left rounded-lg border p-4 transition-all",
-                            "hover:border-primary/50 focus:outline-none focus:ring-2 focus:ring-primary/30",
-                            selected
-                              ? "border-primary bg-primary/5"
-                              : "border-muted",
+                            "flex w-full cursor-pointer items-center justify-between gap-3 rounded-lg border p-4 transition-colors",
+                            "hover:border-primary/50 has-focus-visible:ring-2 has-focus-visible:ring-ring",
+                            selected ? "border-primary bg-primary/5" : "border-border",
                           )}
                         >
-                          <div className="flex items-start justify-between gap-3">
-                            <div className="flex flex-col gap-1">
-                              <p className="font-medium">{plan.name}</p>
-                              <p className="text-sm text-muted-foreground">
-                                Monthly billing
-                              </p>
-                            </div>
-
-                            <div className="flex items-center gap-3">
-                              <span className="text-sm font-semibold">
-                                {plan.amount}
+                          <span className="flex items-center gap-3">
+                            <RadioGroupItem id={`plan-${plan.id}`} value={plan.id} />
+                            <span className="grid gap-0.5">
+                              <span className="font-medium">{plan.name}</span>
+                              <span className="text-sm text-muted-foreground">
+                                {INTERVAL_LABEL[plan.interval] ?? plan.interval}
                               </span>
-
-                              {/* keep for accessibility/semantics; sr-only is fine */}
-                              <RadioGroupItem
-                                value={plan.id}
-                                className="sr-only"
-                                aria-label={plan.name}
-                              />
-                            </div>
-                          </div>
-                        </button>
+                            </span>
+                          </span>
+                          <span className="tabular font-mono text-sm font-semibold">
+                            {formatCurrency(Number(plan.amount))}
+                          </span>
+                        </label>
                       </FormItem>
                     );
                   })}
