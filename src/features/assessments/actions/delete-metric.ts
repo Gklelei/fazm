@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -16,7 +18,7 @@ export const DeleteAssessmentSection = async (
     return { message: "Unauthorized access", success: false };
   }
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.admin] as string[];
   if (!allowedRoles.includes(session.user.role ?? "")) {
     return {
       message: "Unauthorized: You are not allowed to perform this action.",

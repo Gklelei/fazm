@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -12,7 +14,7 @@ type ActionResult = {
   message: string;
 };
 
-const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
 function money(v: Prisma.Decimal | number | string | null | undefined) {
   if (v == null) return new Prisma.Decimal(0);

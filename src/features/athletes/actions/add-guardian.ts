@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import {
@@ -24,7 +26,7 @@ export const AddAthleteGuardian = async (
     };
   }
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN", "COACH"];
+  const allowedRoles = [...ROLE_GROUPS.coaching] as string[];
   if (!allowedRoles.includes(session.user.role ?? "")) {
     return {
       success: false,

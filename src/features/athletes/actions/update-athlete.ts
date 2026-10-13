@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
@@ -35,7 +37,7 @@ function calculateAge({ dob }: { dob: Date | string }) {
   return age;
 }
 
-const acceptedRoles = ["ADMIN", "SUPER_ADMIN", "COACH"];
+const acceptedRoles = [...ROLE_GROUPS.coaching] as string[];
 
 export const UpdateAthleteAction = async (
   id: string,

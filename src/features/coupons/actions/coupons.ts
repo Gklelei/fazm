@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { couponSchema, couponSchemaType } from "@/features/coupons/schemas";
 import { headers } from "next/headers";
@@ -13,7 +15,7 @@ export const CreateCouponsAction = async (
 ): Promise<ActionResult> => {
   const parsedData = couponSchema.parse(data);
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -86,7 +88,7 @@ export const CreateCouponsAction = async (
 export const DeleteCouponsAction = async (
   id: string,
 ): Promise<ActionResult> => {
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -158,7 +160,7 @@ export const EditCouponsAction = async (
 ): Promise<ActionResult> => {
   const parsedData = couponSchema.parse(data);
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -234,7 +236,7 @@ export const toggleCouponStatus = async (
   id: string,
   status: 0 | 1,
 ): Promise<ActionResult & { statusCode: number }> => {
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
   const session = await auth.api.getSession({
     headers: await headers(),

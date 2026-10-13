@@ -9,12 +9,24 @@ import { GetStaffQuery } from "@/features/staff/queries";
 import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
+import { hasRole, type RoleGroup } from "@/lib/roles";
 import {
   athleteFiltersFromParams,
   buildAthleteWhere,
 } from "@/features/athletes/queries/filters";
 
 export const dynamic = "force-dynamic";
+
+const EXPORT_ACCESS: Record<string, RoleGroup> = {
+  expenses: "finance",
+  "expense-categories": "finance",
+  coupons: "finance",
+  invoices: "finance",
+  finance: "finance",
+  staff: "admin",
+  sessions: "coaching",
+  athletes: "coaching",
+};
 
 /** Maximum rows returned from any export to prevent OOM / timeout */
 const MAX_EXPORT_ROWS = 5_000;
@@ -31,12 +43,12 @@ export async function GET(req: NextRequest) {
     return apiError(401, "Unauthorized");
   }
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
-  if (!allowedRoles.includes(session.user.role ?? "")) {
-    return apiError(403, "Forbidden");
-  }
-
   const resource = req.nextUrl.searchParams.get("resource");
+
+  // Same groups that may open the page the export button sits on
+  const group = resource ? EXPORT_ACCESS[resource] : undefined;
+  if (!group) return apiError(400, "Unknown resource");
+  if (!hasRole(session.user.role, group)) return apiError(403, "Forbidden");
   const query = req.nextUrl.searchParams.get("query")?.trim() || "";
 
   try {

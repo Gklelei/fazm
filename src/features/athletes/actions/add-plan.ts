@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
@@ -64,7 +66,7 @@ export const AddAthleteToSubscriptionPlan = async ({
   mode: "edit" | "create";
   athleteId: string;
 }): Promise<ActionResult> => {
-  const acceptedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const acceptedRoles = [...ROLE_GROUPS.finance] as string[];
 
   try {
     const session = await auth.api.getSession({

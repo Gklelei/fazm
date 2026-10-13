@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { ClientTrainingSessionSchema } from "@/features/trainings/schemas";
 import { headers } from "next/headers";
@@ -32,7 +34,7 @@ export const CreateTrainingSession = async (
     };
   }
 
-  const allowedRoles = ["ADMIN", "COACH"];
+  const allowedRoles = [...ROLE_GROUPS.coaching] as string[];
   if (!allowedRoles.includes(session.user.role ?? "")) {
     return {
       success: false,

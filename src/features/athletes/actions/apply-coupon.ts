@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -14,7 +16,7 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
   athleteId: string;
   subId: string;
 }): Promise<ActionResult> => {
-  const acceptedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const acceptedRoles = [...ROLE_GROUPS.finance] as string[];
 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {

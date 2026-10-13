@@ -15,7 +15,8 @@ export async function UpdateAthleteStatus({
   status: ATHLETE_ACCOUNT_STATUS;
 }): Promise<ActionResult> {
   const authz = await checkRole([...ROLE_GROUPS.admin]);
-  if (!authz.ok) return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
+  if (!authz.ok)
+    return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
 
   if (!(status in ATHLETE_ACCOUNT_STATUS)) {
     return { success: false, message: "Unknown status." };
@@ -38,6 +39,9 @@ export async function UpdateAthleteStatus({
     return { success: true, message: "Status updated." };
   } catch (error) {
     console.error("Update athlete status failed:", error);
-    return { success: false, message: "Couldn't update the status. Try again." };
+    return {
+      success: false,
+      message: "Couldn't update the status. Try again.",
+    };
   }
 }

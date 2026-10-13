@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { db } from "@/lib/prisma";
 import { z } from "zod";
 import { revalidatePath } from "next/cache";
@@ -45,7 +47,7 @@ export async function CreateBatchWithSchedule(data: BatchSubmission) {
     return { success: false, message: "Unauthorized access" };
   }
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.admin] as string[];
   if (!allowedRoles.includes(session.user.role || "")) {
     return {
       success: false,

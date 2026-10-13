@@ -1,5 +1,7 @@
 "use server";
 
+import { ROLE_GROUPS } from "@/lib/roles";
+
 import { auth } from "@/lib/auth";
 import { DrillsSchema, DrillsSchemaType } from "@/features/settings/schemas";
 import { headers } from "next/headers";
@@ -11,7 +13,7 @@ export const CreateDrills = async (
   data: DrillsSchemaType,
 ): Promise<ActionResult> => {
   const values = DrillsSchema.parse(data);
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.admin] as string[];
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -64,7 +66,7 @@ export const EditDrills = async (
   drillId: string,
 ): Promise<ActionResult> => {
   const values = DrillsSchema.parse(data);
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.admin] as string[];
   const session = await auth.api.getSession({
     headers: await headers(),
   });
@@ -131,7 +133,7 @@ export const DeleteDrills = async ({
 }: {
   drillId: string;
 }): Promise<ActionResult> => {
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  const allowedRoles = [...ROLE_GROUPS.admin] as string[];
   const session = await auth.api.getSession({
     headers: await headers(),
   });
