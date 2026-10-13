@@ -1,7 +1,6 @@
 import z from "zod";
 
-export const AuthSchema = z.object({
-  name: z.string().trim().min(1, "This field is required"),
+export const signInSchema = z.object({
   email: z
     .string()
     .trim()
@@ -10,16 +9,7 @@ export const AuthSchema = z.object({
       /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
       "Please enter a valid email address",
     ),
-  password: z.string().trim().min(8, "Password should be atleast 8 characters"),
+  password: z.string().min(8, "Password should be at least 8 characters"),
 });
 
-export type signInSchemaType = Pick<SignUpSchemaType, "email" | "password">;
-
-export const signInSchema = AuthSchema.pick({
-  email: true,
-  password: true,
-});
-
-export type SignUpSchemaType = z.infer<typeof AuthSchema>;
-
-export const SignUpSchema = AuthSchema;
+export type signInSchemaType = z.infer<typeof signInSchema>;
