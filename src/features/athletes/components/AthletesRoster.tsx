@@ -1,338 +1,195 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
-import { useQueryClient } from "@tanstack/react-query";
+import Link from "next/link";
 import { useInView } from "react-intersection-observer";
-
+import { Loader2, RefreshCcw, UserPlus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { PageHeader } from "@/components/shared/PageHeader";
+import ExportDropdown from "@/components/shared/ExportDropdown";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useIsMobile } from "@/hooks/use-mobile";
+import type { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
 import {
   athleteFilterParams,
-  UseGetAllAthletes,
+  useAthletes,
   type AthletesInfiniteData,
-} from "@/features/athletes/hooks/useAthletes";
-import { DeleteAthlete } from "@/features/athletes/actions/delete-athlete";
-import { UpdateAthleteStatus } from "@/features/athletes/actions/update-status";
-import { useDebounce } from "@/hooks/use-debounce";
+} from "../hooks/useAthletes";
+import { athleteName } from "../lib/names";
+import AthleteCard from "./AthleteCard";
+import AthletesFilterBar, { type RosterFilterState } from "./AthletesFilterBar";
+import AthletesTable from "./AthletesTable";
+import { ATHLETE_STATUS_LABEL } from "./AthleteRowActions";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { useIsMobile } from "@/hooks/use-mobile";
-
-import { PageLoader } from "@/components/shared/PageLoader";
-import { Sweetalert } from "@/lib/alerts";
-
-import { Loader2, UserPlus, XCircle, RefreshCcw, Users } from "lucide-react";
-
-import { AthleteRow } from "@/features/athletes/lib/athlete-utils";
-import AthletesDesktopTable from "@/features/athletes/components/AthletesTable";
-import AthletesMobileCard from "@/features/athletes/components/AthleteCard";
-import AthletesFilterBar from "@/features/athletes/components/AthletesFilterBar";
-import ExportDropdown from "@/components/shared/ExportDropdown";
-import { fullName } from "@/features/athletes/lib/athlete-utils";
-
-type AthleteExportItem = {
+type ExportItem = {
   athleteId: string;
   firstName: string;
   middleName: string | null;
   lastName: string;
   phoneNumber: string | null;
-  status: string;
+  status: ATHLETE_ACCOUNT_STATUS;
   createdAt: string;
   batches: { name: string } | null;
 };
 
-const AthletesData = ({
+const EMPTY: RosterFilterState = { search: "", status: "", batchId: "", from: "", to: "" };
+
+export default function AthletesRoster({
   initialData,
 }: {
   initialData?: AthletesInfiniteData;
-}) => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
+}) {
   const isMobile = useIsMobile();
-
-  const [deletingId, setDeletingId] = useState<string>("");
-  const [searchQuery, setSearchQuery] = useState("");
-  const debouncedSearchValue = useDebounce(searchQuery, 800);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [batchId, setBatchId] = useState("");
+  const [form, setForm] = useState(EMPTY);
+  const search = useDebounce(form.search, 400);
 
   const filters = useMemo(
-    () => ({ search: debouncedSearchValue.trim(), from, to, batchId }),
-    [debouncedSearchValue, from, to, batchId],
+    () => ({
+      search: search.trim(),
+      status: (form.status || undefined) as ATHLETE_ACCOUNT_STATUS | undefined,
+      batchId: form.batchId,
+      from: form.from,
+      to: form.to,
+    }),
+    [search, form.status, form.batchId, form.from, form.to],
   );
-  const hasFilters = Object.values(filters).some(Boolean);
-
-  const isSearching = searchQuery.trim() !== debouncedSearchValue.trim();
+  const filtered = Object.values(filters).some(Boolean);
 
   const {
     data,
+    isPending,
     isError,
-    isLoading,
+    isFetching,
     fetchNextPage,
     hasNextPage,
     isFetchingNextPage,
-    isRefetching,
     refetch,
-  } = UseGetAllAthletes({ filters, initialData });
+  } = useAthletes({ filters, initialData });
 
-  const { ref, inView } = useInView({ rootMargin: "300px" });
+  const athletes = useMemo(() => data?.pages.flatMap((p) => p.allAthletes) ?? [], [data]);
 
+  const { ref, inView } = useInView({ rootMargin: "400px" });
   useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      fetchNextPage();
-    }
+    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  const athletes: AthleteRow[] = useMemo(() => {
-    const flat: AthleteRow[] = data?.pages.flatMap((p) => p.allAthletes) ?? [];
-    const map = new Map<string, AthleteRow>();
-    for (const a of flat) map.set(a.id, a);
-    return Array.from(map.values());
-  }, [data?.pages]);
-
-  async function handleDeleteAthlete(athleteId: string) {
-    setDeletingId(athleteId);
-    const result = await DeleteAthlete(athleteId);
-
-    if (result.status === "SUCCESS") {
-      Sweetalert({
-        icon: "success",
-        text: result.successMessage || "Athlete deleted",
-        title: "Deleted",
-      });
-      await queryClient.invalidateQueries({ queryKey: ["all-athletes"] });
-    } else {
-      Sweetalert({
-        icon: "error",
-        text: result.errorMessage || "Failed to delete",
-        title: "Error",
-      });
-    }
-
-    setDeletingId("");
-  }
-
-  const handleChangeAthleteStatus = async ({
-    athleteId,
-    status,
-  }: {
-    athleteId: string;
-    status: "PENDING" | "ACTIVE" | "SUSPENDED";
-  }) => {
-    const result = await UpdateAthleteStatus({ athleteId, status });
-
-    if (result.success) {
-      await queryClient.invalidateQueries({ queryKey: ["all-athletes"] });
-      Sweetalert({
-        icon: "success",
-        text: `Athlete marked as ${status.toLowerCase()}`,
-        title: "Status Updated",
-      });
-    } else {
-      Sweetalert({
-        icon: "error",
-        text: result.message,
-        title: "Update Failed",
-      });
-    }
-  };
-
-  if (isLoading && !isFetchingNextPage) return <PageLoader />;
-
-  if (isError) {
-    return (
-      <div className="p-8 text-center rounded-lg border">
-        <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full border bg-muted/40">
-          <XCircle className="h-6 w-6 text-muted-foreground" />
-        </div>
-        <p className="font-semibold">Couldn’t load athletes</p>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Check your connection and try again.
-        </p>
-
-        <div className="mt-4 flex justify-center gap-2">
-          <Button variant="outline" onClick={() => refetch()} className="gap-2">
-            <RefreshCcw className="h-4 w-4" />
-            Retry
-          </Button>
-          <Button
-            onClick={() => router.push("/players/create")}
-            className="gap-2"
-          >
-            <UserPlus className="h-4 w-4" />
-            Register athlete
-          </Button>
-        </div>
-      </div>
-    );
-  }
-
-  const showEmpty = athletes.length === 0 && !hasFilters && !isRefetching;
-  const showNoMatches = athletes.length === 0 && hasFilters;
-
-  const clearFilters = () => {
-    setSearchQuery("");
-    setFrom("");
-    setTo("");
-    setBatchId("");
-  };
-
-  if (showEmpty) {
-    return (
-      <div className="flex items-center justify-center min-h-100">
-        <Card className="w-full max-w-md text-center border-dashed">
-          <CardContent className="pt-10 pb-10">
-            <div className="bg-muted/50 rounded-full w-20 h-20 mx-auto flex items-center justify-center mb-6">
-              <Users className="h-10 w-10 text-muted-foreground" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Your roster is empty</h3>
-            <p className="text-muted-foreground mb-8 max-w-xs mx-auto">
-              Add athletes to start tracking profiles, positions, and account
-              status.
-            </p>
-            <Button
-              onClick={() => router.push("/players/create")}
-              className="gap-2"
-            >
-              <UserPlus className="h-4 w-4" />
-              Register first athlete
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   return (
-    <div className="space-y-6 p-1 md:p-2">
-      <AthletesFilterBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        debouncedSearchValue={debouncedSearchValue}
-        isSearching={isSearching}
-        isRefetching={isRefetching}
-        from={from}
-        setFrom={setFrom}
-        to={to}
-        setTo={setTo}
-        batchId={batchId}
-        setBatchId={setBatchId}
-        hasFilters={hasFilters}
-        clearFilters={clearFilters}
-      />
-
-      <Card>
-        <CardContent className="pt-4">
-          <div className="flex justify-end mb-4">
-            <ExportDropdown
+    <div className="space-y-6">
+      <PageHeader
+        title="Athletes"
+        description="Search the roster, update status and reach guardians. Pick a batch, then Export → PDF to print its list."
+        actions={
+          <>
+            <ExportDropdown<ExportItem>
               filename="Athletes"
-              headers={[
-                "#",
-                "Athlete ID",
-                "Name",
-                "Batch",
-                "Phone",
-                "Status",
-                "Registered",
-              ]}
+              headers={["#", "Athlete ID", "Name", "Batch", "Phone", "Status", "Registered"]}
               rows={athletes.map((a, i) => [
                 String(i + 1),
                 a.athleteId,
-                fullName(a),
-                "",
-                a.phoneNumber || "",
-                a.status,
-                new Date(a.createdAt).toLocaleDateString(),
+                athleteName(a),
+                a.batches?.name ?? "",
+                a.guardians[0]?.phoneNumber ?? "",
+                ATHLETE_STATUS_LABEL[a.status] ?? a.status,
+                new Date(a.createdAt).toLocaleDateString("en-GB"),
               ])}
               fetchAllUrl={`/api/export?resource=athletes&${athleteFilterParams(filters)}`}
-              mapRow={(a: AthleteExportItem, i) => [
+              mapRow={(a, i) => [
                 String(i + 1),
                 a.athleteId,
-                [a.firstName, a.middleName, a.lastName]
-                  .filter(Boolean)
-                  .join(" "),
-                a.batches?.name || "",
-                a.phoneNumber || "",
-                a.status,
-                new Date(a.createdAt).toLocaleDateString(),
+                athleteName(a),
+                a.batches?.name ?? "",
+                a.phoneNumber ?? "",
+                ATHLETE_STATUS_LABEL[a.status] ?? a.status,
+                new Date(a.createdAt).toLocaleDateString("en-GB"),
               ]}
             />
+            <Button asChild>
+              <Link href="/players/create">
+                <UserPlus /> Register athlete
+              </Link>
+            </Button>
+          </>
+        }
+      />
+
+      <section className="overflow-hidden rounded-lg border bg-card">
+        <AthletesFilterBar
+          value={form}
+          onChange={(next) => setForm((f) => ({ ...f, ...next }))}
+          busy={isFetching && !isFetchingNextPage}
+        />
+
+        {isPending ? (
+          <div className="space-y-3 p-4">
+            {Array.from({ length: 6 }, (_, i) => (
+              <Skeleton key={i} className="h-11 w-full" />
+            ))}
           </div>
-          {showNoMatches ? (
-            <div className="rounded-lg border border-dashed p-10 text-center">
-              <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full border bg-muted/40">
-                <XCircle className="h-6 w-6 text-muted-foreground" />
-              </div>
-              <p className="font-semibold">No athletes matched your filters</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Try a different name, phone, guardian, date range or batch.
-              </p>
-              <div className="mt-4 flex justify-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={clearFilters}
-                  className="gap-2"
-                >
-                  <XCircle className="h-4 w-4" />
+        ) : isError ? (
+          <div className="grid place-items-center gap-3 px-4 py-14 text-center">
+            <p className="font-medium">The roster didn&apos;t load.</p>
+            <p className="text-sm text-muted-foreground">
+              Check your connection, then try again.
+            </p>
+            <Button variant="outline" onClick={() => refetch()}>
+              <RefreshCcw /> Try again
+            </Button>
+          </div>
+        ) : athletes.length === 0 ? (
+          <div className="grid place-items-center gap-3 px-4 py-14 text-center">
+            {filtered ? (
+              <>
+                <p className="font-medium">No athletes match these filters.</p>
+                <Button variant="outline" onClick={() => setForm(EMPTY)}>
                   Clear filters
                 </Button>
-                <Button
-                  onClick={() => router.push("/players/create")}
-                  className="gap-2"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  Register athlete
+              </>
+            ) : (
+              <>
+                <p className="font-medium">The roster is empty.</p>
+                <p className="text-sm text-muted-foreground">
+                  Register your first athlete to start tracking attendance and fees.
+                </p>
+                <Button asChild>
+                  <Link href="/players/create">
+                    <UserPlus /> Register athlete
+                  </Link>
                 </Button>
-              </div>
-            </div>
-          ) : isMobile ? (
-            <div className="grid gap-3">
-              {athletes.map((athlete) => (
-                <AthletesMobileCard
-                  key={athlete.id}
-                  athlete={athlete}
-                  deletingId={deletingId}
-                  handleDeleteAthlete={handleDeleteAthlete}
-                  handleChangeAthleteStatus={handleChangeAthleteStatus}
-                />
-              ))}
-            </div>
-          ) : (
-            <AthletesDesktopTable
-              athletes={athletes}
-              deletingId={deletingId}
-              handleDeleteAthlete={handleDeleteAthlete}
-              handleChangeAthleteStatus={handleChangeAthleteStatus}
-            />
-          )}
+              </>
+            )}
+          </div>
+        ) : isMobile ? (
+          <div className="divide-y">
+            {athletes.map((a) => (
+              <AthleteCard key={a.id} athlete={a} />
+            ))}
+          </div>
+        ) : (
+          <AthletesTable athletes={athletes} />
+        )}
 
-          {athletes.length > 0 && (
-            <div
-              ref={ref}
-              className="h-20 w-full flex justify-center items-center mt-4"
-            >
-              {isFetchingNextPage ? (
-                <div className="flex items-center gap-2 text-muted-foreground font-medium">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Loading more athletes…</span>
-                </div>
-              ) : !hasNextPage && debouncedSearchValue ? (
-                <p className="text-muted-foreground text-sm italic">
-                  Showing all results for{" "}
-                  <span className="font-medium">{debouncedSearchValue}</span>
-                </p>
-              ) : !hasNextPage ? (
-                <p className="text-muted-foreground text-sm italic">
-                  You&apos;ve reached the end.
-                </p>
-              ) : null}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+        {athletes.length > 0 && (
+          <div
+            ref={ref}
+            className="flex h-14 items-center justify-center border-t text-sm text-muted-foreground"
+          >
+            {isFetchingNextPage ? (
+              <span className="inline-flex items-center gap-2">
+                <Loader2 className="size-4 animate-spin" /> Loading more
+              </span>
+            ) : hasNextPage ? (
+              <Button variant="ghost" size="sm" onClick={() => fetchNextPage()}>
+                Load more
+              </Button>
+            ) : (
+              <span className="tabular">
+                {athletes.length} athlete{athletes.length === 1 ? "" : "s"}
+              </span>
+            )}
+          </div>
+        )}
+      </section>
     </div>
   );
-};
-
-export default AthletesData;
+}

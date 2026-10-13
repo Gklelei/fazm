@@ -1,6 +1,7 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { format } from "date-fns";
 import {
   Table,
   TableBody,
@@ -9,229 +10,80 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import {
-  Eye,
-  Loader2,
-  MoreHorizontal,
-  PenIcon,
-  Trash2Icon,
-  ChevronDown,
-} from "lucide-react";
+import ProfileAvatar from "@/components/shared/ProfileAvatar";
+import type { AthleteListRow } from "../queries/list";
+import { athleteName } from "../lib/names";
+import { AthleteActionsMenu, AthleteStatusMenu } from "./AthleteRowActions";
 
-import ProfileImage from "@/components/shared/ProfileAvatar";
-import { cn } from "@/lib/utils";
-import {
-  AthleteRow,
-  ageText,
-  fullName,
-  normalizeStatus,
-  statusOptions,
-} from "@/features/athletes/lib/athlete-utils";
-
-interface Props {
-  athletes: AthleteRow[];
-  deletingId: string;
-  handleDeleteAthlete: (id: string) => void;
-  handleChangeAthleteStatus: (params: {
-    athleteId: string;
-    status: "PENDING" | "ACTIVE" | "SUSPENDED";
-  }) => void;
-}
-
-export default function AthletesDesktopTable({
-  athletes,
-  deletingId,
-  handleDeleteAthlete,
-  handleChangeAthleteStatus,
-}: Props) {
-  const router = useRouter();
-
+export default function AthletesTable({ athletes }: { athletes: AthleteListRow[] }) {
   return (
-    <div className="rounded-md border overflow-x-auto">
-      <Table>
-        <TableHeader className="bg-muted/50">
-          <TableRow>
-            <TableHead className="w-12.5">#</TableHead>
-            <TableHead className="w-20">Photo</TableHead>
-            <TableHead>Athlete</TableHead>
-            <TableHead>Positions</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>ID</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
-          </TableRow>
-        </TableHeader>
-
-        <TableBody>
-          {athletes.map((athlete, index) => {
-            const normalized = normalizeStatus(athlete.status);
-            const statusConfig =
-              statusOptions.find((s) => s.value === normalized) ||
-              statusOptions[0];
-            const StatusIcon = statusConfig.Icon;
-
-            return (
-              <TableRow
-                key={athlete.id}
-                className="group hover:bg-muted/30 transition-colors"
-              >
-                <TableCell className="text-muted-foreground font-medium text-xs">
-                  {index + 1}
-                </TableCell>
-
-                <TableCell>
-                  <ProfileImage
-                    name={fullName(athlete)}
-                    size={40}
-                    url={athlete.profilePIcture || ""}
-                    className="border shadow-sm"
-                  />
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex flex-col">
-                    <span className="font-semibold text-sm">
-                      {fullName(athlete)}
+    <Table>
+      <TableHeader>
+        <TableRow className="hover:bg-transparent">
+          <TableHead className="pl-4">Athlete</TableHead>
+          <TableHead>Batch</TableHead>
+          <TableHead className="text-right">Age</TableHead>
+          <TableHead>Guardian</TableHead>
+          <TableHead>Status</TableHead>
+          <TableHead>Registered</TableHead>
+          <TableHead className="w-12 pr-4">
+            <span className="sr-only">Actions</span>
+          </TableHead>
+        </TableRow>
+      </TableHeader>
+      <TableBody>
+        {athletes.map((a) => {
+          const guardian = a.guardians[0];
+          return (
+            <TableRow key={a.id}>
+              <TableCell className="pl-4">
+                <Link
+                  href={`/players/user-profile/${a.athleteId}`}
+                  className="group flex items-center gap-3 rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+                >
+                  <ProfileAvatar name={athleteName(a)} url={a.profilePIcture ?? ""} size={36} />
+                  <span className="grid min-w-0 leading-tight">
+                    <span className="truncate font-medium group-hover:underline">
+                      {athleteName(a)}
                     </span>
-                    <span className="font-semibold text-sm">
-                      {ageText(athlete.age)}
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {a.athleteId}
                     </span>
-                    <span className="text-xs text-muted-foreground truncate max-w-60">
-                      {athlete.email || "No email provided"}
-                    </span>
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <div className="flex flex-wrap gap-1">
-                    {athlete.positions?.length ? (
-                      athlete.positions.map((pos, idx) => (
-                        <Badge
-                          key={`${athlete.id}-${pos}-${idx}`}
-                          variant="secondary"
-                          className="font-normal text-[10px] px-1.5"
-                        >
-                          {pos}
-                        </Badge>
-                      ))
-                    ) : (
-                      <span className="text-xs text-muted-foreground">—</span>
+                  </span>
+                </Link>
+              </TableCell>
+              <TableCell>{a.batches?.name ?? <span className="text-muted-foreground">—</span>}</TableCell>
+              <TableCell className="tabular text-right">{a.age ?? "—"}</TableCell>
+              <TableCell>
+                {guardian ? (
+                  <span className="grid leading-tight">
+                    <span className="truncate">{guardian.fullNames}</span>
+                    {guardian.phoneNumber && (
+                      <a
+                        href={`tel:${guardian.phoneNumber}`}
+                        className="font-mono text-xs text-muted-foreground hover:text-foreground"
+                      >
+                        {guardian.phoneNumber}
+                      </a>
                     )}
-                  </div>
-                </TableCell>
-
-                <TableCell>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className={cn(
-                          "h-7 gap-1 border text-[11px] font-medium",
-                          statusConfig.color,
-                        )}
-                      >
-                        <StatusIcon className="w-3.5 h-3.5" />
-                        {statusConfig.label}
-                        <ChevronDown className="w-3 h-3 opacity-50 ml-1" />
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="start">
-                      <DropdownMenuLabel className="text-xs">
-                        Change status
-                      </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      {statusOptions.map((option) => (
-                        <DropdownMenuItem
-                          key={option.value}
-                          onClick={() =>
-                            handleChangeAthleteStatus({
-                              athleteId: athlete.athleteId,
-                              status: option.value,
-                            })
-                          }
-                          className="gap-2 text-xs"
-                        >
-                          <option.Icon
-                            className={cn(
-                              "w-4 h-4",
-                              option.color.split(" ")[0],
-                            )}
-                          />
-                          <span>{option.label}</span>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-
-                <TableCell>
-                  <code className="bg-muted px-1.5 py-0.5 rounded text-[10px] font-mono text-muted-foreground">
-                    {athlete.athleteId}
-                  </code>
-                </TableCell>
-
-                <TableCell className="text-right">
-                  <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-
-                    <DropdownMenuContent align="end" className="w-44">
-                      <DropdownMenuItem
-                        onClick={() =>
-                          router.push(
-                            `/players/user-profile/${athlete.athleteId}`,
-                          )
-                        }
-                        className="gap-2"
-                      >
-                        <Eye className="h-4 w-4" /> View profile
-                      </DropdownMenuItem>
-
-                      <DropdownMenuItem
-                        onClick={() =>
-                          router.push(`/players/edit/${athlete.athleteId}`)
-                        }
-                        className="gap-2"
-                      >
-                        <PenIcon className="h-4 w-4" /> Edit
-                      </DropdownMenuItem>
-
-                      <DropdownMenuSeparator />
-
-                      <DropdownMenuItem
-                        className="text-destructive focus:bg-destructive/10 gap-2"
-                        disabled={deletingId === athlete.athleteId}
-                        onClick={() => handleDeleteAthlete(athlete.athleteId)}
-                      >
-                        {deletingId === athlete.athleteId ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <Trash2Icon className="h-4 w-4" />
-                        )}
-                        Delete
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </TableCell>
-              </TableRow>
-            );
-          })}
-        </TableBody>
-      </Table>
-    </div>
+                  </span>
+                ) : (
+                  <span className="text-muted-foreground">—</span>
+                )}
+              </TableCell>
+              <TableCell>
+                <AthleteStatusMenu athlete={a} />
+              </TableCell>
+              <TableCell className="tabular whitespace-nowrap text-muted-foreground">
+                {format(new Date(a.createdAt), "d MMM yyyy")}
+              </TableCell>
+              <TableCell className="pr-4 text-right">
+                <AthleteActionsMenu athlete={a} />
+              </TableCell>
+            </TableRow>
+          );
+        })}
+      </TableBody>
+    </Table>
   );
 }

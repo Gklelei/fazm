@@ -1,7 +1,9 @@
 import type { Prisma } from "@/generated/prisma/client";
+import { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
 
 export type AthleteFilters = {
   search?: string;
+  status?: ATHLETE_ACCOUNT_STATUS;
   /** Registration date range, inclusive, as YYYY-MM-DD */
   from?: string;
   to?: string;
@@ -14,8 +16,12 @@ export function athleteFiltersFromParams(sp: URLSearchParams): AthleteFilters {
     from: sp.get("from") || undefined,
     to: sp.get("to") || undefined,
     batchId: sp.get("batchId") || undefined,
+    status: parseStatus(sp.get("status")),
   };
 }
+
+const parseStatus = (v: string | null) =>
+  v && v in ATHLETE_ACCOUNT_STATUS ? (v as ATHLETE_ACCOUNT_STATUS) : undefined;
 
 const ci = (term: string) => ({
   contains: term,
@@ -31,6 +37,7 @@ export function buildAthleteWhere({
   from,
   to,
   batchId,
+  status,
 }: AthleteFilters): Prisma.AthleteWhereInput {
   const terms = (search ?? "").split(/\s+/).filter(Boolean);
 
@@ -41,6 +48,7 @@ export function buildAthleteWhere({
   return {
     isArchived: false,
     ...(batchId ? { batchesId: batchId } : {}),
+    ...(status ? { status } : {}),
     ...(from || to ? { createdAt } : {}),
     ...(terms.length
       ? {

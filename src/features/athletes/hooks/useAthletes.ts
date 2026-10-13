@@ -1,24 +1,9 @@
 "use client";
-import { useInfiniteQuery } from "@tanstack/react-query";
-import type { Prisma } from "@/generated/prisma/client";
+import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import type { AthleteFilters } from "@/features/athletes/queries/filters";
+import type { AthletesPage } from "@/features/athletes/queries/list";
 
-// Matches the shape returned by GET /api/athlete/athletes-all
-// (db.athlete.findMany({ include: { address: true, medical: true } })).
-type AthleteListItem = Prisma.AthleteGetPayload<{
-  include: { address: true; medical: true };
-}>;
-
-export type AthletesPage = {
-  allAthletes: AthleteListItem[];
-  nextCursor: string | null;
-  pageSize: number;
-};
-
-export type AthletesInfiniteData = {
-  pages: AthletesPage[];
-  pageParams: (string | null)[];
-};
+export type AthletesInfiniteData = InfiniteData<AthletesPage, string>;
 
 /** Query string for /api/athlete/athletes-all and /api/export (empty keys dropped). */
 export function athleteFilterParams(filters: AthleteFilters) {
@@ -27,7 +12,7 @@ export function athleteFilterParams(filters: AthleteFilters) {
   return params;
 }
 
-export const UseGetAllAthletes = ({
+export const useAthletes = ({
   filters,
   initialData,
 }: {
@@ -36,24 +21,18 @@ export const UseGetAllAthletes = ({
 }) => {
   const hasFilters = Object.values(filters).some(Boolean);
 
-  return useInfiniteQuery<AthletesPage>({
-    // Only seed the query with the server-rendered first page when no
-    // filter is active — the same shape react-query is asked to fetch
-    // itself, so it's used as-is instead of triggering a redundant fetch.
+  return useInfiniteQuery({
+    // The server-rendered first page is only valid while nothing is filtered
     initialData: hasFilters ? undefined : initialData,
     queryKey: ["all-athletes", filters],
-    queryFn: async ({ pageParam }) => {
-      const cursor = (pageParam as string | undefined) ?? "";
-
+    queryFn: async ({ pageParam }): Promise<AthletesPage> => {
       const params = athleteFilterParams(filters);
-      params.set("pageSize", "10");
-      if (cursor) params.set("cursor", cursor);
-
-      const res = await fetch(`/api/athlete/athletes-all?${params.toString()}`);
-      if (!res.ok) throw new Error("Error fetching athletes");
+      if (pageParam) params.set("cursor", pageParam);
+      const res = await fetch(`/api/athlete/athletes-all?${params}`);
+      if (!res.ok) throw new Error("Couldn't load athletes");
       return res.json();
     },
     initialPageParam: "",
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    getNextPageParam: (last) => last.nextCursor ?? undefined,
   });
 };

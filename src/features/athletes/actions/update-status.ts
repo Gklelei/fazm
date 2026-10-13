@@ -1,70 +1,43 @@
 "use server";
 
-import { hasRole } from "@/lib/roles";
-import { auth } from "@/lib/auth";
+import { revalidatePath } from "next/cache";
+import { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
+import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
+import { ROLE_GROUPS } from "@/lib/roles";
+import { createAuditLog } from "@/lib/audit";
 import { db } from "@/lib/prisma";
-import { headers } from "next/headers";
 
-type UiStatus = "PENDING" | "ACTIVE" | "SUSPENDED";
-
-type DbStatus = "PENDING" | "ACTIVE" | "DEACTIVATED";
-
-const UI_TO_DB_STATUS: Record<UiStatus, DbStatus> = {
-  PENDING: "PENDING",
-  ACTIVE: "ACTIVE",
-  SUSPENDED: "DEACTIVATED",
-};
-
-export const UpdateAthleteStatus = async ({
+export async function UpdateAthleteStatus({
   athleteId,
   status,
 }: {
   athleteId: string;
-  status: UiStatus;
-}): Promise<ActionResult> => {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+  status: ATHLETE_ACCOUNT_STATUS;
+}): Promise<ActionResult> {
+  const authz = await checkRole([...ROLE_GROUPS.admin]);
+  if (!authz.ok) return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
 
-  if (!session?.user) {
-    return {
-      success: false,
-      message: "You must be logged in to perform this action.",
-    };
+  if (!(status in ATHLETE_ACCOUNT_STATUS)) {
+    return { success: false, message: "Unknown status." };
   }
 
-  if (!hasRole(session.user.role, "admin")) {
-    return {
-      success: false,
-      message: "Access denied. This action requires administrator permissions.",
-    };
-  }
   try {
-    const dbStatus = UI_TO_DB_STATUS[status];
-    if (!dbStatus) {
-      return { success: false, message: "Invalid status value" };
-    }
-
-    const existingAthlete = await db.athlete.findUnique({
-      where: { athleteId: athleteId },
+    const athlete = await db.athlete.update({
+      where: { athleteId },
+      data: { status },
+      select: { id: true, firstName: true, lastName: true },
     });
-
-    if (!existingAthlete) {
-      return { success: false, message: "Athlete not found" };
-    }
-
-    await db.athlete.update({
-      where: { athleteId: athleteId },
-      data: { status: dbStatus },
+    await createAuditLog({
+      action: "UPDATE_ATHLETE_STATUS",
+      resource: "Athlete",
+      details: `Set ${athlete.firstName} ${athlete.lastName} to ${status}`,
+      userId: authz.session.user.id,
+      athleteId: athlete.id,
     });
-
-    return { success: true, message: "Athlete updated successfully" };
+    revalidatePath("/players");
+    return { success: true, message: "Status updated." };
   } catch (error) {
-    console.log({ error });
-
-    return {
-      success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
-    };
+    console.error("Update athlete status failed:", error);
+    return { success: false, message: "Couldn't update the status. Try again." };
   }
-};
+}
