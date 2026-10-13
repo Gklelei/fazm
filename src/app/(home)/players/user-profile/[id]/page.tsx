@@ -1,65 +1,56 @@
-import NotFound from "@/app/not-found";
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
 import AthleteProfile from "@/features/athletes/components/profile/AthleteProfile";
 import { GetAthleteByIdQuery } from "@/features/athletes/queries";
-import type { Metadata } from "next";
+import { getAthleteSummary } from "@/features/athletes/queries/summary";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
 
-export const metadata: Metadata = { title: "Athlete Profile" };
+export const metadata: Metadata = { title: "Athlete" };
 
-type CouponRow = {
-  id: string;
-  name: string;
-  discount_type: "PERCENTAGE" | "FIXED_AMOUNT";
-  value: string | number; // Decimal often comes back as string
-  interval: "ONCE" | "REPEATING";
-  start_date: Date;
-  expiry_date: Date | null;
-  usage_limit: number | null;
-  times_used: number;
-  status: number; // 0 | 1
-  voided: number; // 0 | 1
-};
-
-interface PageProps {
-  params: Promise<{ id: string }>;
-}
-
-const page = async ({ params }: PageProps) => {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const athlete = await db.athlete.findUnique(GetAthleteByIdQuery(id));
-  if (!athlete) return <NotFound />;
+  const [athlete, summary, coupons] = await Promise.all([
+    db.athlete.findUnique(GetAthleteByIdQuery(id)),
+    getAthleteSummary(id),
+    // Coupons that can still be applied to this athlete's plan
+    db.coupon.findMany({
+      where: {
+        voided: 0,
+        status: 1,
+        OR: [{ expiryDate: null }, { expiryDate: { gt: new Date() } }],
+        AND: [
+          {
+            OR: [
+              { usageLimit: null },
+              { timesUsed: { lt: db.coupon.fields.usageLimit } },
+            ],
+          },
+        ],
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
+  if (!athlete || athlete.isArchived) notFound();
 
-  const activeCoupons = await db.$queryRaw<CouponRow[]>`
-    SELECT *
-    FROM coupons
-    WHERE
-      voided = 0
-      AND status = 1
-      AND (expiry_date IS NULL OR expiry_date > NOW())
-      AND (
-        usage_limit IS NULL
-        OR times_used < usage_limit
-      )
-    ORDER BY created_at DESC
-  `;
-
-  const normalized: AthleteCouponOption[] = activeCoupons.map((c) => ({
+  const options: AthleteCouponOption[] = coupons.map((c) => ({
     id: c.id,
     name: c.name,
-    discountType: c.discount_type,
+    discountType: c.discountType,
     value: Number(c.value),
     interval: c.interval,
-    startDate: c.start_date,
-    expiryDate: c.expiry_date,
-    usageLimit: c.usage_limit,
-    timesUsed: c.times_used,
+    startDate: c.startDate,
+    expiryDate: c.expiryDate,
+    usageLimit: c.usageLimit,
+    timesUsed: c.timesUsed,
     status: c.status,
     voided: c.voided,
   }));
 
-  return <AthleteProfile data={athlete} coupons={normalized} />;
-};
+  // Prisma Decimals can't cross into client components; JSON turns them
+  // into strings, which the profile's money helpers already Number().
+  const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
 
-export default page;
+  return <AthleteProfile data={plain} coupons={options} summary={summary} />;
+}

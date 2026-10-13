@@ -1,130 +1,155 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { ChevronLeft } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { format } from "date-fns";
+import { ArrowLeft, Banknote, Pencil, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-import PersonalInfo from "@/features/athletes/components/profile/PersonalInfo";
-import GuardianInfo from "@/features/athletes/components/profile/GuardianInfo";
-import AddressInfo from "@/features/athletes/components/profile/AddressInfo";
-import MedicalEmergencyInformation from "@/features/athletes/components/profile/MedicalEmergencyInformation";
-import EmergencyContacts from "@/features/athletes/components/profile/EmergencyContacts";
-import FinancialRecords from "@/features/athletes/components/profile/FinancialRecords";
-import AthleteStatement from "@/features/athletes/components/profile/AthleteStatement";
-import AthleteInvoices from "@/features/athletes/components/profile/AthleteInvoices";
-import AthleteAssesments from "@/features/athletes/components/profile/AthleteAssessments";
-import AthleteSubscriptionPlans from "@/features/athletes/components/profile/AthleteSubscriptionPlans";
-import AthleteDocuments from "@/features/athletes/components/profile/AthleteDocuments";
-import AthleteExportButton from "@/features/athletes/components/profile/AthleteExportButton";
-
-import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
+import ProfileAvatar from "@/components/shared/ProfileAvatar";
+import { StatCard } from "@/components/shared/StatCard";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import ResponsiveSections, { type Section } from "@/components/shared/ResponsiveSections";
+import { formatCurrency } from "@/lib/format";
+import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
-import ResponsiveSections, { Section } from "@/components/shared/ResponsiveSections";
+import type { GetAthleteByIdQueryType } from "../../queries";
+import type { AthleteSummary } from "../../queries/summary";
+import { athleteName } from "../../lib/names";
+import { ATHLETE_STATUS_LABEL } from "../AthleteRowActions";
+import GuardianInfo from "./GuardianInfo";
+import AddressInfo from "./AddressInfo";
+import MedicalEmergencyInformation from "./MedicalEmergencyInformation";
+import EmergencyContacts from "./EmergencyContacts";
+import FinancialRecords from "./FinancialRecords";
+import AthleteStatement from "./AthleteStatement";
+import AthleteInvoices from "./AthleteInvoices";
+import AthleteAssesments from "./AthleteAssessments";
+import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
+import AthleteDocuments from "./AthleteDocuments";
+import AthleteExportButton from "./AthleteExportButton";
+
+const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
+
+function Details({ data }: { data: GetAthleteByIdQueryType }) {
+  const rows: [string, React.ReactNode][] = [
+    ["Date of birth", data.dateOfBirth ? format(new Date(data.dateOfBirth), "d MMM yyyy") : "—"],
+    ["Age", dash(data.age)],
+    ["Batch", data.batches?.name ?? "—"],
+    ["Positions", data.positions?.length ? data.positions.join(", ") : "—"],
+    ["Phone", dash(data.phoneNumber)],
+    ["Email", dash(data.email)],
+    ["Height", dash(data.height)],
+    ["Weight", dash(data.weight)],
+    ["Strong foot", dash(data.foot)],
+    ["Strong hand", dash(data.hand)],
+    ["Registered", format(new Date(data.createdAt), "d MMM yyyy")],
+  ];
+  return (
+    <dl className="grid gap-x-8 gap-y-4 p-1 sm:grid-cols-2 lg:grid-cols-3">
+      {rows.map(([k, v]) => (
+        <div key={k}>
+          <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{k}</dt>
+          <dd className="mt-0.5 font-medium capitalize">{v}</dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
 
 export default function AthleteProfile({
   data,
   coupons,
+  summary,
 }: {
   data: GetAthleteByIdQueryType;
   coupons: AthleteCouponOption[];
+  summary: AthleteSummary;
 }) {
-  const router = useRouter();
-  if (!data) return <div className="p-10 text-center">Athlete not found.</div>;
+  const name = athleteName(data);
+  const guardian = data.guardians[0];
 
   const sections: Section[] = [
-    {
-      key: "guardian",
-      label: "Guardians",
-      description: "Parents/guardians contacts and relationships.",
-      content: <GuardianInfo data={data} />,
-    },
-    {
-      key: "address",
-      label: "Address",
-      description: "Residential details and location.",
-      content: <AddressInfo data={data} />,
-    },
-    {
-      key: "medical",
-      label: "Medical",
-      description: "Conditions, allergies and blood group.",
-      content: <MedicalEmergencyInformation data={data} />,
-    },
-    {
-      key: "emergency",
-      label: "Emergency",
-      description: "Emergency contacts for urgent situations.",
-      content: <EmergencyContacts data={data} />,
-    },
-    {
-      key: "fees",
-      label: "Financials",
-      description: "Payments history and receipts.",
-      content: <FinancialRecords data={data} />,
-    },
-    {
-      key: "statement",
-      label: "Statement",
-      description: "Account statement showing charges, payments, and running balance.",
-      content: <AthleteStatement data={data} />,
-    },
-    {
-      key: "invoice",
-      label: "Invoices",
-      description: "Billing records, due amounts and status.",
-      content: <AthleteInvoices data={data} />,
-    },
-    {
-      key: "assesments",
-      label: "Assessments",
-      description: "Coach assessments and performance notes.",
-      content: <AthleteAssesments data={data} />,
-    },
-    {
-      key: "documents",
-      label: "Documents",
-      description: "ID, birth certificate, and official documents.",
-      content: <AthleteDocuments data={data} />,
-    },
-    {
-      key: "plan",
-      label: "Plan",
-      description: "Subscription plan and coupon management.",
-      content: <AthleteSubscriptionPlans data={data} coupons={coupons} />,
-    },
+    { key: "details", label: "Details", description: "Personal and physical details.", content: <Details data={data} /> },
+    { key: "guardian", label: "Guardians", description: "Parents and guardians to contact.", content: <GuardianInfo data={data} /> },
+    { key: "statement", label: "Statement", description: "Charges, payments and running balance.", content: <AthleteStatement data={data} /> },
+    { key: "invoice", label: "Invoices", description: "What has been billed and what is still due.", content: <AthleteInvoices data={data} /> },
+    { key: "fees", label: "Payments", description: "Payments received, with receipts.", content: <FinancialRecords data={data} /> },
+    { key: "plan", label: "Fee plan", description: "The plan they're billed on, and coupons.", content: <AthleteSubscriptionPlans data={data} coupons={coupons} /> },
+    { key: "assessments", label: "Assessments", description: "Coach assessments and notes.", content: <AthleteAssesments data={data} /> },
+    { key: "medical", label: "Medical", description: "Blood group, allergies and conditions.", content: <MedicalEmergencyInformation data={data} /> },
+    { key: "emergency", label: "Emergency", description: "Who to call in an emergency.", content: <EmergencyContacts data={data} /> },
+    { key: "address", label: "Address", description: "Where they live.", content: <AddressInfo data={data} /> },
+    { key: "documents", label: "Documents", description: "Birth certificate, ID and passport.", content: <AthleteDocuments data={data} /> },
   ];
 
   return (
-    <div className="mx-auto flex max-w-7xl flex-col gap-5 p-3 sm:p-6">
-      <div className="flex items-center justify-between gap-3">
-        <div className="min-w-0">
-          <h1 className="truncate text-lg sm:text-xl font-bold">
-            Athlete profile
-          </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Profile, guardians, medical, invoices and assessments.
-          </p>
-        </div>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
+        <Link href="/players">
+          <ArrowLeft /> Athletes
+        </Link>
+      </Button>
 
-        <div className="flex items-center gap-2">
-          <AthleteExportButton data={data} />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => router.back()}
-            className="gap-2"
-          >
-            <ChevronLeft className="h-4 w-4" />
-            Back
-          </Button>
+      <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+        <div className="flex items-center gap-4">
+          <ProfileAvatar name={name} url={data.profilePIcture ?? ""} size={72} className="ring-2 ring-border" />
+          <div className="min-w-0 space-y-1.5">
+            <h1 className="font-display text-3xl leading-none font-bold tracking-tight uppercase md:text-4xl">
+              {name}
+            </h1>
+            <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
+              <span className="font-mono">{data.athleteId}</span>
+              {data.batches && <span className="font-medium text-foreground">{data.batches.name}</span>}
+              {data.age != null && <span>{data.age} years</span>}
+              <StatusBadge status={data.status}>{ATHLETE_STATUS_LABEL[data.status]}</StatusBadge>
+            </p>
+            {guardian && (
+              <p className="text-sm">
+                <span className="text-muted-foreground">Guardian </span>
+                {guardian.fullNames}
+                {guardian.phoneNumber && (
+                  <a href={`tel:${guardian.phoneNumber}`} className="ml-2 inline-flex items-center gap-1 font-mono text-muted-foreground hover:text-foreground">
+                    <Phone className="size-3" /> {guardian.phoneNumber}
+                  </a>
+                )}
+              </p>
+            )}
+          </div>
         </div>
+        <div className="flex flex-wrap gap-2">
+          <AthleteExportButton data={data} />
+          <Button variant="outline" asChild>
+            <Link href={`/players/edit/${data.athleteId}`}>
+              <Pencil /> Edit
+            </Link>
+          </Button>
+          <RecordPaymentDialog
+            athlete={{ athleteId: data.athleteId, name }}
+            trigger={
+              <Button>
+                <Banknote /> Record payment
+              </Button>
+            }
+          />
+        </div>
+      </header>
+
+      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+        <StatCard
+          label="Attendance"
+          value={summary.attendanceRate === null ? "—" : `${summary.attendanceRate}%`}
+          note={
+            summary.sessionsMarked
+              ? `${summary.attended} of ${summary.sessionsMarked} sessions`
+              : "No sessions marked yet"
+          }
+          tone={summary.attendanceRate !== null && summary.attendanceRate < 60 ? "warning" : "default"}
+        />
+        <StatCard label="Owes" value={formatCurrency(summary.owed)} tone={summary.owed > 0 ? "danger" : "default"} />
+        <StatCard label="Paid to date" value={formatCurrency(summary.paid)} tone="success" />
+        <StatCard label="Assessments" value={data.assessments.length} />
       </div>
 
-      <PersonalInfo data={data} />
-      <Separator />
-
-      <ResponsiveSections sections={sections} defaultKey="guardian" />
+      <ResponsiveSections sections={sections} defaultKey="details" />
     </div>
   );
 }

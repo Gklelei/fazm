@@ -10,7 +10,7 @@ export const GetAthleteByIdQuery = (id: string) =>
       emergencyContacts: true,
       guardians: true,
       medical: true,
-      finances: true,
+      finances: { where: { isArchived: false }, orderBy: { paymentDate: "desc" } },
       athleteSubscriptions: {
         where: {
           status: "ACTIVE",
@@ -21,6 +21,7 @@ export const GetAthleteByIdQuery = (id: string) =>
         },
       },
       invoices: {
+        orderBy: { createdAt: "desc" },
         include: {
           subscriptionPlan: true,
         },
@@ -37,17 +38,7 @@ export const GetAthleteByIdQuery = (id: string) =>
           training: true,
         },
       },
-      trainings: true,
-      attendances: {
-        include: {
-          reason: true,
-          training: {
-            select: {
-              attendances: true,
-            },
-          },
-        },
-      },
+      batches: { select: { id: true, name: true } },
     },
   }) satisfies Prisma.AthleteFindUniqueArgs;
 
