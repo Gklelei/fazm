@@ -1,38 +1,32 @@
 import { Prisma } from "@/generated/prisma/client";
 
+/** Everything the attendance sheet needs for one session. */
 export const GetTrainingAthletesQuery = (id: string) =>
   ({
-    where: {
-      id,
-    },
-    include: {
-      coach: {
-        select: {
-          staffId: true,
-        },
-      },
+    where: { id },
+    select: {
+      id: true,
+      name: true,
+      date: true,
+      duration: true,
+      batch: { select: { name: true } },
+      location: { select: { name: true } },
+      coach: { select: { staffId: true, fullNames: true } },
       athletes: {
-        where: {
-          isArchived: false,
-        },
+        where: { isArchived: false },
+        orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
         select: {
           athleteId: true,
           firstName: true,
           lastName: true,
+          profilePIcture: true,
         },
       },
       attendances: {
-        where: {
-          trainingId: id,
-        },
-        select: {
-          athleteId: true,
-          reason: true,
-          status: true,
-        },
+        select: { athleteId: true, status: true, reasonId: true },
       },
     },
-  }) satisfies Prisma.trainingFindManyArgs;
+  }) satisfies Prisma.trainingFindUniqueArgs;
 
 export type TrainingAttendanceType = Prisma.trainingGetPayload<
   ReturnType<typeof GetTrainingAthletesQuery>

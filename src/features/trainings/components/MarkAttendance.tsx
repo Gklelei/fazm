@@ -1,16 +1,13 @@
 "use client";
 
 import { useMemo, useState, useTransition } from "react";
-import { TrainingAttendanceType } from "@/features/trainings/queries";
-import { UseUtilsContext } from "@/providers/UtilsContext";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { addMinutes, format } from "date-fns";
+import { toast } from "sonner";
+import { ArrowLeft, CheckCheck, Loader2, Search } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Select,
   SelectContent,
@@ -18,399 +15,223 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import {
-  Save,
-  CheckCircle2,
-  UserCheck,
-  AlertCircle,
-  Clock,
-  XCircle,
-  Calendar,
-  Users,
-  CheckCircle,
-  AlertTriangle,
-  PenBoxIcon,
-  Loader2Icon,
-  ArrowLeftCircle,
-} from "lucide-react";
+import ProfileAvatar from "@/components/shared/ProfileAvatar";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { cn } from "@/lib/utils";
+import { UseUtilsContext } from "@/providers/UtilsContext";
+import type { AttendanceStatus } from "@/generated/prisma/enums";
+import { saveAttendance } from "../actions/mark-attendance";
+import type { TrainingAttendanceType } from "../queries";
 
-import { saveAttendance } from "@/features/trainings/actions/mark-attendance";
-import { Sweetalert } from "@/lib/alerts";
-import { useRouter } from "next/navigation";
+type Mark = { status: AttendanceStatus | null; reasonId: string | null };
 
-const MarkAttendance = ({
-  data,
-  trainingId,
-}: {
-  data: TrainingAttendanceType;
-  trainingId: string;
-}) => {
-  const utils = UseUtilsContext();
-  const isEnoughAthletes = data.athletes.length > 0;
-  const availableReasons = utils.data?.attendance || [];
-  const [isLoading, startTransistion] = useTransition();
+/** The referee's colours: green present, yellow card late, red card absent. */
+const OPTIONS: { value: AttendanceStatus; label: string; on: string }[] = [
+  { value: "PRESENT", label: "Present", on: "bg-success text-success-foreground border-success" },
+  { value: "LATE", label: "Late", on: "bg-warning text-warning-foreground border-warning" },
+  { value: "ABSENT", label: "Absent", on: "bg-destructive text-white border-destructive" },
+  { value: "EXCUSED", label: "Excused", on: "bg-info text-info-foreground border-info" },
+];
+
+export default function MarkAttendance({ data }: { data: TrainingAttendanceType }) {
   const router = useRouter();
-  const [attendanceState, setAttendanceState] = useState(() => {
-    return data.athletes.map((athlete) => {
-      const existing = data.attendances.find(
-        (a) => a.athleteId === athlete.athleteId,
-      );
-      return {
-        athleteId: athlete.athleteId,
-        firstName: athlete.firstName,
-        lastName: athlete.lastName,
-        status: existing?.status || "ABSENT",
-        reasonId: existing?.reason?.id || null,
-      };
-    });
+  const reasons = UseUtilsContext().data?.attendance ?? [];
+  const [saving, start] = useTransition();
+  const [query, setQuery] = useState("");
+
+  const saved = useMemo(
+    () => new Map(data.attendances.map((a) => [a.athleteId, a])),
+    [data.attendances],
+  );
+  const [marks, setMarks] = useState<Record<string, Mark>>(() =>
+    Object.fromEntries(
+      data.athletes.map((a) => [
+        a.athleteId,
+        {
+          status: saved.get(a.athleteId)?.status ?? null,
+          reasonId: saved.get(a.athleteId)?.reasonId ?? null,
+        },
+      ]),
+    ),
+  );
+
+  const set = (athleteId: string, patch: Partial<Mark>) =>
+    setMarks((m) => ({ ...m, [athleteId]: { ...m[athleteId], ...patch } }));
+
+  const counts = useMemo(() => {
+    const c = { PRESENT: 0, LATE: 0, ABSENT: 0, EXCUSED: 0, unmarked: 0 };
+    for (const m of Object.values(marks)) c[m.status ?? "unmarked"]++;
+    return c;
+  }, [marks]);
+
+  const dirty = data.athletes.some((a) => {
+    const before = saved.get(a.athleteId);
+    const now = marks[a.athleteId];
+    return (before?.status ?? null) !== now.status || (before?.reasonId ?? null) !== now.reasonId;
   });
 
-  const updateStatus = (
-    athleteId: string,
-    status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED",
-  ) => {
-    setAttendanceState((prev) =>
-      prev.map((item) =>
-        item.athleteId === athleteId
-          ? {
-              ...item,
-              status,
-              reasonId: status === "PRESENT" ? null : item.reasonId,
-            }
-          : item,
-      ),
-    );
-  };
-
-  const updateReason = (athleteId: string, reasonId: string) => {
-    setAttendanceState((prev) =>
-      prev.map((item) =>
-        item.athleteId === athleteId ? { ...item, reasonId } : item,
-      ),
-    );
-  };
-
-  const markAll = (status: "PRESENT" | "ABSENT") => {
-    setAttendanceState((prev) =>
-      prev.map((item) => ({
-        ...item,
-        status,
-        reasonId: status === "PRESENT" ? null : item.reasonId,
-      })),
-    );
-  };
-
-  const getStatusColor = (
-    status: "PRESENT" | "ABSENT" | "LATE" | "EXCUSED",
-  ) => {
-    switch (status) {
-      case "PRESENT":
-        return "bg-primary/10 text-primary border-primary/20";
-      case "ABSENT":
-        return "bg-destructive/10 text-destructive border-destructive/20";
-      case "LATE":
-        return "bg-warning/10 text-warning-foreground dark:text-warning border-warning/20";
-      case "EXCUSED":
-        return "bg-info/10 text-info border-info/20";
-      default:
-        return "";
-    }
-  };
-
-  const handleSave = async (coachId: string) => {
-    startTransistion(async () => {
-      const result = await saveAttendance(attendanceState, trainingId, coachId);
-
-      if (result.success) {
-        Sweetalert({
-          icon: "success",
-          text: result.message || "Success",
-          title: "Success!",
-        });
-      } else {
-        Sweetalert({
-          icon: "error",
-          text: result.message || "Failed",
-          title: "An error has occurred",
-        });
-      }
-    });
-  };
-
-  const stats = useMemo(
-    () => [
-      {
-        label: "Total",
-        value: attendanceState.length,
-        icon: Users,
-        color: "text-muted-foreground",
-        bgColor: "bg-muted",
-      },
-      {
-        label: "Present",
-        value: attendanceState.filter((a) => a.status === "PRESENT").length,
-        icon: CheckCircle2,
-        color: "text-primary",
-        bgColor: "bg-primary/10",
-      },
-      {
-        label: "Absent",
-        value: attendanceState.filter((a) => a.status === "ABSENT").length,
-        icon: XCircle,
-        color: "text-destructive",
-        bgColor: "bg-destructive/10",
-      },
-      {
-        label: "Other",
-        value: attendanceState.filter(
-          (a) => !["PRESENT", "ABSENT"].includes(a.status),
-        ).length,
-        icon: AlertCircle,
-        color: "text-info",
-        bgColor: "bg-info/10",
-      },
-    ],
-    [attendanceState],
+  const visible = data.athletes.filter((a) =>
+    `${a.firstName} ${a.lastName} ${a.athleteId}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
+
+  const markRestPresent = () =>
+    setMarks((m) =>
+      Object.fromEntries(
+        Object.entries(m).map(([id, v]) => [id, v.status ? v : { status: "PRESENT", reasonId: null }]),
+      ),
+    );
+
+  const save = () =>
+    start(async () => {
+      const input = Object.entries(marks)
+        .filter(([, m]) => m.status)
+        .map(([athleteId, m]) => ({
+          athleteId,
+          status: m.status as AttendanceStatus,
+          reasonId: m.status === "PRESENT" ? null : m.reasonId,
+        }));
+      const res = await saveAttendance(input, data.id);
+      if (!res.success) return void toast.error(res.message);
+      toast.success(res.message);
+      router.refresh();
+    });
 
   return (
-    <div className="container mx-auto py-4 space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-md bg-primary/10">
-            <Calendar className="h-4 w-4 text-primary" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold">Training Attendance</h1>
-            <p className="text-sm text-muted-foreground flex items-center gap-1">
-              <UserCheck className="h-3 w-3" />
-              Session • Name:{data.name} • {attendanceState.length} athletes
-            </p>
-          </div>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
+        <Link href={`/sessions/view/${data.id}`}>
+          <ArrowLeft /> {data.name}
+        </Link>
+      </Button>
+
+      <PageHeader
+        title="Attendance"
+        description={`${data.batch.name} · ${format(data.date, "EEE d MMM, HH:mm")}–${format(addMinutes(data.date, data.duration), "HH:mm")} · ${data.location.name}`}
+      />
+
+      {data.athletes.length === 0 ? (
+        <div className="rounded-lg border bg-card px-4 py-16 text-center">
+          <p className="font-medium">No athletes are assigned to this session.</p>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Edit the session to add its batch&apos;s athletes.
+          </p>
+          <Button variant="outline" className="mt-4" asChild>
+            <Link href={`/sessions/edit/${data.id}`}>Edit session</Link>
+          </Button>
         </div>
-
-        <Button
-          onClick={() => router.back()}
-          disabled={isLoading}
-          className="gap-1.5 h-9"
-        >
-          <ArrowLeftCircle /> Back
-        </Button>
-      </div>
-
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        {stats.map((stat, i) => (
-          <Card key={i} className="border shadow-sm">
-            <CardContent className="p-3">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-medium text-muted-foreground">
-                    {stat.label}
-                  </p>
-                  <p className={cn("text-lg font-bold", stat.color)}>
-                    {stat.value}
-                  </p>
-                </div>
-                <div className={cn("p-1.5 rounded", stat.bgColor)}>
-                  <stat.icon className={cn("h-3.5 w-3.5", stat.color)} />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="overflow-hidden">
-        <CardHeader className="p-4 border-b flex flex-row items-center justify-between">
-          <div>
-            <CardTitle className="text-base">Athlete Roster</CardTitle>
-            <CardDescription className="text-xs">
-              Update status and provide reasons
-            </CardDescription>
-          </div>
-          <div className="flex gap-2">
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => markAll("PRESENT")}
-              className="h-8 text-xs text-primary border-primary/20 hover:bg-primary/10"
-            >
-              <CheckCircle2 className="mr-1.5 h-3.5 w-3.5" /> Mark All Present
-            </Button>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => markAll("ABSENT")}
-              className="h-8 text-xs text-destructive border-destructive/20 hover:bg-destructive/10"
-            >
-              <XCircle className="mr-1.5 h-3.5 w-3.5" /> Mark All Absent
+      ) : (
+        <section className="overflow-hidden rounded-lg border bg-card">
+          <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center">
+            <div className="relative flex-1">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                type="search"
+                aria-label="Find athlete"
+                placeholder="Find athlete"
+                className="pl-9"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <Button variant="outline" onClick={markRestPresent} disabled={!counts.unmarked}>
+              <CheckCheck /> Mark the rest present
             </Button>
           </div>
-        </CardHeader>
-        <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="py-3 pl-4">Athlete</TableHead>
-                <TableHead className="py-3 w-40">Status</TableHead>
-                <TableHead className="py-3 w-55 pr-4">Reason</TableHead>
-                <TableHead className="py-3 w-25 pr-2 hidden">
-                  Assessment
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {data.athletes.length === 0 ? (
-                <p className="text-center font-bold text-2xl text-muted-foreground mt-2 p-2">
-                  No athletes added to this batch yet
-                </p>
-              ) : (
-                attendanceState.map((athlete) => (
-                  <TableRow key={athlete.athleteId} className="group">
-                    <TableCell className="py-3 pl-4">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="h-7 w-7">
-                          <AvatarFallback className="text-xs">
-                            {athlete.firstName[0]}
-                            {athlete.lastName[0]}
-                          </AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <p className="font-medium text-sm">
-                            {athlete.firstName} {athlete.lastName}
-                          </p>
-                          <p className="text-xs text-muted-foreground">
-                            {athlete.athleteId}
-                          </p>
-                        </div>
-                      </div>
-                    </TableCell>
 
-                    <TableCell>
-                      <Select
-                        value={athlete.status}
-                        onValueChange={(val) =>
-                          updateStatus(
-                            athlete.athleteId,
-                            val as "PRESENT" | "ABSENT" | "LATE" | "EXCUSED",
-                          )
-                        }
-                      >
-                        <SelectTrigger
+          <ul className="divide-y">
+            {visible.map((a) => {
+              const m = marks[a.athleteId];
+              const needsReason = m.status && m.status !== "PRESENT";
+              const statusReasons = reasons.filter((r) => r.status === m.status);
+              return (
+                <li key={a.athleteId} className="grid gap-3 px-4 py-3 md:grid-cols-[1fr_auto_13rem] md:items-center">
+                  <div className="flex min-w-0 items-center gap-3">
+                    <ProfileAvatar
+                      name={`${a.firstName} ${a.lastName}`}
+                      url={a.profilePIcture ?? ""}
+                      size={36}
+                    />
+                    <span className="grid min-w-0 leading-tight">
+                      <span className="truncate font-medium">
+                        {a.firstName} {a.lastName}
+                      </span>
+                      <span className="font-mono text-xs text-muted-foreground">{a.athleteId}</span>
+                    </span>
+                  </div>
+
+                  <div
+                    role="radiogroup"
+                    aria-label={`Attendance for ${a.firstName}`}
+                    className="grid grid-cols-4 gap-1.5 md:w-80"
+                  >
+                    {OPTIONS.map((o) => {
+                      const on = m.status === o.value;
+                      return (
+                        <button
+                          key={o.value}
+                          type="button"
+                          role="radio"
+                          aria-checked={on}
+                          onClick={() => set(a.athleteId, { status: on ? null : o.value })}
                           className={cn(
-                            "h-8 text-sm",
-                            getStatusColor(athlete.status),
+                            "h-10 rounded-md border text-xs font-semibold sm:text-sm transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none",
+                            on ? o.on : "bg-background text-muted-foreground hover:bg-muted",
                           )}
                         >
-                          <SelectValue />
+                          {o.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+
+                  <div className="md:min-w-0">
+                    {needsReason && statusReasons.length > 0 && (
+                      <Select
+                        value={m.reasonId ?? ""}
+                        onValueChange={(v) => set(a.athleteId, { reasonId: v })}
+                      >
+                        <SelectTrigger className="w-full" aria-label="Reason">
+                          <SelectValue placeholder="Reason (optional)" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem
-                            value="PRESENT"
-                            className="text-sm flex items-center gap-1.5 py-1.5"
-                          >
-                            <CheckCircle className="h-3.5 w-3.5" /> Present
-                          </SelectItem>
-                          <SelectItem
-                            value="ABSENT"
-                            className="text-sm flex items-center gap-1.5 py-1.5"
-                          >
-                            <XCircle className="h-3.5 w-3.5" /> Absent
-                          </SelectItem>
-                          <SelectItem
-                            value="LATE"
-                            className="text-sm flex items-center gap-1.5 py-1.5"
-                          >
-                            <Clock className="h-3.5 w-3.5" /> Late
-                          </SelectItem>
-                          <SelectItem
-                            value="EXCUSED"
-                            className="text-sm flex items-center gap-1.5 py-1.5"
-                          >
-                            <AlertTriangle className="h-3.5 w-3.5" /> Excused
-                          </SelectItem>
+                          {statusReasons.map((r) => (
+                            <SelectItem key={r.id} value={r.id}>
+                              {(r.label ?? "Other").toLowerCase().replace(/^\w/, (c) => c.toUpperCase())}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
-                    </TableCell>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
+            {visible.length === 0 && (
+              <li className="px-4 py-10 text-center text-sm text-muted-foreground">
+                No athlete matches “{query}”.
+              </li>
+            )}
+          </ul>
+        </section>
+      )}
 
-                    <TableCell className="pr-4">
-                      {athlete.status === "PRESENT" ? (
-                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                          <CheckCircle2 className="h-3 w-3 text-primary" />
-                          <span>Present for training</span>
-                        </div>
-                      ) : (
-                        <Select
-                          value={athlete.reasonId || ""}
-                          onValueChange={(val) =>
-                            updateReason(athlete.athleteId, val)
-                          }
-                        >
-                          <SelectTrigger className={cn("h-8 text-sm")}>
-                            <SelectValue placeholder="Select reason..." />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {availableReasons
-                              .filter((r) => r.status === athlete.status)
-                              .map((reason) => (
-                                <SelectItem
-                                  key={reason.id}
-                                  value={reason.id}
-                                  className="text-sm py-1.5"
-                                >
-                                  {reason.label}
-                                </SelectItem>
-                              ))}
-                          </SelectContent>
-                        </Select>
-                      )}
-                    </TableCell>
-                    <TableCell className="hidden">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        type="button"
-                        onClick={() =>
-                          router.push(`/assesments/${athlete.athleteId}/mark`)
-                        }
-                      >
-                        <PenBoxIcon className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
-
-      <div className="flex items-center justify-between pt-2">
-        <Button
-          onClick={() => handleSave(data.staffId)}
-          disabled={isLoading || !isEnoughAthletes}
-          className="gap-1.5 h-9"
-        >
-          <Save className="h-3.5 w-3.5" />
-          {isLoading ? (
-            <Loader2Icon className="h-2 w-2 animate-spin" />
-          ) : (
-            "Save Attendance Records"
-          )}
-        </Button>
-      </div>
+      {data.athletes.length > 0 && (
+        <div className="sticky bottom-0 z-20 -mx-4 -mb-4 border-t bg-background/95 backdrop-blur md:-mx-6 md:-mb-6 lg:-mx-8 lg:-mb-8">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6 lg:px-8">
+            <p className="tabular flex flex-wrap gap-x-3 text-sm">
+              <span className="text-success">{counts.PRESENT} present</span>
+              <span className="text-warning-foreground dark:text-warning">{counts.LATE} late</span>
+              <span className="text-destructive">{counts.ABSENT} absent</span>
+              {counts.EXCUSED > 0 && <span className="text-info">{counts.EXCUSED} excused</span>}
+              <span className="text-muted-foreground">{counts.unmarked} not marked</span>
+            </p>
+            <Button onClick={save} disabled={saving || !dirty || counts.unmarked === data.athletes.length}>
+              {saving && <Loader2 className="animate-spin" />}
+              Save attendance
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
-};
-
-export default MarkAttendance;
+}
