@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Card, CardContent } from "@/components/ui/card";
 import CreateExpenseCategory from "@/features/expenses/components/CreateExpenseCategory";
 import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
 import { Button } from "@/components/ui/button";
@@ -122,107 +123,108 @@ const ExpenseCategories = ({ data, page, limit, total }: Props) => {
   };
 
   return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between gap-4">
-        <CardTitle className="text-lg font-semibold">
-          Expense Categories
-        </CardTitle>
-
-        <div className="flex items-center gap-2">
-          <ExportDropdown
-            filename="Expense_Categories"
-            headers={["#", "Name", "Status"]}
-            rows={rows.map((item, idx) => [
-              String(idx + 1),
-              item.name,
-              item.status,
-            ])}
-            fetchAllUrl="/api/export?resource=expense-categories"
-            filterFn={() => true}
-            mapRow={(item: GetExpenseCategoriesQuery, i: number) => [
-              String(i + 1),
-              item.name,
-              item.status,
-            ]}
-          />
-          <CreateExpenseCategory />
-        </div>
-      </CardHeader>
-
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>Name</TableHead>
-              <TableHead className="w-32">Status</TableHead>
-              <TableHead className="text-right w-28">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {rows.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={4}
-                  className="text-center text-muted-foreground py-8"
-                >
-                  No expense categories found
-                </TableCell>
+    <div className="space-y-6">
+      <PageHeader
+        title="Expense categories"
+        description="Groups for spending, so reports can show where the money goes."
+        actions={
+          <>
+            <ExportDropdown
+              filename="Expense_Categories"
+              headers={["#", "Name", "Status"]}
+              rows={rows.map((item, idx) => [
+                String(idx + 1),
+                item.name,
+                item.status,
+              ])}
+              fetchAllUrl="/api/export?resource=expense-categories"
+              filterFn={() => true}
+              mapRow={(item: GetExpenseCategoriesQuery, i: number) => [
+                String(i + 1),
+                item.name,
+                item.status,
+              ]}
+            />
+            <CreateExpenseCategory />
+          </>
+        }
+      />
+      <Card className="gap-0 overflow-hidden py-0">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Name</TableHead>
+                <TableHead className="w-32">Status</TableHead>
+                <TableHead className="text-right w-28">Actions</TableHead>
               </TableRow>
-            ) : (
-              rows.map((item, idx) => (
-                <TableRow key={item.id} className="hover:bg-muted/30">
-                  <TableCell className="text-muted-foreground">
-                    {idx + 1}
-                  </TableCell>
+            </TableHeader>
 
-                  <TableCell className="font-medium">{item.name}</TableCell>
-
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={item.checked}
-                        disabled={savingId === item.id}
-                        onCheckedChange={(checked) =>
-                          handleToggleStatus(item.id, checked)
-                        }
-                        aria-label={`Toggle ${item.name} status`}
-                      />
-                      {savingId === item.id ? (
-                        <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
-                      ) : null}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex justify-end gap-1">
-                      <EditExpenseCategoryDialog category={item} />
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        aria-label="Delete category"
-                        disabled={delId === item.id}
-                        onClick={() => hanldeDelteCategories(item.id)}
-                      >
-                        {delId === item.id ? (
-                          <Loader2Icon className="animate-spin w-4 h-4" />
-                        ) : (
-                          <Trash2Icon className="h-4 w-4 text-destructive" />
-                        )}
-                      </Button>
-                    </div>
+            <TableBody>
+              {rows.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center text-muted-foreground py-8"
+                  >
+                    No expense categories found
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <div className="p-4 border-t">
-          <ServerPagination page={page} limit={limit} total={total} />
-        </div>
-      </CardContent>
-    </Card>
+              ) : (
+                rows.map((item, idx) => (
+                  <TableRow key={item.id} className="hover:bg-muted/30">
+                    <TableCell className="text-muted-foreground">
+                      {idx + 1}
+                    </TableCell>
+
+                    <TableCell className="font-medium">{item.name}</TableCell>
+
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={item.checked}
+                          disabled={savingId === item.id}
+                          onCheckedChange={(checked) =>
+                            handleToggleStatus(item.id, checked)
+                          }
+                          aria-label={`Toggle ${item.name} status`}
+                        />
+                        {savingId === item.id ? (
+                          <Loader2Icon className="h-4 w-4 animate-spin text-muted-foreground" />
+                        ) : null}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex justify-end gap-1">
+                        <EditExpenseCategoryDialog category={item} />
+
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          aria-label="Delete category"
+                          disabled={delId === item.id}
+                          onClick={() => hanldeDelteCategories(item.id)}
+                        >
+                          {delId === item.id ? (
+                            <Loader2Icon className="animate-spin w-4 h-4" />
+                          ) : (
+                            <Trash2Icon className="h-4 w-4 text-destructive" />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+          <div className="p-4 border-t">
+            <ServerPagination page={page} limit={limit} total={total} />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 

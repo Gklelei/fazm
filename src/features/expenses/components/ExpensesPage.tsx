@@ -1,7 +1,9 @@
 "use client";
 
+import { PageHeader } from "@/components/shared/PageHeader";
+import { Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Loader2, Trash } from "lucide-react";
 import ServerPagination from "@/components/shared/ServerPagination";
@@ -61,19 +63,19 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
   };
 
   return (
-    <Card className="rounded-2xl shadow-sm">
-      <CardHeader className="space-y-4">
-        <div className="flex items-center justify-between">
-          <CardTitle className="text-lg font-semibold">Expenses</CardTitle>
-
-          <div className="flex items-center gap-2">
+    <div className="space-y-6">
+      <PageHeader
+        title="Expenses"
+        description="Money the academy spends, by category — kit, pitch hire, transport and the rest."
+        actions={
+          <>
             <ExportDropdown
               filename="Expenses"
               headers={["#", "Title", "Amount", "Description", "Date"]}
               rows={filteredExpenses.map((e, idx) => [
                 String(idx + 1),
                 e.name,
-                `KES ${formatCurrency(e.amount)}`,
+                formatCurrency(e.amount),
                 e.description || "—",
                 format(new Date(e.date), "dd MMM yyyy"),
               ])}
@@ -86,94 +88,102 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
               mapRow={(e: GetExpensesQueryType, i: number) => [
                 String(i + 1),
                 e.name,
-                `KES ${formatCurrency(e.amount)}`,
+                formatCurrency(e.amount),
                 e.description || "—",
                 format(new Date(e.date), "dd MMM yyyy"),
               ]}
             />
             <CreateExpenses />
+          </>
+        }
+      />
+      <Card className="gap-0 overflow-hidden py-0">
+        <CardHeader className="border-b p-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              aria-label="Search expenses"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search expenses"
+              className="pl-9"
+            />
           </div>
-        </div>
+        </CardHeader>
 
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search expenses by name…"
-          className="max-w-sm"
-        />
-      </CardHeader>
-
-      <CardContent>
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-muted/40">
-              <TableHead className="w-12">#</TableHead>
-              <TableHead>Title</TableHead>
-              <TableHead>amount</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead className="w-40">Date</TableHead>
-              <TableHead className="w-28 text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-
-          <TableBody>
-            {filteredExpenses.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={5}
-                  className="text-center text-muted-foreground py-10"
-                >
-                  No expenses found
-                </TableCell>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-muted/40">
+                <TableHead className="w-12">#</TableHead>
+                <TableHead>Title</TableHead>
+                <TableHead>amount</TableHead>
+                <TableHead>Description</TableHead>
+                <TableHead className="w-40">Date</TableHead>
+                <TableHead className="w-28 text-right">Actions</TableHead>
               </TableRow>
-            ) : (
-              filteredExpenses.map((e, idx) => (
-                <TableRow key={e.id} className="hover:bg-muted/30">
-                  <TableCell className="text-muted-foreground">
-                    {idx + 1}
-                  </TableCell>
+            </TableHeader>
 
-                  <TableCell className="font-medium">{e.name}</TableCell>
-                  <TableCell className="font-medium">
-                    KES {formatCurrency(e.amount)}
-                  </TableCell>
-
-                  <TableCell className="text-muted-foreground truncate max-w-75">
-                    {e.description || "—"}
-                  </TableCell>
-
-                  <TableCell className="text-muted-foreground">
-                    {format(new Date(e.date), "dd MMM yyyy")}
-                  </TableCell>
-
-                  <TableCell>
-                    <div className="flex justify-end gap-1">
-                      <EditExpenseForm expenses={expenses} id={e.id} />
-                      <Button
-                        size="icon"
-                        variant="ghost"
-                        className="h-8 w-8 text-destructive"
-                        disabled={delId === e.id}
-                        onClick={() => handleDelete(e.id)}
-                      >
-                        {delId === e.id ? (
-                          <Loader2 className="size-4 animate-spin" />
-                        ) : (
-                          <Trash size={16} />
-                        )}
-                      </Button>
-                    </div>
+            <TableBody>
+              {filteredExpenses.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={5}
+                    className="text-center text-muted-foreground py-10"
+                  >
+                    No expenses found
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-        <div className="p-4 border-t">
-          <ServerPagination page={page} limit={limit} total={total} />
-        </div>
-      </CardContent>
-    </Card>
+              ) : (
+                filteredExpenses.map((e, idx) => (
+                  <TableRow key={e.id} className="hover:bg-muted/30">
+                    <TableCell className="text-muted-foreground">
+                      {idx + 1}
+                    </TableCell>
+
+                    <TableCell className="font-medium">{e.name}</TableCell>
+                    <TableCell className="font-medium">
+                      {formatCurrency(e.amount)}
+                    </TableCell>
+
+                    <TableCell className="text-muted-foreground truncate max-w-75">
+                      {e.description || "—"}
+                    </TableCell>
+
+                    <TableCell className="text-muted-foreground">
+                      {format(new Date(e.date), "dd MMM yyyy")}
+                    </TableCell>
+
+                    <TableCell>
+                      <div className="flex justify-end gap-1">
+                        <EditExpenseForm expenses={expenses} id={e.id} />
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          className="h-8 w-8 text-destructive"
+                          disabled={delId === e.id}
+                          onClick={() => handleDelete(e.id)}
+                        >
+                          {delId === e.id ? (
+                            <Loader2 className="size-4 animate-spin" />
+                          ) : (
+                            <Trash size={16} />
+                          )}
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+          <div className="p-4 border-t">
+            <ServerPagination page={page} limit={limit} total={total} />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
