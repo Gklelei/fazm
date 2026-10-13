@@ -65,7 +65,7 @@ export default function AuditLogsTable({
       return "bg-destructive/10 text-destructive";
     if (action.includes("UPDATE") || action.includes("EDIT"))
       return "bg-info/10 text-info";
-    return "bg-muted-foreground text-muted-foreground";
+    return "bg-muted text-muted-foreground";
   };
 
   return (
