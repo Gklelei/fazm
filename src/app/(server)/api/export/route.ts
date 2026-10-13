@@ -123,7 +123,13 @@ export async function GET(req: NextRequest) {
       }
 
       case "sessions": {
-        const whereClause: Prisma.trainingWhereInput = { isArchived: false };
+        const whereClause: Prisma.trainingWhereInput = {
+          isArchived: false,
+          // Coaches export only the sessions they run, as on the list
+          ...(session.user.role === "COACH"
+            ? { coach: { userId: session.user.id } }
+            : {}),
+        };
         if (query) {
           whereClause.OR = [
             { name: { contains: query, mode: "insensitive" } },

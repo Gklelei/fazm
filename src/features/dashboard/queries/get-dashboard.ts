@@ -10,14 +10,10 @@ import {
 import { Prisma } from "@/generated/prisma/client";
 import type { ROLES } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
+import { hasRole } from "@/lib/roles";
 
-const MONEY_ROLES: ROLES[] = ["SUPER_ADMIN", "ADMIN", "FINANCE"];
-const TRAINING_ROLES: ROLES[] = ["SUPER_ADMIN", "ADMIN", "COACH"];
-
-export const canSeeMoney = (role: ROLES | null) =>
-  !!role && MONEY_ROLES.includes(role);
-export const canSeeTraining = (role: ROLES | null) =>
-  !!role && TRAINING_ROLES.includes(role);
+const canSeeMoney = (role: ROLES | null) => hasRole(role, "finance");
+const canSeeTraining = (role: ROLES | null) => hasRole(role, "coaching");
 
 /** Youngest age group first; non age-group batches after, Unassigned last. */
 const batchOrder = (name: string) =>
