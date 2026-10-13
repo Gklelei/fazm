@@ -1,456 +1,218 @@
-"use client";
-
-import * as React from "react";
-import { useMemo } from "react";
-import { useRouter } from "next/navigation";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+import Link from "next/link";
+import { addMinutes, format } from "date-fns";
+import { ArrowLeft, ClipboardCheck, Pencil, Phone, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import type { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
+import { SessionPdfButton } from "./SessionPdfButton";
 
-import { formatDuration } from "@/lib/format";
-import { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
+const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replaceAll("_", " ");
 
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-
-import {
-  CalendarDays,
-  MapPin,
-  Users,
-  User,
-  Phone,
-  Dumbbell,
-  ClipboardList,
-  ArrowLeft,
-  Download,
-} from "lucide-react";
-import { downloadTrainingSessionPdf } from "@/features/trainings/lib/session-pdf";
-
-function useIsMobile(breakpointPx = 768) {
-  const [isMobile, setIsMobile] = React.useState(false);
-
-  React.useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${breakpointPx}px)`);
-    const onChange = () => setIsMobile(mq.matches);
-
-    onChange();
-    mq.addEventListener?.("change", onChange);
-    return () => mq.removeEventListener?.("change", onChange);
-  }, [breakpointPx]);
-
-  return isMobile;
+function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</dt>
+      <dd className="mt-0.5 truncate font-medium">{children}</dd>
+    </div>
+  );
 }
 
-interface Props {
-  data: GetAllTrainingSessionsByIdQueryType;
-  present: number;
-  count: number;
+function Panel({
+  title,
+  aside,
+  children,
+}: {
+  title: string;
+  aside?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="overflow-hidden rounded-lg border bg-card">
+      <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <h2 className="font-display text-lg font-semibold tracking-wide uppercase">{title}</h2>
+        {aside}
+      </header>
+      {children}
+    </section>
+  );
 }
 
-const ViewTrainingSession = ({ data, count, present }: Props) => {
-  const router = useRouter();
-  const isMobile = useIsMobile();
+export default function ViewTrainingSession({ data }: { data: GetAllTrainingSessionsByIdQueryType }) {
+  const marks = new Map(data.attendances.map((a) => [a.athleteId, a]));
+  const counts = { PRESENT: 0, LATE: 0, ABSENT: 0, EXCUSED: 0 };
+  for (const a of data.attendances) counts[a.status]++;
+  const unmarked = data.athletes.length - data.attendances.length;
 
-  const startTime = useMemo(() => {
-    return new Date(data.date).toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, [data.date]);
+  // Drills follow the coach's chosen order when one was saved
+  const byId = new Map(data.drills.map((d) => [d.id, d]));
+  const drills = data.drillOrder.length
+    ? data.drillOrder.flatMap((id) => byId.get(id) ?? [])
+    : data.drills;
 
-  const endTime = useMemo(() => {
-    const endDate = new Date(
-      new Date(data.date).getTime() + data.duration * 60000,
-    );
-    return endDate.toLocaleTimeString([], {
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  }, [data.date, data.duration]);
-
-  const sortedDrills = useMemo(() => {
-    if (!data.drillOrder || data.drillOrder.length === 0) return data.drills;
-    const drillMap = new Map(data.drills.map((d) => [d.id, d]));
-    return data.drillOrder
-      .map((id) => drillMap.get(id))
-      .filter(Boolean) as typeof data.drills;
-  }, [data.drills, data.drillOrder]);
-
-  const statsGridCols = isMobile ? "grid-cols-2" : "sm:grid-cols-4";
-  const drillsCols = isMobile ? "grid-cols-1" : "md:grid-cols-3";
+  const names = new Map(data.athletes.map((a) => [a.athleteId, `${a.firstName} ${a.lastName}`]));
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto p-2 sm:p-4">
-      <div className="flex items-center justify-between gap-2">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => router.back()}
-          className="w-fit flex items-center gap-2 px-0"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
+        <Link href="/sessions">
+          <ArrowLeft /> Sessions
+        </Link>
+      </Button>
 
-        {/* Mobile: keep quick action visible */}
-        {isMobile && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => downloadTrainingSessionPdf(data)}
-            className="gap-2"
-          >
-            <Download className="h-4 w-4" />
-            Download PDF
-          </Button>
-        )}
-      </div>
-
-      {/* Header */}
-      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
-        <div className="min-w-0">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight wrap-break-word">
-            {data.name}
-          </h1>
-          <p className="text-muted-foreground mt-1 max-w-2xl text-sm">
-            {data.description || "No description provided."}
-          </p>
-        </div>
-
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
-          {/* Desktop/tablet */}
-          {!isMobile && (
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => downloadTrainingSessionPdf(data)}
-              className="gap-2"
-            >
-              <Download className="h-4 w-4" />
-              Download PDF
+      <PageHeader
+        title={data.name}
+        description={data.description}
+        actions={
+          <>
+            <SessionPdfButton data={data} />
+            <Button variant="outline" asChild>
+              <Link href={`/sessions/edit/${data.id}`}>
+                <Pencil /> Edit
+              </Link>
             </Button>
-          )}
+            <Button variant="outline" asChild>
+              <Link href={`/assesments/${data.id}/mark`}>
+                <ClipboardCheck /> Assess
+              </Link>
+            </Button>
+            <Button asChild>
+              <Link href={`/sessions/attendance/mark/${data.id}`}>
+                <UserCheck /> Take attendance
+              </Link>
+            </Button>
+          </>
+        }
+      />
 
-          <Badge
-            variant={data.status === "SCHEDULED" ? "outline" : "secondary"}
-            className="w-fit"
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border bg-card p-4 md:grid-cols-5">
+        <Fact label="When">
+          {format(data.date, "EEE d MMM yyyy")}
+        </Fact>
+        <Fact label="Time">
+          {format(data.date, "HH:mm")}–{format(addMinutes(data.date, data.duration), "HH:mm")}
+        </Fact>
+        <Fact label="Batch">{data.batch.name}</Fact>
+        <Fact label="Location">{data.location.name}</Fact>
+        <Fact label="Coach">
+          <span className="flex items-center gap-2">
+            {data.coach.fullNames}
+            {data.coach.phoneNumber && (
+              <a
+                href={`tel:${data.coach.phoneNumber}`}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label={`Call ${data.coach.fullNames}`}
+              >
+                <Phone className="size-3.5" />
+              </a>
+            )}
+          </span>
+        </Fact>
+      </dl>
+
+      <div className="grid gap-6 xl:grid-cols-5">
+        <div className="xl:col-span-3">
+          <Panel
+            title="Attendance"
+            aside={<StatusBadge status={data.status} />}
           >
-            {data.status}
-          </Badge>
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Top cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-        <Card className="md:col-span-2">
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <CalendarDays className="h-4 w-4 text-muted-foreground" />
-              Session Details
-            </CardTitle>
-          </CardHeader>
-
-          {/* Mobile: single column for readability */}
-          <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-y-4 gap-x-6 text-sm">
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">Date</span>
-              <span className="font-medium">
-                {new Date(data.date).toDateString()}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">Time</span>
-              <span className="font-medium">
-                {startTime} - {endTime}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">Duration</span>
-              <span className="font-medium">
-                {formatDuration(data.duration)}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-muted-foreground text-xs">Location</span>
-              <span className="font-medium flex items-center gap-1 wrap-break-word">
-                <MapPin className="h-3 w-3 shrink-0" /> {data.location.name}
-              </span>
-            </div>
-            <div className="flex flex-col sm:col-span-2">
-              <span className="text-muted-foreground text-xs">Batch</span>
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                <span className="font-medium wrap-break-word">
-                  {data.batch.name}
-                </span>
-                <span className="text-muted-foreground sm:border-l sm:pl-2 sm:ml-1 wrap-break-word">
-                  {data.batch.description}
-                </span>
-              </div>
-            </div>
-
-            {/* Mobile: add print button near details too (big target) */}
-            {isMobile && (
-              <div className="sm:col-span-2 pt-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadTrainingSessionPdf(data)}
-                  className="gap-2"
-                >
-                  <Download className="h-4 w-4" />
-                  Download PDF
-                </Button>
-              </div>
-            )}
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base font-medium flex items-center gap-2">
-              <User className="h-4 w-4 text-muted-foreground" />
-              Coach in Charge
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4 text-sm">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 rounded-full bg-muted flex items-center justify-center shrink-0">
-                <span className="font-bold text-muted-foreground">
-                  {data.coach.fullNames.charAt(0)}
-                </span>
-              </div>
-              <div className="min-w-0">
-                <p className="font-medium wrap-break-word">
-                  {data.coach.fullNames}
-                </p>
-                <p className="text-xs text-muted-foreground wrap-break-word">
-                  {data.coach.staffId}
-                </p>
-              </div>
-            </div>
-            <Separator />
-            <div className="flex items-center gap-2 text-muted-foreground wrap-break-word">
-              <Phone className="h-3 w-3 shrink-0" />
-              <span>{data.coach.phoneNumber}</span>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Stats */}
-      <div className={`grid ${statsGridCols} gap-3 sm:gap-4`}>
-        <Card className="bg-muted/40 border-none shadow-none">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Total Athletes
-            </span>
-            <span className="text-2xl font-bold">{count}</span>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-muted/40 border-none shadow-none">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Present
-            </span>
-            <span className="text-2xl font-bold">{present}</span>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-muted/40 border-none shadow-none">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Drills
-            </span>
-            <span className="text-2xl font-bold">{data.drills.length}</span>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-muted/40 border-none shadow-none">
-          <CardContent className="p-4 flex flex-col items-center text-center">
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">
-              Assessments
-            </span>
-            <span className="text-2xl font-bold">
-              {data.assessments.length}
-            </span>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Drills */}
-      <div className="space-y-3">
-        <div className="flex items-center gap-2">
-          <Dumbbell className="h-5 w-5 text-muted-foreground" />
-          <h2 className="text-lg font-semibold">Drills</h2>
-        </div>
-
-        {sortedDrills.length === 0 ? (
-          <Card className="border-dashed">
-            <CardContent className="p-8 text-center text-muted-foreground text-sm">
-              No drills have been assigned to this session.
-            </CardContent>
-          </Card>
-        ) : (
-          <div className={`grid ${drillsCols} gap-3 sm:gap-4`}>
-            {sortedDrills.map((drill) => (
-              <Card key={drill.id} className="shadow-sm">
-                <CardHeader className="p-4 pb-2">
-                  <CardTitle className="text-sm font-medium wrap-break-word">
-                    {drill.name}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-4 pt-0 text-xs text-muted-foreground wrap-break-word">
-                  {drill.description || "No description."}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Tables */}
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        {/* Attendance */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Athlete Attendance</h2>
-          </div>
-
-          <Card>
+            <p className="tabular flex flex-wrap gap-x-4 gap-y-1 border-b px-4 py-2.5 text-sm">
+              <span className="text-success">{counts.PRESENT} present</span>
+              <span className="text-warning-foreground dark:text-warning">{counts.LATE} late</span>
+              <span className="text-destructive">{counts.ABSENT} absent</span>
+              {counts.EXCUSED > 0 && <span className="text-info">{counts.EXCUSED} excused</span>}
+              {unmarked > 0 && <span className="text-muted-foreground">{unmarked} not marked</span>}
+            </p>
             {data.athletes.length === 0 ? (
-              <CardContent className="p-8 text-center text-muted-foreground text-sm">
-                No athletes in this batch.
-              </CardContent>
+              <p className="px-4 py-10 text-center text-sm text-muted-foreground">
+                No athletes are assigned to this session.
+              </p>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="w-12">#</TableHead>
-                      <TableHead>Athlete</TableHead>
-                      <TableHead className="text-right">Status</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.athletes.map((athlete, idx) => {
-                      const attendance = data.attendances.find(
-                        (a) => a.athleteId === athlete.athleteId,
-                      );
-
-                      return (
-                        <TableRow key={athlete.id}>
-                          <TableCell className="font-medium text-muted-foreground">
-                            {idx + 1}
-                          </TableCell>
-                          <TableCell className="min-w-55">
-                            <div className="flex flex-col">
-                              <span className="font-medium text-sm wrap-break-word">
-                                {[athlete.firstName, athlete.lastName]
-                                  .filter(Boolean)
-                                  .join(" ")}
-                              </span>
-                              <span className="text-[10px] text-muted-foreground wrap-break-word">
-                                {athlete.athleteId}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-right">
-                            <Badge
-                              variant={
-                                attendance?.status === "PRESENT"
-                                  ? "default"
-                                  : "outline"
-                              }
-                              className="text-[10px]"
-                            >
-                              {attendance?.status || "PENDING"}
-                            </Badge>
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+              <ul className="divide-y">
+                {data.athletes.map((a) => {
+                  const m = marks.get(a.athleteId);
+                  return (
+                    <li key={a.athleteId} className="flex items-center justify-between gap-3 px-4 py-2.5">
+                      <Link href={`/players/user-profile/${a.athleteId}`} className="grid min-w-0 leading-tight hover:underline">
+                        <span className="truncate font-medium">
+                          {a.firstName} {a.lastName}
+                        </span>
+                        <span className="font-mono text-xs text-muted-foreground">{a.athleteId}</span>
+                      </Link>
+                      <span className="flex shrink-0 items-center gap-2">
+                        {m?.reason?.label && m.status !== "PRESENT" && (
+                          <span className="hidden text-xs text-muted-foreground sm:inline">
+                            {sentence(m.reason.label)}
+                          </span>
+                        )}
+                        <StatusBadge status={m?.status} tone={m ? undefined : "neutral"}>
+                          {m ? undefined : "Not marked"}
+                        </StatusBadge>
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
             )}
-          </Card>
+          </Panel>
         </div>
 
-        {/* Assessments */}
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-muted-foreground" />
-            <h2 className="text-lg font-semibold">Performance Assessments</h2>
-          </div>
-
-          <Card>
-            {data.assessments.length === 0 ? (
-              <CardContent className="p-8 text-center text-muted-foreground text-sm">
-                No assessments recorded yet.
-              </CardContent>
+        <div className="space-y-6 xl:col-span-2">
+          <Panel title="Drills">
+            {drills.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">
+                No drills planned.{" "}
+                <Link href={`/sessions/edit/${data.id}`} className="font-medium text-primary">
+                  Add drills
+                </Link>
+              </p>
             ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="min-w-45">Athlete</TableHead>
-                      <TableHead className="min-w-55">Grades</TableHead>
-                      <TableHead className="min-w-60">Comments</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {data.assessments.map((assessment) => {
-                      const athlete = data.athletes.find(
-                        (a) => a.athleteId === assessment.athleteId,
-                      );
-
-                      return (
-                        <TableRow key={assessment.id}>
-                          <TableCell className="font-medium text-sm wrap-break-word">
-                            {athlete
-                              ? `${athlete.firstName} ${athlete.lastName}`
-                              : assessment.athleteId}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex flex-wrap gap-1">
-                              {assessment.responses.map((resp) => (
-                                <Badge
-                                  key={resp.id}
-                                  variant="secondary"
-                                  className="text-[10px] px-1 py-0 h-5 whitespace-nowrap"
-                                >
-                                  {resp.grade.replaceAll("_", " ")}
-                                </Badge>
-                              ))}
-                            </div>
-                          </TableCell>
-                          <TableCell className="text-xs text-muted-foreground wrap-break-word">
-                            {assessment.comment || "-"}
-                          </TableCell>
-                        </TableRow>
-                      );
-                    })}
-                  </TableBody>
-                </Table>
-              </div>
+              <ol className="divide-y">
+                {drills.map((d, i) => (
+                  <li key={d.id} className="flex gap-3 px-4 py-3">
+                    <span className="font-display tabular w-5 text-lg font-bold text-muted-foreground">{i + 1}</span>
+                    <span className="min-w-0">
+                      <span className="block font-medium">{d.name}</span>
+                      {d.description && (
+                        <span className="block text-sm text-muted-foreground">{d.description}</span>
+                      )}
+                    </span>
+                  </li>
+                ))}
+              </ol>
             )}
-          </Card>
+          </Panel>
+
+          <Panel
+            title="Assessments"
+            aside={
+              <Link href={`/assesments/${data.id}/mark`} className="text-sm text-muted-foreground hover:text-foreground">
+                Assess
+              </Link>
+            }
+          >
+            {data.assessments.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">No assessments yet.</p>
+            ) : (
+              <ul className="divide-y">
+                {data.assessments.map((as) => (
+                  <li key={as.id} className="space-y-1.5 px-4 py-3">
+                    <p className="font-medium">{names.get(as.athleteId) ?? as.athleteId}</p>
+                    <p className="flex flex-wrap gap-1">
+                      {as.responses.map((r) => (
+                        <span key={r.id} className="rounded bg-muted px-1.5 py-0.5 text-xs">
+                          {sentence(r.grade)}
+                        </span>
+                      ))}
+                    </p>
+                    {as.comment && <p className="text-sm text-muted-foreground">{as.comment}</p>}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
         </div>
       </div>
     </div>
   );
-};
-
-export default ViewTrainingSession;
+}

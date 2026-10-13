@@ -66,7 +66,10 @@ export const GetAllTrainingSessionsByIdQuery = (id: string) =>
           responses: true,
         },
       },
-      athletes: true,
+      athletes: {
+        where: { isArchived: false },
+        orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
+      },
       attendances: { include: { reason: true } },
       batch: true,
       drills: true,
