@@ -4,10 +4,8 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
-  Eye,
   File,
   Calendar,
   User,
@@ -23,7 +21,7 @@ import { PageLoader } from "@/components/shared/PageLoader";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import dynamic from "next/dynamic";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 
@@ -43,8 +41,16 @@ const ReceiptDownloadButton = dynamic(
   },
 );
 
-const TransactionDetails = ({ id }: { id: string }) => {
-  const [open, setIsOpen] = useState<boolean>(false);
+/** Controlled side sheet with the payment's details and receipt download. */
+const TransactionDetails = ({
+  id,
+  open,
+  onOpenChange: setIsOpen,
+}: {
+  id: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
   const { data, isLoading, refetch } = UseFetchTransactionDetails(id);
   const { data: utils } = UseUtilsContext();
 
@@ -57,11 +63,6 @@ const TransactionDetails = ({ id }: { id: string }) => {
   return (
     <div>
       <Sheet onOpenChange={setIsOpen} open={open}>
-        <SheetTrigger asChild>
-          <Button variant={"outline"} size="icon">
-            <Eye className="h-4 w-4" />
-          </Button>
-        </SheetTrigger>
         <SheetContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl overflow-y-auto">
           <SheetHeader className="text-left px-0">
             {/* Added text-left and px-0 */}

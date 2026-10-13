@@ -8,7 +8,6 @@ import {
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Form,
@@ -20,21 +19,29 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Edit2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import {
   ClientEditFinanceSchema,
   ClientEditFinanceSchemaType,
 } from "@/features/finance/schemas";
 import editFinancialTransaction from "@/features/finance/actions/edit-transaction";
-import { useTransition, useState } from "react";
+import { useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
 import { GenericSelect } from "@/components/shared/GenericSelect";
 import { toast } from "sonner";
 
 interface Props {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any;
+  data: {
+    id: string;
+    amountPaid: number;
+    collectedBy: string;
+    notes: string | null;
+    paymentDate: string | Date;
+    paymentType: ClientEditFinanceSchemaType["paymentType"];
+  };
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
 }
 
 const PAYMENT_METHODS = [
@@ -44,8 +51,9 @@ const PAYMENT_METHODS = [
   "MPESA_PAYBILL",
 ];
 
-const EditTransactionModal = ({ data }: Props) => {
-  const [open, setOpen] = useState(false);
+/** Controlled: opened from a payment row's menu. */
+const EditTransactionModal = ({ data, open, onOpenChange: setOpen }: Props) => {
+  const router = useRouter();
   const [isPending, startTransition] = useTransition();
 
   const form = useForm<ClientEditFinanceSchemaType>({
@@ -66,6 +74,7 @@ const EditTransactionModal = ({ data }: Props) => {
       if (result.success) {
         toast.success(result.message);
         setOpen(false);
+        router.refresh();
       } else {
         toast.error(result.message);
       }
@@ -74,12 +83,6 @@ const EditTransactionModal = ({ data }: Props) => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="gap-2">
-          <Edit2 className="h-4 w-4" />
-          Edit
-        </Button>
-      </DialogTrigger>
       <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader className="space-y-3">
           <div className="flex items-center justify-between">

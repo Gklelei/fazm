@@ -47,7 +47,7 @@ type ExportInvoice = Omit<InvoiceListRow, "amountDue" | "amountPaid"> & {
 
 const params = (f: InvoiceFilters) => {
   const p = new URLSearchParams();
-  for (const [k, v] of Object.entries(f)) if (v) p.set(k, v);
+  for (const [k, v] of Object.entries(f)) if (v) p.set(k, v === true ? "1" : String(v));
   return p;
 };
 

@@ -9,13 +9,7 @@ import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { DashboardData } from "../queries/get-dashboard";
 import { IncomeChart } from "./IncomeChart";
-
-const PAYMENT_LABEL: Record<string, string> = {
-  CASH: "Cash",
-  BANK_TRANSFER: "Bank",
-  MPESA_SEND_MONEY: "M-Pesa",
-  MPESA_PAYBILL: "M-Pesa paybill",
-};
+import { METHOD_LABEL } from "@/features/finance/lib/methods";
 
 function Panel({
   title,
@@ -208,7 +202,7 @@ export function Dashboard({
                         {p.athlete.firstName} {p.athlete.lastName}
                       </p>
                       <p className="truncate text-xs text-muted-foreground">
-                        {PAYMENT_LABEL[p.paymentType] ?? p.paymentType} ·{" "}
+                        {METHOD_LABEL[p.paymentType]} ·{" "}
                         {format(p.paymentDate, "d MMM")} ·{" "}
                         <span className="font-mono">{p.receiptNumber}</span>
                       </p>

@@ -4,6 +4,9 @@ import { db } from "@/lib/prisma";
 
 export type InvoiceFilters = {
   search?: string;
+  athleteId?: string;
+  /** Only invoices that can still take a payment */
+  open?: boolean;
   status?: INVOICE_STATUS;
   /** Issue date range, inclusive, YYYY-MM-DD */
   from?: string;
@@ -14,13 +17,15 @@ export function invoiceFiltersFromParams(sp: URLSearchParams): InvoiceFilters {
   const status = sp.get("status");
   return {
     search: sp.get("search")?.trim() || undefined,
+    athleteId: sp.get("athleteId") || undefined,
+    open: sp.get("open") === "1" || undefined,
     status: status && status in INVOICE_STATUS ? (status as INVOICE_STATUS) : undefined,
     from: sp.get("from") || undefined,
     to: sp.get("to") || undefined,
   };
 }
 
-export function buildInvoiceWhere({ search, status, from, to }: InvoiceFilters): Prisma.InvoiceWhereInput {
+export function buildInvoiceWhere({ search, athleteId, open, status, from, to }: InvoiceFilters): Prisma.InvoiceWhereInput {
   const ci = (v: string) => ({ contains: v, mode: "insensitive" as const });
   const terms = (search ?? "").split(/\s+/).filter(Boolean);
   const createdAt: Prisma.DateTimeFilter = {};
@@ -28,7 +33,12 @@ export function buildInvoiceWhere({ search, status, from, to }: InvoiceFilters):
   if (to) createdAt.lte = new Date(`${to}T23:59:59.999`);
 
   return {
-    ...(status ? { status } : {}),
+    ...(athleteId ? { athleteId } : {}),
+    ...(status
+      ? { status }
+      : open
+        ? { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] as INVOICE_STATUS[] } }
+        : {}),
     ...(from || to ? { createdAt } : {}),
     ...(terms.length
       ? {
