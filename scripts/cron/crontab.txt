@@ -1,0 +1,26 @@
+# Fazam scheduled jobs. Install with: crontab ~/apps/fazm-cron/crontab.txt
+# All times Africa/Nairobi. Output: ~/logs/cron.log
+CRON_TZ=Africa/Nairobi
+J=/home/gklelei/apps/fazm-cron/run-job.sh
+
+# Session status: Scheduled -> In progress -> Completed
+*/15 * * * *  $J session-status
+# Keep upcoming sessions' squads in step with their batch
+5 * * * *     $J sync-session-athletes
+# Unpaid invoices become overdue the day after their due date
+10 0 * * *    $J overdue-invoices
+# Recompute ages from date of birth
+20 0 * * *    $J update-ages
+# Active athletes with no attendance and no payment for 90 days -> Inactive.
+# OFF until attendance is recorded consistently: as of Oct 2026 it would
+# deactivate ~132 athletes, almost all because attendance was never taken.
+# Preview first:  ~/apps/fazm-cron/run-job.sh deactivate-inactive dryRun
+#0 1 * * *    $J deactivate-inactive
+# Nightly database backup (keeps 14)
+0 2 * * *     /home/gklelei/apps/fazm-cron/backup-db.sh
+# Remove expired logins and reset tokens
+0 3 * * 0     $J cleanup-auth
+# Monday finance summary to FINANCE_REPORT_EMAILS
+0 7 * * 1     $J finance-report
+# Keep the cron log from growing forever
+0 4 1 * *     tail -n 5000 /home/gklelei/logs/cron.log > /home/gklelei/logs/cron.log.tmp && mv /home/gklelei/logs/cron.log.tmp /home/gklelei/logs/cron.log
