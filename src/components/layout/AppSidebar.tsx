@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { LogOut } from "lucide-react";
+import { LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import {
   Sidebar,
   SidebarContent,
@@ -56,7 +56,8 @@ function CentreCircle() {
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
   const pathname = usePathname();
   const router = useRouter();
-  const { setOpenMobile } = useSidebar();
+  const { setOpenMobile, toggleSidebar, state, isMobile } = useSidebar();
+  const collapsed = state === "collapsed";
   const { user } = useAuthSession();
   const { data: utils } = UseUtilsContext();
   const role = (user.role as AppRole | undefined) ?? null;
@@ -65,17 +66,18 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar collapsible="icon" {...props}>
-      <SidebarHeader className="px-3 pt-4 pb-2">
+      <SidebarHeader className="px-3 pt-4 pb-2 group-data-[collapsible=icon]:px-2">
         <Link
           href="/"
-          className="flex items-center gap-3 rounded-md p-1 focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none"
+          className="flex items-center gap-3 rounded-md p-1 focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0"
+          aria-label="Dashboard"
         >
           <Image
             src="/Fazam Logo-BG.png"
             alt=""
             width={36}
             height={36}
-            className="size-9 shrink-0 object-contain"
+            className="size-9 shrink-0 object-contain group-data-[collapsible=icon]:size-8"
             priority
           />
           <span className="grid leading-none group-data-[collapsible=icon]:hidden">
@@ -109,7 +111,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                           "relative h-9 text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-white",
                           // Captain's armband: a gold bar marks where you are
                           "data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-white",
-                          "data-[active=true]:before:absolute data-[active=true]:before:inset-y-1.5 data-[active=true]:before:-left-2 data-[active=true]:before:w-1 data-[active=true]:before:rounded-r data-[active=true]:before:bg-sidebar-primary",
+                          "data-[active=true]:before:absolute data-[active=true]:before:inset-y-2 data-[active=true]:before:left-0 data-[active=true]:before:w-[3px] data-[active=true]:before:rounded-r data-[active=true]:before:bg-sidebar-primary",
                         )}
                       >
                         <Link href={item.url} onClick={() => setOpenMobile(false)}>
@@ -128,9 +130,27 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
         ))}
       </SidebarContent>
 
-      <SidebarFooter className="relative border-t border-sidebar-border p-3">
+      <SidebarFooter className="relative gap-1 border-t border-sidebar-border p-2">
         <CentreCircle />
-        <div className="relative flex items-center gap-2.5">
+        {!isMobile && (
+          <SidebarMenu className="relative">
+            <SidebarMenuItem>
+              <SidebarMenuButton
+                onClick={toggleSidebar}
+                tooltip={collapsed ? "Expand sidebar · Ctrl B" : undefined}
+                aria-expanded={!collapsed}
+                className="h-8 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-white"
+              >
+                {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
+                <span>Collapse sidebar</span>
+                <kbd className="ml-auto rounded border border-sidebar-border px-1 font-sans text-[10px] text-sidebar-foreground/50">
+                  Ctrl B
+                </kbd>
+              </SidebarMenuButton>
+            </SidebarMenuItem>
+          </SidebarMenu>
+        )}
+        <div className="relative flex items-center gap-2.5 p-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
           <Avatar className="size-8 shrink-0 ring-1 ring-sidebar-primary/40">
             <AvatarImage src={user.image ?? ""} alt="" />
             <AvatarFallback className="bg-sidebar-primary font-display font-bold text-sidebar-primary-foreground">
