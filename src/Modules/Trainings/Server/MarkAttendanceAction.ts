@@ -91,6 +91,7 @@ export async function saveAttendance(
     });
 
     revalidatePath(`/sessions/attendance/mark/${trainingId}`);
+    revalidatePath(`/sessions/view/${trainingId}`);
 
     return {
       success: true,

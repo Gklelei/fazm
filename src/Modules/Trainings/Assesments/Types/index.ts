@@ -67,7 +67,7 @@ export const GetAllTrainingSessionsByIdQuery = (id: string) =>
         },
       },
       athletes: true,
-      attendances: true,
+      attendances: { include: { reason: true } },
       batch: true,
       drills: true,
       coach: true,

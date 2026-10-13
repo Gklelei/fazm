@@ -31,10 +31,12 @@ export type AthleteRow = {
   id: string;
   athleteId: string;
   firstName: string;
-  middleName: string;
+  middleName: string | null;
   lastName: string;
-  age?: number;
+  age?: number | null;
   email?: string | null;
+  phoneNumber?: string | null;
+  createdAt: string | Date;
   profilePIcture?: string | null;
   positions: string[];
   status: string;
@@ -44,7 +46,7 @@ export function fullName(a: AthleteRow) {
   return [a.firstName, a.middleName, a.lastName].filter(Boolean).join(" ");
 }
 
-export const ageText = (age?: number) => {
+export const ageText = (age?: number | null) => {
   if (!age) return "—";
   return age === 1 ? "1 year" : `${age} years`;
 };

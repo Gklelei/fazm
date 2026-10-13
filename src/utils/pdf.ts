@@ -7,9 +7,6 @@ function safeText(v: unknown) {
   return String(v ?? "").trim();
 }
 
-
-
-
 function drawSectionTitle(doc: jsPDF, title: string, x: number, y: number) {
   doc.setFont("helvetica", "bold");
   doc.setFontSize(12);
@@ -245,13 +242,16 @@ export function downloadTrainingSessionPdf(
         : data.athletes.map((a, idx) => {
             const fullName =
               [a.firstName, a.lastName].filter(Boolean).join(" ") || "-";
+            const attendance = data.attendances.find(
+              (x) => x.athleteId === a.athleteId,
+            );
 
             return [
               String(idx + 1),
               safeText(fullName),
               safeText(a.athleteId),
-              "", // empty attendance column
-              "", // empty reason column
+              safeText(attendance?.status) || "NOT MARKED",
+              safeText(attendance?.reason?.label),
             ];
           }),
     margin: { left: marginX, right: marginX },
@@ -273,7 +273,7 @@ export function downloadTrainingSessionPdf(
       0: { cellWidth: 26, halign: "center" },
       1: { cellWidth: 170 },
       2: { cellWidth: 80 },
-      3: { cellWidth: 80 }, // Attendance (blank for manual marking)
+      3: { cellWidth: 80 }, // Attendance
       4: { cellWidth: "auto" }, // Reason / Notes (wide)
     },
   });

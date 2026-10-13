@@ -9,6 +9,10 @@ import { GetStaffQuery } from "@/Modules/Users/stafff/types";
 import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
+import {
+  athleteFiltersFromParams,
+  buildAthleteWhere,
+} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
 
 export const dynamic = "force-dynamic";
 
@@ -133,19 +137,10 @@ export async function GET(req: NextRequest) {
       }
 
       case "athletes": {
-        const whereClause: Prisma.AthleteWhereInput = { isArchived: false };
-        if (query) {
-          whereClause.OR = [
-            { firstName: { contains: query, mode: "insensitive" } },
-            { middleName: { contains: query, mode: "insensitive" } },
-            { lastName: { contains: query, mode: "insensitive" } },
-            { athleteId: { contains: query, mode: "insensitive" } },
-            { email: { contains: query, mode: "insensitive" } },
-          ];
-        }
-
         const data = await db.athlete.findMany({
-          where: whereClause,
+          where: buildAthleteWhere(
+            athleteFiltersFromParams(req.nextUrl.searchParams),
+          ),
           select: {
             athleteId: true,
             firstName: true,
@@ -153,10 +148,18 @@ export async function GET(req: NextRequest) {
             lastName: true,
             age: true,
             email: true,
+            phoneNumber: true,
             positions: true,
             status: true,
+            createdAt: true,
+            batches: { select: { name: true } },
           },
-          orderBy: { createdAt: "desc" },
+          // Grouped by batch, then alphabetical — prints as a batch roster
+          orderBy: [
+            { batches: { name: "asc" } },
+            { firstName: "asc" },
+            { lastName: "asc" },
+          ],
           take: MAX_EXPORT_ROWS,
         });
         return NextResponse.json(data);

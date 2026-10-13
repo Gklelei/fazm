@@ -2,6 +2,10 @@ import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+import {
+  athleteFiltersFromParams,
+  buildAthleteWhere,
+} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
 
 const PAGE_SIZE_DEFAULT = 10;
 
@@ -33,27 +37,8 @@ export async function GET(req: NextRequest) {
     50,
   );
 
-  const search = (sp.get("search") || "").trim();
   const cursor = sp.get("cursor");
-
-  // Split the search string into individual words, removing any empty strings
-  const searchTerms = search.split(/\s+/).filter(Boolean);
-
-  const where = {
-    isArchived: false,
-    ...(searchTerms.length > 0
-      ? {
-          AND: searchTerms.map((term) => ({
-            OR: [
-              { firstName: { contains: term, mode: "insensitive" as const } },
-              { lastName: { contains: term, mode: "insensitive" as const } },
-              { middleName: { contains: term, mode: "insensitive" as const } },
-              { athleteId: { contains: term, mode: "insensitive" as const } },
-            ],
-          })),
-        }
-      : {}),
-  };
+  const where = buildAthleteWhere(athleteFiltersFromParams(sp));
 
   try {
     const decoded = cursor ? decodeCursor(cursor) : null;

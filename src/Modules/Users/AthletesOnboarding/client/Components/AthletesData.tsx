@@ -6,6 +6,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
 import {
+  athleteFilterParams,
   UseGetAllAthletes,
   type AthletesInfiniteData,
 } from "../../Api/FetchAllAthletes";
@@ -27,7 +28,18 @@ import AthletesDesktopTable from "./AthletesDesktopTable";
 import AthletesMobileCard from "./AthletesMobileCard";
 import AthletesFilterBar from "./AthletesFilterBar";
 import ExportDropdown from "@/utils/ExportDropdown";
-import { fullName, ageText } from "./athlete-utils";
+import { fullName } from "./athlete-utils";
+
+type AthleteExportItem = {
+  athleteId: string;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  phoneNumber: string | null;
+  status: string;
+  createdAt: string;
+  batches: { name: string } | null;
+};
 
 const AthletesData = ({
   initialData,
@@ -41,6 +53,15 @@ const AthletesData = ({
   const [deletingId, setDeletingId] = useState<string>("");
   const [searchQuery, setSearchQuery] = useState("");
   const debouncedSearchValue = useDebounce(searchQuery, 800);
+  const [from, setFrom] = useState("");
+  const [to, setTo] = useState("");
+  const [batchId, setBatchId] = useState("");
+
+  const filters = useMemo(
+    () => ({ search: debouncedSearchValue.trim(), from, to, batchId }),
+    [debouncedSearchValue, from, to, batchId],
+  );
+  const hasFilters = Object.values(filters).some(Boolean);
 
   const isSearching = searchQuery.trim() !== debouncedSearchValue.trim();
 
@@ -53,7 +74,7 @@ const AthletesData = ({
     isFetchingNextPage,
     isRefetching,
     refetch,
-  } = UseGetAllAthletes({ search: debouncedSearchValue, initialData });
+  } = UseGetAllAthletes({ filters, initialData });
 
   const { ref, inView } = useInView({ rootMargin: "300px" });
 
@@ -147,9 +168,15 @@ const AthletesData = ({
     );
   }
 
-  const showEmpty =
-    athletes.length === 0 && !debouncedSearchValue && !isRefetching;
-  const showNoMatches = athletes.length === 0 && !!debouncedSearchValue;
+  const showEmpty = athletes.length === 0 && !hasFilters && !isRefetching;
+  const showNoMatches = athletes.length === 0 && hasFilters;
+
+  const clearFilters = () => {
+    setSearchQuery("");
+    setFrom("");
+    setTo("");
+    setBatchId("");
+  };
 
   if (showEmpty) {
     return (
@@ -185,6 +212,14 @@ const AthletesData = ({
         debouncedSearchValue={debouncedSearchValue}
         isSearching={isSearching}
         isRefetching={isRefetching}
+        from={from}
+        setFrom={setFrom}
+        to={to}
+        setTo={setTo}
+        batchId={batchId}
+        setBatchId={setBatchId}
+        hasFilters={hasFilters}
+        clearFilters={clearFilters}
       />
 
       <Card>
@@ -193,38 +228,34 @@ const AthletesData = ({
             <ExportDropdown
               filename="Athletes"
               headers={[
+                "#",
                 "Athlete ID",
                 "Name",
-                "Email",
-                "Positions",
-                "Age",
+                "Batch",
+                "Phone",
                 "Status",
+                "Registered",
               ]}
-              rows={athletes.map((a) => [
+              rows={athletes.map((a, i) => [
+                String(i + 1),
                 a.athleteId,
                 fullName(a),
-                a.email || "",
-                a.positions.join(", "),
-                ageText(a.age),
+                "",
+                a.phoneNumber || "",
                 a.status,
+                new Date(a.createdAt).toLocaleDateString(),
               ])}
-              fetchAllUrl="/api/export?resource=athletes"
-              filterFn={(a: AthleteRow) =>
-                [a.firstName, a.middleName, a.lastName, a.athleteId]
-                  .filter(Boolean)
-                  .join(" ")
-                  .toLowerCase()
-                  .includes(debouncedSearchValue.toLowerCase())
-              }
-              mapRow={(a: AthleteRow) => [
+              fetchAllUrl={`/api/export?resource=athletes&${athleteFilterParams(filters)}`}
+              mapRow={(a: AthleteExportItem, i) => [
+                String(i + 1),
                 a.athleteId,
                 [a.firstName, a.middleName, a.lastName]
                   .filter(Boolean)
                   .join(" "),
-                a.email || "",
-                (a.positions || []).join(", "),
-                ageText(a.age),
+                a.batches?.name || "",
+                a.phoneNumber || "",
                 a.status,
+                new Date(a.createdAt).toLocaleDateString(),
               ]}
             />
           </div>
@@ -233,18 +264,18 @@ const AthletesData = ({
               <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-full border bg-muted/40">
                 <XCircle className="h-6 w-6 text-muted-foreground" />
               </div>
-              <p className="font-semibold">No athletes matched your search</p>
+              <p className="font-semibold">No athletes matched your filters</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                Try a different name or ID.
+                Try a different name, phone, guardian, date range or batch.
               </p>
               <div className="mt-4 flex justify-center gap-2">
                 <Button
                   variant="outline"
-                  onClick={() => setSearchQuery("")}
+                  onClick={clearFilters}
                   className="gap-2"
                 >
                   <XCircle className="h-4 w-4" />
-                  Clear search
+                  Clear filters
                 </Button>
                 <Button
                   onClick={() => router.push("/players/create")}
