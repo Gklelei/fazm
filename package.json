@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "seed": "tsx src/Modules/Seed/index.ts",
     "postinstall": "prisma generate",
     "dev": "next dev",
     "build": "next build",
