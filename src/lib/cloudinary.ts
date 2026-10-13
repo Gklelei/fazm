@@ -1,5 +1,6 @@
 "use server";
-import { v2 as cloudinary } from "cloudinary";
+
+import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 
@@ -14,6 +15,11 @@ export async function deleteCloudinaryImage(publicId: string) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
     return { success: false, message: "Unauthorized access" };
+  }
+  // Callable from the browser (it's a server action), so only roles that
+  // manage records may delete stored images.
+  if (!hasRole(session.user.role, "admin")) {
+    return { success: false, message: FORBIDDEN_MESSAGE };
   }
 
   try {

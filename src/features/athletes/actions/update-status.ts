@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -32,7 +33,7 @@ export const UpdateAthleteStatus = async ({
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       success: false,
       message: "Access denied. This action requires administrator permissions.",

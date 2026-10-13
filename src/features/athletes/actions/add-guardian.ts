@@ -10,7 +10,7 @@ import { headers } from "next/headers";
 
 export const AddAthleteGuardian = async (
   data: AthleteGuardianSchemaType,
-  athleteId: string
+  athleteId: string,
 ): Promise<ActionResult> => {
   const session = await auth.api.getSession({
     headers: await headers(),

@@ -7,7 +7,6 @@ import { db } from "@/lib/prisma";
 import { toUpperUnderscore } from "@/lib/format";
 import { createAuditLog } from "@/lib/audit";
 
-
 export const CreateDrills = async (
   data: DrillsSchemaType,
 ): Promise<ActionResult> => {
@@ -47,8 +46,6 @@ export const CreateDrills = async (
       userId: session.user.id,
       drillId: newDrill.id,
     });
-
-
 
     return {
       success: true,
@@ -115,8 +112,6 @@ export const EditDrills = async (
       userId: session.user.id,
       drillId: updatedDrill.id,
     });
-
-
 
     return {
       success: true,
@@ -185,8 +180,6 @@ export const DeleteDrills = async ({
       userId: session.user.id,
       drillId: existingDrill.id,
     });
-
-
 
     return {
       message: "Drill updated",

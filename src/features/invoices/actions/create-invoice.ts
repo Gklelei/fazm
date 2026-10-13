@@ -1,7 +1,11 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
-import { CreateInvoiceSchema, CreateInvoiceSchemaType } from "@/features/invoices/schemas";
+import {
+  CreateInvoiceSchema,
+  CreateInvoiceSchemaType,
+} from "@/features/invoices/schemas";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { INVOICE_TYPE } from "@/generated/prisma/enums";
@@ -34,7 +38,7 @@ async function CreateAthleteInvoice(
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { success: false, message: "Unauthorized access" };
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return { success: false, message: "Unauthorized access" };
   }
 

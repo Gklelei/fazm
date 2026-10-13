@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { deleteCloudinaryImage } from "@/lib/cloudinary";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -42,7 +43,7 @@ export async function DeleteAthlete(id: string): Promise<ActionResult> {
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       status: "ERROR",
       errorMessage:
@@ -71,17 +72,23 @@ export async function DeleteAthlete(id: string): Promise<ActionResult> {
       existingAthlete.passportBioData,
     ];
 
+    // Best effort: a missing or locally stored file must not block archiving
     for (const url of filesToDelete) {
-      if (url) {
-        const publicId = getPublicId(url);
-        if (publicId) await deleteCloudinaryImage(publicId);
+      if (!url?.includes("/upload/")) continue;
+      try {
+        await deleteCloudinaryImage(getPublicId(url));
+      } catch (err) {
+        console.error("Could not delete athlete file", url, err);
       }
     }
 
     await db.athlete.update({
       where: { athleteId: id },
       data: {
-        email: `archived_${id}_${existingAthlete.email}`,
+        // Frees the unique email for re-registration; null stays null
+        email: existingAthlete.email
+          ? `archived_${id}_${existingAthlete.email}`
+          : null,
         ArchiveDate: new Date(),
         isArchived: true,
       },

@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { db } from "@/lib/prisma";
 import { AccountSettingSchemaType } from "@/features/staff/schemas/profile";
 import { revalidatePath } from "next/cache";
@@ -81,7 +82,7 @@ export const AdminEditStaffProfile = async ({
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       success: false,
       message: "Unauthorized access,You are not allowed to perfome this role",
@@ -159,7 +160,7 @@ export const AdminDeleteStaff = async ({
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       message:
         "Unauthorized access, you are not allowe to perfome this operation",

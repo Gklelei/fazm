@@ -1,13 +1,13 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
 
 type returnPromise =
-  | { success: true; message: string }
-  | { success: false; message: string };
+  { success: true; message: string } | { success: false; message: string };
 
 const deleteFinancialTransaction = async (
   id: string,
@@ -20,7 +20,7 @@ const deleteFinancialTransaction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message: "Access denied. This action requires administrator permissions.",

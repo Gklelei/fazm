@@ -18,14 +18,15 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { ROLES } from "@/generated/prisma/enums";
+import { ROLE_GROUPS } from "@/lib/roles";
 
 // Derived from the Prisma enum so it can never drift from the database.
 export type AppRole = ROLES;
 export const ALL_ROLES: AppRole[] = Object.values(ROLES);
 
-const ADMINS: AppRole[] = ["SUPER_ADMIN", "ADMIN"];
-const FINANCE: AppRole[] = [...ADMINS, "FINANCE"];
-const COACHING: AppRole[] = [...ADMINS, "COACH"];
+const ADMINS: AppRole[] = [...ROLE_GROUPS.admin];
+const FINANCE: AppRole[] = [...ROLE_GROUPS.finance];
+const COACHING: AppRole[] = [...ROLE_GROUPS.coaching];
 
 export type NavItem = {
   title: string;

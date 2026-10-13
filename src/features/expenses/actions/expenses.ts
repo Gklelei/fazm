@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import {
   CreateExpenseSchema,
   ServerCreateExpenseType,
@@ -25,7 +26,7 @@ export async function CreateExpense(
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -77,7 +78,7 @@ export const VoidExpenses = async (id: string): Promise<ActionResult> => {
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -145,7 +146,7 @@ export async function EditExpense(
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:

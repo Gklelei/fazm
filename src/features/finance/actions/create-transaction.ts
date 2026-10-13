@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { FinanceSchema, FinanceSchemaType } from "@/features/finance/schemas";
 import { db } from "@/lib/prisma";
@@ -27,7 +28,7 @@ const createFinancialTransaction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message: "Access denied. This action requires administrator permissions.",

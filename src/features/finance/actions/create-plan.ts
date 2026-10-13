@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
   SubscriptionsSchema,
@@ -25,7 +26,7 @@ export const CreateSubscriptionFees = async (
       };
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (!hasRole(session.user.role, "finance")) {
       return {
         message:
           "Unauthorized access, you are not allowed to perform this action",

@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
@@ -8,7 +9,6 @@ import {
   SubscriptionsSchema,
   SubscriptionsSchemaType,
 } from "@/features/finance/schemas/plans";
-
 
 export const UpdateSubscriptionPlan = async ({
   data,
@@ -29,7 +29,7 @@ export const UpdateSubscriptionPlan = async ({
       };
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (!hasRole(session.user.role, "finance")) {
       return { success: false, message: "Unauthorized access." };
     }
 
@@ -79,8 +79,6 @@ export const UpdateSubscriptionPlan = async ({
 
     revalidatePath("/fees");
 
-
-
     return {
       success: true,
       message: "Subscription updated successfully",
@@ -113,7 +111,7 @@ export const archiveSubscriptionPlan = async (
       return { success: false, message: "Unauthorized access. Please login." };
     }
 
-    if (session.user.role !== "ADMIN") {
+    if (!hasRole(session.user.role, "finance")) {
       return {
         success: false,
         message: "Unauthorized. Admin access required.",
@@ -128,8 +126,6 @@ export const archiveSubscriptionPlan = async (
     });
 
     revalidatePath("/fees");
-
-
 
     return {
       success: true,

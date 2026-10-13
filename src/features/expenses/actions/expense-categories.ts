@@ -1,11 +1,14 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
-import { ExpenseCategorySchema, ExpenseCategoryType } from "@/features/expenses/schemas";
+import {
+  ExpenseCategorySchema,
+  ExpenseCategoryType,
+} from "@/features/expenses/schemas";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
-
 
 export const CreateExpenseCategoryAction = async (
   values: ExpenseCategoryType,
@@ -21,7 +24,7 @@ export const CreateExpenseCategoryAction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -41,10 +44,9 @@ export const CreateExpenseCategoryAction = async (
         },
       });
     });
-    
 
     revalidatePath("/expenses-categories");
-    
+
     return {
       message: "Expense category created",
       success: true,
@@ -75,7 +77,7 @@ export const UpdateExpenseCategoryStatus = async ({
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -104,7 +106,6 @@ export const UpdateExpenseCategoryStatus = async ({
         status,
       },
     });
-
 
     revalidatePath("/expenses-categories");
 
@@ -136,7 +137,7 @@ export const DeleteExpenseCategory = async ({
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -166,7 +167,6 @@ export const DeleteExpenseCategory = async ({
       },
     });
 
-
     revalidatePath("/expenses-categories");
 
     return {
@@ -194,7 +194,7 @@ export async function EditExpenseCategory(
     return { success: false, message: "Unauthorized access, please login" };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message:
@@ -219,7 +219,6 @@ export async function EditExpenseCategory(
         status: values.status,
       },
     });
-
 
     revalidatePath("/expenses-categories");
 

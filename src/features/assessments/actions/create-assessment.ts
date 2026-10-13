@@ -1,5 +1,6 @@
 "use server";
 
+import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";
 import { GradeRating } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
@@ -26,6 +27,8 @@ const gradeMap: Record<string, GradeRating> = {
 export async function saveAssessment(input: SaveAssessmentInput) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { status: "ERROR", errorMessage: "Unauthorized" };
+  if (!hasRole(session.user.role, "coaching"))
+    return { status: "ERROR", errorMessage: FORBIDDEN_MESSAGE };
 
   const { athleteId, trainingId, coachId, scores, comment } = input;
 

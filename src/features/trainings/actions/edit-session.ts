@@ -1,5 +1,6 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import z from "zod";
 import { ClientTrainingSessionSchema } from "@/features/trainings/schemas";
 import { auth } from "@/lib/auth";
@@ -16,7 +17,7 @@ export const EditTrainingSessionAction = async (
   if (!session?.user)
     return { message: "Unauthorized access. Please login", success: false };
 
-  if (session.user.role !== "ADMIN" && session.user.role !== "COACH")
+  if (!hasRole(session.user.role, "coaching"))
     return {
       message:
         "Unauthorized access. You are not allowed to perform this action",

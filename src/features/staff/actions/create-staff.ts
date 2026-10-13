@@ -1,13 +1,16 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
-import { CreateStaffSchema, CreateStaffSchemaType } from "@/features/staff/schemas";
+import {
+  CreateStaffSchema,
+  CreateStaffSchemaType,
+} from "@/features/staff/schemas";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { APIError } from "better-auth";
 import { createAuditLog } from "@/lib/audit";
-
 
 export const CreateStaffAction = async (
   data: CreateStaffSchemaType,
@@ -21,7 +24,7 @@ export const CreateStaffAction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       success: false,
       message: "Access denied. This action requires administrator permissions.",
@@ -67,8 +70,6 @@ export const CreateStaffAction = async (
       details: `Created staff profile for ${parsedData.fullName}`,
       userId: session.user.id,
     });
-
-
 
     return { success: true, message: "User created successfully" };
   } catch (error) {

@@ -6,7 +6,6 @@ import { db } from "@/lib/prisma";
 import { updateTag } from "next/cache";
 import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
 
-
 export const CreateAcademyUtils = async ({
   data,
 }: {

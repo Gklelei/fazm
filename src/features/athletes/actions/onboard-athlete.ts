@@ -1,7 +1,11 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { db } from "@/lib/prisma";
-import { AthleteOnBoardingSchema, AthleteOnBoardingType } from "@/features/athletes/schemas";
+import {
+  AthleteOnBoardingSchema,
+  AthleteOnBoardingType,
+} from "@/features/athletes/schemas";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
@@ -111,7 +115,7 @@ const AthleteOnboardingAction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "admin")) {
     return {
       status: "ERROR",
       errorMessage:
@@ -140,7 +144,6 @@ const AthleteOnboardingAction = async (
         select: { current: true },
       });
       const athleteId = `ATH-FFA-${String(sequence.current).padStart(3, "0")}`;
-
 
       // ---------- Subscription plan (required) ----------
       const subscriptionPlanId = validatedData.subscriptionPlanId;
@@ -282,7 +285,7 @@ const AthleteOnboardingAction = async (
           issuedBy: session.user.email || "system",
         },
       });
-      
+
       return newAthlete.id;
     });
 

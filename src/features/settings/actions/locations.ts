@@ -9,7 +9,6 @@ import {
   TrainingLocationSchemaType,
 } from "@/features/settings/schemas";
 
-
 const ADMIN_ROLES = ["ADMIN", "SUPER_ADMIN"];
 
 async function requireSession() {
@@ -76,8 +75,6 @@ export async function CreateTrainingLocations(
       },
     });
 
-
-
     return {
       success: true,
       message: "Training location created successfully.",
@@ -143,8 +140,6 @@ export async function EditTrainingLocations(
       },
     });
 
-
-
     return {
       success: true,
       message: "Training location updated successfully.",
@@ -184,8 +179,6 @@ export async function DeleteTrainingLocation(
       where: { id },
       data: { voided: 1 },
     });
-
-
 
     return {
       success: true,

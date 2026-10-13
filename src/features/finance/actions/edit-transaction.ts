@@ -1,7 +1,11 @@
 "use server";
 
+import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
-import { EditFinanceSchema, EditFinanceSchemaType } from "@/features/finance/schemas";
+import {
+  EditFinanceSchema,
+  EditFinanceSchemaType,
+} from "@/features/finance/schemas";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
@@ -26,7 +30,7 @@ const editFinancialTransaction = async (
     };
   }
 
-  if (session.user.role !== "ADMIN") {
+  if (!hasRole(session.user.role, "finance")) {
     return {
       success: false,
       message: "Access denied. This action requires administrator permissions.",

@@ -49,8 +49,7 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
         },
       });
 
-      if (!coupon)
-        return { ok: false as const, message: "Coupon not found" };
+      if (!coupon) return { ok: false as const, message: "Coupon not found" };
       if (coupon.voided === 1)
         return { ok: false as const, message: "Coupon is voided" };
       if (coupon.status !== 1)
@@ -72,7 +71,8 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
         select: { id: true, athleteId: true, status: true, couponId: true },
       });
 
-      if (!sub) return { ok: false as const, message: "Subscription not found" };
+      if (!sub)
+        return { ok: false as const, message: "Subscription not found" };
       if (sub.athleteId !== athleteId) {
         return {
           ok: false as const,

@@ -1,5 +1,6 @@
 "use server";
 
+import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";
 import { AttendanceStatus } from "@/generated/prisma/enums";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -28,6 +29,10 @@ export async function saveAttendance(
       success: false,
       message: "Unauthorized access",
     };
+  }
+
+  if (!hasRole(session.user.role, "coaching")) {
+    return { success: false, message: FORBIDDEN_MESSAGE };
   }
 
   try {
