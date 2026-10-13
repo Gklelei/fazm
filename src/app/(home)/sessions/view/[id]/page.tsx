@@ -1,55 +1,14 @@
-import NotFound from "@/app/not-found";
-import { db } from "@/lib/prisma";
-import { GetAllTrainingSessionsByIdQuery } from "@/Modules/Trainings/Assesments/Types";
-import ViewTrainingSession from "@/Modules/Trainings/ui/ViewTrainingSession";
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { db } from "@/lib/prisma";
+import { GetAllTrainingSessionsByIdQuery } from "@/features/assessments/queries";
+import ViewTrainingSession from "@/features/trainings/components/ViewTrainingSession";
 
-export const metadata: Metadata = { title: "Training Session Details" };
+export const metadata: Metadata = { title: "Session" };
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-const page = async ({ params }: Props) => {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  const [session, present, total] = await Promise.all([
-    await db.training.findUnique(GetAllTrainingSessionsByIdQuery(id)),
-    await db.attendance.count({
-      where: {
-        trainingId: id,
-        status: "PRESENT",
-        training: {
-          isArchived: false,
-        },
-      },
-    }),
-    await db.training.findUnique({
-      where: {
-        id,
-      },
-      include: {
-        _count: {
-          select: {
-            athletes: {
-              where: {
-                isArchived: false,
-              },
-            },
-          },
-        },
-      },
-    }),
-  ]);
-
-  if (!session) return <NotFound />;
-  return (
-    <ViewTrainingSession
-      data={session}
-      count={total?._count.athletes || 0}
-      present={present}
-    />
-  );
-};
-
-export default page;
+  const session = await db.training.findUnique(GetAllTrainingSessionsByIdQuery(id));
+  if (!session || session.isArchived) notFound();
+  return <ViewTrainingSession data={session} />;
+}

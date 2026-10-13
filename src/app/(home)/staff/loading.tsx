@@ -1,7 +1,5 @@
-import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 
-const loading = () => {
-  return <Loader2Spinner />;
-};
-
-export default loading;
+export default function Loading() {
+  return <PageSkeleton variant="list" />;
+}

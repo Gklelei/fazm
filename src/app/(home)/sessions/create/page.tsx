@@ -1,4 +1,4 @@
-import CreateTrainingSession from "@/Modules/Trainings/ui/CreateTrainingSession";
+import CreateTrainingSession from "@/features/trainings/components/CreateTrainingSession";
 import React from "react";
 import type { Metadata } from "next";
 

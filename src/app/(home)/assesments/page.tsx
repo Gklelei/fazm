@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
-import { GetAssesmentMetricsQuery } from "@/Modules/Trainings/Assesments/Types";
-import AssesmentMetrics from "@/Modules/Trainings/Assesments/ui/AssesmentMetrics";
+import { GetAssesmentMetricsQuery } from "@/features/assessments/queries";
+import AssesmentMetrics from "@/features/assessments/components/AssessmentMetrics";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Assessments" };
@@ -17,7 +17,7 @@ export default async function Page({
 
   const [metricsResponse, total] = await db.$transaction([
     db.assessmentTemplateSection.findMany({
-      ...(GetAssesmentMetricsQuery as any),
+      ...GetAssesmentMetricsQuery,
       skip,
       take: limit,
       orderBy: { order: "asc" },
@@ -25,7 +25,7 @@ export default async function Page({
     db.assessmentTemplateSection.count(),
   ]);
 
-  const metrics = metricsResponse as any;
+  const metrics = metricsResponse;
 
   return (
     <div>

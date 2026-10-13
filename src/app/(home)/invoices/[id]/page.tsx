@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
-import { ViewInvoiceQuery } from "@/Modules/Finances/Invoices/Types";
-import ViewInvoicePage from "@/Modules/Finances/Invoices/ui/ViewInvoice";
+import { ViewInvoiceQuery } from "@/features/invoices/queries";
+import ViewInvoicePage from "@/features/invoices/components/ViewInvoice";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
@@ -18,7 +18,7 @@ const page = async ({ params }: Props) => {
 
   const safeInvoice = JSON.parse(JSON.stringify(invoice));
 
-  return <ViewInvoicePage data={safeInvoice as any} />;
+  return <ViewInvoicePage data={safeInvoice} />;
 };
 
 export default page;

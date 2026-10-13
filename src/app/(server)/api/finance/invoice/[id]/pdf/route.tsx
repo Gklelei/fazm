@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
 import { renderToStream } from "@react-pdf/renderer";
-import InvoiceDocument from "@/Modules/Finances/Invoices/ui/InvoiceDocument";
+import InvoiceDocument from "@/features/invoices/components/InvoiceDocument";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";

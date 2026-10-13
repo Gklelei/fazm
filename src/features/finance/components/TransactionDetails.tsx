@@ -1,0 +1,234 @@
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import {
+  File,
+  Calendar,
+  User,
+  MessageSquare,
+  DollarSign,
+  Receipt,
+  CheckCircle,
+  Loader2,
+} from "lucide-react";
+import { UseFetchTransactionDetails } from "@/features/finance/hooks/useTransactionDetails";
+import { Empty, EmptyMedia, EmptyTitle } from "@/components/ui/empty";
+import { PageLoader } from "@/components/shared/PageLoader";
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { format } from "date-fns";
+import { useEffect } from "react";
+import dynamic from "next/dynamic";
+import { UseUtilsContext } from "@/providers/UtilsContext";
+
+// @react-pdf/renderer is a large, client-only dependency — load it lazily
+// so it's only fetched once a user actually opens this sheet, instead of
+// being bundled into every page that renders TransactionDetails.
+const ReceiptDownloadButton = dynamic(
+  () => import("@/features/finance/components/ReceiptDownloadButton"),
+  {
+    ssr: false,
+    loading: () => (
+      <Button variant="outline" size="sm" disabled className="gap-2">
+        <Loader2 className="h-4 w-4 animate-spin" />
+        Download
+      </Button>
+    ),
+  },
+);
+
+/** Controlled side sheet with the payment's details and receipt download. */
+const TransactionDetails = ({
+  id,
+  open,
+  onOpenChange: setIsOpen,
+}: {
+  id: string;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}) => {
+  const { data, isLoading, refetch } = UseFetchTransactionDetails(id);
+  const { data: utils } = UseUtilsContext();
+
+  useEffect(() => {
+    if (open) {
+      refetch();
+    }
+  }, [open, refetch]);
+
+  return (
+    <div>
+      <Sheet onOpenChange={setIsOpen} open={open}>
+        <SheetContent className="sm:max-w-lg md:max-w-xl lg:max-w-2xl overflow-y-auto">
+          <SheetHeader className="text-left px-0">
+            {/* Added text-left and px-0 */}
+            <SheetTitle className="flex items-center gap-2">
+              <Receipt className="h-5 w-5" />
+              Transaction Details
+            </SheetTitle>
+            {data && (
+              <ReceiptDownloadButton data={data} academyConfig={utils} />
+            )}
+          </SheetHeader>
+          {isLoading ? (
+            <div className="flex items-center justify-center h-full">
+              <PageLoader />
+            </div>
+          ) : !data ? (
+            <div className="flex items-center justify-center h-full">
+              <Empty>
+                <EmptyMedia>
+                  <File className="h-12 w-12 text-muted-foreground" />
+                </EmptyMedia>
+                <EmptyTitle>No records found for this transaction</EmptyTitle>
+              </Empty>
+            </div>
+          ) : (
+            <div className="px-4 sm:px-6 space-y-6">
+              <div className="rounded-lg border p-6 bg-muted/20">
+                {/* Increased padding to p-6 */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="text-lg font-semibold">
+                      Receipt #{data.receiptNumber}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(data.paymentDate), "PPP")}
+                    </p>
+                  </div>
+                  <Badge
+                    variant={
+                      data.paymentType === "CASH" ? "default" : "secondary"
+                    }
+                  >
+                    {data.paymentType}
+                  </Badge>
+                </div>
+              </div>
+              {/* Athlete Information */}
+              <div className="space-y-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Athlete Information
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* Increased gap to 6 */}
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">Name</p>
+                    <p className="font-medium text-base">{`${data.athlete.firstName} ${data.athlete.lastName}`}</p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Athlete ID
+                    </p>
+                    <p className="font-medium text-base">{data.athleteId}</p>
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              {/* Payment Details */}
+              <div className="space-y-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Payment Details
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Amount Paid
+                    </p>
+                    <p className="text-2xl font-bold text-success">
+                      KES {data.amountPaid.toFixed(2)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Collected By
+                    </p>
+                    <p className="font-medium text-base">{data.collectedBy}</p>
+                  </div>
+                </div>
+              </div>
+              <Separator />
+              <div className="space-y-4">
+                <h4 className="font-medium flex items-center gap-2">
+                  <Calendar className="h-4 w-4" />
+                  Subscription Period
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  {/* <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      Start Date
+                    </p>
+                    <p className="font-medium text-base">
+                      {format(new Date(data.invoice?.subscriptionPlan.), "PPP")}
+                    </p>
+                  </div> */}
+                  <div>
+                    <p className="text-sm text-muted-foreground mb-1">
+                      End Date
+                    </p>
+                    <p className="font-medium text-base">
+                      {format(new Date(String(data.invoice?.dueDate)), "PPP")}
+                    </p>
+                  </div>
+                </div>
+                {/* <div className="mt-4">
+                  <p className="text-sm text-muted-foreground mb-1">Duration</p>
+                  <p className="font-medium text-base">
+                    {Math.ceil(
+                      (new Date(data.invoice?.nextBillingDate || "").getTime() -
+                        new Date(data.invoice?.periodStart ?? "").getTime()) /
+                        (1000 * 60 * 60 * 24),
+                    )}{" "}
+                    days
+                  </p>
+                </div> */}
+              </div>
+              {/* Notes */}
+              {data.notes && (
+                <>
+                  <Separator />
+                  <div className="space-y-4">
+                    <h4 className="font-medium flex items-center gap-2">
+                      <MessageSquare className="h-4 w-4" />
+                      Notes
+                    </h4>
+                    <div className="rounded-lg border p-4 bg-muted/10">
+                      {/* Increased padding */}
+                      <p className="text-sm leading-relaxed">{data.notes}</p>
+                    </div>
+                  </div>
+                </>
+              )}
+              {/* Timestamps */}
+              <Separator />
+              {/* <div className="space-y-2 text-sm text-muted-foreground">
+                <p>Created: {format(new Date(data.createdAt), "PPpp")}</p>
+                <p>Updated: {format(new Date(data.updatedAt), "PPpp")}</p>
+              </div> */}
+              {/* Status Badge */}
+              <div className="flex items-center justify-center pt-4 pb-6">
+                {" "}
+                {/* Added bottom padding */}
+                <Badge
+                  variant="outline"
+                  className="px-4 py-2 border-success/30 text-success"
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Payment Completed
+                </Badge>
+              </div>
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
+    </div>
+  );
+};
+
+export default TransactionDetails;

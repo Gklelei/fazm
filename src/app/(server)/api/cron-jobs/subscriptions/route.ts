@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { Prisma } from "@/generated/prisma/client";
@@ -6,11 +7,6 @@ import { nextMonthlyBillingDate } from "@/lib/billing";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
-function startOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
 
 function endOfDay(d: Date) {
   const x = new Date(d);
@@ -18,12 +14,6 @@ function endOfDay(d: Date) {
   return x;
 }
 
-function invoiceDatePart(now: Date) {
-  const y = String(now.getFullYear());
-  const m = String(now.getMonth() + 1).padStart(2, "0");
-  const d = String(now.getDate()).padStart(2, "0");
-  return `${y}${m}${d}`;
-}
 
 /** Generic next billing (MONTHLY uses your unified 30th rule) */
 function nextBillingByInterval(from: Date, interval: string) {
@@ -95,9 +85,7 @@ export async function POST() {
   }
 
   const now = new Date();
-  const todayStart = startOfDay(now);
   const todayEnd = endOfDay(now);
-  const datePart = invoiceDatePart(now);
 
   const summary = await db.$transaction(async (ctx) => {
     /**
@@ -137,11 +125,6 @@ export async function POST() {
       return { created: 0, skippedExisting: 0, totalCandidates: 0 };
     }
 
-    // daily invoice number sequence
-    const todaysCount = await ctx.invoice.count({
-      where: { createdAt: { gte: todayStart, lte: todayEnd } },
-    });
-    let seq = todaysCount + 1;
 
     let created = 0;
     let skippedExisting = 0;
@@ -172,8 +155,7 @@ export async function POST() {
         continue;
       }
 
-      const invoiceNumber = `INV-${datePart}-${String(seq).padStart(3, "0")}`;
-      seq += 1;
+      const [invoiceNumber] = await nextDocumentNumbers(ctx, "INV", 1, now);
 
       const unitAmount = moneyDecimal(Number(sub.subscriptionPlan.amount));
       const amountDue = unitAmount;

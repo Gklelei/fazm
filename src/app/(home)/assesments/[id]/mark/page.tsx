@@ -1,6 +1,6 @@
 import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
-import CreateAssesment from "@/Modules/Trainings/Assesments/ui/CreateAssesment";
+import CreateAssesment from "@/features/assessments/components/CreateAssessment";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Mark Assessment" };

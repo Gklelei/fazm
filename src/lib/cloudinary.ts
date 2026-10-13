@@ -1,0 +1,49 @@
+"use server";
+
+import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";import { v2 as cloudinary } from "cloudinary";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+
+cloudinary.config({
+  cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.NEXT_PUBLIC_CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET,
+  secure: true,
+});
+
+export async function deleteCloudinaryImage(publicId: string) {
+  const session = await auth.api.getSession({ headers: await headers() });
+  if (!session?.user) {
+    return { success: false, message: "Unauthorized access" };
+  }
+  // Callable from the browser (it's a server action), so only roles that
+  // manage records may delete stored images.
+  if (!hasRole(session.user.role, "admin")) {
+    return { success: false, message: FORBIDDEN_MESSAGE };
+  }
+
+  try {
+    console.log("Attempting to delete image with publicId:", publicId);
+
+    const result = await cloudinary.uploader.destroy(publicId);
+
+    console.log("Cloudinary delete result:", result);
+
+    if (result.result === "ok") {
+      return { success: true, message: "Image deleted successfully" };
+    } else {
+      return {
+        success: false,
+        message: `Delete failed: ${result.result}`,
+        result: result.result,
+      };
+    }
+  } catch (error) {
+    console.error("Cloudinary delete error:", error);
+    return {
+      success: false,
+      message: error instanceof Error ? error.message : "Unknown error",
+      error,
+    };
+  }
+}

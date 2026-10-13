@@ -1,5 +1,5 @@
 import { auth } from "@/lib/auth";
-import SignInForm from "@/Modules/Auth/SignInForm";
+import SignInForm from "@/features/auth/components/SignInForm";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Metadata } from "next";

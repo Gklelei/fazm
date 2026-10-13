@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { Sweetalert } from "@/lib/alerts";
 import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -130,7 +130,7 @@ const ResetPasswordForm = () => {
               onChange={(e) => setConfirmPass(e.target.value)}
               disabled={loading}
               className={`h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/40 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10 ${
-                mismatch ? "border-red-500/60" : ""
+                mismatch ? "border-destructive/60" : ""
               }`}
             />
             <button
@@ -143,7 +143,7 @@ const ResetPasswordForm = () => {
             </button>
           </div>
           {mismatch && (
-            <p className="mt-1 text-xs text-red-400">Passwords do not match</p>
+            <p className="mt-1 text-xs text-destructive">Passwords do not match</p>
           )}
         </div>
 

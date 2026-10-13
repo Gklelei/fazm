@@ -1,7 +1,5 @@
-import { PageLoader } from "@/utils/Alerts/PageLoader";
+import { PageSkeleton } from "@/components/shared/PageSkeleton";
 
-const loading = () => {
-  return <PageLoader />;
-};
-
-export default loading;
+export default function Loading() {
+  return <PageSkeleton variant="dashboard" />;
+}

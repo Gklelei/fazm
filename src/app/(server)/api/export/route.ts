@@ -2,19 +2,36 @@ import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { GetExpensesQuery } from "@/Modules/Expenses/Types";
-import { GetExpenseCategoriesQuery } from "@/Modules/Expenses/Types";
-import { GetCouponsQuery } from "@/Modules/Coupons/Types/Index";
-import { GetStaffQuery } from "@/Modules/Users/stafff/types";
-import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
+import { GetExpensesQuery } from "@/features/expenses/queries";
+import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
+import { GetCouponsQuery } from "@/features/coupons/queries";
+import { GetStaffQuery } from "@/features/staff/queries";
+import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
+import { hasRole, type RoleGroup } from "@/lib/roles";
+import {
+  buildInvoiceWhere,
+  INVOICE_LIST_SELECT,
+  invoiceFiltersFromParams,
+} from "@/features/invoices/queries/list";
 import {
   athleteFiltersFromParams,
   buildAthleteWhere,
-} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
+} from "@/features/athletes/queries/filters";
 
 export const dynamic = "force-dynamic";
+
+const EXPORT_ACCESS: Record<string, RoleGroup> = {
+  expenses: "finance",
+  "expense-categories": "finance",
+  coupons: "finance",
+  invoices: "finance",
+  finance: "finance",
+  staff: "admin",
+  sessions: "coaching",
+  athletes: "coaching",
+};
 
 /** Maximum rows returned from any export to prevent OOM / timeout */
 const MAX_EXPORT_ROWS = 5_000;
@@ -31,12 +48,12 @@ export async function GET(req: NextRequest) {
     return apiError(401, "Unauthorized");
   }
 
-  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
-  if (!allowedRoles.includes(session.user.role ?? "")) {
-    return apiError(403, "Forbidden");
-  }
-
   const resource = req.nextUrl.searchParams.get("resource");
+
+  // Same groups that may open the page the export button sits on
+  const group = resource ? EXPORT_ACCESS[resource] : undefined;
+  if (!group) return apiError(400, "Unknown resource");
+  if (!hasRole(session.user.role, group)) return apiError(403, "Forbidden");
   const query = req.nextUrl.searchParams.get("query")?.trim() || "";
 
   try {
@@ -78,14 +95,7 @@ export async function GET(req: NextRequest) {
       case "coupons": {
         const whereClause: Prisma.CouponWhereInput = { status: 1, voided: 0 };
         if (query) {
-          whereClause.OR = [
-            { code: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            {
-              athlete: { firstName: { contains: query, mode: "insensitive" } },
-            },
-            { athlete: { lastName: { contains: query, mode: "insensitive" } } },
-          ];
+          whereClause.name = { contains: query, mode: "insensitive" };
         }
 
         const data = await db.coupon.findMany({
@@ -102,9 +112,9 @@ export async function GET(req: NextRequest) {
         if (query) {
           whereClause.OR = [
             { fullNames: { contains: query, mode: "insensitive" } },
-            { email: { contains: query, mode: "insensitive" } },
+            { staffId: { contains: query, mode: "insensitive" } },
             { phoneNumber: { contains: query, mode: "insensitive" } },
-            { idNumber: { contains: query, mode: "insensitive" } },
+            { user: { email: { contains: query, mode: "insensitive" } } },
           ];
         }
 
@@ -118,7 +128,13 @@ export async function GET(req: NextRequest) {
       }
 
       case "sessions": {
-        const whereClause: Prisma.trainingWhereInput = { isArchived: false };
+        const whereClause: Prisma.trainingWhereInput = {
+          isArchived: false,
+          // Coaches export only the sessions they run, as on the list
+          ...(session.user.role === "COACH"
+            ? { coach: { userId: session.user.id } }
+            : {}),
+        };
         if (query) {
           whereClause.OR = [
             { name: { contains: query, mode: "insensitive" } },
@@ -166,63 +182,10 @@ export async function GET(req: NextRequest) {
       }
 
       case "invoices": {
-        const whereClause: Prisma.InvoiceWhereInput = {};
-
-        // ── Date range filter ──────────────────────────────────────────
-        const fromDate = req.nextUrl.searchParams.get("from");
-        const toDate = req.nextUrl.searchParams.get("to");
-
-        if (fromDate || toDate) {
-          const createdAtFilter: { gte?: Date; lte?: Date } = {};
-
-          if (fromDate) {
-            const from = new Date(fromDate);
-            if (!isNaN(from.getTime())) {
-              createdAtFilter.gte = from;
-            }
-          }
-
-          if (toDate) {
-            const to = new Date(toDate);
-            if (!isNaN(to.getTime())) {
-              // Set to end of day (23:59:59.999) to include the entire day
-              to.setHours(23, 59, 59, 999);
-              createdAtFilter.lte = to;
-            }
-          }
-
-          if (Object.keys(createdAtFilter).length > 0) {
-            whereClause.createdAt = createdAtFilter;
-          }
-        }
-
-        // ── Search query filter ────────────────────────────────────────
-        if (query) {
-          whereClause.OR = [
-            { invoiceNumber: { contains: query, mode: "insensitive" } },
-            { athleteId: { contains: query, mode: "insensitive" } },
-            {
-              athlete: { firstName: { contains: query, mode: "insensitive" } },
-            },
-            { athlete: { lastName: { contains: query, mode: "insensitive" } } },
-            { description: { contains: query, mode: "insensitive" } },
-          ];
-        }
-
         const data = await db.invoice.findMany({
-          where: whereClause,
-          include: {
-            athlete: {
-              select: {
-                firstName: true,
-                lastName: true,
-              },
-            },
-            subscriptionPlan: {
-              select: { code: true },
-            },
-          },
-          orderBy: { createdAt: "desc" },
+          where: buildInvoiceWhere(invoiceFiltersFromParams(req.nextUrl.searchParams)),
+          select: INVOICE_LIST_SELECT,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           take: MAX_EXPORT_ROWS,
         });
         return NextResponse.json(data);

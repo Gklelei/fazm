@@ -1,6 +1,5 @@
 import { db } from "../lib/prisma";
-import { Prisma } from "@/generated/prisma/client";
-import { addDays, subDays } from "date-fns";
+import { addDays } from "date-fns";
 
 export async function checkExpiredSubscriptions() {
   console.log("[CRON] Checking for expired subscriptions...");

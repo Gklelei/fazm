@@ -1,0 +1,327 @@
+"use client";
+
+import { PageHeader } from "@/components/shared/PageHeader";
+import { useMemo, useState } from "react";
+import { format } from "date-fns";
+import {
+  Clipboard,
+  ClipboardCheck,
+  Search,
+  MoreHorizontal,
+  Trash2,
+  CalendarIcon,
+  InfinityIcon,
+  Loader2Icon,
+} from "lucide-react";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import { GetCouponsQueryType } from "@/features/coupons/queries";
+import CreateCoupons from "@/features/coupons/components/CouponForm";
+import { formatCurrency } from "@/lib/format";
+import { DeleteCouponsAction } from "@/features/coupons/actions/coupons";
+import { Sweetalert } from "@/lib/alerts";
+import ServerPagination from "@/components/shared/ServerPagination";
+import ExportDropdown from "@/components/shared/ExportDropdown";
+
+interface Props {
+  coupons: GetCouponsQueryType[];
+  page: number;
+  limit: number;
+  total: number;
+}
+
+const Coupons = ({ coupons, page, limit, total }: Props) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [delId, setDelId] = useState("");
+
+  const handleCopy = async (text: string, id: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedId(id);
+      setTimeout(() => setCopiedId(null), 2000);
+    } catch (error) {
+      console.error("Failed to copy:", error);
+    }
+  };
+
+  const handleDeleteCoupon = async (id: string) => {
+    const result = await DeleteCouponsAction(id);
+    setDelId(id);
+    if (result.success) {
+      Sweetalert({
+        icon: "success",
+        text: result.message,
+        title: "Success!",
+      });
+      setDelId("");
+    } else {
+      Sweetalert({
+        icon: "error",
+        text: result.message,
+        title: "An error has occurred",
+      });
+    }
+    setDelId("");
+  };
+
+  const filteredCoupons = useMemo(() => {
+    return coupons.filter((coupon) =>
+      coupon.name.toLowerCase().includes(searchQuery.toLowerCase()),
+    );
+  }, [coupons, searchQuery]);
+
+  return (
+    <div className="space-y-6">
+      <PageHeader
+        title="Coupons"
+        description="Discount codes you can apply to an invoice or to an athlete's fee plan."
+        actions={
+          <>
+            <ExportDropdown
+              filename="Coupons"
+              headers={[
+                "Code",
+                "Discount",
+                "Interval",
+                "Usage",
+                "Start Date",
+                "Expiry Date",
+                "Status",
+              ]}
+              rows={filteredCoupons.map((c) => [
+                c.name,
+                c.discountType === "PERCENTAGE"
+                  ? `${c.value}%`
+                  : formatCurrency(Number(c.value)),
+                c.interval,
+                `${c.timesUsed} / ${c.usageLimit && c.usageLimit > 0 ? c.usageLimit : "∞"}`,
+                format(new Date(c.startDate), "MMM d, yyyy"),
+                c.expiryDate
+                  ? format(new Date(c.expiryDate), "MMM d, yyyy")
+                  : "No expiry",
+                c.status === 1 ? "Active" : "Inactive",
+              ])}
+              fetchAllUrl={`/api/export?resource=coupons${
+                searchQuery ? `&query=${encodeURIComponent(searchQuery)}` : ""
+              }`}
+              filterFn={(c: GetCouponsQueryType) =>
+                c.name.toLowerCase().includes(searchQuery.toLowerCase())
+              }
+              mapRow={(c: GetCouponsQueryType) => [
+                c.name,
+                c.discountType === "PERCENTAGE"
+                  ? `${c.value}%`
+                  : formatCurrency(Number(c.value)),
+                c.interval,
+                `${c.timesUsed} / ${c.usageLimit && c.usageLimit > 0 ? c.usageLimit : "∞"}`,
+                format(new Date(c.startDate), "MMM d, yyyy"),
+                c.expiryDate
+                  ? format(new Date(c.expiryDate), "MMM d, yyyy")
+                  : "No expiry",
+                c.status === 1 ? "Active" : "Inactive",
+              ]}
+            />
+            <CreateCoupons />
+          </>
+        }
+      />
+      <Card className="gap-0 overflow-hidden py-0">
+        <CardHeader className="border-b p-4">
+          <div className="relative max-w-sm">
+            <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              type="search"
+              aria-label="Search coupons"
+              placeholder="Search coupon codes"
+              className="pl-9"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+        </CardHeader>
+
+        <CardContent className="p-0">
+          <div>
+            <Table>
+              <TableHeader className="bg-muted/50">
+                <TableRow>
+                  <TableHead className="w-45">Code</TableHead>
+                  <TableHead>Discount</TableHead>
+                  <TableHead>Usage</TableHead>
+                  <TableHead>Validity</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredCoupons.length === 0 ? (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="h-24 text-center text-muted-foreground"
+                    >
+                      No coupons found.
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  filteredCoupons.map((coupon) => (
+                    <TableRow key={coupon.id} className="hover:bg-muted/5">
+                      {/* CODE COLUMN */}
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2 group">
+                          <span className="font-mono text-sm bg-muted px-2 py-1 rounded border">
+                            {coupon.name}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                            onClick={() => handleCopy(coupon.name, coupon.id)}
+                          >
+                            {copiedId === coupon.id ? (
+                              <ClipboardCheck className="h-3 w-3 text-success" />
+                            ) : (
+                              <Clipboard className="h-3 w-3 text-muted-foreground" />
+                            )}
+                          </Button>
+                        </div>
+                      </TableCell>
+
+                      {/* DISCOUNT COLUMN */}
+                      <TableCell>
+                        <div className="flex flex-col">
+                          <span className="font-bold text-primary">
+                            {coupon.discountType === "PERCENTAGE"
+                              ? `${coupon.value}% OFF`
+                              : `-${formatCurrency(Number(coupon.value))}`}
+                          </span>
+                          <span className="text-xs text-muted-foreground capitalize">
+                            {coupon.interval.toLowerCase()}
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      {/* USAGE COLUMN */}
+                      <TableCell>
+                        <div className="text-sm">
+                          <span className="font-medium">
+                            {coupon.timesUsed}
+                          </span>
+                          <span className="text-muted-foreground mx-1">/</span>
+                          <span className="text-muted-foreground">
+                            {coupon.usageLimit && coupon.usageLimit > 0 ? (
+                              coupon.usageLimit
+                            ) : (
+                              <InfinityIcon className="h-3 w-3 inline" />
+                            )}
+                          </span>
+                        </div>
+                      </TableCell>
+
+                      {/* VALIDITY COLUMN */}
+                      <TableCell>
+                        <div className="flex flex-col text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <CalendarIcon className="h-3 w-3" />
+                            {format(new Date(coupon.startDate), "MMM d, yyyy")}
+                          </span>
+                          {coupon.expiryDate && (
+                            <span className="text-xs text-destructive">
+                              Expires{" "}
+                              {format(new Date(coupon.expiryDate), "MMM d")}
+                            </span>
+                          )}
+                        </div>
+                      </TableCell>
+
+                      {/* STATUS COLUMN */}
+                      <TableCell>
+                        <Badge
+                          variant={
+                            coupon.status === 1 ? "default" : "secondary"
+                          }
+                          className={
+                            coupon.status === 1
+                              ? "bg-success hover:bg-success"
+                              : ""
+                          }
+                        >
+                          {coupon.status === 1 ? "Active" : "Inactive"}
+                        </Badge>
+                      </TableCell>
+
+                      {/* ACTIONS COLUMN */}
+                      <TableCell className="text-right">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger
+                            asChild
+                            disabled={delId === coupon.id}
+                          >
+                            {delId === coupon.id ? (
+                              <Loader2Icon className="animate-spin size-4" />
+                            ) : (
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-8 w-8"
+                              >
+                                <MoreHorizontal className="h-4 w-4" />
+                                <span className="sr-only">Open menu</span>
+                              </Button>
+                            )}
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                            <DropdownMenuItem
+                              onClick={() => handleCopy(coupon.name, coupon.id)}
+                            >
+                              <Clipboard className="mr-2 h-4 w-4" /> Copy Code
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator />
+                            <CreateCoupons coupon={coupon} id={coupon.id} />
+                            <DropdownMenuItem
+                              className="text-destructive focus:text-destructive"
+                              onClick={() => handleDeleteCoupon(coupon.id)}
+                            >
+                              <Trash2 className="mr-2 h-4 w-4" /> Deactivate
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="p-4 border-t">
+            <ServerPagination page={page} limit={limit} total={total} />
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
+export default Coupons;

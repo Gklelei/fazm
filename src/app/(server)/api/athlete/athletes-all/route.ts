@@ -1,80 +1,22 @@
-import { db } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import {
-  athleteFiltersFromParams,
-  buildAthleteWhere,
-} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
-
-const PAGE_SIZE_DEFAULT = 10;
-
-type CursorPayload = { createdAt: string; id: string };
-
-export function encodeCursor(payload: CursorPayload) {
-  return Buffer.from(JSON.stringify(payload)).toString("base64url");
-}
-
-function decodeCursor(cursor: string): CursorPayload | null {
-  try {
-    return JSON.parse(Buffer.from(cursor, "base64url").toString("utf8"));
-  } catch {
-    return null;
-  }
-}
+import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
+import { apiError } from "@/lib/api-response";
+import { athleteFiltersFromParams } from "@/features/athletes/queries/filters";
+import { listAthletes } from "@/features/athletes/queries/list";
 
 export async function GET(req: NextRequest) {
-  // ── Auth guard ──────────────────────────────────────────────────────
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+  const authz = await checkRole();
+  if (!authz.ok) return apiError(AUTHZ_HTTP_STATUS[authz.reason], "Unauthorized");
 
   const sp = req.nextUrl.searchParams;
-
-  const take = Math.min(
-    parseInt(sp.get("pageSize") || `${PAGE_SIZE_DEFAULT}`, 10),
-    50,
-  );
-
-  const cursor = sp.get("cursor");
-  const where = buildAthleteWhere(athleteFiltersFromParams(sp));
-
   try {
-    const decoded = cursor ? decodeCursor(cursor) : null;
-    const rows = await db.athlete.findMany({
-      where,
-      include: { address: true, medical: true },
-      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      take: take + 1,
-      ...(decoded
-        ? {
-            cursor: { id: decoded.id },
-            skip: 1,
-          }
-        : {}),
+    const page = await listAthletes(athleteFiltersFromParams(sp), {
+      cursor: sp.get("cursor"),
+      pageSize: Number(sp.get("pageSize")) || undefined,
     });
-
-    const hasMore = rows.length > take;
-    const items = hasMore ? rows.slice(0, take) : rows;
-
-    const nextCursor =
-      hasMore && items.length
-        ? encodeCursor({
-            createdAt: items[items.length - 1].createdAt.toISOString(),
-            id: items[items.length - 1].id,
-          })
-        : null;
-
-    return NextResponse.json(
-      { allAthletes: items, nextCursor, pageSize: take },
-      { status: 200 },
-    );
+    return NextResponse.json(page);
   } catch (error) {
-    console.error("Fetch Athletes Error:", error);
-    return NextResponse.json(
-      { error: "Failed to fetch athletes" },
-      { status: 500 },
-    );
+    console.error("Fetch athletes failed:", error);
+    return apiError(500, "Failed to fetch athletes");
   }
 }

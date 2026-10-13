@@ -2,7 +2,7 @@
  * Shared billing date-math helpers.
  *
  * These were previously hand-copied (identically) into both
- * src/Modules/Users/AthletesOnboarding/Server/OnBoarding.ts and
+ * src/features/athletes/actions/onboard-athlete.ts and
  * src/app/(server)/api/cron-jobs/subscriptions/route.ts. This is the single
  * source of truth for them now; both call sites import from here.
  *

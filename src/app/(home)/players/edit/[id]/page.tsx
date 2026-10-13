@@ -1,7 +1,7 @@
 import NotFound from "@/app/not-found";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
-import EditUserProfile from "@/Modules/Users/AthletesProfile/EditUserProfile/EditUserProfile";
+import EditUserProfile from "@/features/athletes/components/profile/EditAthleteForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Edit Athlete" };

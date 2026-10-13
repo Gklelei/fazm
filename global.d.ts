@@ -1,5 +1,3 @@
-import { AbsentReason } from "@/Modules/Seed/SeedReasonsForAbsentism";
-
 export {};
 declare global {
   module "*.css";
@@ -34,6 +32,7 @@ declare global {
       id: string;
       name: string;
       amount: string;
+      interval: string;
     }[];
     expense: {
       name: string;
@@ -65,7 +64,7 @@ declare global {
     attendance: {
       id: string;
       status: string;
-      label: AbsentReason;
+      label: string | null;
     }[];
   } | null;
 
@@ -74,61 +73,5 @@ declare global {
     name: string;
     value: string;
     description: string | null;
-  }
-
-  interface dashboardItems {
-    totalPlayers: number;
-    totalCoaches: number;
-    guardianCount: number;
-    totalFinances: {
-      _sum: {
-        amountPaid: number | null;
-      };
-    };
-    monthlyRevenue: {
-      _sum: {
-        amountPaid: number | null;
-      };
-    };
-    yearlyIncome: {
-      amountPaid: number;
-      paymentDate: Date;
-    }[];
-    weeklyPayments: {
-      amountPaid: number;
-      paymentType: "CASH" | "BANK_TRANSFER" | "MPESA_SEND_MONEY" | "MPESA_PAYBILL";
-      receiptNumber: string;
-      athlete: {
-        firstName: string;
-        lastName: string;
-        athleteId: string;
-      };
-    }[];
-    totalWeeklyPayments: number;
-    totalWeeklyTainings: number;
-    outstandingBalance?: number;
-    activeSubscriptions?: number;
-    invoices?: {
-      id: string;
-      dueDate: Date;
-      amountDue: import("@prisma/client/runtime/library").Decimal | number;
-      amountPaid: import("@prisma/client/runtime/library").Decimal | number;
-      status: string;
-    }[];
-    weeklyTrainings: {
-      _count: {
-        athletes: number;
-      };
-      coach: {
-        fullNames: string;
-        staffId: string;
-      };
-      location: {
-        name: string;
-      };
-      duration: number;
-      date: Date;
-      name: string;
-    }[];
   }
 }

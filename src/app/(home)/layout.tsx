@@ -1,44 +1,36 @@
-import { AppSidebar } from "@/components/app-sidebar";
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { auth } from "@/lib/auth";
-import SessionContextProvider from "@/Modules/Context/SessionProvider";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import ProfileModal from "@/Modules/UserProfile/ProfileModal";
-import { ModeToggle } from "@/components/ToggleTheme";
+import { cookies, headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
+import { NAV_GROUPS_COOKIE } from "@/components/layout/nav-config";
+import { AppHeader } from "@/components/layout/AppHeader";
+import SessionContextProvider from "@/providers/SessionProvider";
 
-export default async function MainLayout({
+export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
+  const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in");
+
+  // Remember collapsed/expanded across reloads (the sidebar writes this cookie)
+  const jar = await cookies();
+  const sidebarOpen = jar.get("sidebar_state")?.value !== "false";
+  const openNavGroups = decodeURIComponent(jar.get(NAV_GROUPS_COOKIE)?.value ?? "")
+    .split("|")
+    .filter(Boolean);
 
   return (
     <SessionContextProvider value={session}>
-      <SidebarProvider>
-        <AppSidebar />
+      <SidebarProvider defaultOpen={sidebarOpen}>
+        <AppSidebar initialOpenGroups={openNavGroups} />
         <SidebarInset>
-          <header className="sticky top-0 z-20 flex h-16 shrink-0 items-center justify-between border-b bg-background/80 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-            <div className="flex items-center gap-2">
-              <SidebarTrigger />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <ProfileModal />
-              <ModeToggle />
-            </div>
-          </header>
-
-          <main className="p-4 md:p-6">{children}</main>
+          <AppHeader />
+          <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-6 lg:p-8">
+            {children}
+          </main>
         </SidebarInset>
       </SidebarProvider>
     </SessionContextProvider>

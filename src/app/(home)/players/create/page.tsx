@@ -1,4 +1,4 @@
-import AthletesOnboardingForm from "@/Modules/Users/AthletesOnboarding/client/Components/AthletesOnboardingForm";
+import AthletesOnboardingForm from "@/features/athletes/components/OnboardingForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Add Athlete" };
