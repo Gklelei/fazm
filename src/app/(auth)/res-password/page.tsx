@@ -1,5 +1,7 @@
 "use client";
 
+import { passwordProblem } from "@/lib/password-policy";
+import { PasswordRules } from "@/features/auth/components/PasswordRules";
 import { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -42,12 +44,9 @@ const ResetPasswordForm = () => {
       });
       return;
     }
-    if (pass.length < 8) {
-      Sweetalert({
-        title: "Too short",
-        text: "Password must be at least 8 characters",
-        icon: "warning",
-      });
+    const problem = passwordProblem(pass);
+    if (problem) {
+      Sweetalert({ title: "Choose a stronger password", text: problem, icon: "warning" });
       return;
     }
 
@@ -119,6 +118,7 @@ const ResetPasswordForm = () => {
             {showPass ? <EyeOff size={16} /> : <Eye size={16} />}
           </button>
         </div>
+        <PasswordRules value={pass} tone="onDark" />
 
         {/* Confirm password */}
         <div>

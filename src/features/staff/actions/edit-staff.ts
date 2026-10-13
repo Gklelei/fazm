@@ -103,6 +103,15 @@ export const AdminEditStaffProfile = async ({
     }
     const previousRole = existingUser.user?.role;
 
+    // Granting or removing super admin is reserved to super admins
+    if (
+      (data.role === "SUPER_ADMIN" || previousRole === "SUPER_ADMIN") &&
+      data.role !== previousRole &&
+      session.user.role !== "SUPER_ADMIN"
+    ) {
+      return { success: false, message: "Only a super admin can change a super admin's role." };
+    }
+
     await db.staff.update({
       where: {
         staffId: id,

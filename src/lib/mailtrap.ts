@@ -25,7 +25,7 @@ export const SendMail = async ({ to, subject, text, html }: SendMAilProps): Prom
     try {
         await client.send({
             from: {
-                email: isSandbox ? "sandbox@example.com" : "mail@cescawr.org",
+                email: isSandbox ? "sandbox@example.com" : (process.env.MAIL_FROM ?? "mail@cescawr.org"),
                 name: "Fazam Football Academy"
             },
             to: [

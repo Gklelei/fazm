@@ -46,12 +46,25 @@ import { GetStaffByIdQueryType } from "@/features/staff/queries";
 import { AdminEditStaffProfile } from "@/features/staff/actions/edit-staff";
 import { LocalFsUpload } from "@/components/shared/LocalFsUpload";
 import { authClient } from "@/lib/auth-client";
+import { PasswordRules } from "@/features/auth/components/PasswordRules";
+import { useAuthSession } from "@/providers/SessionProvider";
+
+const BASE_ROLES: [string, string][] = [
+  ["COACH", "Coach"],
+  ["FINANCE", "Finance"],
+  ["DOCTOR", "Medical"],
+  ["ADMIN", "Admin"],
+];
 
 interface Props {
   user?: GetStaffByIdQueryType;
 }
 
 const CreateStaffForm = ({ user }: Props) => {
+  // Only a super admin may grant super admin (the server checks this too)
+  const { user: me } = useAuthSession();
+  const roleOptions: [string, string][] =
+    me.role === "SUPER_ADMIN" ? [...BASE_ROLES, ["SUPER_ADMIN", "Super admin"]] : BASE_ROLES;
   const [isPending, startTransition] = useTransition();
   const router = useRouter();
   const isEdditting = !!user;
@@ -279,9 +292,9 @@ const CreateStaffForm = ({ user }: Props) => {
                             </FormControl>
 
                             <SelectContent>
-                              {["COACH", "ADMIN", "DOCTOR"].map((r) => (
-                                <SelectItem key={r} value={r}>
-                                  {r.toLowerCase()}
+                              {roleOptions.map(([value, label]) => (
+                                <SelectItem key={value} value={value}>
+                                  {label}
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -298,12 +311,12 @@ const CreateStaffForm = ({ user }: Props) => {
                           <FormItem className="w-full">
                             <FormLabel>Password</FormLabel>
                             <FormControl className="w-full">
-                              <Input
-                                type="password"
-                                {...field}
-                                placeholder="*******"
-                              />
+                              <Input type="password" autoComplete="new-password" {...field} />
                             </FormControl>
+                            <PasswordRules value={field.value ?? ""} />
+                            <p className="text-xs text-muted-foreground">
+                              They&apos;ll be asked to set their own password the first time they sign in.
+                            </p>
                             <FormMessage />
                           </FormItem>
                         )}

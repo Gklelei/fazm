@@ -12,6 +12,9 @@ model User {
   staff         staff?
   auditLogs     AuditLog[]
   isArchived    Boolean    @default(false)
+  /// Set when the password must be changed before the account can be used
+  /// (all accounts after the 2026-10 password policy; new staff accounts).
+  mustChangePassword Boolean @default(false)
 
   @@map("user")
 }

@@ -1,4 +1,5 @@
 import z from "zod";
+import { passwordProblem, PASSWORD_RULE_TEXT } from "@/lib/password-policy";
 
 const requiredString = z.string().trim().nonempty("This field is required");
 
@@ -9,7 +10,7 @@ export const CreateStaffSchema = z.object({
   }),
   email: z.string().email({ message: "Enter a valid email" }),
   image: z.string().optional(),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string().refine((p) => !passwordProblem(p), PASSWORD_RULE_TEXT),
   phoneNumber: z.string().trim().min(10, "Enter a valid phone number"),
 });
 

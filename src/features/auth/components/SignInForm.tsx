@@ -42,9 +42,9 @@ const SignInForm = () => {
         Sweetalert({
           icon: "error",
           text:
-            (error.message as string) ||
-            (error.code as string) ||
-            "Failed to authenticate user",
+            error.code === "FAILED_TO_CREATE_SESSION"
+              ? "This account has been deactivated. Contact an administrator."
+              : (error.message as string) || "Couldn't sign you in. Try again.",
           title: "Authentication failed",
           showCloseButton: true,
         });
