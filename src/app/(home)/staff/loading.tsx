@@ -1,4 +1,4 @@
-import { Loader2Spinner } from "@/utils/Alerts/Loader2Spinner";
+import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
 
 const loading = () => {
   return <Loader2Spinner />;

@@ -2,8 +2,8 @@ import { db } from "@/lib/prisma";
 import {
   GuardiansQuery,
   GuardiansResponseType,
-} from "@/Modules/Guardions/types";
-import ViewAllGuardins from "@/Modules/Guardions/Ui/ViewAllGuardins";
+} from "@/features/guardians/queries";
+import ViewAllGuardins from "@/features/guardians/components/GuardiansTable";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Guardians" };

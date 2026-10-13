@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import SignUp from "@/Modules/Auth/SignUpForm";
+import SignUp from "@/features/auth/components/SignUpForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Sign Up" };

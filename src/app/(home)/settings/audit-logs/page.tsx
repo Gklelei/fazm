@@ -1,5 +1,5 @@
-import { getAuditLogs } from "@/Modules/Settings/AuditLogs/api/getAuditLogs";
-import AuditLogsTable from "@/Modules/Settings/AuditLogs/ui/AuditLogsTable";
+import { getAuditLogs } from "@/features/audit-logs/queries/get-audit-logs";
+import AuditLogsTable from "@/features/audit-logs/components/AuditLogsTable";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Audit Logs" };

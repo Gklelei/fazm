@@ -2,8 +2,8 @@ import { db } from "@/lib/prisma";
 import {
   GetCouponsQuery,
   GetCouponsQueryType,
-} from "@/Modules/Coupons/Types/Index";
-import Coupons from "@/Modules/Coupons/ui/Coupons";
+} from "@/features/coupons/queries";
+import Coupons from "@/features/coupons/components/CouponsTable";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Coupons" };

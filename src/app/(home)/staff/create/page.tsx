@@ -1,4 +1,4 @@
-import CreateStaffForm from "@/Modules/Users/stafff/Ui/CreateStaffForm";
+import CreateStaffForm from "@/features/staff/components/CreateStaffForm";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Add Staff" };

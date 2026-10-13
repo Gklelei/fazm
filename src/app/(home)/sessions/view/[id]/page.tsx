@@ -1,7 +1,7 @@
 import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
-import { GetAllTrainingSessionsByIdQuery } from "@/Modules/Trainings/Assesments/Types";
-import ViewTrainingSession from "@/Modules/Trainings/ui/ViewTrainingSession";
+import { GetAllTrainingSessionsByIdQuery } from "@/features/assessments/queries";
+import ViewTrainingSession from "@/features/trainings/components/ViewTrainingSession";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Training Session Details" };

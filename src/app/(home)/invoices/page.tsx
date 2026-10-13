@@ -1,5 +1,5 @@
 import { db } from "@/lib/prisma";
-import Invoices from "@/Modules/Finances/Invoices/ui/Invoices";
+import Invoices from "@/features/invoices/components/InvoicesTable";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Invoices" };

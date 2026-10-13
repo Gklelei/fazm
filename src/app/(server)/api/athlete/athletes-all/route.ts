@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import {
   athleteFiltersFromParams,
   buildAthleteWhere,
-} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
+} from "@/features/athletes/queries/filters";
 
 const PAGE_SIZE_DEFAULT = 10;
 

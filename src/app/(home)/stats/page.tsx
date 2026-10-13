@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import StatsPage from "@/Modules/analytics/ui/StatsPage";
+import StatsPage from "@/features/analytics/components/StatsPage";
 
 export const metadata: Metadata = { title: "Statistics" };
 

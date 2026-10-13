@@ -6,7 +6,7 @@ import { db } from "./prisma";
  * being re-queried on every request across several call sites (the academy
  * settings page, the public settings-utils API, the invoice PDF route).
  * Cached under one tag so any edit can invalidate all of them at once via
- * revalidateTag("academy") — see CreateAcademyUtils/EditAcademyUtils.
+ * updateTag("academy") — see CreateAcademyUtils/EditAcademyUtils.
  */
 export const getCachedAcademy = unstable_cache(
   () => db.academy.findFirst(),

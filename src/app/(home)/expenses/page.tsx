@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
-import { GetExpensesQuery } from "@/Modules/Expenses/Types";
-import ExpensesPage from "@/Modules/Expenses/ui/ExpensesPage";
+import { GetExpensesQuery } from "@/features/expenses/queries";
+import ExpensesPage from "@/features/expenses/components/ExpensesPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Expenses" };

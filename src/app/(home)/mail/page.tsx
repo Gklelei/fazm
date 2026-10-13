@@ -1,4 +1,4 @@
-import SendEmail from "@/Modules/Mail/SendEmail";
+import SendEmail from "@/features/mail/components/SendEmail";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Send Email" };

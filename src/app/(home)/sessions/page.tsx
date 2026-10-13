@@ -2,8 +2,8 @@ import { headers } from "next/headers";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
-import ViewTrainingSessions from "@/Modules/Trainings/ui/ViewTrainingSessions";
-import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
+import ViewTrainingSessions from "@/features/trainings/components/ViewTrainingSessions";
+import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import type { Metadata } from "next";
 

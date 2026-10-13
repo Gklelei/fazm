@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
-import { getAllowedRolesForPath } from "@/components/SideBarItems";
+import { getAllowedRolesForPath } from "@/components/layout/nav-config";
 import { ROLES } from "./generated/prisma/enums";
 
 // Proxy files always run on the Node.js runtime (unlike the old

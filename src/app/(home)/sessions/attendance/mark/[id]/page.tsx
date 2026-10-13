@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
-import { GetTrainingAthletesQuery } from "@/Modules/Trainings/Types";
-import MarkAttendance from "@/Modules/Trainings/ui/MarkAttendance";
+import { GetTrainingAthletesQuery } from "@/features/trainings/queries";
+import MarkAttendance from "@/features/trainings/components/MarkAttendance";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 

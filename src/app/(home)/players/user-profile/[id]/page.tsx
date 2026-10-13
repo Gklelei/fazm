@@ -1,9 +1,9 @@
 import NotFound from "@/app/not-found";
 import { db } from "@/lib/prisma";
-import AthleteProfile from "@/Modules/Users/AthletesProfile/AthleteProfile";
-import { GetAthleteByIdQuery } from "@/Modules/Users/Types";
+import AthleteProfile from "@/features/athletes/components/profile/AthleteProfile";
+import { GetAthleteByIdQuery } from "@/features/athletes/queries";
 import type { Metadata } from "next";
-import type { AthleteCouponOption } from "@/Modules/Coupons/Types/Index";
+import type { AthleteCouponOption } from "@/features/coupons/queries";
 
 export const metadata: Metadata = { title: "Athlete Profile" };
 

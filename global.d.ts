@@ -1,5 +1,3 @@
-import { AbsentReason } from "@/Modules/Seed/SeedReasonsForAbsentism";
-
 export {};
 declare global {
   module "*.css";
@@ -65,7 +63,7 @@ declare global {
     attendance: {
       id: string;
       status: string;
-      label: AbsentReason;
+      label: string | null;
     }[];
   } | null;
 

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
-import { Sweetalert } from "@/utils/Alerts/Sweetalert";
+import { Sweetalert } from "@/lib/alerts";
 import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";

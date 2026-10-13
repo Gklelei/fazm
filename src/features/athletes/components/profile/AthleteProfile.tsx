@@ -1,0 +1,130 @@
+"use client";
+
+import { useRouter } from "next/navigation";
+import { ChevronLeft } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+
+import PersonalInfo from "@/features/athletes/components/profile/PersonalInfo";
+import GuardianInfo from "@/features/athletes/components/profile/GuardianInfo";
+import AddressInfo from "@/features/athletes/components/profile/AddressInfo";
+import MedicalEmergencyInformation from "@/features/athletes/components/profile/MedicalEmergencyInformation";
+import EmergencyContacts from "@/features/athletes/components/profile/EmergencyContacts";
+import FinancialRecords from "@/features/athletes/components/profile/FinancialRecords";
+import AthleteStatement from "@/features/athletes/components/profile/AthleteStatement";
+import AthleteInvoices from "@/features/athletes/components/profile/AthleteInvoices";
+import AthleteAssesments from "@/features/athletes/components/profile/AthleteAssessments";
+import AthleteSubscriptionPlans from "@/features/athletes/components/profile/AthleteSubscriptionPlans";
+import AthleteDocuments from "@/features/athletes/components/profile/AthleteDocuments";
+import AthleteExportButton from "@/features/athletes/components/profile/AthleteExportButton";
+
+import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
+import type { AthleteCouponOption } from "@/features/coupons/queries";
+import ResponsiveSections, { Section } from "@/components/shared/ResponsiveSections";
+
+export default function AthleteProfile({
+  data,
+  coupons,
+}: {
+  data: GetAthleteByIdQueryType;
+  coupons: AthleteCouponOption[];
+}) {
+  const router = useRouter();
+  if (!data) return <div className="p-10 text-center">Athlete not found.</div>;
+
+  const sections: Section[] = [
+    {
+      key: "guardian",
+      label: "Guardians",
+      description: "Parents/guardians contacts and relationships.",
+      content: <GuardianInfo data={data} />,
+    },
+    {
+      key: "address",
+      label: "Address",
+      description: "Residential details and location.",
+      content: <AddressInfo data={data} />,
+    },
+    {
+      key: "medical",
+      label: "Medical",
+      description: "Conditions, allergies and blood group.",
+      content: <MedicalEmergencyInformation data={data} />,
+    },
+    {
+      key: "emergency",
+      label: "Emergency",
+      description: "Emergency contacts for urgent situations.",
+      content: <EmergencyContacts data={data} />,
+    },
+    {
+      key: "fees",
+      label: "Financials",
+      description: "Payments history and receipts.",
+      content: <FinancialRecords data={data} />,
+    },
+    {
+      key: "statement",
+      label: "Statement",
+      description: "Account statement showing charges, payments, and running balance.",
+      content: <AthleteStatement data={data} />,
+    },
+    {
+      key: "invoice",
+      label: "Invoices",
+      description: "Billing records, due amounts and status.",
+      content: <AthleteInvoices data={data} />,
+    },
+    {
+      key: "assesments",
+      label: "Assessments",
+      description: "Coach assessments and performance notes.",
+      content: <AthleteAssesments data={data} />,
+    },
+    {
+      key: "documents",
+      label: "Documents",
+      description: "ID, birth certificate, and official documents.",
+      content: <AthleteDocuments data={data} />,
+    },
+    {
+      key: "plan",
+      label: "Plan",
+      description: "Subscription plan and coupon management.",
+      content: <AthleteSubscriptionPlans data={data} coupons={coupons} />,
+    },
+  ];
+
+  return (
+    <div className="mx-auto flex max-w-7xl flex-col gap-5 p-3 sm:p-6">
+      <div className="flex items-center justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="truncate text-lg sm:text-xl font-bold">
+            Athlete profile
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Profile, guardians, medical, invoices and assessments.
+          </p>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <AthleteExportButton data={data} />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => router.back()}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back
+          </Button>
+        </div>
+      </div>
+
+      <PersonalInfo data={data} />
+      <Separator />
+
+      <ResponsiveSections sections={sections} defaultKey="guardian" />
+    </div>
+  );
+}

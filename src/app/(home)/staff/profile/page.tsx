@@ -1,8 +1,8 @@
 import NotFound from "@/app/not-found";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import { GetUserProfileQuery } from "@/Modules/Users/stafff/types";
-import StaffProfilePage from "@/Modules/Users/stafff/Ui/StaffProfilePage";
+import { GetUserProfileQuery } from "@/features/staff/queries";
+import StaffProfilePage from "@/features/staff/components/StaffProfilePage";
 import { headers } from "next/headers";
 import type { Metadata } from "next";
 

@@ -1,0 +1,69 @@
+"use server";
+
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/prisma";
+import { headers } from "next/headers";
+import { MetricsSchema, MetricsSchemaType } from "@/features/assessments/schemas";
+import { revalidatePath } from "next/cache";
+
+export const CreateAssesmentMetricAction = async (
+  data: MetricsSchemaType,
+): Promise<ActionResult> => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    return { message: "Unauthorized access", success: false };
+  }
+
+  const allowedRoles = ["ADMIN", "SUPER_ADMIN"];
+  if (!allowedRoles.includes(session.user.role ?? "")) {
+    return {
+      message: "Unauthorized: You are not allowed to perform this action.",
+      success: false,
+    };
+  }
+
+  const parsedData = MetricsSchema.parse(data);
+
+  try {
+    await db.$transaction(async (ctx) => {
+      const lastSection = await ctx.assessmentTemplateSection.aggregate({
+        _max: {
+          order: true,
+        },
+      });
+      const nextOrder = (lastSection._max.order ?? -1) + 1;
+      await ctx.assessmentTemplateSection.create({
+        data: {
+          name: parsedData.name,
+          description: parsedData.description,
+          order: nextOrder,
+          metrics: {
+            create: parsedData.metrics.map((i) => ({
+              label: i.label,
+            })),
+          },
+        },
+      });
+    });
+    revalidatePath("/assesments");
+    return {
+      success: true,
+      message: "Metric section created successfully",
+    };
+  } catch (error) {
+    console.log(error);
+    if (error instanceof Error) {
+      return {
+        success: false,
+        message: error.message,
+      };
+    }
+    return {
+      success: false,
+      message: "Internal server error",
+    };
+  }
+};

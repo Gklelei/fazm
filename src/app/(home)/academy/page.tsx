@@ -1,5 +1,5 @@
 import { getCachedAcademy } from "@/lib/academy-cache";
-import AcademyPage from "@/Modules/academy/ui/AcademyPage";
+import AcademyPage from "@/features/academy/components/AcademyPage";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Academy Profile" };

@@ -1,7 +1,7 @@
 import { db } from "@/lib/prisma";
-import AthletesData from "@/Modules/Users/AthletesOnboarding/client/Components/AthletesData";
+import AthletesData from "@/features/athletes/components/AthletesRoster";
 import { encodeCursor } from "@/app/(server)/api/athlete/athletes-all/route";
-import type { AthletesInfiniteData } from "@/Modules/Users/AthletesOnboarding/Api/FetchAllAthletes";
+import type { AthletesInfiniteData } from "@/features/athletes/hooks/useAthletes";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Athletes" };

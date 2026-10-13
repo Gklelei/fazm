@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { AppRole } from "@/components/SideBarItems";
+import { AppRole } from "@/components/layout/nav-config";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import Dashboard from "@/Modules/DashBoard/Ui/DashBoard";
+import Dashboard from "@/features/dashboard/components/Dashboard";
 import {
   endOfMonth,
   endOfWeek,

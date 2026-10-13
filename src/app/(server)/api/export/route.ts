@@ -2,17 +2,17 @@ import { db } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
-import { GetExpensesQuery } from "@/Modules/Expenses/Types";
-import { GetExpenseCategoriesQuery } from "@/Modules/Expenses/Types";
-import { GetCouponsQuery } from "@/Modules/Coupons/Types/Index";
-import { GetStaffQuery } from "@/Modules/Users/stafff/types";
-import { GetAllTrainingSessionsQuery } from "@/Modules/Trainings/Assesments/Types";
+import { GetExpensesQuery } from "@/features/expenses/queries";
+import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
+import { GetCouponsQuery } from "@/features/coupons/queries";
+import { GetStaffQuery } from "@/features/staff/queries";
+import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
 import {
   athleteFiltersFromParams,
   buildAthleteWhere,
-} from "@/Modules/Users/AthletesOnboarding/Api/athleteFilters";
+} from "@/features/athletes/queries/filters";
 
 export const dynamic = "force-dynamic";
 
@@ -78,14 +78,7 @@ export async function GET(req: NextRequest) {
       case "coupons": {
         const whereClause: Prisma.CouponWhereInput = { status: 1, voided: 0 };
         if (query) {
-          whereClause.OR = [
-            { code: { contains: query, mode: "insensitive" } },
-            { description: { contains: query, mode: "insensitive" } },
-            {
-              athlete: { firstName: { contains: query, mode: "insensitive" } },
-            },
-            { athlete: { lastName: { contains: query, mode: "insensitive" } } },
-          ];
+          whereClause.name = { contains: query, mode: "insensitive" };
         }
 
         const data = await db.coupon.findMany({
@@ -102,9 +95,9 @@ export async function GET(req: NextRequest) {
         if (query) {
           whereClause.OR = [
             { fullNames: { contains: query, mode: "insensitive" } },
-            { email: { contains: query, mode: "insensitive" } },
+            { staffId: { contains: query, mode: "insensitive" } },
             { phoneNumber: { contains: query, mode: "insensitive" } },
-            { idNumber: { contains: query, mode: "insensitive" } },
+            { user: { email: { contains: query, mode: "insensitive" } } },
           ];
         }
 

@@ -2,7 +2,7 @@ import { betterAuth } from "better-auth";
 import { prismaAdapter } from "better-auth/adapters/prisma";
 import { db } from "./prisma";
 import { SendMail } from "./mailtrap";
-import { SendResetPasswordMailTemplate } from "@/Modules/Mail/Templates/SendResetPasswordMail";
+import { SendResetPasswordMailTemplate } from "@/features/mail/templates/ResetPasswordMail";
 import { createAuditLog } from "./audit";
 
 export const auth = betterAuth({

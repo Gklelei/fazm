@@ -1,15 +1,15 @@
-import { AppSidebar } from "@/components/app-sidebar";
+import { AppSidebar } from "@/components/layout/AppSidebar";
 import {
   SidebarInset,
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { auth } from "@/lib/auth";
-import SessionContextProvider from "@/Modules/Context/SessionProvider";
+import SessionContextProvider from "@/providers/SessionProvider";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import ProfileModal from "@/Modules/UserProfile/ProfileModal";
-import { ModeToggle } from "@/components/ToggleTheme";
+import ProfileModal from "@/features/profile/components/ProfileModal";
+import { ModeToggle } from "@/components/layout/ThemeToggle";
 
 export default async function MainLayout({
   children,

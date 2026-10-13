@@ -1,4 +1,4 @@
-import CreateUtils from "@/Modules/Settings/Ui/CreateUtils";
+import CreateUtils from "@/features/settings/components/SettingsTabs";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Settings" };

@@ -1,6 +1,6 @@
 import { db } from "@/lib/prisma";
-import { EditInvoiceQuery } from "@/Modules/Finances/Invoices/Types";
-import EditInvoice from "@/Modules/Finances/Invoices/ui/EditInvoice";
+import { EditInvoiceQuery } from "@/features/invoices/queries";
+import EditInvoice from "@/features/invoices/components/EditInvoice";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 

@@ -4,8 +4,8 @@ import {
   FetchAllInvoicesQuery,
   GetAllFinanceAtheletes,
   GetFinancesQuery,
-} from "@/Modules/Finances/Type";
-import ViewAllFinances from "@/Modules/Finances/Ui/ViewAllFinances";
+} from "@/features/finance/queries";
+import ViewAllFinances from "@/features/finance/components/ViewAllFinances";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Transactions" };
