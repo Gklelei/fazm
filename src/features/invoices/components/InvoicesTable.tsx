@@ -65,15 +65,15 @@ interface Props {
 const statusBadgeClass = (status: string) => {
   switch (status) {
     case "PAID":
-      return "bg-emerald-100/80 text-emerald-800 border-emerald-200";
+      return "bg-success/80 text-success border-success/30";
     case "PARTIAL":
-      return "bg-amber-100/80 text-amber-800 border-amber-200";
+      return "bg-warning/80 text-warning-foreground dark:text-warning border-warning/30";
     case "PENDING":
-      return "bg-blue-100/80 text-blue-800 border-blue-200";
+      return "bg-info/80 text-info border-info/30";
     case "OVERDUE":
-      return "bg-rose-100/80 text-rose-800 border-rose-200";
+      return "bg-destructive/80 text-destructive border-destructive/30";
     case "CANCELED":
-      return "bg-zinc-100/80 text-zinc-800 border-zinc-200";
+      return "bg-muted text-foreground border-border";
     default:
       return "bg-muted text-muted-foreground border-border";
   }
@@ -499,7 +499,7 @@ const Invoices = ({ initialData }: Props) => {
                           <div className="text-[11px] text-muted-foreground">
                             Paid
                           </div>
-                          <div className="font-mono text-sm font-semibold text-emerald-700">
+                          <div className="font-mono text-sm font-semibold text-success">
                             {money(amountPaid)}
                           </div>
                         </div>
@@ -511,7 +511,7 @@ const Invoices = ({ initialData }: Props) => {
                           <div
                             className={cn(
                               "font-mono text-sm font-bold",
-                              balance <= 0 && "text-emerald-700",
+                              balance <= 0 && "text-success",
                             )}
                           >
                             {money(Math.max(balance, 0))}
@@ -536,7 +536,7 @@ const Invoices = ({ initialData }: Props) => {
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="h-9 w-9 rounded-lg hover:bg-blue-100/50 hover:text-blue-600"
+                          className="h-9 w-9 rounded-lg hover:bg-info/50 hover:text-info"
                           onClick={() =>
                             router.push(
                               `/invoices/${invoice.invoiceNumber}/edit`,
@@ -660,7 +660,7 @@ const Invoices = ({ initialData }: Props) => {
                           </TableCell>
 
                           <TableCell className="py-4 text-right font-mono text-sm">
-                            <span className="font-medium text-emerald-700 dark:text-emerald-400">
+                            <span className="font-medium text-success ">
                               {money(amountPaid)}
                             </span>
                           </TableCell>
@@ -670,7 +670,7 @@ const Invoices = ({ initialData }: Props) => {
                               className={cn(
                                 balance > 0
                                   ? "text-foreground"
-                                  : "text-emerald-700 dark:text-emerald-400",
+                                  : "text-success ",
                               )}
                             >
                               {money(Math.max(balance, 0))}
@@ -759,7 +759,7 @@ const Invoices = ({ initialData }: Props) => {
                               <Button
                                 variant="ghost"
                                 size="icon"
-                                className="h-9 w-9 rounded-lg hover:bg-blue-100/50 hover:text-blue-600"
+                                className="h-9 w-9 rounded-lg hover:bg-info/50 hover:text-info"
                                 onClick={() =>
                                   router.push(
                                     `/invoices/${invoice.invoiceNumber}/edit`,

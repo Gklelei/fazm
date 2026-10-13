@@ -140,7 +140,7 @@ const TransactionDetails = ({ id }: { id: string }) => {
                     <p className="text-sm text-muted-foreground mb-1">
                       Amount Paid
                     </p>
-                    <p className="text-2xl font-bold text-green-600">
+                    <p className="text-2xl font-bold text-success">
                       KES {data.amountPaid.toFixed(2)}
                     </p>
                   </div>
@@ -216,7 +216,7 @@ const TransactionDetails = ({ id }: { id: string }) => {
                 {/* Added bottom padding */}
                 <Badge
                   variant="outline"
-                  className="px-4 py-2 border-green-500 text-green-500"
+                  className="px-4 py-2 border-success/30 text-success"
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Payment Completed

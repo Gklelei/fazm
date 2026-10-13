@@ -23,22 +23,22 @@ type StatusConfig = {
 const STATUS: Record<string, StatusConfig> = {
   ACTIVE: {
     label: "Active",
-    tone: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300 dark:border-emerald-900",
+    tone: "bg-success/10 text-success border-success/30   ",
     message: "Eligible for training, attendance, and match activities.",
   },
   PENDING: {
     label: "Pending",
-    tone: "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300 dark:border-amber-900",
+    tone: "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30   ",
     message: "Registration is under review by the academy.",
   },
   SUSPENDED: {
     label: "Suspended",
-    tone: "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300 dark:border-red-900",
+    tone: "bg-destructive/10 text-destructive border-destructive/30   ",
     message: "Account is restricted. Contact administration for support.",
   },
   DEACTIVATED: {
     label: "Deactivated",
-    tone: "bg-zinc-50 text-zinc-700 border-zinc-200 dark:bg-zinc-900/30 dark:text-zinc-300 dark:border-zinc-800",
+    tone: "bg-muted text-foreground border-border   ",
     message: "Account is currently disabled.",
   },
 };

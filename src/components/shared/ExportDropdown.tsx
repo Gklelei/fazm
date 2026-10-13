@@ -105,7 +105,7 @@ export default function ExportDropdown<T = unknown>({
           onClick={() => handleExport(exportToCSV)}
           className="gap-2 cursor-pointer"
         >
-          <FileText className="h-4 w-4 text-green-600" />
+          <FileText className="h-4 w-4 text-success" />
           Export as CSV
         </DropdownMenuItem>
 
@@ -113,7 +113,7 @@ export default function ExportDropdown<T = unknown>({
           onClick={() => handleExport(exportToExcel)}
           className="gap-2 cursor-pointer"
         >
-          <FileSpreadsheet className="h-4 w-4 text-emerald-600" />
+          <FileSpreadsheet className="h-4 w-4 text-success" />
           Export as Excel
         </DropdownMenuItem>
 
@@ -121,7 +121,7 @@ export default function ExportDropdown<T = unknown>({
           onClick={() => handleExport(exportToPDF)}
           className="gap-2 cursor-pointer"
         >
-          <FileDown className="h-4 w-4 text-red-600" />
+          <FileDown className="h-4 w-4 text-destructive" />
           Export as PDF
         </DropdownMenuItem>
       </DropdownMenuContent>

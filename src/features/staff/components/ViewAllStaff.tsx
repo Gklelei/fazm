@@ -362,7 +362,7 @@ const ViewAllStaff = ({ data, page, limit, total }: Props) => {
                                   <Button
                                     variant="ghost"
                                     size="icon"
-                                    className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
                                     disabled={deletingId === staff.staffId}
                                   >
                                     {deletingId === staff.staffId ? (
@@ -393,7 +393,7 @@ const ViewAllStaff = ({ data, page, limit, total }: Props) => {
                               <AlertDialogCancel>Cancel</AlertDialogCancel>
                               <AlertDialogAction
                                 onClick={() => handleUserDelete(staff.staffId)}
-                                className="bg-red-600 hover:bg-red-700"
+                                className="bg-destructive hover:bg-destructive"
                               >
                                 Delete User
                               </AlertDialogAction>

@@ -150,7 +150,7 @@ export default function AthletesMobileCard({
               <DropdownMenuSeparator />
 
               <DropdownMenuItem
-                className="text-red-600 focus:bg-red-50 gap-2"
+                className="text-destructive focus:bg-destructive/10 gap-2"
                 disabled={deletingId === athlete.athleteId}
                 onClick={() => handleDeleteAthlete(athlete.athleteId)}
               >

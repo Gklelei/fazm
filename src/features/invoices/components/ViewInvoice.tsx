@@ -264,7 +264,7 @@ const ViewInvoicePage = ({ data }: Props) => {
 
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">Paid</span>
-                  <span className="font-mono text-emerald-600">
+                  <span className="font-mono text-success">
                     KES {formatCurrency(amountPaid)}
                   </span>
                 </div>

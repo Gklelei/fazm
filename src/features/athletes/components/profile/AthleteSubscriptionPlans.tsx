@@ -131,7 +131,7 @@ const AthleteSubscriptionPlans = ({
                     <div className="text-sm font-semibold sm:text-base">
                       {activePlan?.name ?? "Active plan"}
                     </div>
-                    <Badge className="bg-emerald-600 text-white gap-1">
+                    <Badge className="bg-success text-white gap-1">
                       <CheckCircle2 className="h-3.5 w-3.5" />
                       ACTIVE
                     </Badge>
@@ -251,7 +251,7 @@ const AthleteSubscriptionPlans = ({
                                   className={cn(
                                     "text-[10px] font-medium",
                                     c.status === 1
-                                      ? "text-emerald-600"
+                                      ? "text-success"
                                       : "text-muted-foreground",
                                   )}
                                 >

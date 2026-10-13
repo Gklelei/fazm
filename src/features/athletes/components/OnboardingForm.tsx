@@ -171,16 +171,16 @@ const AthletesOnboardingForm = () => {
       if (element) {
         element.scrollIntoView({ behavior: "smooth", block: "center" });
         // Add error highlight
-        element.classList.add("border-red-500");
+        element.classList.add("border-destructive/30");
         setTimeout(() => {
-          element.classList.remove("border-red-500");
+          element.classList.remove("border-destructive/30");
         }, 2000);
       }
 
       // Sweetalert({
-      //   icon: "error",
-      //   title: "Validation Error",
-      //   text: "Please fix all errors before proceeding to the next step.",
+      // icon: "error",
+      // title: "Validation Error",
+      // text: "Please fix all errors before proceeding to the next step.",
       // });
     }
   };
@@ -250,10 +250,10 @@ const AthletesOnboardingForm = () => {
                 <div
                   className={`
                   w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold
-                  ${status === "completed" ? "bg-green-500 text-white" : ""}
-                  ${status === "error" ? "bg-red-500 text-white" : ""}
-                  ${status === "valid" ? "bg-blue-500 text-white" : ""}
-                  ${status === "pending" ? "bg-gray-200 text-gray-500" : ""}
+                  ${status === "completed" ? "bg-success text-white" : ""}
+                  ${status === "error" ? "bg-destructive text-white" : ""}
+                  ${status === "valid" ? "bg-info text-white" : ""}
+                  ${status === "pending" ? "bg-muted text-muted-foreground" : ""}
                   ${currentStep === step.id ? "ring-2 ring-primary ring-offset-2" : ""}
                 `}
                 >
@@ -263,7 +263,7 @@ const AthletesOnboardingForm = () => {
                   className={`
                   mt-1 text-[10px] uppercase tracking-wider font-semibold
                   ${currentStep >= step.id ? "text-primary" : "text-muted-foreground"}
-                  ${status === "error" ? "text-red-500" : ""}
+                  ${status === "error" ? "text-destructive" : ""}
                 `}
                 >
                   {step.title}
@@ -303,7 +303,7 @@ const AthletesOnboardingForm = () => {
                 <h4 className="font-semibold text-destructive mb-2">
                   Please fix the following errors:
                 </h4>
-                <ul className="text-sm text-red-600 list-disc pl-5">
+                <ul className="text-sm text-destructive list-disc pl-5">
                   {Object.entries(form.formState.errors).map(
                     ([field, error]) => (
                       <li key={field}>
@@ -420,21 +420,21 @@ const AthletesOnboardingForm = () => {
               </div>
 
               {/* Step Completion Status */}
-              <div className="mt-6 pt-4 border-t border-gray-100">
-                <div className="flex items-center justify-between text-sm text-gray-500">
+              <div className="mt-6 pt-4 border-t border-border">
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
                   <span>
                     Current Step: {currentStep} of {STEPS.length}
                   </span>
                   <span>{Math.round(progress)}% Complete</span>
                 </div>
-                <div className="mt-2 text-xs text-gray-400">
+                <div className="mt-2 text-xs text-muted-foreground">
                   {getStepStatus(currentStep) === "error" && (
-                    <span className="text-red-500">
+                    <span className="text-destructive">
                       ⚠️ Please fix errors in this step
                     </span>
                   )}
                   {getStepStatus(currentStep) === "valid" && (
-                    <span className="text-green-500">
+                    <span className="text-success">
                       ✓ This step is complete
                     </span>
                   )}

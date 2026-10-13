@@ -139,7 +139,7 @@ export function SortableDrillList({
           </label>
         ))}
         {availableDrills.length === 0 && (
-          <span className="text-sm text-red-500">
+          <span className="text-sm text-destructive">
             No drills available. Please contact admin.
           </span>
         )}

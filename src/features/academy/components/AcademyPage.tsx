@@ -407,12 +407,12 @@ const AcademyPage = ({ academy }: Props) => {
                             },
                             {
                               name: "zinc",
-                              bg: "bg-zinc-900 dark:bg-zinc-100",
+                              bg: "bg-foreground ",
                             },
-                            { name: "blue", bg: "bg-blue-600" },
-                            { name: "green", bg: "bg-emerald-600" },
-                            { name: "orange", bg: "bg-orange-500" },
-                            { name: "rose", bg: "bg-rose-600" },
+                            { name: "blue", bg: "bg-info" },
+                            { name: "green", bg: "bg-success" },
+                            { name: "orange", bg: "bg-warning" },
+                            { name: "rose", bg: "bg-destructive" },
                           ].map((theme) => (
                             <button
                               key={theme.name}

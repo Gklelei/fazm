@@ -88,7 +88,7 @@ const ViewSubscriptions = ({
   // Get status badge color
   const getStatusBadge = (isActive: boolean) => {
     return isActive ? (
-      <Badge variant="default" className="bg-green-500 hover:bg-green-600">
+      <Badge variant="default" className="bg-success hover:bg-success">
         Active
       </Badge>
     ) : (
@@ -294,7 +294,7 @@ const ViewSubscriptions = ({
                         {delId === item.id ? (
                           <Loader2Icon className="mr-2 animate-spin h-5 w-5" />
                         ) : (
-                          <Trash2Icon className="text-red-600" />
+                          <Trash2Icon className="text-destructive" />
                         )}
                       </Button>
                     </TableCell>
@@ -330,7 +330,7 @@ const ViewSubscriptions = ({
         {filteredData.length > 0 && (
           <div className="flex flex-wrap gap-4 mt-6 pt-4 border-t text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-green-500"></div>
+              <div className="w-3 h-3 rounded-full bg-success"></div>
               <span className="text-muted-foreground">Active:</span>
               <span className="font-medium">
                 {filteredData.filter((item) => item.isActive).length}

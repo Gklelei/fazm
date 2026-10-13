@@ -5,19 +5,19 @@ export const statusOptions = [
     value: "PENDING",
     label: "Pending",
     Icon: Clock4,
-    color: "text-amber-600 bg-amber-100 border-amber-200",
+    color: "text-warning-foreground dark:text-warning bg-warning/10 border-warning/30",
   },
   {
     value: "ACTIVE",
     label: "Active",
     Icon: CheckCircle2,
-    color: "text-emerald-600 bg-emerald-100 border-emerald-200",
+    color: "text-success bg-success/10 border-success/30",
   },
   {
     value: "SUSPENDED",
     label: "Suspended",
     Icon: Ban,
-    color: "text-red-600 bg-red-100 border-red-200",
+    color: "text-destructive bg-destructive/10 border-destructive/30",
   },
 ] as const;
 

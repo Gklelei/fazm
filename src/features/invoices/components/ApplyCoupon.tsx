@@ -116,13 +116,13 @@ const ApplyCoupon = ({ status, invoiceNumber, balance }: Props) => {
               className={cn(
                 "gap-1",
                 status === "PENDING" &&
-                  "bg-blue-100/80 text-blue-800 border-blue-200",
+                  "bg-info/80 text-info border-info/30",
                 status === "PARTIAL" &&
-                  "bg-amber-100/80 text-amber-800 border-amber-200",
+                  "bg-warning/80 text-warning-foreground dark:text-warning border-warning/30",
                 status === "PAID" &&
-                  "bg-emerald-100/80 text-emerald-800 border-emerald-200",
+                  "bg-success/80 text-success border-success/30",
                 status === "CANCELED" &&
-                  "bg-red-100/80 text-red-800 border-red-200",
+                  "bg-destructive/80 text-destructive border-destructive/30",
               )}
             >
               <CheckCircle2 className="h-3.5 w-3.5" />

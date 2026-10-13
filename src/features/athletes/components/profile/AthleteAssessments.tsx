@@ -16,32 +16,32 @@ const GRADE_STYLES: Record<string, { label: string; className: string }> = {
   EXCELLENT: {
     label: "Excellent",
     className:
-      "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300",
+      "bg-success/10 text-success border-success/30  ",
   },
   VERY_GOOD: {
     label: "Very Good",
     className:
-      "bg-blue-50 text-blue-700 border-blue-200 dark:bg-blue-950/30 dark:text-blue-300",
+      "bg-info/10 text-info border-info/30  ",
   },
   GOOD: {
     label: "Good",
     className:
-      "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300",
+      "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30  ",
   },
   NEEDS_WORK: {
     label: "Needs Work",
     className:
-      "bg-orange-50 text-orange-700 border-orange-200 dark:bg-orange-950/30 dark:text-orange-300",
+      "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30  ",
   },
   BELOW_STANDARD: {
     label: "Below Standard",
     className:
-      "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300",
+      "bg-destructive/10 text-destructive border-destructive/30  ",
   },
   POOR: {
     label: "Poor",
     className:
-      "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300",
+      "bg-destructive/10 text-destructive border-destructive/30  ",
   },
 };
 

@@ -222,7 +222,7 @@ const Drills = () => {
                             {delId === d.id ? (
                               <Loader2Icon className="animate-spin size-4" />
                             ) : (
-                              <Trash2Icon className="h-4 w-4 text-red-600" />
+                              <Trash2Icon className="h-4 w-4 text-destructive" />
                             )}
                           </Button>
                         </div>

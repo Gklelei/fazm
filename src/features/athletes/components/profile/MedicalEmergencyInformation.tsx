@@ -18,8 +18,8 @@ const MedicalEmergencyInformation = ({
     <Card>
       <CardHeader className="pb-3">
         <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-md bg-amber-500/10">
-            <Activity className="h-4 w-4 text-amber-600" />
+          <div className="p-1.5 rounded-md bg-warning/10">
+            <Activity className="h-4 w-4 text-warning-foreground dark:text-warning" />
           </div>
           <CardTitle className="text-base font-bold">Medical Info</CardTitle>
         </div>
@@ -41,7 +41,7 @@ const MedicalEmergencyInformation = ({
           {/* Allergies */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-amber-600" />
+              <AlertTriangle className="h-4 w-4 text-warning-foreground dark:text-warning" />
               <span className="text-sm font-medium">Allergies</span>
             </div>
             {hasAllergies ? (
@@ -67,7 +67,7 @@ const MedicalEmergencyInformation = ({
           {/* Medical Conditions */}
           <div>
             <div className="flex items-center gap-2 mb-2">
-              <Pill className="h-4 w-4 text-purple-600" />
+              <Pill className="h-4 w-4 text-info" />
               <span className="text-sm font-medium">Medical Conditions</span>
             </div>
             {hasConditions ? (
@@ -76,7 +76,7 @@ const MedicalEmergencyInformation = ({
                   <Badge
                     key={i}
                     variant="outline"
-                    className="text-xs bg-purple-50 border-purple-200 text-purple-700"
+                    className="text-xs bg-info/10 border-info/30 text-info"
                   >
                     {i + 1}. {item}
                   </Badge>

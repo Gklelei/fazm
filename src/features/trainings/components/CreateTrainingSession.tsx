@@ -232,7 +232,7 @@ const CreateTrainingSession = () => {
                           />
                         </FormControl>
                         {data?.locations.length === 0 && (
-                          <span className="text-sm text-red-500">
+                          <span className="text-sm text-destructive">
                             No locations available contact admin
                           </span>
                         )}
@@ -261,7 +261,7 @@ const CreateTrainingSession = () => {
                           />
                         </FormControl>
                         {data?.batches.length === 0 && (
-                          <span className="text-sm text-red-500">
+                          <span className="text-sm text-destructive">
                             No batches available contact admin
                           </span>
                         )}
@@ -318,7 +318,7 @@ const CreateTrainingSession = () => {
                           />
                         </FormControl>
                         {data?.coaches.length === 0 && (
-                          <span className="text-sm text-red-500">
+                          <span className="text-sm text-destructive">
                             No coaches available contact admin
                           </span>
                         )}

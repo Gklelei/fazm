@@ -13,14 +13,14 @@ import { Badge } from "@/components/ui/badge";
 import { FileText } from "lucide-react";
 
 const STATUS_STYLES: Record<string, string> = {
-  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/30 dark:text-emerald-300",
+  PAID: "bg-success/10 text-success border-success/30  ",
   PARTIAL:
-    "bg-amber-50 text-amber-700 border-amber-200 dark:bg-amber-950/30 dark:text-amber-300",
+    "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30  ",
   UNPAID:
-    "bg-red-50 text-red-700 border-red-200 dark:bg-red-950/30 dark:text-red-300",
+    "bg-destructive/10 text-destructive border-destructive/30  ",
   OVERDUE:
-    "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/30 dark:text-rose-300",
-  PENDING: "bg-zinc-100 text-zinc-500 border-zinc-200",
+    "bg-destructive/10 text-destructive border-destructive/30  ",
+  PENDING: "bg-muted text-muted-foreground border-border",
 };
 
 function statusStyle(status: string) {
@@ -74,13 +74,13 @@ const AthleteInvoices = ({ data }: { data: GetAthleteByIdQueryType }) => {
                     <TableCell className="font-medium">
                       KES {formatCurrency(due)}
                     </TableCell>
-                    <TableCell className="text-emerald-700 font-medium">
+                    <TableCell className="text-success font-medium">
                       KES {formatCurrency(paid)}
                     </TableCell>
                     <TableCell
                       className={
                         balance > 0
-                          ? "text-red-600 font-semibold"
+                          ? "text-destructive font-semibold"
                           : "text-muted-foreground"
                       }
                     >

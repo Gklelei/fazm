@@ -14,10 +14,10 @@ import {
 import { format } from "date-fns";
 
 const STATUS_STYLES: Record<string, string> = {
-  PAID: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  PARTIAL: "bg-amber-50 text-amber-700 border-amber-200",
-  UNPAID: "bg-red-50 text-red-700 border-red-200",
-  PENDING: "bg-zinc-50 text-zinc-500 border-zinc-200",
+  PAID: "bg-success/10 text-success border-success/30",
+  PARTIAL: "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30",
+  UNPAID: "bg-destructive/10 text-destructive border-destructive/30",
+  PENDING: "bg-muted text-muted-foreground border-border",
 };
 
 const FinancialRecords = ({ data }: { data: GetAthleteByIdQueryType }) => {
@@ -28,8 +28,8 @@ const FinancialRecords = ({ data }: { data: GetAthleteByIdQueryType }) => {
       <CardHeader className="pb-3 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-emerald-50">
-              <CreditCard className="h-4 w-4 text-emerald-600" />
+            <div className="p-1.5 rounded-md bg-success/10">
+              <CreditCard className="h-4 w-4 text-success" />
             </div>
             <CardTitle className="text-base font-bold">
               Payment History
@@ -63,7 +63,7 @@ const FinancialRecords = ({ data }: { data: GetAthleteByIdQueryType }) => {
                   <TableCell className="pl-4 text-muted-foreground text-sm">
                     {i + 1}
                   </TableCell>
-                  <TableCell className="font-semibold text-emerald-700">
+                  <TableCell className="font-semibold text-success">
                     KES {Number(item.amountPaid).toLocaleString()}
                   </TableCell>
                   <TableCell className="text-sm">

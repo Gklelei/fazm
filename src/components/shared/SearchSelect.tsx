@@ -105,11 +105,11 @@ export function SearchSelect<T>({
           role="combobox"
           aria-expanded={open}
           className={cn(
-            "w-full justify-between font-normal min-h-11 h-auto py-2 px-3 border-slate-300 focus:ring-2 focus:ring-slate-900",
+            "w-full justify-between font-normal min-h-11 h-auto py-2 px-3 border-border focus:ring-2 focus:ring-border",
             multiple &&
               Array.isArray(value) &&
               value.length > 0 &&
-              "bg-slate-50/50"
+              "bg-muted"
           )}
         >
           <div className="flex flex-wrap gap-1.5 overflow-hidden">
@@ -121,13 +121,13 @@ export function SearchSelect<T>({
                   <Badge
                     key={getValue(item)}
                     variant="secondary"
-                    className="bg-white border-slate-200 text-slate-700 font-medium animate-in fade-in zoom-in-95 duration-200"
+                    className="bg-white border-border text-foreground font-medium animate-in fade-in zoom-in-95 duration-200"
                   >
                     {getLabel(item)}
                   </Badge>
                 ))
             ) : (
-              <span className="truncate text-slate-600">{selectedDisplay}</span>
+              <span className="truncate text-muted-foreground">{selectedDisplay}</span>
             )}
             {multiple && Array.isArray(value) && value.length > 3 && (
               <Badge variant="outline" className="border-dashed">
@@ -139,13 +139,13 @@ export function SearchSelect<T>({
         </Button>
       </PopoverTrigger>
       <PopoverContent
-        className="w-[--radix-popover-trigger-width] p-0 shadow-xl border-slate-200"
+        className="w-[--radix-popover-trigger-width] p-0 shadow-xl border-border"
         align="start"
       >
         <Command className="rounded-lg">
           <CommandInput placeholder={searchPlaceholder} className="h-11" />
           <CommandList className="max-h-75 overflow-y-auto">
-            <CommandEmpty className="py-6 text-center text-sm text-slate-500">
+            <CommandEmpty className="py-6 text-center text-sm text-muted-foreground">
               {emptyMessage}
             </CommandEmpty>
 
@@ -154,7 +154,7 @@ export function SearchSelect<T>({
                 <CommandGroup>
                   <CommandItem
                     onSelect={handleSelectAll}
-                    className="cursor-pointer font-medium text-slate-900"
+                    className="cursor-pointer font-medium text-foreground"
                   >
                     <div
                       className={cn(
@@ -169,7 +169,7 @@ export function SearchSelect<T>({
                           <Check className="h-3 w-3" />
                         )}
                     </div>
-                    <Users className="mr-2 h-4 w-4 text-slate-500" />
+                    <Users className="mr-2 h-4 w-4 text-muted-foreground" />
                     {Array.isArray(value) && value.length === items.length
                       ? "Deselect All Athletes"
                       : "Select All Athletes"}
@@ -195,7 +195,7 @@ export function SearchSelect<T>({
                         "mr-2 flex h-4 w-4 items-center justify-center rounded-sm border border-primary transition-colors",
                         active
                           ? "bg-primary text-primary-foreground border-primary"
-                          : "opacity-50 border-slate-400"
+                          : "opacity-50 border-border"
                       )}
                     >
                       {active && <Check className="h-3 w-3" />}

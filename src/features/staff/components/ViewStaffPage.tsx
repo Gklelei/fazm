@@ -33,7 +33,7 @@ function formatDate(dateString: string) {
 }
 
 // function formatTime(dateString: string) {
-//   return format(new Date(dateString), "hh:mm a");
+// return format(new Date(dateString), "hh:mm a");
 // }
 
 function getStatusBadge(status: string) {
@@ -41,21 +41,21 @@ function getStatusBadge(status: string) {
   switch (status) {
     case "SCHEDULED":
       return (
-        <Badge className={`${base} bg-blue-100 text-blue-700`}>Scheduled</Badge>
+        <Badge className={`${base} bg-info/10 text-info`}>Scheduled</Badge>
       );
     case "COMPLETED":
       return (
-        <Badge className={`${base} bg-green-100 text-green-700`}>
+        <Badge className={`${base} bg-success/10 text-success`}>
           Completed
         </Badge>
       );
     case "CANCELLED":
       return (
-        <Badge className={`${base} bg-red-100 text-red-700`}>Cancelled</Badge>
+        <Badge className={`${base} bg-destructive/10 text-destructive`}>Cancelled</Badge>
       );
     case "IN_PROGRESS":
       return (
-        <Badge className={`${base} bg-amber-100 text-amber-700`}>
+        <Badge className={`${base} bg-warning/10 text-warning-foreground dark:text-warning`}>
           In Progress
         </Badge>
       );
@@ -318,7 +318,7 @@ const StaffViewPage = ({ staff }: { staff: GetStaffByIdQueryType }) => {
 
                     <div className="mt-4 grid grid-cols-3 gap-3">
                       <div className="rounded-lg border bg-background p-3 text-center">
-                        <div className="text-lg font-semibold text-green-700">
+                        <div className="text-lg font-semibold text-success">
                           {completedTrainings}
                         </div>
                         <div className="text-[11px] text-muted-foreground">
@@ -326,7 +326,7 @@ const StaffViewPage = ({ staff }: { staff: GetStaffByIdQueryType }) => {
                         </div>
                       </div>
                       <div className="rounded-lg border bg-background p-3 text-center">
-                        <div className="text-lg font-semibold text-blue-700">
+                        <div className="text-lg font-semibold text-info">
                           {upcomingTrainings}
                         </div>
                         <div className="text-[11px] text-muted-foreground">

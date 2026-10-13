@@ -319,7 +319,7 @@ export default function CreateAssesment({
                   </div>
 
                   {isDone && (
-                    <Badge className="text-[10px] bg-emerald-600 text-white">
+                    <Badge className="text-[10px] bg-success text-white">
                       Completed
                     </Badge>
                   )}

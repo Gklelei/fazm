@@ -60,12 +60,12 @@ export default function AuditLogsTable({
 
   const getActionBadgeColor = (action: string) => {
     if (action.includes("CREATE") || action.includes("ADD"))
-      return "bg-emerald-500/10 text-emerald-600";
+      return "bg-success/10 text-success";
     if (action.includes("DELETE") || action.includes("REMOVE"))
-      return "bg-red-500/10 text-red-600";
+      return "bg-destructive/10 text-destructive";
     if (action.includes("UPDATE") || action.includes("EDIT"))
-      return "bg-blue-500/10 text-blue-600";
-    return "bg-slate-500/10 text-slate-600";
+      return "bg-info/10 text-info";
+    return "bg-muted-foreground text-muted-foreground";
   };
 
   return (

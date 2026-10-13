@@ -99,7 +99,7 @@ const EditAssesmentMetric = ({ data, id }: Props) => {
         <Button
           size="icon"
           variant="ghost"
-          className="h-8 w-8 text-blue-500 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+          className="h-8 w-8 text-info hover:text-info hover:bg-info/10 transition-colors"
         >
           <PenBox className="w-4 h-4" />
         </Button>

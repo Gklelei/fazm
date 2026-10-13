@@ -96,7 +96,7 @@ export default function AthleteStatement({ data }: AthleteStatementProps) {
         <div className="flex items-center gap-4">
           <div className="text-right">
             <span className="text-sm text-muted-foreground block">Current Balance</span>
-            <span className={`text-lg font-bold ${currentOwed > 0 ? "text-red-500" : "text-green-600"}`}>
+            <span className={`text-lg font-bold ${currentOwed > 0 ? "text-destructive" : "text-success"}`}>
               KES {currentOwed.toLocaleString(undefined, { minimumFractionDigits: 2 })}
             </span>
           </div>
@@ -127,8 +127,8 @@ export default function AthleteStatement({ data }: AthleteStatementProps) {
                   <TableHead>Date</TableHead>
                   <TableHead>Description</TableHead>
                   <TableHead>Reference</TableHead>
-                  <TableHead className="text-right text-red-600/80">Charge (Out)</TableHead>
-                  <TableHead className="text-right text-green-600/80">Payment (In)</TableHead>
+                  <TableHead className="text-right text-destructive">Charge (Out)</TableHead>
+                  <TableHead className="text-right text-success">Payment (In)</TableHead>
                   <TableHead className="text-right font-bold">Balance</TableHead>
                 </TableRow>
               </TableHeader>
@@ -149,10 +149,10 @@ export default function AthleteStatement({ data }: AthleteStatementProps) {
                         {entry.reference}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-right text-red-600 font-medium">
+                    <TableCell className="text-right text-destructive font-medium">
                       {entry.type === "CHARGE" ? `KES ${entry.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "—"}
                     </TableCell>
-                    <TableCell className="text-right text-green-600 font-medium">
+                    <TableCell className="text-right text-success font-medium">
                       {entry.type === "PAYMENT" ? `KES ${entry.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "—"}
                     </TableCell>
                     <TableCell className="text-right font-bold tabular-nums">

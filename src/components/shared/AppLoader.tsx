@@ -22,7 +22,7 @@ const AppLoader = () => {
       {[0, 1, 2, 3, 4].map((i) => (
         <div
           key={i}
-          className="absolute w-1 h-1 bg-yellow-300/70 rounded-full animate-float"
+          className="absolute w-1 h-1 bg-warning/70 rounded-full animate-float"
           style={{
             top: `${20 + i * 20}%`,
             left: `${10 + i * 20}%`,
@@ -34,7 +34,7 @@ const AppLoader = () => {
       {/* Main content */}
       <div className="relative z-10 text-center animate-fade-in-up">
         {/* Academy name */}
-        <h1 className="text-5xl md:text-6xl font-black text-yellow-400 uppercase tracking-wider mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
+        <h1 className="text-5xl md:text-6xl font-black text-warning-foreground dark:text-warning uppercase tracking-wider mb-2 drop-shadow-[0_4px_12px_rgba(0,0,0,0.5)]">
           FAZAM
         </h1>
         <h2 className="text-2xl md:text-3xl font-semibold text-white uppercase tracking-[0.25em] mb-12 drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]">
@@ -43,10 +43,10 @@ const AppLoader = () => {
 
         {/* Loading bar */}
         <div className="w-75 md:w-100 h-1.5 bg-white/20 rounded-full mx-auto overflow-hidden">
-          <div className="h-full bg-linear-to-r from-yellow-400 via-yellow-300 to-yellow-400 rounded-full animate-loading bg-size-[200%_100%]" />
+          <div className="h-full bg-linear-to-r from-brand-gold via-brand-gold to-brand-gold rounded-full animate-loading bg-size-[200%_100%]" />
         </div>
 
-        <p className="text-yellow-100 text-sm mt-4 tracking-wider animate-pulse-slow">
+        <p className="text-warning-foreground dark:text-warning text-sm mt-4 tracking-wider animate-pulse-slow">
           Loading your experience...
         </p>
       </div>

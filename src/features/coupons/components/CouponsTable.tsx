@@ -206,7 +206,7 @@ const Coupons = ({ coupons, page, limit, total }: Props) => {
                           onClick={() => handleCopy(coupon.name, coupon.id)}
                         >
                           {copiedId === coupon.id ? (
-                            <ClipboardCheck className="h-3 w-3 text-green-600" />
+                            <ClipboardCheck className="h-3 w-3 text-success" />
                           ) : (
                             <Clipboard className="h-3 w-3 text-muted-foreground" />
                           )}
@@ -251,7 +251,7 @@ const Coupons = ({ coupons, page, limit, total }: Props) => {
                           {format(new Date(coupon.startDate), "MMM d, yyyy")}
                         </span>
                         {coupon.expiryDate && (
-                          <span className="text-xs text-red-400">
+                          <span className="text-xs text-destructive">
                             Expires{" "}
                             {format(new Date(coupon.expiryDate), "MMM d")}
                           </span>
@@ -265,7 +265,7 @@ const Coupons = ({ coupons, page, limit, total }: Props) => {
                         variant={coupon.status === 1 ? "default" : "secondary"}
                         className={
                           coupon.status === 1
-                            ? "bg-green-600 hover:bg-green-700"
+                            ? "bg-success hover:bg-success"
                             : ""
                         }
                       >
@@ -303,7 +303,7 @@ const Coupons = ({ coupons, page, limit, total }: Props) => {
                           <DropdownMenuSeparator />
                           <CreateCoupons coupon={coupon} id={coupon.id} />
                           <DropdownMenuItem
-                            className="text-red-600 focus:text-red-600"
+                            className="text-destructive focus:text-destructive"
                             onClick={() => handleDeleteCoupon(coupon.id)}
                           >
                             <Trash2 className="mr-2 h-4 w-4" /> Deactivate

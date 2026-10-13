@@ -160,7 +160,7 @@ const SubscriptionPlans = ({ athleteId, activePlanId }: Props) => {
                       "w-full text-left rounded-lg border p-4 transition",
                       "hover:bg-muted/50",
                       isSelected && "border-primary ring-2 ring-primary/20",
-                      isActive && "border-emerald-500",
+                      isActive && "border-success/30",
                       isPending && "opacity-70 cursor-not-allowed",
                     )}
                   >
@@ -177,7 +177,7 @@ const SubscriptionPlans = ({ athleteId, activePlanId }: Props) => {
                       </div>
 
                       {isActive ? (
-                        <Badge className="bg-emerald-600 text-white">
+                        <Badge className="bg-success text-white">
                           Active
                         </Badge>
                       ) : isSelected ? (
