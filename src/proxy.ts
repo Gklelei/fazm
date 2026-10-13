@@ -22,11 +22,25 @@ export const config = {
 };
 
 export async function proxy(request: NextRequest) {
-  const session = await auth.api.getSession({ headers: request.headers });
+  // returnHeaders: when better-auth slides the session forward it also
+  // re-issues the session cookie. Server components can't set cookies, so
+  // the proxy - which runs on every navigation - forwards it; otherwise the
+  // browser cookie expires a fixed time after sign-in, however active the
+  // user is.
+  const { headers: authHeaders, response: session } =
+    await auth.api.getSession({ headers: request.headers, returnHeaders: true });
+
+  const withAuthCookies = (res: NextResponse) => {
+    for (const cookie of authHeaders?.getSetCookie() ?? []) {
+      res.headers.append("set-cookie", cookie);
+    }
+    return res;
+  };
 
   if (!session?.user) {
-    const signInUrl = new URL("/sign-in", request.url);
-    return NextResponse.redirect(signInUrl);
+    return withAuthCookies(
+      NextResponse.redirect(new URL("/sign-in", request.url)),
+    );
   }
 
   const allowedRoles = getAllowedRolesForPath(request.nextUrl.pathname);
@@ -34,8 +48,8 @@ export async function proxy(request: NextRequest) {
     allowedRoles &&
     !allowedRoles.includes((session.user.role as ROLES) ?? "")
   ) {
-    return NextResponse.redirect(new URL("/", request.url));
+    return withAuthCookies(NextResponse.redirect(new URL("/", request.url)));
   }
 
-  return NextResponse.next();
+  return withAuthCookies(NextResponse.next());
 }
