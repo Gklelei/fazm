@@ -180,11 +180,10 @@ export const EditCouponsAction = async (
   }
 
   try {
-    const existingCoupon = await db.coupon.findUnique({
-      where: {
-        name: parsedData.name.toUpperCase(),
-        id,
-      },
+    // Another coupon with this name; the one being edited may keep its own
+    const existingCoupon = await db.coupon.findFirst({
+      where: { name: parsedData.name.toUpperCase(), NOT: { id } },
+      select: { id: true },
     });
 
     if (existingCoupon) {
@@ -203,7 +202,7 @@ export const EditCouponsAction = async (
         discountType: parsedData.discountType as DiscountType,
         startDate: parsedData.startDate,
         expiryDate: parsedData.expiryDate,
-        timesUsed: 0,
+        // timesUsed is not touched: editing must not reset a usage limit
         usageLimit: parsedData.usageLimit,
         // status: 1,
       },
@@ -218,7 +217,7 @@ export const EditCouponsAction = async (
     });
 
     return {
-      message: "Coupon created",
+      message: "Coupon updated",
       success: true,
     };
   } catch (error) {
