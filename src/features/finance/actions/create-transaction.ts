@@ -1,5 +1,7 @@
 "use server";
 
+import { invoiceStatusFor } from "@/features/invoices/lib/status";
+import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { FinanceSchema, FinanceSchemaType } from "@/features/finance/schemas";
@@ -48,10 +50,9 @@ const createFinancialTransaction = async (
     const newPaymentAmount = parseFloat(parsedData.amountPaid);
 
     const result = await db.$transaction(async (ctx) => {
-      // Re-read the invoice's current balance inside the transaction rather
-      // than relying on the snapshot fetched above, so two concurrent
-      // payments against the same invoice can't both compute their new
-      // balance from the same stale starting point (lost-update race).
+      // Row lock: a second payment on this invoice waits here until this
+      // one commits, so both can't start from the same balance.
+      await ctx.$queryRaw`SELECT id FROM invoices WHERE id = ${existingInvoice.id} FOR UPDATE`;
       const currentInvoice = await ctx.invoice.findUniqueOrThrow({
         where: { id: existingInvoice.id },
       });
@@ -65,36 +66,16 @@ const createFinancialTransaction = async (
         );
       }
 
-      const now = new Date();
-      const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
-      const startOfDay = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        0,
-        0,
-        0,
-      );
-      const endOfDay = new Date(
-        now.getFullYear(),
-        now.getMonth(),
-        now.getDate(),
-        23,
-        59,
-        59,
-      );
-
-      const todaysCount = await ctx.finance.count({
-        where: { createdAt: { gte: startOfDay, lte: endOfDay } },
-      });
-
-      const sequence = (todaysCount + 1).toString().padStart(3, "0");
-      const generatedReceipt = `FEES-${datePart}-${sequence}`;
+      const [generatedReceipt] = await nextDocumentNumbers(ctx, "FEES");
 
       const totalPaidSoFar =
         Number(currentInvoice.amountPaid) + newPaymentAmount;
-      const isFullyPaid = totalPaidSoFar >= Number(currentInvoice.amountDue);
-      const newStatus = isFullyPaid ? "PAID" : "PARTIAL";
+      const newStatus = invoiceStatusFor(
+        totalPaidSoFar,
+        Number(currentInvoice.amountDue),
+        currentInvoice.dueDate,
+      );
+      const isFullyPaid = newStatus === "PAID";
 
       const finance = await ctx.finance.create({
         data: {

@@ -1,5 +1,6 @@
 "use server";
 
+import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
@@ -13,17 +14,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 
-function startOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
 
-function endOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(23, 59, 59, 999);
-  return x;
-}
 
 function toDecimal(val: string | number | Prisma.Decimal) {
   if (val instanceof Prisma.Decimal) return val.toDecimalPlaces(2);
@@ -55,13 +46,6 @@ async function CreateAthleteInvoice(
 
     await db.$transaction(async (tx) => {
       const now = new Date();
-      const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
-      const sDay = startOfDay(now);
-      const eDay = endOfDay(now);
-
-      let todaysCount = await tx.invoice.count({
-        where: { createdAt: { gte: sDay, lte: eDay } },
-      });
 
       const isManual = parsed.subType === "MANUAL";
 
@@ -92,9 +76,7 @@ async function CreateAthleteInvoice(
         const athlete = await tx.athlete.findUnique({ where: { athleteId } });
         if (!athlete) throw new Error(`Athlete ${athleteId} not found`);
 
-        todaysCount += 1;
-        const invoiceSequence = String(todaysCount).padStart(3, "0");
-        const invoiceNumber = `INV-${datePart}-${invoiceSequence}`;
+        const [invoiceNumber] = await nextDocumentNumbers(tx, "INV", 1, now);
 
         await tx.invoice.create({
           data: {

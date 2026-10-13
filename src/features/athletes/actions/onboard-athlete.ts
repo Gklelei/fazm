@@ -1,5 +1,6 @@
 "use server";
 
+import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { hasRole } from "@/lib/roles";
 import { db } from "@/lib/prisma";
 import {
@@ -33,17 +34,7 @@ function toDecimal(value: number | Prisma.Decimal) {
 }
 
 // ----------------- Small utils -----------------
-function startOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
 
-function endOfDay(d: Date) {
-  const x = new Date(d);
-  x.setHours(23, 59, 59, 999);
-  return x;
-}
 
 function parseCSV(value?: string | null) {
   if (!value) return [];
@@ -130,12 +121,7 @@ const AthleteOnboardingAction = async (
       const now = new Date();
 
       // ---------- Invoice number ----------
-      const datePart = now.toISOString().split("T")[0].replace(/-/g, "");
-      const todaysCount = await ctx.invoice.count({
-        where: { createdAt: { gte: startOfDay(now), lte: endOfDay(now) } },
-      });
-      const invoiceSequence = String(todaysCount + 1).padStart(3, "0");
-      const generatedInvoiceNumber = `INV-${datePart}-${invoiceSequence}`;
+      const [generatedInvoiceNumber] = await nextDocumentNumbers(ctx, "INV", 1, now);
 
       // ---------- Athlete ID ----------
       const sequence = await ctx.athleteSequence.update({

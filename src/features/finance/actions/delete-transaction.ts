@@ -1,5 +1,6 @@
 "use server";
 
+import { invoiceStatusFor } from "@/features/invoices/lib/status";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -39,32 +40,25 @@ const deleteFinancialTransaction = async (
       };
     }
 
-    const existingInvoice = await db.invoice.findUnique({
-      where: { id: existingTransaction.invoiceId! },
-    });
-
-    if (!existingInvoice) {
-      return { success: false, message: "Associated invoice not found." };
-    }
-
-    const paymentAmount = Number(existingTransaction.amountPaid);
-
     await db.$transaction(async (ctx) => {
-      // Soft delete transaction
-      await ctx.finance.update({
-        where: { id },
-        data: {
-          isArchived: true,
-        },
-      });
+      await ctx.finance.update({ where: { id }, data: { isArchived: true } });
 
-      // Update invoice base amount and status
-      const newTotalPaid = Number(existingInvoice.amountPaid) - paymentAmount;
-      const newStatus = newTotalPaid > 0 ? "PARTIAL" : "PENDING";
+      const invoiceId = existingTransaction.invoiceId;
+      if (!invoiceId) return;
 
+      // Lock + fresh read so a concurrent payment isn't overwritten
+      await ctx.$queryRaw`SELECT id FROM invoices WHERE id = ${invoiceId} FOR UPDATE`;
+      const invoice = await ctx.invoice.findUniqueOrThrow({ where: { id: invoiceId } });
+      const totalPaid = Math.max(
+        0,
+        Number(invoice.amountPaid) - Number(existingTransaction.amountPaid),
+      );
       await ctx.invoice.update({
-        where: { id: existingInvoice.id },
-        data: { amountPaid: newTotalPaid, status: newStatus },
+        where: { id: invoiceId },
+        data: {
+          amountPaid: totalPaid,
+          status: invoiceStatusFor(totalPaid, Number(invoice.amountDue), invoice.dueDate),
+        },
       });
     });
 
@@ -74,7 +68,7 @@ const deleteFinancialTransaction = async (
       details: `Soft deleted receipt ${existingTransaction.receiptNumber}`,
       userId: session.user.id,
       athleteId: existingTransaction.athleteId,
-      invoiceId: existingInvoice.id,
+      invoiceId: existingTransaction.invoiceId ?? undefined,
     });
 
     return {

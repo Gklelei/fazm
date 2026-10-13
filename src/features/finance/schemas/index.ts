@@ -9,8 +9,14 @@ export const PAYMENT_TYPE = [
 
 const requiredString = z.string().trim().min(1, "This field is required");
 
+/** Money typed into a form: a positive amount with at most 2 decimals. */
+const amount = requiredString.refine(
+  (v) => /^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0,
+  "Enter an amount greater than 0",
+);
+
 export const FinanceSchema = z.object({
-  amountPaid: requiredString,
+  amountPaid: amount,
   paymentDate: requiredString,
   paymentType: z.enum(PAYMENT_TYPE),
   collectedBy: requiredString,
@@ -26,7 +32,7 @@ export type ClientFinanceSchemaType = z.infer<typeof ClientFinanceSchema>;
 
 export const EditFinanceSchema = z.object({
   id: requiredString,
-  amountPaid: requiredString,
+  amountPaid: amount,
   paymentDate: requiredString,
   paymentType: z.enum(PAYMENT_TYPE),
   collectedBy: requiredString,
