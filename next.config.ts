@@ -1,8 +1,9 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
-  // output: "standalone",
+  // Build anywhere, ship only .next/standalone: the production server has
+  // too little RAM to run `next build` itself.
+  output: "standalone",
   typescript: {
     ignoreBuildErrors: process.env.NODE_ENV === "production",
   },
