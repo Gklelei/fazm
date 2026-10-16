@@ -5,7 +5,7 @@ import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
 import { createAuditLog } from "@/lib/audit";
 import { db } from "@/lib/prisma";
 import { ROLE_GROUPS } from "@/lib/roles";
-import { invoiceStatusFor } from "../lib/status";
+import { invoiceStatusFor, payableOf } from "../lib/status";
 
 /**
  * Cancel an invoice, or restore a cancelled one. The status is never set
@@ -30,7 +30,7 @@ export async function setInvoiceCancelled(
         data: {
           status: cancelled
             ? "CANCELED"
-            : invoiceStatusFor(Number(inv.amountPaid), Number(inv.amountDue), inv.dueDate),
+            : invoiceStatusFor(Number(inv.amountPaid), payableOf(inv), inv.dueDate),
         },
       });
     });

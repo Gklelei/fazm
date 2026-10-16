@@ -1,6 +1,6 @@
 "use server";
 
-import { invoiceStatusFor } from "@/features/invoices/lib/status";
+import { invoiceStatusFor, payableOf, invoiceBalance } from "@/features/invoices/lib/status";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
@@ -57,8 +57,8 @@ const createFinancialTransaction = async (
         where: { id: existingInvoice.id },
       });
 
-      const remainingBalance =
-        Number(currentInvoice.amountDue) - Number(currentInvoice.amountPaid);
+      // What's left after any discount and earlier payments
+      const remainingBalance = invoiceBalance(currentInvoice);
 
       if (newPaymentAmount > remainingBalance) {
         throw new OverpaymentError(
@@ -72,7 +72,7 @@ const createFinancialTransaction = async (
         Number(currentInvoice.amountPaid) + newPaymentAmount;
       const newStatus = invoiceStatusFor(
         totalPaidSoFar,
-        Number(currentInvoice.amountDue),
+        payableOf(currentInvoice),
         currentInvoice.dueDate,
       );
       const isFullyPaid = newStatus === "PAID";

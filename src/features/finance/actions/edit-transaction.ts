@@ -1,6 +1,6 @@
 "use server";
 
-import { invoiceStatusFor } from "@/features/invoices/lib/status";
+import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
@@ -73,7 +73,7 @@ const editFinancialTransaction = async (
       ]);
 
       const paidByOthers = Number(invoice.amountPaid) - Number(current.amountPaid);
-      const maxAllowed = Number(invoice.amountDue) - paidByOthers;
+      const maxAllowed = payableOf(invoice) - paidByOthers;
       if (newPaymentAmount > maxAllowed) {
         throw new OverpaymentError(
           `That would overpay the invoice. The most this payment can be is KES ${maxAllowed}.`,
@@ -90,7 +90,7 @@ const editFinancialTransaction = async (
         where: { id: invoice.id },
         data: {
           amountPaid: totalPaid,
-          status: invoiceStatusFor(totalPaid, Number(invoice.amountDue), invoice.dueDate),
+          status: invoiceStatusFor(totalPaid, payableOf(invoice), invoice.dueDate),
         },
       });
 

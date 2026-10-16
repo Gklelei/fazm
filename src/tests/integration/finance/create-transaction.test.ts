@@ -89,4 +89,18 @@ describe("recording a payment", () => {
     expect((await pay(athlete.athleteId, invoice.invoiceNumber, 100)).success).toBe(false);
     expect(await db.finance.count()).toBe(0);
   });
+
+  it("counts a discount: paying the rest marks it paid, and more is refused", async () => {
+    await signedIn("FINANCE");
+    const athlete = await makeAthlete();
+    const invoice = await makeInvoice(athlete.athleteId, 4000);
+    await db.invoice.update({ where: { id: invoice.id }, data: { discount: 1000 } });
+
+    expect(await pay(athlete.athleteId, invoice.invoiceNumber, 3500)).toMatchObject({
+      success: false,
+      message: "Overpayment detected. The balance is KES 3000",
+    });
+    expect((await pay(athlete.athleteId, invoice.invoiceNumber, 3000)).success).toBe(true);
+    expect((await db.invoice.findUniqueOrThrow({ where: { id: invoice.id } })).status).toBe("PAID");
+  });
 });

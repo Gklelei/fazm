@@ -29,3 +29,13 @@ describe("invoiceBalance", () => {
     expect(invoiceBalance({ amountDue: 3000, amountPaid: 3500 })).toBe(0);
   });
 });
+
+describe("discounts", () => {
+  it("counts an invoice paid when the discounted amount is paid", async () => {
+    const { invoiceStatusFor, payableOf, invoiceBalance } = await import("@/features/invoices/lib/status");
+    const inv = { amountDue: "3000", discount: "1000", amountPaid: "2000" };
+    expect(payableOf(inv)).toBe(2000);
+    expect(invoiceStatusFor(2000, payableOf(inv), new Date("2030-01-01"))).toBe("PAID");
+    expect(invoiceBalance(inv)).toBe(0);
+  });
+});

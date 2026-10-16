@@ -1,6 +1,6 @@
 "use server";
 
-import { invoiceStatusFor } from "@/features/invoices/lib/status";
+import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -57,7 +57,7 @@ const deleteFinancialTransaction = async (
         where: { id: invoiceId },
         data: {
           amountPaid: totalPaid,
-          status: invoiceStatusFor(totalPaid, Number(invoice.amountDue), invoice.dueDate),
+          status: invoiceStatusFor(totalPaid, payableOf(invoice), invoice.dueDate),
         },
       });
     });
