@@ -4,13 +4,18 @@ import { ReactNode } from "react";
 import { UtilsProviderWrapper } from "@/providers/UtilsProvider";
 import { DynamicThemeProvider } from "@/providers/DynamicThemeProvider";
 
-const MainLayoutWrapper = ({ children }: { children: ReactNode }) => {
-  return (
-    <UtilsProviderWrapper>
-      <DynamicThemeProvider />
-      {children}
-    </UtilsProviderWrapper>
-  );
-};
+/** Signed-in app only: settings lookups, and live updates to the academy colour. */
+const MainLayoutWrapper = ({
+  utils,
+  children,
+}: {
+  utils: UtilsResponse;
+  children: ReactNode;
+}) => (
+  <UtilsProviderWrapper initialData={utils}>
+    <DynamicThemeProvider />
+    {children}
+  </UtilsProviderWrapper>
+);
 
 export default MainLayoutWrapper;

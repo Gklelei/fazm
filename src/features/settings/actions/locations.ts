@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
@@ -75,6 +76,7 @@ export async function CreateTrainingLocations(
       },
     });
 
+    lookupsChanged(LOOKUP.locations);
     return {
       success: true,
       message: "Training location created successfully.",
@@ -140,6 +142,7 @@ export async function EditTrainingLocations(
       },
     });
 
+    lookupsChanged(LOOKUP.locations);
     return {
       success: true,
       message: "Training location updated successfully.",
@@ -180,6 +183,7 @@ export async function DeleteTrainingLocation(
       data: { voided: 1 },
     });
 
+    lookupsChanged(LOOKUP.locations);
     return {
       success: true,
       message: "Training location has been deleted.",

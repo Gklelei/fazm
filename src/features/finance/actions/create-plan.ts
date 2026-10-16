@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
@@ -71,6 +72,7 @@ export const CreateSubscriptionFees = async (
     });
 
     revalidatePath("/fees");
+    lookupsChanged(LOOKUP.plans);
 
     await createAuditLog({
       action: "CREATE_SUBSCRIPTION_FEE",

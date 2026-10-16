@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { ROLE_GROUPS } from "@/lib/roles";
 
 import { auth } from "@/lib/auth";
@@ -49,6 +50,7 @@ export const CreateDrills = async (
       drillId: newDrill.id,
     });
 
+    lookupsChanged(LOOKUP.drills);
     return {
       success: true,
       message: "Drill Created  successfully.",
@@ -115,6 +117,7 @@ export const EditDrills = async (
       drillId: updatedDrill.id,
     });
 
+    lookupsChanged(LOOKUP.drills);
     return {
       success: true,
       message: "Drill Updated successfully.",
@@ -183,6 +186,7 @@ export const DeleteDrills = async ({
       drillId: existingDrill.id,
     });
 
+    lookupsChanged(LOOKUP.drills);
     return {
       message: "Drill updated",
       success: true,

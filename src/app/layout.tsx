@@ -5,7 +5,7 @@ import "./globals.css";
 import { ThemeProvider } from "@/providers/ThemeProvider";
 import ReactQueryClientProvider from "@/providers/ReactQueryProvider";
 import { Toaster } from "sonner";
-import MainLayoutWrapper from "@/providers/AppProviders";
+import { getCachedAcademy } from "@/lib/academy-cache";
 
 const barlow = Barlow({
   variable: "--font-barlow",
@@ -71,13 +71,21 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // The academy colour comes with the page (cached), so no page waits on a
+  // client fetch for it. A failed lookup falls back to the Fazam colours.
+  const academy = await getCachedAcademy().catch(() => null);
+
   return (
-    <html lang="en" data-theme-color="fazam" suppressHydrationWarning>
+    <html
+      lang="en"
+      data-theme-color={academy?.primaryColor || "fazam"}
+      suppressHydrationWarning
+    >
       <body
         className={`${barlow.variable} ${barlowCondensed.variable} ${jetbrainsMono.variable} font-sans antialiased`}
       >
@@ -88,16 +96,14 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <ReactQueryClientProvider>
-            <MainLayoutWrapper>
-              {children}
-              <Toaster
-                closeButton
-                duration={5000}
-                richColors
-                position="top-right"
-                theme="system"
-              />
-            </MainLayoutWrapper>
+            {children}
+            <Toaster
+              closeButton
+              duration={5000}
+              richColors
+              position="top-right"
+              theme="system"
+            />
           </ReactQueryClientProvider>
         </ThemeProvider>
       </body>

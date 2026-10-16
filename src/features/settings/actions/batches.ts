@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { ROLE_GROUPS } from "@/lib/roles";
 
 import { db } from "@/lib/prisma";
@@ -119,6 +120,7 @@ export async function CreateBatchWithSchedule(data: BatchSubmission) {
     });
 
     revalidatePath("/settings");
+    lookupsChanged(LOOKUP.batches);
     return {
       success: true,
       message: `Batch created with ${result.count} sessions`,

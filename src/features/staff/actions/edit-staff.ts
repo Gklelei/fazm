@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { hasRole } from "@/lib/roles";
 import { db } from "@/lib/prisma";
 import { AccountSettingSchemaType } from "@/features/staff/schemas/profile";
@@ -52,6 +53,7 @@ export const EditStaffProfile = async ({
       },
     });
     revalidatePath("/staff/profile");
+    lookupsChanged(LOOKUP.coaches);
     return {
       message: "Profile updated",
       success: true,
@@ -140,6 +142,7 @@ export const AdminEditStaffProfile = async ({
 
     revalidatePath("/staff/profile");
     revalidatePath("/staff");
+    lookupsChanged(LOOKUP.coaches);
     return {
       message: "User updated",
       success: true,
@@ -206,6 +209,7 @@ export const AdminDeleteStaff = async ({
     });
 
     revalidatePath("/staff");
+    lookupsChanged(LOOKUP.coaches);
 
     return {
       success: true,

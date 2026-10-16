@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
@@ -75,6 +76,7 @@ export const CreateStaffAction = async (
     });
 
     revalidatePath("/staff");
+    lookupsChanged(LOOKUP.coaches);
 
     await createAuditLog({
       action: "CREATE_STAFF",

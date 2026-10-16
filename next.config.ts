@@ -4,9 +4,6 @@ const nextConfig: NextConfig = {
   // Build anywhere, ship only .next/standalone: the production server has
   // too little RAM to run `next build` itself.
   output: "standalone",
-  typescript: {
-    ignoreBuildErrors: process.env.NODE_ENV === "production",
-  },
   images: {
     unoptimized: true,
     remotePatterns: [

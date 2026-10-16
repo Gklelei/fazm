@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import {
@@ -46,6 +47,7 @@ export const CreateExpenseCategoryAction = async (
     });
 
     revalidatePath("/expenses-categories");
+    lookupsChanged(LOOKUP.expenseCategories);
 
     return {
       message: "Expense category created",
@@ -108,6 +110,7 @@ export const UpdateExpenseCategoryStatus = async ({
     });
 
     revalidatePath("/expenses-categories");
+    lookupsChanged(LOOKUP.expenseCategories);
 
     return {
       success: true,
@@ -168,6 +171,7 @@ export const DeleteExpenseCategory = async ({
     });
 
     revalidatePath("/expenses-categories");
+    lookupsChanged(LOOKUP.expenseCategories);
 
     return {
       message: "Expense category deleted",
@@ -221,6 +225,7 @@ export async function EditExpenseCategory(
     });
 
     revalidatePath("/expenses-categories");
+    lookupsChanged(LOOKUP.expenseCategories);
 
     return { success: true, message: "Expense category updated" };
   } catch (error) {

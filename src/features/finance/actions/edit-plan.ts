@@ -1,5 +1,6 @@
 "use server";
 
+import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
@@ -78,6 +79,7 @@ export const UpdateSubscriptionPlan = async ({
     });
 
     revalidatePath("/fees");
+    lookupsChanged(LOOKUP.plans);
 
     return {
       success: true,
@@ -126,6 +128,7 @@ export const archiveSubscriptionPlan = async (
     });
 
     revalidatePath("/fees");
+    lookupsChanged(LOOKUP.plans);
 
     return {
       success: true,
