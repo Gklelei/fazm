@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { signOut } from "@/test/session";
-import { makeAthlete, makeInvoice, resetDb, signedIn } from "@/test/db";
-import createFinancialTransaction from "./create-transaction";
+import { signOut } from "@/tests/support/session";
+import { makeAthlete, makeInvoice, resetDb, signedIn } from "@/tests/support/db";
+import createFinancialTransaction from "@/features/finance/actions/create-transaction";
 
 const pay = (athleteId: string, invoiceNumber: string, amount: number) =>
   createFinancialTransaction({

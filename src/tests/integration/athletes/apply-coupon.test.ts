@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeAthlete, makePlan, resetDb, signedIn } from "@/test/db";
-import { ApplyCouponToAtheleteSubscriptionPlan as apply } from "./apply-coupon";
+import { makeAthlete, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import { ApplyCouponToAtheleteSubscriptionPlan as apply } from "@/features/athletes/actions/apply-coupon";
 
 async function subscribed() {
   const athlete = await makeAthlete();

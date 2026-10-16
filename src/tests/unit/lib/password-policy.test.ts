@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { passwordProblem } from "./password-policy";
+import { passwordProblem } from "@/lib/password-policy";
 
 describe("passwordProblem", () => {
   it("accepts 12+ characters of any kind", () => {

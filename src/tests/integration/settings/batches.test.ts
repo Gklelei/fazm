@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeLocation, resetDb, signedIn } from "@/test/db";
-import { CreateBatchWithSchedule } from "./batches";
+import { makeLocation, resetDb, signedIn } from "@/tests/support/db";
+import { CreateBatchWithSchedule } from "@/features/settings/actions/batches";
 
 async function batchInput() {
   const { staff } = await signedIn("COACH");

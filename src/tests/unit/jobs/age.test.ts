@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { ageFromDob } from "./age";
+import { ageFromDob } from "@/features/jobs/age";
 
 const today = new Date(2026, 9, 14); // 14 Oct 2026
 

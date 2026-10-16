@@ -1,8 +1,8 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeAthlete, makeInvoice, makePlan, resetDb, signedIn } from "@/test/db";
-import CreateAthleteInvoice from "./create-invoice";
-import { setInvoiceCancelled } from "./cancel-invoice";
+import { makeAthlete, makeInvoice, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import CreateAthleteInvoice from "@/features/invoices/actions/create-invoice";
+import { setInvoiceCancelled } from "@/features/invoices/actions/cancel-invoice";
 
 const base = {
   subScriptionName: "October fees",

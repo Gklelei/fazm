@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BILLING_DAY, clampToDay, daysInMonth, nextMonthlyBillingDate } from "./billing";
+import { BILLING_DAY, clampToDay, daysInMonth, nextMonthlyBillingDate } from "@/lib/billing";
 
 describe("daysInMonth", () => {
   it("returns 31 for January", () => {

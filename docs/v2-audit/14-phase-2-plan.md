@@ -126,7 +126,7 @@ ship.
      them before changing.
   4. Creating a batch and applying a coupon aren't in the activity log.
   5. Several actions return raw error text to the screen ("Database error: …", `error.message`).
-  6. Registration's half-month rule is dead code: both branches charge the full month.
+  6. Registration's half-month rule: removed (the academy ruled it out); the first invoice is always the full plan amount.
 
 **Rewrite the auth pages.**
 - Sign-in, reset password and change password, in the v2 design.

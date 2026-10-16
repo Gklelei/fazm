@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeAthlete, makeBatch, makeLocation, resetDb, signedIn } from "@/test/db";
-import { saveAttendance } from "./mark-attendance";
+import { makeAthlete, makeBatch, makeLocation, resetDb, signedIn } from "@/tests/support/db";
+import { saveAttendance } from "@/features/trainings/actions/mark-attendance";
 
 async function session() {
   const coach = await signedIn("COACH");

@@ -18,17 +18,6 @@ type ActionPromise =
   | { status: "SUCCESS"; successMessage: string }
   | { status: "ERROR"; errorMessage: string };
 
-/**
- * You said you reversed the rule:
- * - BEFORE 15th => HALF
- * - 15th and after => FULL
- *
- * If you want the original rule, flip the ternary.
- */
-function proratedInitialFactor(now: Date) {
-  return now.getDate() > 15 ? 1 : 1;
-}
-
 function toDecimal(value: number | Prisma.Decimal) {
   return value instanceof Prisma.Decimal ? value : new Prisma.Decimal(value);
 }
@@ -235,14 +224,9 @@ const AthleteOnboardingAction = async (
         },
       });
 
-      // ---------- Initial invoice proration ----------
-      const factor = proratedInitialFactor(now);
-      const amountDue = planAmount.mul(factor);
-
-      const description =
-        factor === 1
-          ? `Initial ${planName} subscription (full amount)`
-          : `Initial ${planName} subscription (full amount)`;
+      // ---------- Initial invoice: the full plan amount (no part-month pricing) ----------
+      const amountDue = planAmount;
+      const description = `Initial ${planName} subscription (full amount)`;
 
       // For MONTHLY, currentPeriodEnd is the 30th of next month.
       // For others, it's based on interval.
@@ -260,7 +244,7 @@ const AthleteOnboardingAction = async (
           description,
           unitAmount: planAmount,
           quantity: 1,
-          amountDue, // ✅ prorated
+          amountDue,
           amountPaid: new Prisma.Decimal(0),
           status: "PENDING",
           dueDate,

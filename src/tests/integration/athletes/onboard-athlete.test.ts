@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeBatch, makePlan, resetDb, signedIn } from "@/test/db";
-import AthleteOnboardingAction from "./onboard-athlete";
+import { makeBatch, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import AthleteOnboardingAction from "@/features/athletes/actions/onboard-athlete";
 
 async function form() {
   const [batch, plan] = await Promise.all([makeBatch(), makePlan(4000)]);

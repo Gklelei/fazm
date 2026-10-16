@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { invoiceBalance, invoiceStatusFor } from "./status";
+import { invoiceBalance, invoiceStatusFor } from "@/features/invoices/lib/status";
 
 const now = new Date("2026-10-13T12:00:00Z");
 const future = new Date("2026-10-20T00:00:00Z");
