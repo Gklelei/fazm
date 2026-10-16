@@ -354,21 +354,63 @@ least a third. Advance recoveries count toward that cap.
 - Month on month and against last year.
 - Every chart shows where its numbers come from, and clicking a bar opens the records behind it.
 
-## Questions for the developer
+## Answers from the developer (2026-10-16)
 
-1. **Academy settings customisation:** beyond logo, colour and document details, what does the
-   client want to customise? Some ideas:
-   - fee reminder timing;
+1. **Academy settings customisation:**
    - default fee plan;
    - attendance rules;
-   - the email sender name.
-2. **Siblings:** is there a sibling discount? If so, is it a percentage for the 2nd child, the 3rd, and so on, or set per family?
-3. **Payroll access:** does the finance officer see everyone's salaries, or only admins?
-4. **Pay basis:** are coaches paid monthly only, or per session as well?
-5. **Advances:** is the default recovery in full next month or in installments, and does an advance need an admin's approval?
-6. **Statutory presets:** pre-fill PAYE, NSSF, SHIF and the Housing Levy with today's rates, or start empty?
-7. **Shop ordering:** do only staff record sales, or do parents also order and pay online?
-8. **Shop on account:** can a shop sale be charged to the athlete's account, so it shows on their statement?
-9. **Activity log retention:** keep 2 years, with older entries archived to the backup (suggested)?
-10. **Consent text:** does the academy have its own consent wording or form, or should a draft be
-    written for them to review?
+   - email sender name;
+   - **SMTP settings**: the academy's own mail server, with the password encrypted at rest and a
+     "Send test email" button.
+   The developer asked for research and more suggestions; see "Settings: suggested additions" below.
+2. **Sibling discount:** yes, set as **a percentage or a fixed amount**.
+3. **Payroll access:** the finance officer sees all salaries, advances and payslips.
+4. **Pay basis:** monthly and per session, set per person.
+5. **Advances:** the person recording an advance chooses the repayment (in full next month, or
+   over N months). **An admin approves it** before it counts.
+6. **Statutory deductions:** PAYE, NSSF, SHIF and the Housing Levy are added as deduction types,
+   but **the admin configures them** (rates, bands, on or off). They're shown as "not set up"
+   until then.
+7. **Shop orders:** staff only.
+8. **Shop on account:** yes, optional. A sale can be charged to the athlete and shows on their
+   statement until paid.
+9. **Activity log:** kept 2 years, then archived to the backup.
+10. **Consent text:** draft one in English and Kiswahili for the academy to review.
+
+## Settings: suggested additions (for the developer to choose)
+
+- **Branding:** logo, brand colour, and the sign-in page image.
+- **Email:** SMTP (host, port, user, password, encryption), sender name and address, reply-to
+  address, test email, and which emails are sent and to whom (for example, the weekly finance
+  email).
+- **Documents:**
+  - number prefixes and the next number for invoices, receipts and sales;
+  - default due days;
+  - footer and terms;
+  - payment instructions (paybill/till, bank);
+  - an optional signature or stamp image;
+  - KRA PIN.
+- **Fees:**
+  - default fee plan;
+  - prorating for athletes who join mid-month;
+  - the day monthly invoices are created;
+  - an optional late fee after a grace period;
+  - sibling discount rules.
+- **Attendance:**
+  - when an athlete counts as inactive (weeks with no training; this drives the deactivate job
+    and the notice filters);
+  - absence reasons;
+  - how many days after a session attendance can still be edited.
+- **Registration:**
+  - required documents;
+  - age groups worked out from the birth year;
+  - athlete number format;
+  - the consent text version.
+- **Sessions:** default session length, and how many weeks ahead batches create sessions.
+- **Payroll** (stage 4): pay day, deductions, and advance approval.
+- **Shop** (stage 5): products, sizes, and the low-stock level.
+- **Security and data:**
+  - session timeout;
+  - password rules;
+  - activity log retention;
+  - the date of the last backup.
