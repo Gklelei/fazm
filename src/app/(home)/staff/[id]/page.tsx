@@ -3,6 +3,7 @@ import { db } from "@/lib/prisma";
 import { GetStaffByIdQuery } from "@/features/staff/queries";
 import CreateStaffForm from "@/features/staff/components/CreateStaffForm";
 import type { Metadata } from "next";
+import { logView } from "@/lib/audit-view";
 
 export const metadata: Metadata = { title: "Edit Staff" };
 
@@ -14,6 +15,11 @@ const page = async ({ params }: Props) => {
 
   const user = await db.staff.findUnique(GetStaffByIdQuery(id));
   if (!user) return <NotFound />;
+  await logView({
+    resource: "Staff",
+    recordId: user.staffId,
+    details: `Opened ${user.fullNames}'s record for editing (${user.staffId})`,
+  });
   return <CreateStaffForm user={user} />;
 };
 

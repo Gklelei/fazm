@@ -10,6 +10,7 @@ import {
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 export const CreateExpenseCategoryAction = async (
   values: ExpenseCategoryType,
@@ -36,8 +37,8 @@ export const CreateExpenseCategoryAction = async (
   const { name, status, description } = ExpenseCategorySchema.parse(values);
 
   try {
-    await db.$transaction(async (ctx) => {
-      await ctx.expenseCategories.create({
+    const category = await db.$transaction(async (ctx) => {
+      return ctx.expenseCategories.create({
         data: {
           name,
           status,
@@ -49,6 +50,13 @@ export const CreateExpenseCategoryAction = async (
     revalidatePath("/expenses-categories");
     lookupsChanged(LOOKUP.expenseCategories);
 
+    await createAuditLog({
+      action: "CREATE_EXPENSE_CATEGORY",
+      resource: "ExpenseCategory",
+      details: `Added expense category "${name}"`,
+      userId: session.user.id,
+      recordId: category.id,
+    });
     return {
       message: "Expense category created",
       success: true,
@@ -112,6 +120,14 @@ export const UpdateExpenseCategoryStatus = async ({
     revalidatePath("/expenses-categories");
     lookupsChanged(LOOKUP.expenseCategories);
 
+    await createAuditLog({
+      action: "UPDATE_EXPENSE_CATEGORY",
+      resource: "ExpenseCategory",
+      details: `Set expense category "${existingCategory.name}" to ${status.toLowerCase()}`,
+      userId: session.user.id,
+      recordId: id,
+      changes: diffFields(existingCategory, { status }),
+    });
     return {
       success: true,
       message: "Expense category updated",
@@ -173,6 +189,13 @@ export const DeleteExpenseCategory = async ({
     revalidatePath("/expenses-categories");
     lookupsChanged(LOOKUP.expenseCategories);
 
+    await createAuditLog({
+      action: "ARCHIVE_EXPENSE_CATEGORY",
+      resource: "ExpenseCategory",
+      details: `Archived expense category "${existingCategory.name}"`,
+      userId: session.user.id,
+      recordId: id,
+    });
     return {
       message: "Expense category deleted",
       success: true,
@@ -227,6 +250,15 @@ export async function EditExpenseCategory(
     revalidatePath("/expenses-categories");
     lookupsChanged(LOOKUP.expenseCategories);
 
+    const after = { name: values.name, description: values.description ?? "", status: values.status };
+    await createAuditLog({
+      action: "UPDATE_EXPENSE_CATEGORY",
+      resource: "ExpenseCategory",
+      details: `Updated expense category "${values.name}"`,
+      userId: session.user.id,
+      recordId: id,
+      changes: diffFields(existingCategory, after),
+    });
     return { success: true, message: "Expense category updated" };
   } catch (error) {
     console.log({ error });

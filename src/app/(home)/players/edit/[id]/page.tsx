@@ -3,6 +3,7 @@ import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
 import EditUserProfile from "@/features/athletes/components/profile/EditAthleteForm";
 import type { Metadata } from "next";
+import { logView } from "@/lib/audit-view";
 
 export const metadata: Metadata = { title: "Edit Athlete" };
 interface pageProps {
@@ -33,6 +34,12 @@ const page = async ({ params }: pageProps) => {
   });
 
   if (!athlete) return <NotFound />;
+  await logView({
+    resource: "Athlete",
+    recordId: athlete.athleteId,
+    athleteId: athlete.id,
+    details: `Opened ${athlete.firstName} ${athlete.lastName}'s record for editing (${athlete.athleteId})`,
+  });
   return <EditUserProfile athlete={athlete} />;
 };
 

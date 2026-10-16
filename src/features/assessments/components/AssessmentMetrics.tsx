@@ -29,6 +29,7 @@ import { DeleteAssessmentSection } from "@/features/assessments/actions/delete-m
 import { Sweetalert } from "@/lib/alerts";
 import ServerPagination from "@/components/shared/ServerPagination";
 import EditAssesmentMetric from "@/features/assessments/components/EditAssessmentMetric";
+import { logExport } from "@/features/audit-logs/actions/log-export";
 
 interface Props {
   data: GetAssesmentMetricsQueryType[];
@@ -222,6 +223,7 @@ const AssesmentMetrics = ({ data, page, limit, total }: Props) => {
                 doc.save(
                   `assessment_template_${new Date().toISOString().slice(0, 10)}.pdf`,
                 );
+                void logExport({ what: "assessment template", format: "PDF" }).catch(() => {});
               }}
             >
               Export as PDF

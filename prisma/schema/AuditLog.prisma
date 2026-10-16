@@ -25,5 +25,19 @@ model AuditLog {
   drill   drills? @relation(fields: [drillId], references: [id], onDelete: SetNull)
 
   academyId String?
+
+  /// Role of the user at the time, so the log reads right after a role change
+  role      String?
+  ip        String?
+  userAgent String?
+  /// Any record's id (staff, guardian, plan, payment...) for its own history
+  recordId  String?
+  /// { before, after } for edits: only the fields that changed
+  changes   Json?
+
   createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
+  @@index([resource, recordId])
 }

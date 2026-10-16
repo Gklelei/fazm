@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { FileDown, Loader2 } from "lucide-react";
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
+import { logExport } from "@/features/audit-logs/actions/log-export";
 
 type Metric = { id: string; label: string };
 type Section = { id: string; name: string; metrics: Metric[] };
@@ -263,6 +264,7 @@ export default function PrintCompletedAssessment({
       // ── Save ────────────────────────────────────────────────────
       const fileName = `assessment_${safeText(athleteId)}_${safeText(trainingDate).replace(/\//g, "-")}.pdf`;
       doc.save(fileName);
+      void logExport({ what: `assessment for ${safeText(athleteId)}`, format: "PDF" }).catch(() => {});
     } finally {
       setLoading(false);
     }

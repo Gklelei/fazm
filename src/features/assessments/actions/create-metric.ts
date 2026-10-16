@@ -10,6 +10,7 @@ import {
   MetricsSchemaType,
 } from "@/features/assessments/schemas";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 export const CreateAssesmentMetricAction = async (
   data: MetricsSchemaType,
@@ -33,14 +34,14 @@ export const CreateAssesmentMetricAction = async (
   const parsedData = MetricsSchema.parse(data);
 
   try {
-    await db.$transaction(async (ctx) => {
+    const section = await db.$transaction(async (ctx) => {
       const lastSection = await ctx.assessmentTemplateSection.aggregate({
         _max: {
           order: true,
         },
       });
       const nextOrder = (lastSection._max.order ?? -1) + 1;
-      await ctx.assessmentTemplateSection.create({
+      return ctx.assessmentTemplateSection.create({
         data: {
           name: parsedData.name,
           description: parsedData.description,
@@ -54,6 +55,13 @@ export const CreateAssesmentMetricAction = async (
       });
     });
     revalidatePath("/assesments");
+    await createAuditLog({
+      action: "CREATE_ASSESSMENT_SECTION",
+      resource: "AssessmentSection",
+      details: `Added assessment section "${parsedData.name}" with ${parsedData.metrics.length} metric${parsedData.metrics.length === 1 ? "" : "s"}`,
+      userId: session.user.id,
+      recordId: section.id,
+    });
     return {
       success: true,
       message: "Metric section created successfully",

@@ -102,7 +102,8 @@ const editFinancialTransaction = async (
       resource: "Finance",
       details: `Updated receipt ${result.receiptNumber} amount to ${newPaymentAmount}`,
       userId: session.user.id,
-      athleteId: existingTransaction.athleteId,
+      // Payments store the public athlete number; the log links the athlete record
+      athleteId: (await db.athlete.findUnique({ where: { athleteId: existingTransaction.athleteId }, select: { id: true } }))?.id,
       invoiceId: existingTransaction.invoiceId ?? undefined,
     });
 

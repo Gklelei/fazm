@@ -8,7 +8,8 @@ import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { EditStaffSchemaType } from "@/features/staff/schemas";
 import { headers } from "next/headers";
-import { createAuditLog } from "@/lib/audit";
+import { createAuditLog, diffFields } from "@/lib/audit";
+
 
 export const EditStaffProfile = async ({
   data,
@@ -22,13 +23,18 @@ export const EditStaffProfile = async ({
   });
 
   if (!session?.user) {
-    throw new Error("Unauthorized access, please login");
+    return { success: false, message: "Your session has ended. Sign in again." };
+  }
+  // Your own profile; admins may edit anyone's
+  if (id !== session.user.id && !hasRole(session.user.role, "admin")) {
+    return { success: false, message: "You can only edit your own profile." };
   }
   try {
     const existingUser = await db.user.findUnique({
       where: {
         id,
       },
+      include: { staff: { select: { fullNames: true, phoneNumber: true } } },
     });
     if (!existingUser) {
       return {
@@ -54,6 +60,17 @@ export const EditStaffProfile = async ({
     });
     revalidatePath("/staff/profile");
     lookupsChanged(LOOKUP.coaches);
+    await createAuditLog({
+      action: "UPDATE_PROFILE",
+      resource: "User",
+      details: id === session.user.id ? "Updated their own profile" : `Updated ${existingUser.name}'s profile`,
+      userId: session.user.id,
+      recordId: id,
+      changes: diffFields(
+        { fullNames: existingUser.staff?.fullNames ?? existingUser.name, phoneNumber: existingUser.staff?.phoneNumber, image: existingUser.image },
+        { fullNames: data.fullNames, phoneNumber: data.phoneNumber, image: data.profilePicture },
+      ),
+    });
     return {
       message: "Profile updated",
       success: true,
@@ -95,7 +112,7 @@ export const AdminEditStaffProfile = async ({
       where: {
         staffId: id,
       },
-      include: { user: { select: { id: true, role: true } } },
+      include: { user: { select: { id: true, role: true, email: true, image: true } } },
     });
     if (!existingUser) {
       return {
@@ -140,6 +157,17 @@ export const AdminEditStaffProfile = async ({
       });
     }
 
+    await createAuditLog({
+      action: "UPDATE_STAFF",
+      resource: "Staff",
+      details: `Updated staff member ${data.fullName} (${id})`,
+      userId: session.user.id,
+      recordId: id,
+      changes: diffFields(
+        { fullNames: existingUser.fullNames, phoneNumber: existingUser.phoneNumber, email: existingUser.user?.email, role: previousRole, image: existingUser.user?.image },
+        { fullNames: data.fullName, phoneNumber: data.phoneNumber, email: data.email, role: data.role, image: data.image || "" },
+      ),
+    });
     revalidatePath("/staff/profile");
     revalidatePath("/staff");
     lookupsChanged(LOOKUP.coaches);
@@ -211,6 +239,13 @@ export const AdminDeleteStaff = async ({
     revalidatePath("/staff");
     lookupsChanged(LOOKUP.coaches);
 
+    await createAuditLog({
+      action: "ARCHIVE_STAFF",
+      resource: "Staff",
+      details: `Archived staff member ${existingUser.fullNames} (${staffId}); they can no longer sign in`,
+      userId: session.user.id,
+      recordId: staffId,
+    });
     return {
       success: true,
       message: "User deleted",

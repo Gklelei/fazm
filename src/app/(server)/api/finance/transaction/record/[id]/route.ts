@@ -4,6 +4,7 @@ import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { NextResponse } from "next/server";
 import { apiError } from "@/lib/api-response";
+import { logView } from "@/lib/audit-view";
 
 export async function GET(
   req: Request,
@@ -39,6 +40,12 @@ export async function GET(
     if (!transaction) {
       return apiError(404, "Transaction not found");
     }
+    await logView({
+      resource: "Payment",
+      recordId: transaction.id,
+      invoiceId: transaction.invoiceId ?? undefined,
+      details: `Opened payment ${transaction.receiptNumber} (${transaction.athlete?.firstName ?? ""} ${transaction.athlete?.lastName ?? ""})`.replace(" ( )", ""),
+    });
 
     return NextResponse.json(transaction);
   } catch (error) {

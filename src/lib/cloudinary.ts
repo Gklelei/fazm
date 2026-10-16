@@ -3,6 +3,7 @@
 import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";import { v2 as cloudinary } from "cloudinary";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -30,6 +31,13 @@ export async function deleteCloudinaryImage(publicId: string) {
     console.log("Cloudinary delete result:", result);
 
     if (result.result === "ok") {
+      await createAuditLog({
+        action: "DELETE_IMAGE",
+        resource: "File",
+        details: `Deleted image ${publicId}`,
+        userId: session.user.id,
+        recordId: publicId,
+      });
       return { success: true, message: "Image deleted successfully" };
     } else {
       return {

@@ -67,7 +67,8 @@ const deleteFinancialTransaction = async (
       resource: "Finance",
       details: `Soft deleted receipt ${existingTransaction.receiptNumber}`,
       userId: session.user.id,
-      athleteId: existingTransaction.athleteId,
+      // Payments store the public athlete number; the log links the athlete record
+      athleteId: (await db.athlete.findUnique({ where: { athleteId: existingTransaction.athleteId }, select: { id: true } }))?.id,
       invoiceId: existingTransaction.invoiceId ?? undefined,
     });
 

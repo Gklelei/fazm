@@ -93,6 +93,19 @@ export const auth = betterAuth({
       }
     }),
     after: createAuthMiddleware(async (ctx) => {
+      // Failed sign-ins: the email tried (never the password), linked to the
+      // account when one has that email, so repeated guessing shows up
+      if (ctx.path === "/sign-in/email" && isAPIError(ctx.context.returned)) {
+        const email = String((ctx.body as { email?: unknown } | undefined)?.email ?? "").trim().toLowerCase().slice(0, 254);
+        const user = email ? await db.user.findUnique({ where: { email }, select: { id: true } }) : null;
+        await createAuditLog({
+          action: "LOGIN_FAILED",
+          resource: "Session",
+          details: `Failed sign-in for ${email || "(no email)"}: ${ctx.context.returned.body?.code ?? ctx.context.returned.status}`,
+          userId: user?.id,
+        });
+        return;
+      }
       if (ctx.path !== "/change-password" || isAPIError(ctx.context.returned)) return;
       const userId = ctx.context.session?.user.id;
       if (!userId) return;

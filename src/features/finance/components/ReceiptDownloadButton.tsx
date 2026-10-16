@@ -6,6 +6,7 @@ import { PDFDownloadLink } from "@react-pdf/renderer";
 import { ReceiptPDF } from "@/features/finance/components/ReceiptPDF";
 import type { getFinanceDetails } from "@/features/finance/hooks/useTransactionDetails";
 import type { ComponentProps } from "react";
+import { logExport } from "@/features/audit-logs/actions/log-export";
 
 type AcademyConfig = ComponentProps<typeof ReceiptPDF>["academyConfig"];
 
@@ -26,6 +27,7 @@ export default function ReceiptDownloadButton({
     <PDFDownloadLink
       document={<ReceiptPDF data={data} academyConfig={academyConfig} />}
       fileName={`Receipt-${data.receiptNumber}.pdf`}
+      onClick={() => void logExport({ what: `receipt ${data.receiptNumber}`, format: "PDF", recordId: data.receiptNumber }).catch(() => {})}
     >
       {({ loading }) => (
         <Button variant="outline" size="sm" disabled={loading} className="gap-2">

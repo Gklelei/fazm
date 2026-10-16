@@ -10,6 +10,7 @@ import {
 import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 export const UpdateAssesmentMetric = async (
   id: string,
@@ -84,7 +85,14 @@ export const UpdateAssesmentMetric = async (
         }
       }
     });
-    revalidatePath("/assessments");
+    revalidatePath("/assesments");
+    await createAuditLog({
+      action: "UPDATE_ASSESSMENT_SECTION",
+      resource: "AssessmentSection",
+      details: `Updated assessment section "${name}" (${metrics.length} metric${metrics.length === 1 ? "" : "s"})`,
+      userId: session.user.id,
+      recordId: id,
+    });
 
     return {
       message: "Assessment template updated successfully",

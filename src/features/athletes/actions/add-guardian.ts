@@ -9,6 +9,7 @@ import {
   AthleteGuardianSchemaType,
 } from "@/features/athletes/schemas/guardian";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 export const AddAthleteGuardian = async (
   data: AthleteGuardianSchemaType,
@@ -67,7 +68,7 @@ export const AddAthleteGuardian = async (
       };
     }
 
-    await db.athleteGuardian.create({
+    const guardian = await db.athleteGuardian.create({
       data: {
         email: parsedData.guardianEmail,
         fullNames: parsedData.guardianFullNames,
@@ -75,6 +76,15 @@ export const AddAthleteGuardian = async (
         relationship: parsedData.guardianRelationShip,
         athleteId,
       },
+    });
+
+    await createAuditLog({
+      action: "ADD_GUARDIAN",
+      resource: "Guardian",
+      details: `Added ${parsedData.guardianFullNames} (${parsedData.guardianRelationShip}) as a guardian of ${athleteId}`,
+      userId: session.user.id,
+      athleteId: athlete.id,
+      recordId: guardian.id,
     });
 
     return {

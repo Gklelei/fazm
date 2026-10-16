@@ -4,6 +4,7 @@ import path from "node:path";
 import { NextRequest, NextResponse } from "next/server";
 import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
 import { ROLE_GROUPS } from "@/lib/roles";
+import { createAuditLog } from "@/lib/audit";
 import { detectFileType, resolveUpload, SAFE_DIR, UPLOAD_ROOT } from "@/lib/uploads";
 
 export const runtime = "nodejs";
@@ -40,6 +41,13 @@ export async function POST(req: NextRequest) {
 
     await fs.mkdir(path.join(UPLOAD_ROOT, directory), { recursive: true });
     await fs.writeFile(target, buffer, { mode: 0o640 });
+    await createAuditLog({
+      action: "UPLOAD_FILE",
+      resource: "File",
+      details: `Uploaded ${type.ext.toUpperCase()} to ${directory} (${Math.round(file.size / 1024)} KB)`,
+      userId: authz.session.user.id,
+      recordId: `/uploads/${directory}/${name}`,
+    });
 
     return NextResponse.json({ message: "File uploaded", url: `/uploads/${directory}/${name}` }, { status: 201 });
   } catch (error) {
@@ -61,6 +69,13 @@ export async function DELETE(req: NextRequest) {
 
     await fs.unlink(target).catch((err: NodeJS.ErrnoException) => {
       if (err.code !== "ENOENT") throw err;
+    });
+    await createAuditLog({
+      action: "DELETE_FILE",
+      resource: "File",
+      details: `Deleted ${url}`,
+      userId: authz.session.user.id,
+      recordId: String(url),
     });
     return NextResponse.json({ message: "File deleted" });
   } catch (error) {

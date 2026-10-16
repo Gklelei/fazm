@@ -5,6 +5,7 @@ import { AcademySchema } from "@/features/academy/schemas";
 import { db } from "@/lib/prisma";
 import { updateTag } from "next/cache";
 import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 export const CreateAcademyUtils = async ({
   data,
@@ -17,7 +18,7 @@ export const CreateAcademyUtils = async ({
     return { success: false, message: AUTHZ_ACTION_MESSAGES[authz.reason] };
   }
   try {
-    await db.academy.create({
+    const academy = await db.academy.create({
       data: {
         academyName: data.academyName,
         paymentMathod: data.paymentMethod,
@@ -34,6 +35,13 @@ export const CreateAcademyUtils = async ({
     });
 
     updateTag("academy");
+    await createAuditLog({
+      action: "CREATE_ACADEMY",
+      resource: "Academy",
+      details: `Set up the academy profile for "${academy.academyName}"`,
+      userId: authz.session.user.id,
+      academyId: academy.id,
+    });
 
     return {
       success: true,
@@ -61,7 +69,8 @@ export const EditAcademyUtils = async ({
   }
 
   try {
-    await db.academy.update({
+    const before = await db.academy.findUnique({ where: { id } });
+    const after = await db.academy.update({
       where: {
         id,
       },
@@ -80,6 +89,14 @@ export const EditAcademyUtils = async ({
     });
 
     updateTag("academy");
+    await createAuditLog({
+      action: "UPDATE_ACADEMY",
+      resource: "Academy",
+      details: "Updated the academy profile",
+      userId: authz.session.user.id,
+      academyId: id,
+      changes: before ? diffFields(before, { ...after, updatedAt: undefined }) : null,
+    });
 
     return {
       success: true,

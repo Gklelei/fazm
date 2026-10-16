@@ -3,6 +3,11 @@
 import jsPDF from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
+import { logExport } from "@/features/audit-logs/actions/log-export";
+
+/** Every list download is recorded in the activity log; a failed log never blocks the download. */
+const record = (what: string, format: "CSV" | "Excel" | "PDF", rows: number) =>
+  void logExport({ what, format, rows }).catch(() => {});
 
 /**
  * Escape a value for CSV (handles commas, quotes, newlines).
@@ -31,6 +36,7 @@ export function exportToCSV(
     type: "text/csv;charset=utf-8;",
   });
   triggerDownload(blob, `${filename}.csv`);
+  record(filename, "CSV", rows.length);
 }
 
 /**
@@ -57,6 +63,7 @@ export function exportToExcel(
   const workbook = XLSX.utils.book_new();
   XLSX.utils.book_append_sheet(workbook, worksheet, "Data");
   XLSX.writeFile(workbook, `${filename}.xlsx`);
+  record(filename, "Excel", rows.length);
 }
 
 /**
@@ -112,6 +119,7 @@ export function exportToPDF(
   });
 
   doc.save(`${filename}.pdf`);
+  record(filename, "PDF", rows.length);
 }
 
 /**

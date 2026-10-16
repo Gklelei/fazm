@@ -5,6 +5,7 @@ import AthleteProfile from "@/features/athletes/components/profile/AthleteProfil
 import { GetAthleteByIdQuery } from "@/features/athletes/queries";
 import { getAthleteSummary } from "@/features/athletes/queries/summary";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
+import { logView } from "@/lib/audit-view";
 
 export const metadata: Metadata = { title: "Athlete" };
 
@@ -33,6 +34,12 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     }),
   ]);
   if (!athlete || athlete.isArchived) notFound();
+  await logView({
+    resource: "Athlete",
+    recordId: athlete.athleteId,
+    athleteId: athlete.id,
+    details: `Opened ${athlete.firstName} ${athlete.lastName}'s profile (${athlete.athleteId})`,
+  });
 
   const options: AthleteCouponOption[] = coupons.map((c) => ({
     id: c.id,

@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
+import { createAuditLog } from "@/lib/audit";
 
 const BILLING_DAY = 30;
 
@@ -155,6 +156,14 @@ export const AddAthleteToSubscriptionPlan = async ({
     });
 
     revalidatePath(`/players/user-profile/${athleteId}`);
+    await createAuditLog({
+      action: mode === "create" ? "ADD_SUBSCRIPTION" : "CHANGE_SUBSCRIPTION",
+      resource: "Subscription",
+      details: `${mode === "create" ? "Put" : "Moved"} ${athlete.athleteId} on the "${plan.name}" plan`,
+      userId: session.user.id,
+      athleteId: athlete.id,
+      recordId: plan.id,
+    });
 
     return {
       success: true,

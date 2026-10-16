@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { addMinutes, isEqual } from "date-fns";
 import { revalidatePath } from "next/cache";
+import { createAuditLog, diffFields } from "@/lib/audit";
 
 export const EditTrainingSessionAction = async (
   data: z.input<typeof ClientTrainingSessionSchema>,
@@ -37,7 +38,7 @@ export const EditTrainingSessionAction = async (
   } = ClientTrainingSessionSchema.parse(data);
 
   try {
-    await db.$transaction(async (ctx) => {
+    const before = await db.$transaction(async (ctx) => {
       const existingTraining = await ctx.training.findUnique({ where: { id } });
       if (!existingTraining) throw new Error("Training session does not exist");
 
@@ -107,9 +108,21 @@ export const EditTrainingSessionAction = async (
           drillOrder: drills,
         },
       });
+      return existingTraining;
     });
 
     revalidatePath("/sessions/view");
+    await createAuditLog({
+      action: "UPDATE_TRAINING_SESSION",
+      resource: "TrainingSession",
+      details: `Updated training session "${title}"`,
+      userId: session.user.id,
+      trainingId: id,
+      changes: diffFields(
+        { name: before.name, batchesId: before.batchesId, staffId: before.staffId, trainingLocationsId: before.trainingLocationsId, description: before.description, date: before.date.toISOString(), duration: before.duration, note: before.note, drillOrder: before.drillOrder },
+        { name: title, batchesId: batch, staffId: coach, trainingLocationsId: location, description, date: new Date(date).toISOString(), duration, note, drillOrder: drills },
+      ),
+    });
 
     return { message: "Training session updated successfully", success: true };
   } catch (error) {

@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 import { Prisma } from "@/generated/prisma/client";
 
 type ActionResult = {
@@ -277,6 +278,7 @@ export const ApplyCouponToInvoice = async ({
       return {
         ok: true as const,
         status: 200,
+        applied: { invoiceId: invoice.id, invoiceNumber: invoice.invoiceNumber, coupon: coupon.name, amount: discountAmount.toString(), paid: shouldMarkPaid },
         message: shouldMarkPaid
           ? "Discount applied. Invoice balance cleared (PAID)."
           : "Discount applied to invoice.",
@@ -286,6 +288,16 @@ export const ApplyCouponToInvoice = async ({
     // Revalidate pages that show invoices / athlete billing info
     // Adjust to your routes
     revalidatePath("/invoices");
+    const a = "applied" in result ? result.applied : undefined;
+    if (a) {
+      await createAuditLog({
+        action: "APPLY_INVOICE_DISCOUNT",
+        resource: "Invoice",
+        details: `Applied coupon ${a.coupon} to invoice ${a.invoiceNumber}: KES ${a.amount} off${a.paid ? ", balance cleared" : ""}`,
+        userId: session.user.id,
+        invoiceId: a.invoiceId,
+      });
+    }
     // if you have a details page:
     // revalidatePath(`/invoices/${invoiceNumber}`);
 

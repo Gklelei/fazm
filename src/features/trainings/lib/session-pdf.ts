@@ -2,6 +2,7 @@ import jsPDF from "jspdf";
 import autoTable, { RowInput } from "jspdf-autotable";
 import { formatDuration } from "@/lib/format";
 import { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
+import { logExport } from "@/features/audit-logs/actions/log-export";
 
 function safeText(v: unknown) {
   return String(v ?? "").trim();
@@ -285,4 +286,5 @@ export function downloadTrainingSessionPdf(
     .slice(0, 10)}.pdf`;
 
   doc.save(fileName);
+  void logExport({ what: `session sheet "${safeText(data.name)}"`, format: "PDF", recordId: data.id }).catch(() => {});
 }

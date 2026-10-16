@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 export const DeleteAssessmentSection = async (
   id: string,
@@ -27,10 +28,10 @@ export const DeleteAssessmentSection = async (
   }
 
   try {
-    await db.$transaction(async (ctx) => {
+    const name = await db.$transaction(async (ctx) => {
       const section = await ctx.assessmentTemplateSection.findUnique({
         where: { id },
-        select: { isArchived: true },
+        select: { isArchived: true, name: true },
       });
 
       if (!section) {
@@ -45,9 +46,17 @@ export const DeleteAssessmentSection = async (
         where: { id },
         data: { isArchived: true },
       });
+      return section.name;
     });
 
     revalidatePath("/assesments");
+    await createAuditLog({
+      action: "ARCHIVE_ASSESSMENT_SECTION",
+      resource: "AssessmentSection",
+      details: `Archived assessment section "${name}"`,
+      userId: session.user.id,
+      recordId: id,
+    });
 
     return {
       message: "Assessment template deleted successfully",

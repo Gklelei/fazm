@@ -70,17 +70,11 @@ export async function GET(
   );
 
   await createAuditLog({
-    action: "EXPORT_PDF",
+    action: "EXPORT",
     resource: "Invoice",
-    details: JSON.stringify({
-      invoiceId: id,
-      athlete: invoice.athlete
-        ? `${invoice.athlete.firstName} ${invoice.athlete.lastName}`
-        : "Unknown",
-      amountPaid: Number(invoice.amountPaid),
-      amountDue: Number(invoice.amountDue),
-    }),
-    userId: session?.user.id,
+    details: `Downloaded invoice ${invoice.invoiceNumber} as PDF`,
+    userId: session.user.id,
+    invoiceId: invoice.id,
   });
 
   return new Response(stream as unknown as BodyInit, {

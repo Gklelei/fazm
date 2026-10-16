@@ -96,6 +96,29 @@ committed, then deployed when the server can be reached.
 - **Retention:** decided with the developer (suggest 2 years, with older entries archived to the
   backup rather than deleted).
 
+**Activity log: done 2026-10-16 (the page redesign is next).**
+- Every server action and data-changing API route logs; `src/tests/unit/audit/coverage.test.ts`
+  fails if one doesn't. Read-only exceptions are listed in that test with the reason.
+- Entries record the role at the time, IP (X-Real-IP from nginx), device, a record id for history,
+  and `{ before, after }` for edits (`diffFields`).
+- Logged reads: athlete profile and edit page, invoice, payment, staff profile and edit page,
+  each at most once per person per record every 10 minutes (`src/lib/audit-view.ts`).
+- Logged downloads: every list export (`src/lib/export.ts`), receipts, invoice PDFs, session
+  sheets, athlete profiles and assessments.
+- Failed sign-ins are logged with the email tried, never the password.
+- Fixed on the way:
+  - Editing or deleting a payment wrote no log entry, because the athlete id was wrong.
+  - Any signed-in user could edit any account's profile; now it's your own profile, or an admin.
+  - Editing an assessment section didn't refresh the page.
+- Retention: nothing is two years old yet (data starts Dec 2025). Archiving old entries is
+  scheduled work for 2027.
+
+**Deploying: migrations first.** `scripts/deploy.sh` doesn't run migrations. Apply them on the
+server with `yarn db:deploy` (`prisma migrate deploy`) before the new code starts. The new code
+writes columns the old database lacks, and a log write that fails is dropped silently (by design,
+so the user's change still saves). `yarn test:db` checks that the migrations rebuild exactly
+`prisma/schema`.
+
 **Archived records: visible to system admins only.**
 - Lists hide archived records for everyone.
 - System admins (`SUPER_ADMIN` and `ADMIN`) get a **"Show archived"** toggle on every list.

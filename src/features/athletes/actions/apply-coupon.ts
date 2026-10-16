@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { createAuditLog } from "@/lib/audit";
 
 export const ApplyCouponToAtheleteSubscriptionPlan = async ({
   couponCode,
@@ -139,11 +140,22 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
         },
       });
 
-      return { ok: true as const, message: "Coupon applied to subscription" };
+      return { ok: true as const, applied: true, message: "Coupon applied to subscription", code: coupon.name };
     });
 
     if (result.ok) {
       revalidatePath(`/players/user-profile/${athleteId}`);
+    }
+    if ("applied" in result) {
+      const athlete = await db.athlete.findUnique({ where: { athleteId }, select: { id: true } });
+      await createAuditLog({
+        action: "APPLY_COUPON",
+        resource: "Subscription",
+        details: `Applied coupon ${result.code} to ${athleteId}'s subscription`,
+        userId: session.user.id,
+        athleteId: athlete?.id,
+        recordId: subId,
+      });
     }
 
     return { success: result.ok, message: result.message };

@@ -15,7 +15,10 @@
     "test:watch": "vitest",
     "test:unit": "vitest run --project unit",
     "test:int": "vitest run --project integration",
-    "test:db": "bash scripts/test-db.sh"
+    "test:db": "bash scripts/test-db.sh",
+    "db:migrate": "prisma migrate dev",
+    "db:deploy": "prisma migrate deploy",
+    "db:status": "prisma migrate status"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

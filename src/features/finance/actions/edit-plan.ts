@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
+import { createAuditLog, diffFields } from "@/lib/audit";
 import {
   SubscriptionsSchema,
   SubscriptionsSchemaType,
@@ -66,7 +67,8 @@ export const UpdateSubscriptionPlan = async ({
     }
 
     // 4. Proceed with update
-    await db.subscriptionPlan.update({
+    const before = await db.subscriptionPlan.findUnique({ where: { id } });
+    const after = await db.subscriptionPlan.update({
       where: { id },
       data: {
         name: parsedData.name,
@@ -81,6 +83,19 @@ export const UpdateSubscriptionPlan = async ({
     revalidatePath("/fees");
     lookupsChanged(LOOKUP.plans);
 
+    await createAuditLog({
+      action: "UPDATE_PLAN",
+      resource: "SubscriptionPlan",
+      details: `Updated fee plan "${after.name}"`,
+      userId: session.user.id,
+      recordId: id,
+      changes: before
+        ? diffFields(
+            { ...before, amount: Number(before.amount) },
+            { name: after.name, amount: Number(after.amount), interval: after.interval, description: after.description, isActive: after.isActive },
+          )
+        : null,
+    });
     return {
       success: true,
       message: "Subscription updated successfully",
@@ -120,7 +135,7 @@ export const archiveSubscriptionPlan = async (
       };
     }
 
-    await db.subscriptionPlan.update({
+    const plan = await db.subscriptionPlan.update({
       where: { id },
       data: {
         isArchived: true,
@@ -130,6 +145,13 @@ export const archiveSubscriptionPlan = async (
     revalidatePath("/fees");
     lookupsChanged(LOOKUP.plans);
 
+    await createAuditLog({
+      action: "ARCHIVE_PLAN",
+      resource: "SubscriptionPlan",
+      details: `Archived fee plan "${plan.name}"`,
+      userId: session.user.id,
+      recordId: id,
+    });
     return {
       success: true,
       message: "Subscription plan archived successfully.",
