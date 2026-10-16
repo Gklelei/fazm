@@ -3,14 +3,42 @@ import { db } from "@/lib/prisma";
 import type { ROLES } from "@/generated/prisma/enums";
 import { signInAs } from "./session";
 
+let deleteOrder: string[] | null = null;
+
+/**
+ * Tables in an order safe to empty with DELETE: a table comes before any
+ * table it references. (TRUNCATE was used before, but it syncs every table's
+ * files to disk and sometimes took tens of seconds on a slow disk, timing out
+ * the next test's setup.)
+ */
+async function tablesToEmpty() {
+  if (deleteOrder) return deleteOrder;
+  const tables = (
+    await db.$queryRaw<{ t: string }[]>`
+      SELECT tablename AS t FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`
+  ).map((r) => r.t);
+  const refs = await db.$queryRaw<{ child: string; parent: string }[]>`
+    SELECT c.relname AS child, p.relname AS parent
+    FROM pg_constraint k JOIN pg_class c ON c.oid = k.conrelid JOIN pg_class p ON p.oid = k.confrelid
+    WHERE k.contype = 'f' AND k.connamespace = 'public'::regnamespace AND k.conrelid <> k.confrelid`;
+  const order: string[] = [];
+  const left = new Set(tables);
+  while (left.size) {
+    // Tables nothing remaining points at can go now
+    const ready = [...left].filter((t) => !refs.some((r) => r.parent === t && r.child !== t && left.has(r.child)));
+    if (!ready.length) throw new Error(`Can't order tables for reset: ${[...left].join(", ")}`);
+    for (const t of ready) {
+      order.push(t);
+      left.delete(t);
+    }
+  }
+  return (deleteOrder = order);
+}
+
 /** Empty every table (the migrations table stays). */
 export async function resetDb() {
-  const rows = await db.$queryRaw<{ tablename: string }[]>`
-    SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tablename <> '_prisma_migrations'`;
-  if (rows.length)
-    await db.$executeRawUnsafe(
-      `TRUNCATE ${rows.map((r) => `"public"."${r.tablename}"`).join(", ")} RESTART IDENTITY CASCADE`,
-    );
+  const order = await tablesToEmpty();
+  await db.$transaction(order.map((t) => db.$executeRawUnsafe(`DELETE FROM "public"."${t}"`)));
 }
 
 let n = 0;
