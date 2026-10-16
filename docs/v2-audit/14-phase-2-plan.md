@@ -108,6 +108,26 @@ committed, then deployed when the server can be reached.
 (`ignoreBuildErrors`). Remove that once the type errors are at zero, so a type error can never
 ship.
 
+**Safety net: done 2026-10-16.**
+- Tests: `yarn test:db` (re)creates `<db>_test` from the migrations; `yarn test:int` runs the
+  server actions against it, with only the session and Next helpers faked.
+- 28 tests cover:
+  - payments, including two at the same moment and receipt numbers;
+  - creating, cancelling and restoring invoices;
+  - creating a batch and generating its sessions;
+  - attendance;
+  - registration;
+  - coupons and their usage limits.
+- **Found, to fix in the rewrite:**
+  1. Registration saves the passport cover and bio-data page into each other's fields
+     (pinned by an `it.fails` test).
+  2. Registration throws on invalid data instead of returning an error (`it.fails`).
+  3. Batch session times are stored as if UTC (16:00 → 19:00 Nairobi). Check how pages display
+     them before changing.
+  4. Creating a batch and applying a coupon aren't in the activity log.
+  5. Several actions return raw error text to the screen ("Database error: …", `error.message`).
+  6. Registration's half-month rule is dead code: both branches charge the full month.
+
 **Rewrite the auth pages.**
 - Sign-in, reset password and change password, in the v2 design.
 - Clear errors, a show/hide password toggle, a caps-lock warning, and the live password checklist.

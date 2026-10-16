@@ -12,7 +12,10 @@
     "start-custom": "NODE_ENV=production node server.js",
     "lint": "eslint",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:unit": "vitest run --project unit",
+    "test:int": "vitest run --project integration",
+    "test:db": "bash scripts/test-db.sh"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
