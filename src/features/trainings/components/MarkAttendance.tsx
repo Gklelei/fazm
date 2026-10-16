@@ -22,6 +22,7 @@ import { UseUtilsContext } from "@/providers/UtilsContext";
 import type { AttendanceStatus } from "@/generated/prisma/enums";
 import { saveAttendance } from "../actions/mark-attendance";
 import type { TrainingAttendanceType } from "../queries";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 type Mark = { status: AttendanceStatus | null; reasonId: string | null };
 
@@ -148,7 +149,7 @@ export default function MarkAttendance({ data }: { data: TrainingAttendanceType 
                   <div className="flex min-w-0 items-center gap-3">
                     <ProfileAvatar
                       name={`${a.firstName} ${a.lastName}`}
-                      url={a.profilePIcture ?? ""}
+                      url={photoOf(a)}
                       size={36}
                     />
                     <span className="grid min-w-0 leading-tight">

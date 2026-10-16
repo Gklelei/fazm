@@ -26,6 +26,7 @@ import {
 import { FilterIcon, RotateCcw } from "lucide-react";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 interface Props {
   data: GuardiansResponseType[];
@@ -193,7 +194,7 @@ const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
                           <div className="flex items-center gap-3">
                             <ProfileAvatar
                               name={athleteName}
-                              url={item.athlete.profilePIcture ?? ""}
+                              url={photoOf(item.athlete)}
                             />
                             <div className="flex flex-col">
                               <span className="text-sm font-medium leading-none">

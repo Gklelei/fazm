@@ -26,6 +26,8 @@ import AthleteAssesments from "./AthleteAssessments";
 import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
 import AthleteDocuments from "./AthleteDocuments";
 import AthleteExportButton from "./AthleteExportButton";
+import { ConsentDialog, ConsentPanel, type ConsentRecord } from "./ConsentPanel";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
 
@@ -59,13 +61,25 @@ export default function AthleteProfile({
   data,
   coupons,
   summary,
+  canManageConsent,
 }: {
   data: GetAthleteByIdQueryType;
   coupons: AthleteCouponOption[];
   summary: AthleteSummary;
+  canManageConsent: boolean;
 }) {
   const name = athleteName(data);
   const guardian = data.guardians[0];
+  const consents = data.consents as unknown as ConsentRecord[];
+  // No photo without photos and videos consent (existing athletes too)
+  const photo = photoOf(data);
+  const consentAthlete = {
+    athleteId: data.athleteId,
+    firstName: data.firstName,
+    lastName: data.lastName,
+    dateOfBirth: data.dateOfBirth,
+    guardian: guardian ? { name: guardian.fullNames, relationship: guardian.relationship } : undefined,
+  };
 
   const sections: Section[] = [
     { key: "details", label: "Details", description: "Personal and physical details.", content: <Details data={data} /> },
@@ -79,6 +93,7 @@ export default function AthleteProfile({
     { key: "emergency", label: "Emergency", description: "Who to call in an emergency.", content: <EmergencyContacts data={data} /> },
     { key: "address", label: "Address", description: "Where they live.", content: <AddressInfo data={data} /> },
     { key: "documents", label: "Documents", description: "Birth certificate, ID and passport.", content: <AthleteDocuments data={data} /> },
+    { key: "consent", label: "Consent", content: <ConsentPanel athlete={consentAthlete} consents={consents} canManage={canManageConsent} /> },
   ];
 
   return (
@@ -91,7 +106,7 @@ export default function AthleteProfile({
 
       <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex items-center gap-4">
-          <ProfileAvatar name={name} url={data.profilePIcture ?? ""} size={72} className="ring-2 ring-border" />
+          <ProfileAvatar name={name} url={photo} size={72} className="ring-2 ring-border" />
           <div className="min-w-0 space-y-1.5">
             <h1 className="font-display text-3xl leading-none font-bold tracking-tight uppercase md:text-4xl">
               {name}
@@ -101,6 +116,7 @@ export default function AthleteProfile({
               {data.batches && <span className="font-medium text-foreground">{data.batches.name}</span>}
               {data.age != null && <span>{data.age} years</span>}
               <StatusBadge status={data.status}>{ATHLETE_STATUS_LABEL[data.status]}</StatusBadge>
+              {!consents.length && <StatusBadge tone="warning">Consent missing</StatusBadge>}
             </p>
             {guardian && (
               <p className="text-sm">
@@ -116,6 +132,9 @@ export default function AthleteProfile({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {!consents.length && canManageConsent && (
+            <ConsentDialog athlete={consentAthlete} trigger={<Button variant="outline">Record consent</Button>} />
+          )}
           <AthleteExportButton data={data} />
           <Button variant="outline" asChild>
             <Link href={`/players/edit/${data.athleteId}`}>

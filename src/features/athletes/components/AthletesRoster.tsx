@@ -34,7 +34,7 @@ type ExportItem = {
   batches: { name: string } | null;
 };
 
-const EMPTY: RosterFilterState = { search: "", status: "", batchId: "", from: "", to: "" };
+const EMPTY: RosterFilterState = { search: "", status: "", batchId: "", from: "", to: "", consent: "" };
 
 export default function AthletesRoster({
   initialData,
@@ -54,8 +54,9 @@ export default function AthletesRoster({
       batchId: form.batchId,
       from: form.from,
       to: form.to,
+      consent: form.consent,
     }),
-    [search, form.status, form.batchId, form.from, form.to],
+    [search, form.status, form.batchId, form.from, form.to, form.consent],
   );
   const filtered = Object.values(filters).some(Boolean);
 

@@ -6,13 +6,14 @@ import ProfileAvatar from "@/components/shared/ProfileAvatar";
 import type { AthleteListRow } from "../queries/list";
 import { athleteName } from "../lib/names";
 import { AthleteActionsMenu, AthleteStatusMenu } from "./AthleteRowActions";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 /** Roster row for small screens. */
 export default function AthleteCard({ athlete: a }: { athlete: AthleteListRow }) {
   const guardian = a.guardians[0];
   return (
     <div className="flex gap-3 px-4 py-3">
-      <ProfileAvatar name={athleteName(a)} url={a.profilePIcture ?? ""} size={44} />
+      <ProfileAvatar name={athleteName(a)} url={photoOf(a)} size={44} />
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex items-start justify-between gap-2">
           <Link

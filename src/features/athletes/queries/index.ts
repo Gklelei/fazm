@@ -7,6 +7,7 @@ export const GetAthleteByIdQuery = (id: string) =>
     },
     include: {
       address: true,
+      consents: { orderBy: { createdAt: "desc" as const }, include: { recordedBy: { select: { name: true } } } },
       emergencyContacts: true,
       guardians: true,
       medical: true,

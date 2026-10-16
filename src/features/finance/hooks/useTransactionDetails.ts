@@ -7,7 +7,6 @@ export const query = {
       select: {
         firstName: true,
         lastName: true,
-        profilePIcture: true,
       },
     },
     invoice: {

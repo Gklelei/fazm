@@ -8,6 +8,8 @@ export type AthleteFilters = {
   from?: string;
   to?: string;
   batchId?: string;
+  /** "missing": athletes with no consent recorded */
+  consent?: string;
 };
 
 export function athleteFiltersFromParams(sp: URLSearchParams): AthleteFilters {
@@ -17,6 +19,7 @@ export function athleteFiltersFromParams(sp: URLSearchParams): AthleteFilters {
     to: sp.get("to") || undefined,
     batchId: sp.get("batchId") || undefined,
     status: parseStatus(sp.get("status")),
+    consent: sp.get("consent") === "missing" ? "missing" : undefined,
   };
 }
 
@@ -38,6 +41,7 @@ export function buildAthleteWhere({
   to,
   batchId,
   status,
+  consent,
 }: AthleteFilters): Prisma.AthleteWhereInput {
   const terms = (search ?? "").split(/\s+/).filter(Boolean);
 
@@ -49,6 +53,7 @@ export function buildAthleteWhere({
     isArchived: false,
     ...(batchId ? { batchesId: batchId } : {}),
     ...(status ? { status } : {}),
+    ...(consent === "missing" ? { consents: { none: {} } } : {}),
     ...(from || to ? { createdAt } : {}),
     ...(terms.length
       ? {

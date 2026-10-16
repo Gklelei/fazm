@@ -9,6 +9,7 @@ import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
 import { format } from "date-fns";
 import { formatCurrency } from "@/lib/format";
 import { logExport } from "@/features/audit-logs/actions/log-export";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 function safeText(v: unknown) {
   return String(v ?? "").trim();
@@ -83,7 +84,7 @@ export default function AthleteExportButton({
       doc.rect(0, 0, W, 80, "F");
 
       // Athlete photo (or placeholder circle)
-      const photoSrc = data.profilePIcture;
+      const photoSrc = photoOf(data);
       let photoAdded = false;
       if (photoSrc) {
         const dataUrl = await loadImageAsDataUrl(photoSrc);

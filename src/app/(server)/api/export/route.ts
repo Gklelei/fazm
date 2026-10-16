@@ -257,7 +257,6 @@ export async function GET(req: NextRequest) {
               select: {
                 firstName: true,
                 lastName: true,
-                profilePIcture: true,
               },
             },
             invoice: true,

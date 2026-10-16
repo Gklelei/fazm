@@ -50,7 +50,7 @@ bar. Save and Back stay in a bar pinned to the bottom of the screen.
 6. **Photo and documents:**
    - the photo can only be added when photo consent was given;
    - birth certificate, ID front and back, passport cover and bio page.
-7. **Fee plan and review:**
+7. **Fee plan** and 8. **Review** (separate steps):
    - choose the fee plan;
    - preview the first invoice;
    - a summary of every step, each with an Edit link;
@@ -62,8 +62,8 @@ plain words. Leaving with unsaved data asks first.
 ## Editing
 
 The edit page uses the same sections on one page, with a section menu, one Save bar, and a warning
-on leaving unsaved. The medical section is read-only unless the user is an admin or has the
-medical (DOCTOR) role. Consent is changed from the profile, not here.
+on leaving unsaved. Admins change everything, coaches everything except health details, and medical staff only
+health details. Consent is changed from the profile, not here.
 
 ## Consent on the profile
 

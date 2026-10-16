@@ -30,7 +30,6 @@ export async function GET(
           select: {
             firstName: true,
             lastName: true,
-            profilePIcture: true,
           },
         },
         invoice: true,

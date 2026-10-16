@@ -1,4 +1,5 @@
 import { Prisma } from "@/generated/prisma/client";
+import { PHOTO_SELECT } from "@/features/athletes/lib/photo";
 
 /** Everything the attendance sheet needs for one session. */
 export const GetTrainingAthletesQuery = (id: string) =>
@@ -19,7 +20,7 @@ export const GetTrainingAthletesQuery = (id: string) =>
           athleteId: true,
           firstName: true,
           lastName: true,
-          profilePIcture: true,
+          ...PHOTO_SELECT,
         },
       },
       attendances: {

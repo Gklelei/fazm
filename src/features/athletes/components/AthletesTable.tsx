@@ -14,6 +14,7 @@ import ProfileAvatar from "@/components/shared/ProfileAvatar";
 import type { AthleteListRow } from "../queries/list";
 import { athleteName } from "../lib/names";
 import { AthleteActionsMenu, AthleteStatusMenu } from "./AthleteRowActions";
+import { photoOf } from "@/features/athletes/lib/photo";
 
 export default function AthletesTable({ athletes }: { athletes: AthleteListRow[] }) {
   return (
@@ -41,7 +42,7 @@ export default function AthletesTable({ athletes }: { athletes: AthleteListRow[]
                   href={`/players/user-profile/${a.athleteId}`}
                   className="group flex items-center gap-3 rounded-sm focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
                 >
-                  <ProfileAvatar name={athleteName(a)} url={a.profilePIcture ?? ""} size={36} />
+                  <ProfileAvatar name={athleteName(a)} url={photoOf(a)} size={36} />
                   <span className="grid min-w-0 leading-tight">
                     <span className="truncate font-medium group-hover:underline">
                       {athleteName(a)}

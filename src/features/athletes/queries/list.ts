@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
 import { cursorArgs, pageOf } from "@/lib/cursor";
 import { buildAthleteWhere, type AthleteFilters } from "./filters";
+import { PHOTO_SELECT } from "@/features/athletes/lib/photo";
 
 /** What one roster row needs: identity, batch, and who to call. */
 export const ATHLETE_LIST_SELECT = {
@@ -12,7 +13,7 @@ export const ATHLETE_LIST_SELECT = {
   lastName: true,
   age: true,
   status: true,
-  profilePIcture: true,
+  ...PHOTO_SELECT,
   phoneNumber: true,
   createdAt: true,
   batches: { select: { id: true, name: true } },

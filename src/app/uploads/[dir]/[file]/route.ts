@@ -3,9 +3,13 @@ import { stat } from "node:fs/promises";
 import { Readable } from "node:stream";
 import { NextRequest, NextResponse } from "next/server";
 import { checkRole } from "@/lib/authz";
+import { hasRole } from "@/lib/roles";
 import { MIME_BY_EXT, resolveUpload } from "@/lib/uploads";
 
 export const runtime = "nodejs";
+
+/** Athletes' identity and consent documents: only roles that can open athlete profiles. */
+const ATHLETE_DOCUMENTS = new Set(["BIRTH_CERTIFICATES", "NATIONAL_IDENTIFICATIONS", "PASSPORTS", "CONSENT_FORMS"]);
 
 /**
  * Uploaded photos and documents (birth certificates, IDs) are only for
@@ -19,6 +23,9 @@ export async function GET(_req: NextRequest, { params }: { params: Promise<{ dir
   }
 
   const { dir, file } = await params;
+  if (ATHLETE_DOCUMENTS.has(dir) && !hasRole(authz.session.user.role, "athletes")) {
+    return new NextResponse("Not found", { status: 404 });
+  }
   const target = resolveUpload(dir, file);
   const ext = file.split(".").pop()?.toLowerCase() ?? "";
   const mime = MIME_BY_EXT[ext];

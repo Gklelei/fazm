@@ -1,4 +1,5 @@
 import { Prisma } from "@/generated/prisma/client";
+import { PHOTO_SELECT } from "@/features/athletes/lib/photo";
 
 export const GuardiansQuery = {
   include: {
@@ -7,7 +8,7 @@ export const GuardiansQuery = {
         firstName: true,
         lastName: true,
         middleName: true,
-        profilePIcture: true,
+        ...PHOTO_SELECT,
         batches: {
           select: {
             name: true,

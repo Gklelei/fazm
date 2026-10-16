@@ -22,6 +22,7 @@ export type RosterFilterState = {
   batchId: string;
   from: string;
   to: string;
+  consent: string;
 };
 
 export default function AthletesFilterBar({
@@ -37,7 +38,7 @@ export default function AthletesFilterBar({
   const active = Object.values(value).some(Boolean);
 
   return (
-    <div className="grid gap-3 border-b p-4 md:grid-cols-[minmax(14rem,1fr)_auto]">
+    <div className="grid gap-3 border-b p-4">
       <div className="relative self-end">
         <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
         <Input
@@ -70,6 +71,19 @@ export default function AthletesFilterBar({
                   {label}
                 </SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-1.5">
+          <Label className="text-xs text-muted-foreground">Consent</Label>
+          <Select value={value.consent || ALL} onValueChange={(v) => onChange({ consent: v === ALL ? "" : v })}>
+            <SelectTrigger className="w-full sm:w-32">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={ALL}>Any</SelectItem>
+              <SelectItem value="missing">Missing</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -126,7 +140,7 @@ export default function AthletesFilterBar({
             variant="ghost"
             className="col-span-2 sm:col-span-1"
             onClick={() =>
-              onChange({ search: "", status: "", batchId: "", from: "", to: "" })
+              onChange({ search: "", status: "", batchId: "", from: "", to: "", consent: "" })
             }
           >
             <X /> Clear filters

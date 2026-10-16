@@ -187,3 +187,21 @@ export const athleteEditSchema = athleteFields
 export type AthleteEditInput = z.input<typeof athleteEditSchema>;
 
 export const MEDICAL_FIELDS = ["bloodGroup", "allergies", "medicalConditions"] as const;
+
+/** Recording or updating consent from the profile. */
+export const consentSchema = athleteFields
+  .pick({
+    consentDataUse: true,
+    consentEmergency: true,
+    consentPhotos: true,
+    consentGivenBy: true,
+    consentRelationship: true,
+    consentMethod: true,
+    consentFormUrl: true,
+    consentDate: true,
+    consentLanguage: true,
+  })
+  .superRefine((v, ctx) => {
+    for (const r of registrationRules(v as unknown as Partial<Input>)) ctx.addIssue({ code: "custom", path: [r.path], message: r.message });
+  });
+export type ConsentInput = z.input<typeof consentSchema>;

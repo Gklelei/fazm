@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
+import { hasRole } from "@/lib/roles";
 import AthleteProfile from "@/features/athletes/components/profile/AthleteProfile";
 import { GetAthleteByIdQuery } from "@/features/athletes/queries";
 import { getAthleteSummary } from "@/features/athletes/queries/summary";
@@ -59,5 +62,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   // into strings, which the profile's money helpers already Number().
   const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
 
-  return <AthleteProfile data={plain} coupons={options} summary={summary} />;
+  const session = await auth.api.getSession({ headers: await headers() });
+  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} />;
 }
