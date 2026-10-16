@@ -16,7 +16,7 @@ J=/home/gklelei/apps/fazm-cron/run-job.sh
 # deactivate ~132 athletes, almost all because attendance was never taken.
 # Preview first:  ~/apps/fazm-cron/run-job.sh deactivate-inactive dryRun
 #0 1 * * *    $J deactivate-inactive
-# Nightly database backup (keeps 14)
+# Nightly database backup (keeps 14 here, 30 in Google Drive, plus uploads)
 0 2 * * *     /home/gklelei/apps/fazm-cron/backup-db.sh
 # Remove expired logins and reset tokens
 0 3 * * 0     $J cleanup-auth
