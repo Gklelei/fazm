@@ -23,3 +23,12 @@ export function hasRole(
 }
 
 export const FORBIDDEN_MESSAGE = "You don't have permission to do this.";
+
+/** How each role reads on screen. */
+export const ROLE_LABEL: Record<ROLES, string> = {
+  SUPER_ADMIN: "Super admin",
+  ADMIN: "Admin",
+  COACH: "Coach",
+  DOCTOR: "Medical",
+  FINANCE: "Finance",
+};

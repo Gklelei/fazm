@@ -101,7 +101,13 @@ export const auth = betterAuth({
         await createAuditLog({
           action: "LOGIN_FAILED",
           resource: "Session",
-          details: `Failed sign-in for ${email || "(no email)"}: ${ctx.context.returned.body?.code ?? ctx.context.returned.status}`,
+          details: `Failed sign-in for ${email || "(no email)"}: ${
+            ctx.context.returned.status === 429
+              ? "too many attempts"
+              : ({ INVALID_EMAIL_OR_PASSWORD: "wrong email or password", FAILED_TO_CREATE_SESSION: "account is deactivated" } as Record<string, string>)[
+                  ctx.context.returned.body?.code ?? ""
+                ] ?? String(ctx.context.returned.body?.code ?? ctx.context.returned.status)
+          }`,
           userId: user?.id,
         });
         return;

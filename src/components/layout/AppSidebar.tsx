@@ -23,15 +23,8 @@ import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { useAuthSession } from "@/providers/SessionProvider";
 import { UseUtilsContext } from "@/providers/UtilsContext";
+import { ROLE_LABEL } from "@/lib/roles";
 import { findNavItem, isActivePath, NAV_GROUPS_COOKIE, navForRole, type AppRole, type NavItem } from "./nav-config";
-
-const ROLE_LABEL: Record<AppRole, string> = {
-  SUPER_ADMIN: "Super admin",
-  ADMIN: "Admin",
-  COACH: "Coach",
-  DOCTOR: "Medical",
-  FINANCE: "Finance",
-};
 
 /**
  * The footer's top border is the halfway line; the centre circle sits on it.

@@ -5,7 +5,9 @@ import { db } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { LOOKUP, lookupsChanged } from "@/lib/lookups";
-import { academyInstant } from "@/lib/academy-time";
+import { academyInstant, formatAcademy } from "@/lib/academy-time";
+
+const DAY = { day: "numeric", month: "short" } as const;
 import { planSessions, type Slot } from "@/features/settings/lib/plan-sessions";
 import {
   planSchema,
@@ -202,7 +204,7 @@ export async function planSquadSessions(id: string, input: PlanInput) {
     await createAuditLog({
       action: "PLAN_BATCH_SESSIONS",
       resource: "Batch",
-      details: `Planned ${todo.length} ${squad.name} session${todo.length === 1 ? "" : "s"} from ${input.from} to ${input.to}`,
+      details: `Planned ${todo.length} ${squad.name} session${todo.length === 1 ? "" : "s"}, ${formatAcademy(todo[0].date, DAY)} to ${formatAcademy(todo.at(-1)!.date, DAY)}`,
       userId: user.id,
       batchId: id,
     });

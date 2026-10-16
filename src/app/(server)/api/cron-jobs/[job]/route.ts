@@ -33,7 +33,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ job
       await createAuditLog({
         action: `CRON_${job.toUpperCase().replaceAll("-", "_")}`,
         resource: "Cron",
-        details: JSON.stringify({ ...result, ms }).slice(0, 2000),
+        // e.g. Scheduled job "session-status" ran: completed 2, started 0 (549 ms)
+        details: `Scheduled job "${job}" ran: ${Object.entries(result)
+          .map(([k, v]) => `${k} ${typeof v === "object" ? JSON.stringify(v) : v}`)
+          .join(", ")} (${ms} ms)`.slice(0, 2000),
       });
     }
     console.log(`[cron] ${job} ok in ${ms}ms`, result);
@@ -43,7 +46,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ job
     await createAuditLog({
       action: `CRON_${job.toUpperCase().replaceAll("-", "_")}_FAILED`,
       resource: "Cron",
-      details: error instanceof Error ? error.message.slice(0, 500) : "unknown error",
+      details: `Scheduled job "${job}" failed: ${error instanceof Error ? error.message.slice(0, 500) : "unknown error"}`,
     });
     return NextResponse.json({ ok: false, job, error: "Job failed; see server log" }, { status: 500 });
   }

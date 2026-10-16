@@ -19,6 +19,7 @@ import {
   athleteFiltersFromParams,
   buildAthleteWhere,
 } from "@/features/athletes/queries/filters";
+import { ACTIVITY_SELECT, activityFiltersFromParams, buildActivityWhere } from "@/features/audit-logs/queries/list";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +32,7 @@ const EXPORT_ACCESS: Record<string, RoleGroup> = {
   staff: "admin",
   sessions: "coaching",
   athletes: "coaching",
+  activity: "admin",
 };
 
 /** Maximum rows returned from any export to prevent OOM / timeout */
@@ -179,6 +181,16 @@ export async function GET(req: NextRequest) {
           take: MAX_EXPORT_ROWS,
         });
         return NextResponse.json(data);
+      }
+
+      case "activity": {
+        const items = await db.auditLog.findMany({
+          where: buildActivityWhere(activityFiltersFromParams((k) => req.nextUrl.searchParams.get(k))),
+          select: ACTIVITY_SELECT,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+          take: MAX_EXPORT_ROWS,
+        });
+        return NextResponse.json(items);
       }
 
       case "invoices": {

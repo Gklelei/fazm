@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useInView } from "react-intersection-observer";
-import { Loader2, RefreshCcw, UserPlus } from "lucide-react";
+import { RefreshCcw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { LoadMore } from "@/components/shared/LoadMore";
 import ExportDropdown from "@/components/shared/ExportDropdown";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -72,10 +72,6 @@ export default function AthletesRoster({
 
   const athletes = useMemo(() => data?.pages.flatMap((p) => p.allAthletes) ?? [], [data]);
 
-  const { ref, inView } = useInView({ rootMargin: "400px" });
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <div className="space-y-6">
@@ -173,24 +169,13 @@ export default function AthletesRoster({
         )}
 
         {athletes.length > 0 && (
-          <div
-            ref={ref}
-            className="flex h-14 items-center justify-center border-t text-sm text-muted-foreground"
-          >
-            {isFetchingNextPage ? (
-              <span className="inline-flex items-center gap-2">
-                <Loader2 className="size-4 animate-spin" /> Loading more
-              </span>
-            ) : hasNextPage ? (
-              <Button variant="ghost" size="sm" onClick={() => fetchNextPage()}>
-                Load more
-              </Button>
-            ) : (
-              <span className="tabular">
-                {athletes.length} athlete{athletes.length === 1 ? "" : "s"}
-              </span>
-            )}
-          </div>
+          <LoadMore
+            shown={athletes.length}
+            noun={["athlete", "athletes"]}
+            hasNextPage={!!hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={fetchNextPage}
+          />
         )}
       </section>
     </div>
