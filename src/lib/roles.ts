@@ -11,6 +11,10 @@ export const ROLE_GROUPS = {
   finance: ["SUPER_ADMIN", "ADMIN", "FINANCE"],
   /** Sessions, attendance, assessments */
   coaching: ["SUPER_ADMIN", "ADMIN", "COACH"],
+  /** Opening athlete profiles and editing their details (medical staff: medical details only) */
+  athletes: ["SUPER_ADMIN", "ADMIN", "COACH", "DOCTOR"],
+  /** Changing medical details */
+  medical: ["SUPER_ADMIN", "ADMIN", "DOCTOR"],
 } as const satisfies Record<string, readonly ROLES[]>;
 
 export type RoleGroup = keyof typeof ROLE_GROUPS;

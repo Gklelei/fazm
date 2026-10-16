@@ -1,188 +1,145 @@
 "use server";
 
-import { ROLE_GROUPS } from "@/lib/roles";
-
-import { auth } from "@/lib/auth";
-import { headers } from "next/headers";
-import { db } from "@/lib/prisma";
-import { editSchemaType } from "@/features/athletes/schemas";
 import { revalidatePath } from "next/cache";
-import { createAuditLog } from "@/lib/audit";
+import { db } from "@/lib/prisma";
+import { createAuditLog, diffFields } from "@/lib/audit";
+import { ActionError, asRole } from "@/lib/action";
+import { hasRole } from "@/lib/roles";
+import { ageOn, athleteEditSchema, type AthleteEditInput } from "@/features/athletes/schemas/registration";
 
-type ActionResult = {
-  status: "SUCCESS" | "ERROR";
-  successMessage?: string;
-  errorMessage?: string;
-};
-
-function calculateAge({ dob }: { dob: Date | string }) {
-  if (!dob) return null;
-
-  const birthDate = new Date(dob);
-  if (isNaN(birthDate.getTime())) return null;
-
-  const today = new Date();
-
-  let age = today.getFullYear() - birthDate.getFullYear();
-
-  const monthDiff = today.getMonth() - birthDate.getMonth();
-
-  if (
-    monthDiff < 0 ||
-    (monthDiff === 0 && today.getDate() < birthDate.getDate())
-  ) {
-    age--;
-  }
-
-  return age;
-}
-
-const acceptedRoles = [...ROLE_GROUPS.coaching] as string[];
-
-export const UpdateAthleteAction = async (
-  id: string,
-  data: editSchemaType,
-): Promise<ActionResult> => {
-  const session = await auth.api.getSession({ headers: await headers() });
-
-  if (!session?.user) {
-    return {
-      status: "ERROR",
-      errorMessage: "You must be logged in to perform this action.",
-    };
-  }
-
-  if (!acceptedRoles.includes(session.user.role || "")) {
-    return {
-      status: "ERROR",
-      errorMessage:
-        "Access denied. You do not have permission to update athlete profiles.",
-    };
-  }
-
-  const positions = data.playingPositions
-    ? data.playingPositions
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean)
-    : [];
-
-  const allergies = data.allergies
-    ? data.allergies
-        .split(",")
-        .map((a) => a.trim())
-        .filter(Boolean)
-    : [];
-
-  const medicalConditions = data.medicalConditions
-    ? data.medicalConditions
-        .split(",")
-        .map((m) => m.trim())
-        .filter(Boolean)
-    : [];
-  try {
-    const updatedAthlete = await db.athlete.update({
-      where: { athleteId: id },
-      data: {
-        firstName: data.firstName,
-        lastName: data.lastName,
-        middleName: data.middleName,
-        email: data.email || undefined,
-        phoneNumber: data.phoneNumber,
-        dateOfBirth: data.dateOfBirth,
-        age: calculateAge({ dob: data.dateOfBirth }),
-        positions,
-        batchesId: data.batch,
-        profilePIcture: data.profilePIcture,
-        birthCertificate: data.birthCertificate,
-        foot: data.dominantFoot,
-        hand: data.dominantHand,
-        passportBioData: data.passportPage,
-        passportCover: data.passportCover,
-        nationalIdBack: data.idBack,
-        nationalIdFront: data.idFront,
-        height: data.height,
-        weight: data.weight,
-        address: {
-          upsert: {
-            create: {
-              addressLine1: data.addressLine1,
-              addressLine2: data.addressLine2 || "",
-              country: data.country,
-              town: data.town,
-              estate: data.estate,
-            },
-            update: {
-              addressLine1: data.addressLine1,
-              addressLine2: data.addressLine2,
-              country: data.country,
-              town: data.town,
-              estate: data.estate,
-            },
-          },
-        },
-        medical: {
-          upsert: {
-            create: {
-              bloogGroup: data.bloodGroup,
-              allergies: allergies,
-              medicalConditions: medicalConditions,
-            },
-            update: {
-              bloogGroup: data.bloodGroup,
-              allergies: allergies,
-              medicalConditions: medicalConditions,
-            },
-          },
-        },
-        guardians: {
-          deleteMany: {},
-          create: [
-            {
-              fullNames: data.guardianFullNames,
-              relationship: data.guardianRelationShip,
-              email: data.guardianEmail,
-              phoneNumber: data.guardianPhoneNumber,
-            },
-          ],
-        },
-        emergencyContacts: {
-          deleteMany: {},
-          create: [
-            {
-              name: data.emergencyContactName,
-              phoneNumber: data.emergencyContactPhone,
-              relationship: data.emergencyContactRelationship,
-            },
-          ],
-        },
+/**
+ * Saves the edit page. Admins change everything; coaches everything except
+ * medical details; medical staff only medical details. The edited guardian
+ * is changed in place, so other guardians on the athlete are kept.
+ */
+export async function updateAthlete(athleteId: string, input: AthleteEditInput, guardianId?: string) {
+  return asRole("athletes", async (user) => {
+    const v = athleteEditSchema.parse(input);
+    const before = await db.athlete.findUnique({
+      where: { athleteId },
+      include: {
+        medical: true,
+        address: true,
+        emergencyContacts: { take: 1 },
+        guardians: guardianId ? { where: { id: guardianId } } : { take: 1 },
+        consents: { orderBy: { createdAt: "desc" }, take: 1, select: { photos: true } },
       },
     });
+    if (!before || before.isArchived) throw new ActionError("That athlete no longer exists.");
 
-    revalidatePath("/players");
-    revalidatePath(`/players/edit/${id}`);
-
-    if (session?.user) {
-      await createAuditLog({
-        action: "UPDATE_ATHLETE",
-        resource: "Athlete",
-        details: `Updated profile for athlete ${data.firstName} ${data.lastName}`,
-        userId: session.user.id,
-        athleteId: updatedAthlete.id,
-      });
+    const medical = hasRole(user.role, "medical");
+    const others = user.role !== "DOCTOR";
+    const photoConsent = before.consents[0]?.photos ?? false;
+    if (others && v.profilePhoto && v.profilePhoto !== before.profilePIcture && !photoConsent) {
+      throw new ActionError("Remove the photo, or record photos and videos consent on the profile first.");
+    }
+    if (others && !(await db.batches.findFirst({ where: { id: v.batch }, select: { id: true } }))) {
+      throw new ActionError("That batch is no longer available. Choose another.");
     }
 
-    return {
-      status: "SUCCESS",
-      successMessage: "Athlete profile updated successfully.",
-    };
-  } catch (error) {
-    console.error("Update Error:", error);
+    const guardian = before.guardians[0];
+    const emergency = before.emergencyContacts[0];
 
-    return {
-      status: "ERROR",
-      errorMessage:
-        "An error occurred while updating the profile. Please try again.",
-    };
-  }
-};
+    await db.$transaction(async (tx) => {
+      if (others) {
+        await tx.athlete.update({
+          where: { athleteId },
+          data: {
+            firstName: v.firstName,
+            middleName: v.middleName || null,
+            lastName: v.lastName,
+            email: v.email || null,
+            phoneNumber: v.phoneNumber,
+            dateOfBirth: v.dateOfBirth,
+            age: ageOn(v.dateOfBirth),
+            batchesId: v.batch,
+            profilePIcture: v.profilePhoto,
+            height: v.height,
+            weight: v.weight,
+            foot: v.foot,
+            hand: v.hand,
+            positions: v.positions,
+            birthCertificate: v.birthCertificate,
+            nationalIdFront: v.idFront,
+            nationalIdBack: v.idBack,
+            passportCover: v.passportCover,
+            passportBioData: v.passportPage,
+            address: {
+              upsert: {
+                create: { country: "Kenya", town: v.town, estate: v.estate, addressLine1: v.addressLine1, addressLine2: "" },
+                update: { town: v.town, estate: v.estate, addressLine1: v.addressLine1 },
+              },
+            },
+          },
+        });
+        const contact = { name: v.emergencyName, phoneNumber: v.emergencyPhone, relationship: v.emergencyRelationship };
+        if (emergency) await tx.athleteEmergencyContact.update({ where: { id: emergency.id }, data: contact });
+        else await tx.athleteEmergencyContact.create({ data: { ...contact, athleteId: before.id } });
+
+        const g = { fullNames: v.guardianName, relationship: v.guardianRelationship, phoneNumber: v.guardianPhone, email: v.guardianEmail };
+        if (guardian && v.guardianName) await tx.athleteGuardian.update({ where: { id: guardian.id }, data: g });
+        else if (guardian) await tx.athleteGuardian.delete({ where: { id: guardian.id } });
+        else if (v.guardianName) await tx.athleteGuardian.create({ data: { ...g, athleteId } });
+      }
+      if (medical) {
+        const m = { bloogGroup: v.bloodGroup, allergies: v.allergies, medicalConditions: v.medicalConditions };
+        await tx.athleteMedicalAndEmergency.upsert({ where: { athleteId }, create: { ...m, athleteId }, update: m });
+      }
+    });
+
+    const changes = diffFields(
+      {
+        ...(others && {
+          firstName: before.firstName,
+          middleName: before.middleName ?? "",
+          lastName: before.lastName,
+          dateOfBirth: before.dateOfBirth,
+          phoneNumber: before.phoneNumber ?? "",
+          email: before.email ?? "",
+          batch: before.batchesId,
+          guardian: guardian ? `${guardian.fullNames}, ${guardian.relationship}, ${guardian.phoneNumber}` : "",
+          emergencyContact: emergency ? `${emergency.name}, ${emergency.relationship}, ${emergency.phoneNumber}` : "",
+          town: before.address?.town ?? "",
+          estate: before.address?.estate ?? "",
+          positions: before.positions,
+          photo: before.profilePIcture ?? "",
+        }),
+        ...(medical && {
+          bloodGroup: before.medical?.bloogGroup ?? "",
+          allergies: before.medical?.allergies ?? [],
+          medicalConditions: before.medical?.medicalConditions ?? [],
+        }),
+      },
+      {
+        ...(others && {
+          firstName: v.firstName,
+          middleName: v.middleName,
+          lastName: v.lastName,
+          dateOfBirth: v.dateOfBirth,
+          phoneNumber: v.phoneNumber,
+          email: v.email,
+          batch: v.batch,
+          guardian: v.guardianName ? `${v.guardianName}, ${v.guardianRelationship}, ${v.guardianPhone}` : "",
+          emergencyContact: `${v.emergencyName}, ${v.emergencyRelationship}, ${v.emergencyPhone}`,
+          town: v.town,
+          estate: v.estate,
+          positions: v.positions,
+          photo: v.profilePhoto,
+        }),
+        ...(medical && { bloodGroup: v.bloodGroup, allergies: v.allergies, medicalConditions: v.medicalConditions }),
+      },
+    );
+
+    revalidatePath("/players");
+    revalidatePath(`/players/user-profile/${athleteId}`);
+    await createAuditLog({
+      action: "UPDATE_ATHLETE",
+      resource: "Athlete",
+      details: `Updated ${v.firstName} ${v.lastName}'s details (${athleteId})${!others ? ": medical only" : !medical ? ", not medical" : ""}`,
+      userId: user.id,
+      athleteId: before.id,
+      changes,
+    });
+    return { success: true, message: "Changes saved." };
+  });
+}

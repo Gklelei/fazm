@@ -59,7 +59,7 @@ export const NAV: NavSection[] = [
         title: "Athletes",
         url: "/players",
         icon: Shirt,
-        roles: [...COACHING, "DOCTOR"],
+        roles: [...ROLE_GROUPS.athletes],
       },
       {
         title: "Guardians",

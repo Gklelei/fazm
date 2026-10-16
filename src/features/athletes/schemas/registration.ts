@@ -50,7 +50,7 @@ const listOf = (what: string) =>
     .max(20, `Up to 20 ${what}s`)
     .transform((rows) => rows.map((r) => r.name).filter(Boolean));
 
-const fields = z.object({
+export const athleteFields = z.object({
   // 1. Athlete
   firstName: required("the first name", 60),
   middleName: text(60),
@@ -108,7 +108,7 @@ const fields = z.object({
   subscriptionPlanId: z.string().min(1, "Choose a fee plan"),
 });
 
-type Input = z.input<typeof fields>;
+type Input = z.input<typeof athleteFields>;
 
 /**
  * Rules that depend on more than one field. Zod runs a superRefine only once
@@ -138,7 +138,7 @@ export function registrationRules(v: Partial<Input>): { path: keyof Input; messa
   return out;
 }
 
-export const registrationSchema = fields.superRefine((v, ctx) => {
+export const registrationSchema = athleteFields.superRefine((v, ctx) => {
   for (const r of registrationRules(v as unknown as Input)) ctx.addIssue({ code: "custom", path: [r.path], message: r.message });
 });
 
@@ -161,5 +161,29 @@ export const REGISTRATION_STEPS = [
     fields: ["consentDataUse", "consentEmergency", "consentPhotos", "consentGivenBy", "consentRelationship", "consentMethod", "consentFormUrl", "consentDate", "consentLanguage"],
   },
   { key: "documents", label: "Photo and documents", fields: ["profilePhoto", "birthCertificate", "idFront", "idBack", "passportCover", "passportPage"] },
-  { key: "plan", label: "Fee plan and review", fields: ["subscriptionPlanId"] },
+  { key: "plan", label: "Fee plan", fields: ["subscriptionPlanId"] },
+  { key: "review", label: "Review", fields: [] },
 ] as const satisfies readonly { key: string; label: string; fields: readonly (keyof RegistrationInput)[] }[];
+
+/** Editing an athlete: the registration fields except consent and fee plan (consent changes from the profile). */
+export const athleteEditSchema = athleteFields
+  .omit({
+    consentDataUse: true,
+    consentEmergency: true,
+    consentPhotos: true,
+    consentGivenBy: true,
+    consentRelationship: true,
+    consentMethod: true,
+    consentFormUrl: true,
+    consentDate: true,
+    consentLanguage: true,
+    subscriptionPlanId: true,
+  })
+  .superRefine((v, ctx) => {
+    for (const r of registrationRules(v as unknown as Partial<Input>).filter((r) => !r.path.startsWith("consent") && r.path !== "profilePhoto")) {
+      ctx.addIssue({ code: "custom", path: [r.path], message: r.message });
+    }
+  });
+export type AthleteEditInput = z.input<typeof athleteEditSchema>;
+
+export const MEDICAL_FIELDS = ["bloodGroup", "allergies", "medicalConditions"] as const;

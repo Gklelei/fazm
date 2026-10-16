@@ -22,7 +22,7 @@ import {
   type Registration,
   type RegistrationInput,
 } from "../../schemas/registration";
-import { StepAbout, StepAthlete, StepConsent, StepDocuments, StepGuardian, StepMedical, StepPlan, type StepProps } from "./steps";
+import { StepAbout, StepAthlete, StepConsent, StepDocuments, StepGuardian, StepMedical, StepPlan, StepReview, type StepProps } from "./steps";
 
 const EMPTY: RegistrationInput = {
   firstName: "",
@@ -68,7 +68,7 @@ const EMPTY: RegistrationInput = {
   subscriptionPlanId: "",
 };
 
-const STEP_BODY: React.ComponentType<StepProps>[] = [StepAthlete, StepGuardian, StepMedical, StepAbout, StepConsent, StepDocuments, StepPlan];
+const STEP_BODY: React.ComponentType<StepProps>[] = [StepAthlete, StepGuardian, StepMedical, StepAbout, StepConsent, StepDocuments, StepPlan, StepReview];
 
 /** Registration as one guided flow: each step is checked before the next, then reviewed and saved in one go. */
 export function RegisterAthlete() {
