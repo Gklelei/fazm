@@ -29,7 +29,7 @@ const AppLoader = () => (
           />
         </svg>
         <Image
-          src="/Fazam Logo-BG.png"
+          src="/fazam-logo.webp"
           alt=""
           width={88}
           height={88}

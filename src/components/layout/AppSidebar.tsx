@@ -122,7 +122,7 @@ export function AppSidebar({
           aria-label="Dashboard"
         >
           <Image
-            src="/Fazam Logo-BG.png"
+            src="/fazam-logo.webp"
             alt=""
             width={36}
             height={36}

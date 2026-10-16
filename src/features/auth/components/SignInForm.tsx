@@ -20,6 +20,7 @@ import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
 import { Eye, EyeOff } from "lucide-react";
 import SendPasswordResetLinkButton from "@/features/auth/components/SendPasswordResetLinkButton";
 import Image from "next/image";
+import { AuthBackground } from "@/components/shared/AuthBackground";
 
 const SignInForm = () => {
   const [isPending, startTransition] = useTransition();
@@ -59,22 +60,14 @@ const SignInForm = () => {
   return (
     /* Full-page background — Fazam hero image, single unified overlay */
     <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-      <Image
-        src="/login-hero.png"
-        alt=""
-        fill
-        className="object-cover object-center"
-        priority
-      />
-      {/* Single dark overlay — no split, one seamless canvas */}
-      <div className="absolute inset-0 bg-brand-navy/80" />
+      <AuthBackground />
 
       {/* Centered form card */}
       <div className="relative z-10 w-full max-w-md space-y-8 rounded-3xl border border-white/10 bg-white/5 px-8 py-10 shadow-2xl backdrop-blur-xl">
         {/* Logo + brand */}
         <div className="flex flex-col items-center gap-2">
           <Image
-            src="/Fazam Logo-BG.png"
+            src="/fazam-logo.webp"
             alt="Fazam Football Academy"
             width={80}
             height={80}

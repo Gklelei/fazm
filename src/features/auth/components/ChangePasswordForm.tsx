@@ -87,7 +87,7 @@ export default function ChangePasswordForm({ name, required }: { name: string; r
   return (
     <div className="relative z-10 w-full max-w-md space-y-7 rounded-3xl border border-white/10 bg-white/5 px-8 py-10 shadow-2xl backdrop-blur-xl">
       <div className="flex flex-col items-center gap-3 text-center">
-        <Image src="/Fazam Logo-BG.png" alt="" width={64} height={64} className="drop-shadow-2xl" />
+        <Image src="/fazam-logo.webp" alt="" width={64} height={64} className="drop-shadow-2xl" />
         <div className="space-y-1.5">
           <h1 className="font-display text-2xl font-bold tracking-wide text-white uppercase">
             {required ? "Set a new password" : "Change password"}

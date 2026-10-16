@@ -10,6 +10,7 @@ import { authClient } from "@/lib/auth-client";
 import { Sweetalert } from "@/lib/alerts";
 import { Loader2, Eye, EyeOff, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import { AuthBackground } from "@/components/shared/AuthBackground";
 import Link from "next/link";
 
 const ResetPasswordForm = () => {
@@ -90,7 +91,7 @@ const ResetPasswordForm = () => {
       {/* Logo only */}
       <div className="mb-8 flex justify-center">
         <Image
-          src="/Fazam Logo-BG.png"
+          src="/fazam-logo.webp"
           alt="Fazam Football Academy"
           width={90}
           height={90}
@@ -173,14 +174,7 @@ const ResetPasswordForm = () => {
 
 const ResetPasswordPage = () => (
   <div className="relative flex min-h-screen items-center justify-center">
-    <Image
-      src="/login-hero.png"
-      alt=""
-      fill
-      className="object-cover object-center"
-      priority
-    />
-    <div className="absolute inset-0 bg-brand-navy/80" />
+    <AuthBackground />
 
     <div className="relative z-10">
       <Suspense

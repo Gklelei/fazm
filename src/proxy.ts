@@ -17,7 +17,7 @@ export const config = {
      * - Next.js internals and static assets
      * - the public auth pages themselves
      * - files served from /public (images etc.) — otherwise a logged-out
-     *   request for /login-hero.png is redirected to /sign-in and breaks
+     *   request for /fazam-logo.webp is redirected to /sign-in and breaks
      */
     "/((?!api/auth|api/cron-jobs|api/health|_next/static|_next/image|favicon.ico|uploads|sign-in|res-password|.*\\.(?:png|jpe?g|gif|svg|webp|ico|txt)$).*)",
   ],
