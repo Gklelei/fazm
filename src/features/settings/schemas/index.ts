@@ -1,87 +1,58 @@
 import { z } from "zod";
+import { DAYS, MAX_PLAN_DAYS } from "@/features/settings/lib/plan-sessions";
+import { minutesBetween } from "@/lib/academy-time";
 
-const DayOfWeekEnum = z.enum([
-  "MONDAY",
-  "TUESDAY",
-  "WEDNESDAY",
-  "THURSDAY",
-  "FRIDAY",
-  "SATURDAY",
-  "SUNDAY",
-]);
+const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Pick a time");
+const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date");
 
-const isValidTime = (t: string) => /^([01]\d|2[0-3]):([0-5]\d)$/.test(t);
+export const squadSchema = z.object({
+  name: z.string().trim().min(1, "Give the squad a name").max(60, "Keep it under 60 characters"),
+  description: z.string().trim().max(200, "Keep it under 200 characters").optional(),
+});
+export type SquadInput = z.infer<typeof squadSchema>;
 
-const minutesFromHHmm = (t: string) => {
-  const [h, m] = t.split(":").map(Number);
-  return h * 60 + m;
-};
-
-const startOfToday = () => {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  return d;
-};
-
-export const BatchesSchemaTest = z
+export const slotSchema = z
   .object({
-    name: z.string().trim().min(1, "Name is required"),
-    description: z.string().trim().optional(),
-    startDate: z.coerce.date({ message: "Enter a valid start date" }),
-    endDate: z.coerce
-      .date({ message: "Enter a valid end date" })
-      .refine((val) => val >= startOfToday(), {
-        message: "End Date cannot be in the past",
-      }),
-
-    trainingLocationsId: z
-      .string()
-      .trim()
-      .min(1, "Training location is required"),
-    staffId: z.string().trim().min(1, "Coach is required"),
-    sessions: z
-      .array(
-        z
-          .object({
-            days: z.array(DayOfWeekEnum).min(1, "Select at least one day"),
-            startTime: z
-              .string()
-              .trim()
-              .refine(isValidTime, { message: "Start time is invalid" }),
-            endTime: z
-              .string()
-              .trim()
-              .refine(isValidTime, { message: "End time is invalid" }),
-          })
-          .refine(
-            (v) => minutesFromHHmm(v.endTime) > minutesFromHHmm(v.startTime),
-            {
-              message: "End time must be after start time",
-              path: ["endTime"],
-            },
-          ),
-      )
-      .min(1, "At least one session is required"),
+    days: z.array(z.enum(DAYS)).min(1, "Pick at least one day"),
+    time,
+    endTime: time,
+    trainingLocationsId: z.string().min(1, "Pick a pitch"),
+    staffId: z.string().min(1, "Pick a coach"),
   })
-  .refine((val) => val.endDate > val.startDate, {
-    message: "End date should be after the start date",
-    path: ["endDate"],
+  .refine((s) => minutesBetween(s.time, s.endTime) > 0, { message: "Ends before it starts", path: ["endTime"] });
+
+export const timetableSchema = z
+  .object({ slots: z.array(slotSchema).max(14, "Up to 14 slots") })
+  .superRefine(({ slots }, ctx) => {
+    // A squad can't be in two sessions at once
+    slots.forEach((a, i) =>
+      slots.slice(0, i).forEach((b) => {
+        const sameDay = a.days.some((d) => b.days.includes(d));
+        if (sameDay && a.time < b.endTime && b.time < a.endTime) {
+          ctx.addIssue({ code: "custom", path: ["slots", i, "time"], message: "Overlaps another slot on the same day" });
+        }
+      }),
+    );
   });
+export type TimetableInput = z.infer<typeof timetableSchema>;
 
-export const TrainingLocationSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
+export const planSchema = z
+  .object({ from: ymd, to: ymd })
+  .refine((p) => p.to >= p.from, { message: "Ends before it starts", path: ["to"] })
+  .refine((p) => (Date.parse(p.to) - Date.parse(p.from)) / 86_400_000 < MAX_PLAN_DAYS, {
+    message: "Plan at most 26 weeks at a time",
+    path: ["to"],
+  });
+export type PlanInput = z.infer<typeof planSchema>;
+
+const name = z.string().trim().min(1, "Enter a name").max(80, "Keep it under 80 characters");
+
+export const pitchSchema = z.object({ name });
+export const drillSchema = z.object({
+  name,
+  description: z.string().trim().max(500, "Keep it under 500 characters").optional(),
 });
-
-export const DrillsSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  description: z.string().optional(),
+export const reasonSchema = z.object({
+  status: z.enum(["ABSENT", "LATE", "EXCUSED", "PRESENT"]),
+  label: name,
 });
-
-export const BatchesSchema = z.object({
-  name: z.string().trim().min(1, "Name is required"),
-  description: z.string().optional(),
-});
-
-export type BatchesSchemaType = z.infer<typeof BatchesSchema>;
-export type TrainingLocationSchemaType = z.infer<typeof TrainingLocationSchema>;
-export type DrillsSchemaType = z.infer<typeof DrillsSchema>;

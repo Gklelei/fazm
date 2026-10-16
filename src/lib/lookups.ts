@@ -1,5 +1,6 @@
 import { unstable_cache, updateTag } from "next/cache";
 import { db } from "@/lib/prisma";
+import { ROLE_GROUPS } from "@/lib/roles";
 import { getCachedAcademy } from "@/lib/academy-cache";
 
 /**
@@ -26,16 +27,25 @@ export const LOOKUP = {
 const cached = <T>(tag: string, fn: () => Promise<T>) =>
   unstable_cache(fn, [tag], { tags: [tag], revalidate: false });
 
+// Pickers only offer what's in use; archived items stay on past records.
 const getLocations = cached(LOOKUP.locations, () =>
-  db.trainingLocations.findMany(),
+  db.trainingLocations.findMany({ where: { voided: 0 }, orderBy: { name: "asc" } }),
 );
-const getDrills = cached(LOOKUP.drills, () => db.drills.findMany());
-const getBatches = cached(LOOKUP.batches, () => db.batches.findMany());
+const getDrills = cached(LOOKUP.drills, () =>
+  db.drills.findMany({ where: { voided: 0 }, orderBy: { name: "asc" } }),
+);
+const getBatches = cached(LOOKUP.batches, () =>
+  db.batches.findMany({ where: { isArchived: false }, orderBy: { name: "asc" } }),
+);
 const getCoaches = cached(LOOKUP.coaches, () =>
-  db.staff.findMany({ where: { user: { role: "COACH" } } }),
+  db.staff.findMany({
+    // Anyone allowed to run a session (ROLE_GROUPS.coaching) who has a staff record
+    where: { user: { role: { in: [...ROLE_GROUPS.coaching] }, isArchived: false } },
+    orderBy: { fullNames: "asc" },
+  }),
 );
 const getAttendanceReasons = cached(LOOKUP.attendanceReasons, () =>
-  db.tRAINING_ATTENDANCE_REASONS.findMany(),
+  db.tRAINING_ATTENDANCE_REASONS.findMany({ where: { isArchived: false } }),
 );
 const getExpenseCategories = cached(LOOKUP.expenseCategories, () =>
   db.expenseCategories.findMany({

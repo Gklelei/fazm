@@ -44,6 +44,8 @@ model Batches {
   // ✅ NEW: schedule rules (optional feature)
   schedules BatchSchedule[]
 
+  isArchived Boolean @default(false)
+
   createdAt DateTime @default(now())
   updatedAt DateTime @default(now()) @updatedAt
 
@@ -58,7 +60,13 @@ model BatchSchedule {
   batch   Batches @relation(fields: [batchId], references: [id], onDelete: Cascade)
 
   dayOfWeek DayOfWeek
-  time      String // "HH:mm"
+  time      String // "HH:mm", academy time (Africa/Nairobi)
+  endTime   String? // "HH:mm"; null on rows from before timetables
+
+  trainingLocationsId String?
+  location            TrainingLocations? @relation(fields: [trainingLocationsId], references: [id], onDelete: SetNull)
+  staffId             String?
+  coach               staff?             @relation(fields: [staffId], references: [staffId], onDelete: SetNull)
 
   createdAt DateTime @default(now())
 
@@ -108,11 +116,12 @@ model attendance {
 }
 
 model TrainingLocations {
-  id        String     @id @default(cuid())
+  id        String          @id @default(cuid())
   name      String
   value     String
-  voided    Int        @default(0)
+  voided    Int             @default(0)
   trainings training[]
+  schedules BatchSchedule[]
 
   @@map("training_locations")
 }
@@ -121,6 +130,7 @@ model TRAINING_ATTENDANCE_REASONS {
   id          String           @id @default(cuid())
   status      AttendanceStatus
   label       String?
+  isArchived  Boolean          @default(false)
   attendances attendance[]
 
   @@map("training_attendance_reasons")

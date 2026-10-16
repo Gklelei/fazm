@@ -1,13 +1,14 @@
 model staff {
-  id          String       @id @default(cuid())
-  staffId     String       @unique
-  userId      String       @unique
+  id          String          @id @default(cuid())
+  staffId     String          @unique
+  userId      String          @unique
   fullNames   String
-  phoneNumber String       @map("phone_number")
-  createAt    DateTime     @default(now())
-  updateAt    DateTime     @updatedAt()
-  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  phoneNumber String          @map("phone_number")
+  createAt    DateTime        @default(now())
+  updateAt    DateTime        @updatedAt()
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
   trainings   training[]
+  schedules   BatchSchedule[]
   attendances attendance[]
   assessments Assessment[]
 

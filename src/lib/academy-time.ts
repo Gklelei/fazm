@@ -1,0 +1,31 @@
+/**
+ * The academy runs on Nairobi time. Kenya has no daylight saving, so it is
+ * UTC+3 all year and a fixed offset is exact.
+ * ponytail: fixed offset; switch to Intl time zones if the academy ever
+ * operates in a zone with daylight saving.
+ */
+export const ACADEMY_TIME_ZONE = "Africa/Nairobi";
+const OFFSET_MIN = 180;
+
+/** "2026-11-02" + "16:00" (academy time) → the real instant. */
+export function academyInstant(ymd: string, hhmm: string): Date {
+  const [y, m, d] = ymd.split("-").map(Number);
+  const [hh, mm] = hhmm.split(":").map(Number);
+  return new Date(Date.UTC(y, m - 1, d, hh, mm) - OFFSET_MIN * 60_000);
+}
+
+/** Today's date in academy time, as "YYYY-MM-DD". */
+export function academyToday(now = new Date()): string {
+  return new Date(now.getTime() + OFFSET_MIN * 60_000).toISOString().slice(0, 10);
+}
+
+/** Minutes from "HH:mm" to "HH:mm"; 0 or less when the end isn't after the start. */
+export function minutesBetween(start: string, end: string): number {
+  const toMin = (t: string) => Number(t.slice(0, 2)) * 60 + Number(t.slice(3, 5));
+  return toMin(end) - toMin(start);
+}
+
+/** Formats an instant in academy time, whatever zone the server or browser is in. */
+export function formatAcademy(date: Date | string, options: Intl.DateTimeFormatOptions): string {
+  return new Intl.DateTimeFormat("en-GB", { timeZone: ACADEMY_TIME_ZONE, ...options }).format(new Date(date));
+}

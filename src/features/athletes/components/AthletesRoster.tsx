@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useInView } from "react-intersection-observer";
 import { Loader2, RefreshCcw, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -41,7 +42,9 @@ export default function AthletesRoster({
   initialData?: AthletesInfiniteData;
 }) {
   const isMobile = useIsMobile();
-  const [form, setForm] = useState(EMPTY);
+  // ?batch=<id> opens the roster on one squad (linked from Settings)
+  const linkedBatch = useSearchParams().get("batch") ?? "";
+  const [form, setForm] = useState({ ...EMPTY, batchId: linkedBatch });
   const search = useDebounce(form.search, 400);
 
   const filters = useMemo(
@@ -65,7 +68,7 @@ export default function AthletesRoster({
     hasNextPage,
     isFetchingNextPage,
     refetch,
-  } = useAthletes({ filters, initialData });
+  } = useAthletes({ filters, initialData: linkedBatch ? undefined : initialData });
 
   const athletes = useMemo(() => data?.pages.flatMap((p) => p.allAthletes) ?? [], [data]);
 
