@@ -8,26 +8,26 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
 import type { SettingsData } from "../queries";
-import { saveSquad, setSquadArchived } from "../actions/squads";
+import { saveBatch, setBatchArchived } from "../actions/batches";
 import { DAYS, type Day } from "../lib/plan-sessions";
 import { ItemDialog } from "./ItemDialog";
 import { PlanSessionsDialog } from "./PlanSessionsDialog";
 import { RowMenu } from "./RowMenu";
 import { TimetableSheet, type SlotDraft } from "./TimetableSheet";
 
-type Squad = SettingsData["squads"][number];
+type Batch = SettingsData["batches"][number];
 type Option = { id: string; name: string };
 
 /** One row per distinct time/pitch/coach, with the days it runs on. */
-export function groupSlots(rows: Squad["slots"]) {
+export function groupSlots(rows: Batch["slots"]) {
   const groups = new Map<
     string,
     {
       days: Day[];
       time: string;
       endTime: string | null;
-      pitch: Squad["slots"][number]["location"];
-      coach: Squad["slots"][number]["coach"];
+      pitch: Batch["slots"][number]["location"];
+      coach: Batch["slots"][number]["coach"];
     }
   >();
   for (const r of rows) {
@@ -79,40 +79,40 @@ function WeekStrip({ days }: { days: Day[] }) {
 }
 
 function PlanState({
-  squad,
+  batch,
   hasTimetable,
 }: {
-  squad: Squad;
+  batch: Batch;
   hasTimetable: boolean;
 }) {
-  if (squad.nextSession && squad.plannedUntil) {
+  if (batch.nextSession && batch.plannedUntil) {
     return (
       <div className="flex items-start gap-2 text-sm">
         <span
           aria-hidden
           className={cn(
             "mt-1.5 size-2 shrink-0 rounded-full",
-            squad.quietWeek ? "bg-warning" : "bg-success",
+            batch.quietWeek ? "bg-warning" : "bg-success",
           )}
         />
         <div>
           <p className="font-medium">
             Next:{" "}
-            {formatAcademy(squad.nextSession, {
+            {formatAcademy(batch.nextSession, {
               weekday: "short",
               day: "numeric",
               month: "short",
             })}
             ,{" "}
-            {formatAcademy(squad.nextSession, {
+            {formatAcademy(batch.nextSession, {
               hour: "2-digit",
               minute: "2-digit",
               hourCycle: "h23",
             })}
           </p>
           <p className="text-xs text-muted-foreground">
-            {squad.upcoming} planned, up to{" "}
-            {formatAcademy(squad.plannedUntil, {
+            {batch.upcoming} planned, up to{" "}
+            {formatAcademy(batch.plannedUntil, {
               weekday: "short",
               day: "numeric",
               month: "short",
@@ -136,19 +136,19 @@ function PlanState({
   );
 }
 
-export function SquadCard({
-  squad,
+export function BatchCard({
+  batch,
   pitches,
   coaches,
 }: {
-  squad: Squad;
+  batch: Batch;
   pitches: Option[];
   coaches: Option[];
 }) {
   const [editing, setEditing] = useState(false);
   const [timetable, setTimetable] = useState(false);
   const [planning, setPlanning] = useState(false);
-  const slots = groupSlots(squad.slots);
+  const slots = groupSlots(batch.slots);
   const complete = slots.filter((s) => s.endTime && s.pitch && s.coach);
 
   const drafts: SlotDraft[] = slots.map((s) => ({
@@ -163,39 +163,38 @@ export function SquadCard({
     <article
       className={cn(
         "flex flex-col rounded-lg border bg-card",
-        squad.archived && "bg-muted/40",
+        batch.archived && "bg-muted/40",
       )}
     >
       <header className="flex items-start justify-between gap-3 px-4 pt-4 pb-3">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
             <h3 className="font-display text-2xl leading-none font-bold tracking-wide uppercase">
-              {squad.name}
+              {batch.name}
             </h3>
             <Link
-              href={`/players?batch=${squad.id}`}
+              href={`/players?batch=${batch.id}`}
               className="inline-flex items-center gap-1 rounded-full bg-muted px-2 py-0.5 text-xs font-medium hover:bg-accent"
-              title={`See ${squad.name}'s athletes`}
+              title={`See ${batch.name}'s athletes`}
             >
               <Users className="size-3" />
-              <span className="tabular">{squad.athletes}</span> athlete
-              {squad.athletes === 1 ? "" : "s"}
+              <span className="tabular">{batch.athletes}</span> athlete
+              {batch.athletes === 1 ? "" : "s"}
             </Link>
-            {squad.archived && (
+            {batch.archived && (
               <StatusBadge tone="neutral">Archived</StatusBadge>
             )}
           </div>
-          {squad.description && (
-            <p className="text-sm text-muted-foreground">{squad.description}</p>
+          {batch.description && (
+            <p className="text-sm text-muted-foreground">{batch.description}</p>
           )}
         </div>
         <RowMenu
-          name={squad.name}
-          archived={squad.archived}
+          name={batch.name}
+          archived={batch.archived}
           editLabel="Rename"
           onEdit={() => setEditing(true)}
-          archiveNote="It disappears from squad pickers and the roster filter. Its sessions and history stay."
-          setArchived={(to) => setSquadArchived(squad.id, to)}
+          setArchived={(to) => setBatchArchived(batch.id, to)}
         />
       </header>
 
@@ -241,7 +240,7 @@ export function SquadCard({
               </li>
             ))}
           </ul>
-        ) : squad.archived ? (
+        ) : batch.archived ? (
           <p className="text-sm text-muted-foreground">No timetable.</p>
         ) : (
           <button
@@ -254,10 +253,10 @@ export function SquadCard({
         )}
       </div>
 
-      {(slots.length > 0 || squad.nextSession) && (
+      {(slots.length > 0 || batch.nextSession) && (
         <footer className="flex flex-col gap-3 border-t px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
-          <PlanState squad={squad} hasTimetable={complete.length > 0} />
-          {!squad.archived && slots.length > 0 && (
+          <PlanState batch={batch} hasTimetable={complete.length > 0} />
+          {!batch.archived && slots.length > 0 && (
             <div className="flex shrink-0 gap-2">
               <Button
                 variant="outline"
@@ -284,19 +283,19 @@ export function SquadCard({
       <ItemDialog
         open={editing}
         onOpenChange={setEditing}
-        title={`Edit ${squad.name}`}
-        nameLabel="Squad name"
+        title={`Edit ${batch.name}`}
+        nameLabel="Batch name"
         withDescription="Description"
-        initial={{ name: squad.name, description: squad.description ?? "" }}
+        initial={{ name: batch.name, description: batch.description ?? "" }}
         submitLabel="Save"
         submit={(v) =>
-          saveSquad({ name: v.name, description: v.description }, squad.id)
+          saveBatch({ name: v.name, description: v.description }, batch.id)
         }
       />
       <TimetableSheet
         open={timetable}
         onOpenChange={setTimetable}
-        squad={squad}
+        batch={batch}
         initial={drafts}
         pitches={pitches}
         coaches={coaches}
@@ -304,7 +303,7 @@ export function SquadCard({
       <PlanSessionsDialog
         open={planning}
         onOpenChange={setPlanning}
-        squad={squad}
+        batch={batch}
       />
     </article>
   );

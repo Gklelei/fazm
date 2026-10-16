@@ -45,7 +45,7 @@ describe("planSessions", () => {
     expect(out.map((p) => p.date.getUTCDate())).toEqual([2, 4]);
   });
 
-  it("skips what the squad already has, and clashes for the coach or pitch", () => {
+  it("skips what the batch already has, and clashes for the coach or pitch", () => {
     const at = (h: number) => new Date(Date.UTC(2026, 10, 2, h));
     const busy = (batchesId: string, staffId: string, trainingLocationsId: string, d: Date) => ({
       start: d,
@@ -61,7 +61,7 @@ describe("planSessions", () => {
     expect(plan(busy("b2", "x", "pitch-1", at(13)))).toBe("pitch busy");
   });
 
-  it("doesn't let overlapping slots of one run double-book the squad", () => {
+  it("doesn't let overlapping slots of one run double-book the batch", () => {
     const out = planSessions("b1", [slot(), slot({ time: "17:00", endTime: "18:00", trainingLocationsId: "pitch-2" })], "2026-11-02", "2026-11-02", []);
     expect(out.map((p) => p.skip)).toEqual([null, "already planned"]);
   });

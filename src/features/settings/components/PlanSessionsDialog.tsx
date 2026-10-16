@@ -19,10 +19,10 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { academyToday, formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
 import {
-  planSquadSessions,
-  previewSquadSessions,
+  planBatchSessions,
+  previewBatchSessions,
   type PlanPreview,
-} from "../actions/squads";
+} from "../actions/batches";
 import { planSchema } from "../schemas";
 
 const addDays = (ymd: string, n: number) => {
@@ -54,15 +54,15 @@ const weekOf = (iso: string) => {
   return `Week of ${formatAcademy(d, { day: "numeric", month: "short" })}`;
 };
 
-/** Expand the squad's timetable over a date range: preview first, then create. */
+/** Expand the batch's timetable over a date range: preview first, then create. */
 export function PlanSessionsDialog({
   open,
   onOpenChange,
-  squad,
+  batch,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  squad: { id: string; name: string };
+  batch: { id: string; name: string };
 }) {
   const router = useRouter();
   const tomorrow = addDays(academyToday(), 1);
@@ -84,7 +84,7 @@ export function PlanSessionsDialog({
   useEffect(() => {
     if (!open || !valid.success) return;
     let live = true;
-    previewSquadSessions(squad.id, {
+    previewBatchSessions(batch.id, {
       from: debounced.from,
       to: debounced.to,
     }).then((res) => {
@@ -100,7 +100,7 @@ export function PlanSessionsDialog({
       live = false;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps -- `key` stands for the range
-  }, [open, key, squad.id]);
+  }, [open, key, batch.id]);
 
   // While a new range loads, the last preview stays on screen, dimmed
   const loading = valid.success && result?.key !== key;
@@ -130,7 +130,7 @@ export function PlanSessionsDialog({
 
   const create = () =>
     start(async () => {
-      const res = await planSquadSessions(squad.id, range);
+      const res = await planBatchSessions(batch.id, range);
       if (!res.success) return void toast.error(res.message);
       toast.success(res.message);
       onOpenChange(false);
@@ -147,10 +147,10 @@ export function PlanSessionsDialog({
     >
       <DialogContent className="flex max-h-[92svh] flex-col sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Plan {squad.name} sessions</DialogTitle>
+          <DialogTitle>Plan {batch.name} sessions</DialogTitle>
           <DialogDescription>
             Adds a session for every timetable slot in these dates, with the
-            squad&apos;s athletes on the register.
+            batch&apos;s athletes on the register.
           </DialogDescription>
         </DialogHeader>
 

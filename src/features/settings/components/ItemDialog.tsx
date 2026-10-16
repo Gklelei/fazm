@@ -28,7 +28,7 @@ export const REASON_STATUSES = [
 export type ItemValues = { name: string; description: string; status: string };
 
 /**
- * Add or edit one settings item (squad, pitch, drill, reason). Only the
+ * Add or edit one settings item (batch, pitch, drill, reason). Only the
  * fields asked for are shown; the server validates and answers in words.
  */
 export function ItemDialog({

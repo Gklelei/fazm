@@ -2,11 +2,11 @@
 
 ## What's wrong today
 
-- **"Batch" means two things.** In the data, batches are squads (U7–U17, Senior; 50–90
+- **"Batch" means two things.** In the data, batches are batches (U7–U17, Senior; 50–90
   athletes each). The settings screen treats a batch as a term with dates and one coach,
-  and creates a new batch every time. No squad has a weekly timetable.
+  and creates a new batch every time. No batch has a weekly timetable.
 - **No list.** You can create a batch but not see, edit or archive one.
-- **Generated sessions have no athletes.** Single sessions link the squad's athletes, but
+- **Generated sessions have no athletes.** Single sessions link the batch's athletes, but
   the batch generator doesn't, so attendance would show an empty roster.
 - **Generated sessions are 3 hours late.** 16:00 is stored as 16:00 UTC, which shows as 19:00
   in Nairobi.
@@ -20,16 +20,16 @@ The page header reads "Settings": *"The lists the rest of the app picks from. Ch
 everywhere straight away."* Tabs are kept in the URL (`?tab=`), so a link can open the right
 one:
 
-**Squads · Pitches · Drills · Attendance reasons**
+**Batches · Pitches · Drills · Attendance reasons**
 
 There is a **Show archived** switch on every tab, with Restore on archived rows.
 
-### Squads
+### Batches
 
-Each squad is a card. Two columns on a computer, one on a phone. A card shows:
+Each batch is a card. Two columns on a computer, one on a phone. A card shows:
 
 - the name, a description, and the number of athletes (linking to the Athletes page,
-  filtered to that squad);
+  filtered to that batch);
 - the weekly timetable, one line per slot: `Mon · Wed  16:00–17:30  Eastleigh main pitch ·
   Coach`;
 - the planning state:
@@ -39,7 +39,7 @@ Each squad is a card. Two columns on a computer, one on a phone. A card shows:
   - "No timetable yet".
 - the actions: **Timetable**, **Plan sessions**, and **⋯** (Edit, Archive or Restore).
 
-A squad can't be archived while it has active athletes. The message tells you to move them
+A batch can't be archived while it has active athletes. The message tells you to move them
 first.
 
 The **Timetable** opens in a side panel (a bottom sheet on phones). It lists slots, and each
@@ -50,7 +50,7 @@ slot has:
 - the pitch;
 - the coach.
 
-Saving replaces the squad's timetable. Sessions that already exist are not changed.
+Saving replaces the batch's timetable. Sessions that already exist are not changed.
 
 **Plan sessions** opens a dialog:
 
@@ -59,7 +59,7 @@ Saving replaces the squad's timetable. Sessions that already exist are not chang
 2. The server previews the plan, grouped by week, for example "16 sessions". It also says
    how many it will skip: "2 already planned" and "1 clashes with the coach's or pitch's
    other session".
-3. Confirming creates them. Each session is linked to the squad's active athletes, the same
+3. Confirming creates them. Each session is linked to the batch's active athletes, the same
    as a single planned session.
 
 Running it twice creates nothing new.

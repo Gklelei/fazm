@@ -273,7 +273,7 @@ export function ReportPage({ range, report }: { range: ReportRange; report: Repo
       </Panel>
 
       {/* ---- Squad */}
-      <Panel title="Squad" href="/players" linkLabel="Roster">
+      <Panel title="Athletes" href="/players" linkLabel="Roster">
         <div className="grid gap-6 p-4 lg:grid-cols-[minmax(0,2fr)_minmax(0,3fr)]">
           <div className="grid grid-cols-2 content-start gap-x-6 gap-y-4">
             <Figure label="Active today" value={squad.active.toLocaleString()} />

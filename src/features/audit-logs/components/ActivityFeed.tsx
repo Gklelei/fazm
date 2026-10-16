@@ -39,7 +39,7 @@ const TONE: Record<Tone, { icon: LucideIcon; className: string; label: string }>
 const FIELD: Record<string, string> = {
   trainingLocationsId: "Pitch",
   staffId: "Coach",
-  batchesId: "Squad",
+  batchesId: "Batch",
   isActive: "Active",
   isArchived: "Archived",
   drillOrder: "Drills",
@@ -82,7 +82,7 @@ function recordLink(r: Wire) {
   if (r.invoice) return { href: `/invoices/${r.invoice.id}`, label: "Open invoice" };
   if (r.training) return { href: `/sessions/view/${r.training.id}`, label: "Open session" };
   if (r.resource === "Staff" && r.recordId) return { href: `/staff/${r.recordId}/view`, label: "Open staff profile" };
-  if (r.resource === "Batch") return { href: "/settings", label: "Open squads" };
+  if (r.resource === "Batch") return { href: "/settings", label: "Open batches" };
   return null;
 }
 

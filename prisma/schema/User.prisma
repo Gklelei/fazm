@@ -11,6 +11,7 @@ model User {
   sessions      Session[]
   staff         staff?
   auditLogs     AuditLog[]
+  consentsRecorded AthleteConsent[]
   isArchived    Boolean    @default(false)
   /// Set when the password must be changed before the account can be used
   /// (all accounts after the 2026-10 password policy; new staff accounts).

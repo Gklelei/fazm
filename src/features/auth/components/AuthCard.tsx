@@ -1,6 +1,3 @@
-import { AlertCircle } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-
 /** Every auth page: a heading, a line of help, then the form. */
 export function AuthCard({
   title,
@@ -22,13 +19,4 @@ export function AuthCard({
   );
 }
 
-/** A problem with what was submitted, shown in the form instead of a pop-up. */
-export function FormError({ message }: { message: string | null }) {
-  if (!message) return null;
-  return (
-    <Alert variant="destructive" className="border-destructive/40 bg-destructive/5">
-      <AlertCircle />
-      <AlertDescription>{message}</AlertDescription>
-    </Alert>
-  );
-}
+export { FormAlert as FormError } from "@/components/form/FormAlert";

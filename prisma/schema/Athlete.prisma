@@ -38,6 +38,7 @@ model Athlete {
   ArchiveDate          DateTime?
   athleteSubscriptions AthleteSubscription[]
   auditLogs            AuditLog[]
+  consents             AthleteConsent[]
 
   @@map("athlete")
 }
@@ -102,4 +103,37 @@ enum ATHLETE_ACCOUNT_STATUS {
   PENDING
   DEACTIVATED
   DEFAULT
+}
+
+/// Consent for an athlete's data, emergency treatment and photos. Every change
+/// adds a row; the newest row is the current consent (history is kept).
+model AthleteConsent {
+  id                  String         @id @default(cuid())
+  athleteId           String
+  athlete             Athlete        @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  /// Which consent text was agreed to, e.g. "1"
+  version             String
+  language            String         @default("en")
+  dataUse             Boolean
+  emergencyTreatment  Boolean
+  photos              Boolean
+  /// The parent or guardian, or the athlete when 18 or over
+  givenByName         String
+  givenByRelationship String
+  method              CONSENT_METHOD
+  /// The signed form, when method is SIGNED_FORM
+  formUrl             String?
+  givenAt             DateTime
+  recordedById        String?
+  recordedBy          User?          @relation(fields: [recordedById], references: [id], onDelete: SetNull)
+  note                String?
+  createdAt           DateTime       @default(now())
+
+  @@index([athleteId, createdAt])
+  @@map("athlete_consent")
+}
+
+enum CONSENT_METHOD {
+  IN_PERSON
+  SIGNED_FORM
 }

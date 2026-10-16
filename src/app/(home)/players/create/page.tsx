@@ -1,10 +1,15 @@
-import AthletesOnboardingForm from "@/features/athletes/components/OnboardingForm";
 import type { Metadata } from "next";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { RegisterAthlete } from "@/features/athletes/components/register/RegisterAthlete";
 
-export const metadata: Metadata = { title: "Add Athlete" };
+export const metadata: Metadata = { title: "Register athlete" };
 
-const page = () => {
-  return <AthletesOnboardingForm />;
-};
-
-export default page;
+// Admin-only, like the registration action itself
+export default function Page() {
+  return (
+    <div className="space-y-6">
+      <PageHeader title="Register athlete" />
+      <RegisterAthlete />
+    </div>
+  );
+}

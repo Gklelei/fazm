@@ -353,7 +353,7 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   - one payment can be split across the siblings' invoices, oldest first unless staff choose;
   - an optional sibling discount (Q2).
 - **Finance officer:**
-  - The `FINANCE` role already exists. It sees finance, the shop and payroll, but not squad administration.
+  - The `FINANCE` role already exists. It sees finance, the shop and payroll, but not batch administration.
   - `ADMIN` and `SUPER_ADMIN` keep access to everything (they're the academy's system admins).
   - Payroll visibility is decided by Q3.
 

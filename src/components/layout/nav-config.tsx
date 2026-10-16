@@ -53,7 +53,7 @@ export const NAV: NavSection[] = [
     ],
   },
   {
-    label: "Squad",
+    label: "People",
     items: [
       {
         title: "Athletes",

@@ -37,9 +37,9 @@ function* datesFor(from: string, to: string, day: Day) {
 const overlaps = (a: { start: Date; end: Date }, b: { start: Date; end: Date }) => a.start < b.end && b.start < a.end;
 
 /**
- * The sessions a squad's weekly timetable produces between two dates, in
- * time order. Each is either new or marked with why it's skipped: the squad
- * already trains then, or the coach or pitch is taken by another squad.
+ * The sessions a batch's weekly timetable produces between two dates, in
+ * time order. Each is either new or marked with why it's skipped: the batch
+ * already trains then, or the coach or pitch is taken by another batch.
  * `busy` is every non-cancelled session overlapping the range.
  */
 export function planSessions(batchId: string, slots: Slot[], from: string, to: string, busy: Busy[]): Planned[] {

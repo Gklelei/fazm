@@ -11,10 +11,10 @@ const DAY = { day: "numeric", month: "short" } as const;
 import { planSessions, type Slot } from "@/features/settings/lib/plan-sessions";
 import {
   planSchema,
-  squadSchema,
+  batchSchema,
   timetableSchema,
   type PlanInput,
-  type SquadInput,
+  type BatchInput,
   type TimetableInput,
 } from "@/features/settings/schemas";
 
@@ -23,10 +23,10 @@ function changed() {
   revalidatePath("/settings");
 }
 
-async function findSquad(id: string) {
-  const squad = await db.batches.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true } });
-  if (!squad) throw new ActionError("That squad no longer exists.");
-  return squad;
+async function findBatch(id: string) {
+  const batch = await db.batches.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true } });
+  if (!batch) throw new ActionError("That batch no longer exists.");
+  return batch;
 }
 
 async function assertNameFree(name: string, exceptId?: string) {
@@ -34,60 +34,60 @@ async function assertNameFree(name: string, exceptId?: string) {
     where: { name: { equals: name, mode: "insensitive" }, isArchived: false, NOT: exceptId ? { id: exceptId } : undefined },
     select: { id: true },
   });
-  if (clash) throw new ActionError(`There's already a squad called "${name}".`);
+  if (clash) throw new ActionError(`There's already a batch called "${name}".`);
 }
 
-export async function saveSquad(input: SquadInput, id?: string) {
+export async function saveBatch(input: BatchInput, id?: string) {
   return asRole("admin", async (user) => {
-    const data = squadSchema.parse(input);
+    const data = batchSchema.parse(input);
     await assertNameFree(data.name, id);
     const description = data.description || null;
-    const squad = id
-      ? (await findSquad(id), await db.batches.update({ where: { id }, data: { name: data.name, description } }))
+    const batch = id
+      ? (await findBatch(id), await db.batches.update({ where: { id }, data: { name: data.name, description } }))
       : await db.batches.create({ data: { name: data.name, description } });
     await createAuditLog({
       action: id ? "UPDATE_BATCH" : "CREATE_BATCH",
       resource: "Batch",
-      details: `${id ? "Updated" : "Created"} squad "${squad.name}"`,
+      details: `${id ? "Updated" : "Created"} batch "${batch.name}"`,
       userId: user.id,
-      batchId: squad.id,
+      batchId: batch.id,
     });
     changed();
-    return { success: true, message: id ? "Squad updated." : `Squad "${squad.name}" added.` };
+    return { success: true, message: id ? "Batch updated." : `Batch "${batch.name}" added.` };
   });
 }
 
-export async function setSquadArchived(id: string, archived: boolean) {
+export async function setBatchArchived(id: string, archived: boolean) {
   return asRole("admin", async (user) => {
-    const squad = await findSquad(id);
+    const batch = await findBatch(id);
     if (archived) {
       const active = await db.athlete.count({ where: { batchesId: id, isArchived: false } });
       if (active) {
         throw new ActionError(
-          `${squad.name} still has ${active} athlete${active === 1 ? "" : "s"}. Move them to another squad first.`,
+          `${batch.name} still has ${active} athlete${active === 1 ? "" : "s"}. Move them to another batch first.`,
         );
       }
     } else {
-      await assertNameFree(squad.name, id);
+      await assertNameFree(batch.name, id);
     }
     await db.batches.update({ where: { id }, data: { isArchived: archived } });
     await createAuditLog({
       action: archived ? "ARCHIVE_BATCH" : "RESTORE_BATCH",
       resource: "Batch",
-      details: `${archived ? "Archived" : "Restored"} squad "${squad.name}"`,
+      details: `${archived ? "Archived" : "Restored"} batch "${batch.name}"`,
       userId: user.id,
       batchId: id,
     });
     changed();
-    return { success: true, message: archived ? `${squad.name} archived.` : `${squad.name} restored.` };
+    return { success: true, message: archived ? `${batch.name} archived.` : `${batch.name} restored.` };
   });
 }
 
-/** Replaces the squad's weekly timetable. Sessions already planned are left as they are. */
+/** Replaces the batch's weekly timetable. Sessions already planned are left as they are. */
 export async function saveTimetable(id: string, input: TimetableInput) {
   return asRole("admin", async (user) => {
-    const squad = await findSquad(id);
-    if (squad.isArchived) throw new ActionError("Restore the squad before changing its timetable.");
+    const batch = await findBatch(id);
+    if (batch.isArchived) throw new ActionError("Restore the batch before changing its timetable.");
     const { slots } = timetableSchema.parse(input);
 
     const [pitches, coaches] = await Promise.all([
@@ -114,7 +114,7 @@ export async function saveTimetable(id: string, input: TimetableInput) {
     await createAuditLog({
       action: "UPDATE_BATCH_TIMETABLE",
       resource: "Batch",
-      details: `Set ${squad.name}'s timetable: ${rows.length} session${rows.length === 1 ? "" : "s"} a week`,
+      details: `Set ${batch.name}'s timetable: ${rows.length} session${rows.length === 1 ? "" : "s"} a week`,
       userId: user.id,
       batchId: id,
     });
@@ -123,17 +123,17 @@ export async function saveTimetable(id: string, input: TimetableInput) {
   });
 }
 
-/** The squad's timetable expanded over the range, each session marked new or skipped. */
+/** The batch's timetable expanded over the range, each session marked new or skipped. */
 async function buildPlan(id: string, input: PlanInput) {
   const { from, to } = planSchema.parse(input);
-  const squad = await db.batches.findUnique({
+  const batch = await db.batches.findUnique({
     where: { id },
     select: { id: true, name: true, isArchived: true, schedules: true },
   });
-  if (!squad) throw new ActionError("That squad no longer exists.");
-  if (squad.isArchived) throw new ActionError("Restore the squad before planning sessions.");
-  const slots = squad.schedules.filter((s): s is typeof s & Slot => !!(s.endTime && s.trainingLocationsId && s.staffId));
-  if (!slots.length) throw new ActionError(`Set ${squad.name}'s weekly timetable first.`);
+  if (!batch) throw new ActionError("That batch no longer exists.");
+  if (batch.isArchived) throw new ActionError("Restore the batch before planning sessions.");
+  const slots = batch.schedules.filter((s): s is typeof s & Slot => !!(s.endTime && s.trainingLocationsId && s.staffId));
+  if (!slots.length) throw new ActionError(`Set ${batch.name}'s weekly timetable first.`);
 
   const rangeStart = academyInstant(from, "00:00");
   const rangeEnd = academyInstant(to, "23:59");
@@ -157,7 +157,7 @@ async function buildPlan(id: string, input: PlanInput) {
     to,
     busy.map((b) => ({ ...b, start: b.date, end: new Date(b.date.getTime() + b.duration * 60_000) })),
   ).filter((p) => p.date > new Date()); // never plan into the past
-  return { squad, plan };
+  return { batch, plan };
 }
 
 export type PlanPreview = {
@@ -166,7 +166,7 @@ export type PlanPreview = {
   sessions: { date: string; duration: number; skip: string | null }[];
 };
 
-export async function previewSquadSessions(id: string, input: PlanInput) {
+export async function previewBatchSessions(id: string, input: PlanInput) {
   return asRole("admin", async (): Promise<PlanPreview> => {
     const { plan } = await buildPlan(id, input);
     return {
@@ -177,10 +177,10 @@ export async function previewSquadSessions(id: string, input: PlanInput) {
   });
 }
 
-/** Creates the new sessions from the timetable, each with the squad's active athletes, like a single planned session. */
-export async function planSquadSessions(id: string, input: PlanInput) {
+/** Creates the new sessions from the timetable, each with the batch's active athletes, like a single planned session. */
+export async function planBatchSessions(id: string, input: PlanInput) {
   return asRole("admin", async (user) => {
-    const { squad, plan } = await buildPlan(id, input);
+    const { batch, plan } = await buildPlan(id, input);
     const todo = plan.filter((p) => !p.skip);
     if (!todo.length) throw new ActionError("Nothing new to plan in those dates.");
 
@@ -190,7 +190,7 @@ export async function planSquadSessions(id: string, input: PlanInput) {
         db.training.create({
           data: {
             batchesId: id,
-            name: `${squad.name} training`,
+            name: `${batch.name} training`,
             description: "Weekly training",
             date: p.date,
             duration: p.duration,
@@ -204,12 +204,12 @@ export async function planSquadSessions(id: string, input: PlanInput) {
     await createAuditLog({
       action: "PLAN_BATCH_SESSIONS",
       resource: "Batch",
-      details: `Planned ${todo.length} ${squad.name} session${todo.length === 1 ? "" : "s"}, ${formatAcademy(todo[0].date, DAY)} to ${formatAcademy(todo.at(-1)!.date, DAY)}`,
+      details: `Planned ${todo.length} ${batch.name} session${todo.length === 1 ? "" : "s"}, ${formatAcademy(todo[0].date, DAY)} to ${formatAcademy(todo.at(-1)!.date, DAY)}`,
       userId: user.id,
       batchId: id,
     });
     revalidatePath("/sessions");
     revalidatePath("/settings");
-    return { success: true, message: `${todo.length} session${todo.length === 1 ? "" : "s"} planned for ${squad.name}.` };
+    return { success: true, message: `${todo.length} session${todo.length === 1 ? "" : "s"} planned for ${batch.name}.` };
   });
 }

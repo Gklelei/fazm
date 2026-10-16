@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { cn } from "@/lib/utils";
 import type { SettingsData } from "../queries";
-import { saveSquad } from "../actions/squads";
+import { saveBatch } from "../actions/batches";
 import {
   saveDrill,
   savePitch,
@@ -23,14 +23,14 @@ type Kind = SettingsTab;
 
 /** Per tab: the words used and the server calls behind them. */
 const KINDS = {
-  squads: {
-    add: "New squad",
-    title: (editing: boolean) => (editing ? "Edit squad" : "New squad"),
-    nameLabel: "Squad name",
+  batches: {
+    add: "New batch",
+    title: (editing: boolean) => (editing ? "Edit batch" : "New batch"),
+    nameLabel: "Batch name",
     namePlaceholder: "e.g. U19",
     withDescription: "Description",
     save: (v: ItemValues, id?: string) =>
-      saveSquad({ name: v.name, description: v.description }, id),
+      saveBatch({ name: v.name, description: v.description }, id),
   },
   pitches: {
     add: "Add pitch",
@@ -96,12 +96,10 @@ function ItemRow({
   kind,
   row,
   usedLabel,
-  archiveNote,
 }: {
-  kind: Exclude<Kind, "squads">;
+  kind: Exclude<Kind, "batches">;
   row: Row;
   usedLabel: string;
-  archiveNote: string;
 }) {
   const [editing, setEditing] = useState(false);
   const k = KINDS[kind];
@@ -144,7 +142,6 @@ function ItemRow({
         archived={row.archived}
         editLabel={kind === "pitches" ? "Rename" : "Edit"}
         onEdit={() => setEditing(true)}
-        archiveNote={archiveNote}
         setArchived={(to) => setArchived(row.id, to)}
       />
       <ItemDialog
@@ -191,12 +188,11 @@ export function PitchList({ rows }: { rows: SettingsData["pitches"] }) {
               kind="pitches"
               row={r}
               usedLabel={times(r.used, "session")}
-              archiveNote="It disappears from the pitch pickers. Past sessions keep it."
             />
           ))}
         </ul>
       ) : (
-        <Empty>No pitches yet. Add where the squads train.</Empty>
+        <Empty>No pitches yet.</Empty>
       )}
     </section>
   );
@@ -213,15 +209,11 @@ export function DrillList({ rows }: { rows: SettingsData["drills"] }) {
               kind="drills"
               row={r}
               usedLabel={times(r.used, "session")}
-              archiveNote="Coaches can no longer add it to sessions. Sessions that used it keep it."
             />
           ))}
         </ul>
       ) : (
-        <Empty>
-          No drills yet. Add the ones coaches run, so they can pick them when
-          planning a session.
-        </Empty>
+        <Empty>No drills yet.</Empty>
       )}
     </section>
   );
@@ -256,7 +248,6 @@ export function ReasonList({ rows }: { rows: SettingsData["reasons"] }) {
                         ? `Used ${r.used} time${r.used === 1 ? "" : "s"}`
                         : "Not used yet"
                     }
-                    archiveNote="Coaches can no longer pick it when taking attendance. Past attendance keeps it."
                   />
                 ))}
               </ul>

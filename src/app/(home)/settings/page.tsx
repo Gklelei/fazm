@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { getSettingsData } from "@/features/settings/queries";
-import { SquadCard } from "@/features/settings/components/SquadCard";
+import { BatchCard } from "@/features/settings/components/BatchCard";
 import {
   AddItemButton,
   DrillList,
@@ -13,16 +13,6 @@ import { SETTINGS_TABS, type SettingsTab } from "@/features/settings/lib/tabs";
 
 export const metadata: Metadata = { title: "Settings" };
 
-const BLURB: Record<SettingsTab, string> = {
-  squads:
-    "Each squad's weekly timetable. Plan sessions fills the calendar from it, with the squad on the register.",
-  pitches:
-    "Where training happens. Sessions and timetables pick from this list.",
-  drills: "Drills coaches can add to a session plan.",
-  reasons:
-    "Why an athlete was absent, late or excused. Coaches pick one when taking attendance.",
-};
-
 // Admin-only: the proxy limits /settings to the admin roles (nav-config).
 export default async function Page({
   searchParams,
@@ -31,12 +21,12 @@ export default async function Page({
 }) {
   const sp = await searchParams;
   const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab)?.key ??
-    "squads") as SettingsTab;
+    "batches") as SettingsTab;
   const showArchived = sp.archived === "1";
   const data = await getSettingsData();
 
   const lists = {
-    squads: data.squads,
+    batches: data.batches,
     pitches: data.pitches,
     drills: data.drills,
     reasons: data.reasons,
@@ -58,13 +48,12 @@ export default async function Page({
     id: c.staffId,
     name: c.fullNames,
   }));
-  const squads = visible(data.squads);
+  const batches = visible(data.batches);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Settings"
-        description={BLURB[tab]}
         actions={<AddItemButton kind={tab} />}
       />
       <SettingsToolbar
@@ -74,13 +63,13 @@ export default async function Page({
         archivedCount={archivedCount}
       />
 
-      {tab === "squads" &&
-        (squads.length ? (
+      {tab === "batches" &&
+        (batches.length ? (
           <div className="grid gap-4 xl:grid-cols-2">
-            {squads.map((s) => (
-              <SquadCard
+            {batches.map((s) => (
+              <BatchCard
                 key={s.id}
-                squad={s}
+                batch={s}
                 pitches={pitches}
                 coaches={coaches}
               />
@@ -88,7 +77,7 @@ export default async function Page({
           </div>
         ) : (
           <p className="rounded-lg border border-dashed px-4 py-12 text-center text-sm text-muted-foreground">
-            No squads yet. Add one for each age group you train.
+            No batches yet.
           </p>
         ))}
       {tab === "pitches" && <PitchList rows={visible(data.pitches)} />}

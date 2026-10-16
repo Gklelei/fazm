@@ -5,11 +5,11 @@ import { minutesBetween } from "@/lib/academy-time";
 const time = z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/, "Pick a time");
 const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date");
 
-export const squadSchema = z.object({
-  name: z.string().trim().min(1, "Give the squad a name").max(60, "Keep it under 60 characters"),
+export const batchSchema = z.object({
+  name: z.string().trim().min(1, "Give the batch a name").max(60, "Keep it under 60 characters"),
   description: z.string().trim().max(200, "Keep it under 200 characters").optional(),
 });
-export type SquadInput = z.infer<typeof squadSchema>;
+export type BatchInput = z.infer<typeof batchSchema>;
 
 export const slotSchema = z
   .object({
@@ -24,7 +24,7 @@ export const slotSchema = z
 export const timetableSchema = z
   .object({ slots: z.array(slotSchema).max(14, "Up to 14 slots") })
   .superRefine(({ slots }, ctx) => {
-    // A squad can't be in two sessions at once
+    // A batch can't be in two sessions at once
     slots.forEach((a, i) =>
       slots.slice(0, i).forEach((b) => {
         const sameDay = a.days.some((d) => b.days.includes(d));

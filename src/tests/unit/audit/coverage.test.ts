@@ -7,7 +7,7 @@ import { describe, expect, it } from "vitest";
 // activity log entry: directly with createAuditLog() or through a helper in
 // the same file that does. Read-only exports are listed here with the reason.
 const READ_ONLY: Record<string, string> = {
-  "src/features/settings/actions/squads.ts#previewSquadSessions": "shows what Plan sessions would create; changes nothing",
+  "src/features/settings/actions/batches.ts#previewBatchSessions": "shows what Plan sessions would create; changes nothing",
   "src/app/(server)/api/auth/[...all]/route.ts#POST": "better-auth; sign-in, sign-out and password changes are logged by its hooks in src/lib/auth.ts",
 };
 

@@ -1,6 +1,6 @@
 // Plain module: the server page and the client toolbar both read it
 export const SETTINGS_TABS = [
-  { key: "squads", label: "Squads" },
+  { key: "batches", label: "Batches" },
   { key: "pitches", label: "Pitches" },
   { key: "drills", label: "Drills" },
   { key: "reasons", label: "Attendance reasons" },

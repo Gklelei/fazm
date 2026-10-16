@@ -35,7 +35,6 @@ export function RowMenu({
   archived,
   editLabel = "Edit",
   onEdit,
-  archiveNote,
   setArchived,
   children,
 }: {
@@ -43,7 +42,6 @@ export function RowMenu({
   archived: boolean;
   editLabel?: string;
   onEdit: () => void;
-  archiveNote: string;
   setArchived: (archived: boolean) => Promise<ActionResult>;
   children?: React.ReactNode; // extra menu items
 }) {
@@ -106,7 +104,7 @@ export function RowMenu({
           <AlertDialogHeader>
             <AlertDialogTitle>Archive {name}?</AlertDialogTitle>
             <AlertDialogDescription>
-              {archiveNote} You can restore it any time from Show archived.
+              You can restore it from Show archived.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

@@ -281,7 +281,7 @@ export function Dashboard({ data, name }: { data: DashboardData; name: string })
         )}
 
         <Panel
-          title="Squad by batch"
+          title="Athletes by batch"
           href="/players"
           linkLabel="Roster"
           className={money ? "xl:col-span-2" : "xl:col-span-5"}

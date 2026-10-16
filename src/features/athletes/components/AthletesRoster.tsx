@@ -42,7 +42,7 @@ export default function AthletesRoster({
   initialData?: AthletesInfiniteData;
 }) {
   const isMobile = useIsMobile();
-  // ?batch=<id> opens the roster on one squad (linked from Settings)
+  // ?batch=<id> opens the roster on one batch (linked from Settings)
   const linkedBatch = useSearchParams().get("batch") ?? "";
   const [form, setForm] = useState({ ...EMPTY, batchId: linkedBatch });
   const search = useDebounce(form.search, 400);

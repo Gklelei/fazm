@@ -60,7 +60,7 @@ export async function saveAttendance(
   if (outsiders.length) {
     return {
       success: false,
-      message: `${outsiders.length} athlete(s) aren't in this session's squad.`,
+      message: `${outsiders.length} athlete(s) aren't on this session's register.`,
     };
   }
 

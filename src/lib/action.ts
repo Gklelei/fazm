@@ -27,7 +27,7 @@ export function actionErrorMessage(error: unknown): string {
   return GENERIC;
 }
 
-type User = { id: string; name: string; role?: string | null };
+type User = { id: string; name: string; email: string; role?: string | null };
 
 /**
  * Runs a server action body for a signed-in user in `group`. Thrown

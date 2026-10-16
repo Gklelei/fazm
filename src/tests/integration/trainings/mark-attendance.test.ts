@@ -56,7 +56,7 @@ describe("marking attendance", () => {
     expect(marks.map((m) => m.status)).toEqual(["LATE"]);
   });
 
-  it("refuses athletes outside the session's squad", async () => {
+  it("refuses athletes not on the session's register", async () => {
     const { outsider, training } = await session();
     const res = await saveAttendance([{ athleteId: outsider.athleteId, status: "PRESENT", reasonId: null }], training.id);
     expect(res.success).toBe(false);

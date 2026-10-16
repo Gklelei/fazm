@@ -25,7 +25,7 @@ import {
 import { useIsMobile } from "@/hooks/use-mobile";
 import { minutesBetween } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
-import { saveTimetable } from "../actions/squads";
+import { saveTimetable } from "../actions/batches";
 import { DAYS, type Day } from "../lib/plan-sessions";
 import { timetableSchema } from "../schemas";
 
@@ -64,18 +64,18 @@ const duration = (s: SlotDraft) => {
     : `${m / 60} h`;
 };
 
-/** Edit a squad's weekly timetable: each slot is days, a time, a pitch and a coach. */
+/** Edit a batch's weekly timetable: each slot is days, a time, a pitch and a coach. */
 export function TimetableSheet({
   open,
   onOpenChange,
-  squad,
+  batch,
   initial,
   pitches,
   coaches,
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  squad: { id: string; name: string };
+  batch: { id: string; name: string };
   initial: SlotDraft[];
   pitches: Option[];
   coaches: Option[];
@@ -107,7 +107,7 @@ export function TimetableSheet({
     }
     setErrors({});
     start(async () => {
-      const res = await saveTimetable(squad.id, parsed.data);
+      const res = await saveTimetable(batch.id, parsed.data);
       if (!res.success) return void toast.error(res.message);
       toast.success(res.message);
       onOpenChange(false);
@@ -138,10 +138,10 @@ export function TimetableSheet({
       >
         <SheetHeader className="border-b p-5">
           <SheetTitle className="font-display text-2xl tracking-wide uppercase">
-            {squad.name} timetable
+            {batch.name} timetable
           </SheetTitle>
           <SheetDescription>
-            When the squad trains each week. Plan sessions uses it to fill the
+            When the batch trains each week. Plan sessions uses it to fill the
             calendar; sessions already planned don&apos;t change.
           </SheetDescription>
         </SheetHeader>
