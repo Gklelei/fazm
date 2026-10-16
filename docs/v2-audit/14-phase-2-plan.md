@@ -313,6 +313,19 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
    - **Notification emails:** which emails are sent, and to whom.
    - Later stages add sections here: payroll deductions (stage 4) and shop products (stage 5).
 
+**Stage 1 decisions (developer, 2026-10-16):**
+- **Medical details:** coaches and the medical role can see them; only admins and the medical
+  (DOCTOR) role can change them. Every change is logged.
+- **Consent:**
+  - under 18, a parent or guardian consents (required);
+  - 18 and over, the athlete consents for themselves (a guardian is optional).
+- **Photos and videos consent covers all photos.** Without it, the athlete has no photo in the
+  system either (a placeholder is shown), and any uploaded photo is removed when consent is
+  withdrawn.
+- **Registering athletes:** admins only, as now.
+- **Consent text:** drafted in English and Kiswahili as version 1, for the academy to review.
+- **Uploaded athlete documents:** only roles that can open athlete profiles can open them.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:
