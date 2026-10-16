@@ -1,7 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { academyHHmm, formatAcademy } from "@/lib/academy-time";
 
 type ExportSession = {
   name: string;
@@ -22,8 +22,8 @@ export function SessionsExport() {
       rows={[]}
       fetchAllUrl="/api/export?resource=sessions"
       mapRow={(s) => [
-        format(new Date(s.date), "dd MMM yyyy"),
-        format(new Date(s.date), "HH:mm"),
+        formatAcademy(s.date, { day: "2-digit", month: "short", year: "numeric" }),
+        academyHHmm(s.date),
         s.name,
         s.batch.name,
         s.location.name,

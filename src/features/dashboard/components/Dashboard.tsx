@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { format, isToday } from "date-fns";
+import { format } from "date-fns";
+import { academyHHmm, academyRelativeDay, formatAcademy } from "@/lib/academy-time";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -25,7 +26,7 @@ const SHOWN_SESSIONS = 6;
 const SHOWN_BATCHES = 8;
 
 function greeting(now = new Date()) {
-  const h = now.getHours();
+  const h = Number(academyHHmm(now).slice(0, 2));
   return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
 }
 
@@ -110,7 +111,7 @@ export function Dashboard({ data, name }: { data: DashboardData; name: string })
     <div className="space-y-6">
       <PageHeader
         title={`${greeting()}, ${name.split(" ")[0]}`}
-        description={format(new Date(), "EEEE d MMMM yyyy")}
+        description={formatAcademy(new Date(), { weekday: "long", day: "numeric", month: "long", year: "numeric" })}
         actions={
           <>
             {week && (
@@ -202,13 +203,13 @@ export function Dashboard({ data, name }: { data: DashboardData; name: string })
                       <div
                         className={cn(
                           "rounded-md py-1 text-center leading-none",
-                          isToday(s.date) ? "bg-primary text-primary-foreground" : "bg-muted",
+                          academyRelativeDay(s.date) === "Today" ? "bg-primary text-primary-foreground" : "bg-muted",
                         )}
                       >
                         <p className="text-[10px] font-semibold uppercase opacity-80">
-                          {isToday(s.date) ? "Today" : format(s.date, "EEE")}
+                          {academyRelativeDay(s.date) === "Today" ? "Today" : formatAcademy(s.date, { weekday: "short" })}
                         </p>
-                        <p className="font-display text-xl font-bold">{format(s.date, "HH:mm")}</p>
+                        <p className="font-display text-xl font-bold">{academyHHmm(s.date)}</p>
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-medium">{s.name}</p>

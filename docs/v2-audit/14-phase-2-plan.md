@@ -326,6 +326,29 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
 - **Consent text:** drafted in English and Kiswahili as version 1, for the academy to review.
 - **Uploaded athlete documents:** only roles that can open athlete profiles can open them.
 
+**Sessions (Stage 1, item 3): done 2026-10-17.**
+- **One phone-first page for planning and editing:**
+  - when (date, start, end, with the length shown);
+  - batch and pitch as chips; the coach is fixed for coaches;
+  - plan: the title follows the batch, plus focus, drills (optional, tap to add, drag to
+    order) and notes.
+- **Session times are Nairobi time everywhere** (`src/lib/academy-time.ts`). Before, the form
+  sent a time with no zone, which the server read in its own zone, and the edit page showed
+  UTC, so every save moved a session 3 hours earlier. Saving, the list, the session page,
+  attendance, the export, the PDF and the dashboard all use academy time now; the tests pass
+  under TZ=UTC as well.
+- **Pending the live server's time zone:**
+  - If it's UTC, sessions created through the old form are stored 3 hours late and need a
+    one-off, reviewed correction at deploy.
+  - If it's Africa/Nairobi, nothing needs correcting.
+- **Clashes now check the pitch too** (batch, coach or pitch), under a lock.
+- **Changing a session's batch** brings the new batch's register; it's refused once
+  attendance is taken.
+- **The sessions list uses the shared cursor paging.**
+- **Batches sort by age everywhere** (`src/lib/batch-order.ts`).
+- **Later:** day-only dates elsewhere (registered, payments) still use the server's zone; fix
+  them as each area is reworked.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:

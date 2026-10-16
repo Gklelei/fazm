@@ -3,7 +3,6 @@
 import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { addMinutes, format } from "date-fns";
 import { toast } from "sonner";
 import { ArrowLeft, CheckCheck, Loader2, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -23,6 +22,7 @@ import type { AttendanceStatus } from "@/generated/prisma/enums";
 import { saveAttendance } from "../actions/mark-attendance";
 import type { TrainingAttendanceType } from "../queries";
 import { photoOf } from "@/features/athletes/lib/photo";
+import { academyHHmm, formatAcademy } from "@/lib/academy-time";
 
 type Mark = { status: AttendanceStatus | null; reasonId: string | null };
 
@@ -107,7 +107,7 @@ export default function MarkAttendance({ data }: { data: TrainingAttendanceType 
 
       <PageHeader
         title="Attendance"
-        description={`${data.batch.name} · ${format(data.date, "EEE d MMM, HH:mm")}–${format(addMinutes(data.date, data.duration), "HH:mm")} · ${data.location.name}`}
+        description={`${data.batch.name} · ${formatAcademy(data.date, { weekday: "short", day: "numeric", month: "short" })}, ${academyHHmm(data.date)}–${academyHHmm(new Date(new Date(data.date).getTime() + data.duration * 60_000))} · ${data.location.name}`}
       />
 
       {data.athletes.length === 0 ? (

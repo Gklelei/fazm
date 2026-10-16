@@ -1,19 +1,19 @@
 import Link from "next/link";
-import { addMinutes, format, isToday, isTomorrow, isYesterday } from "date-fns";
 import { MapPin, UserRound } from "lucide-react";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { cn } from "@/lib/utils";
 import type { SessionRow } from "../queries/list-sessions";
 import { SessionRowActions } from "./SessionRowActions";
+import { academyDate, academyHHmm, academyRelativeDay, academyToday, formatAcademy } from "@/lib/academy-time";
 
-const dayLabel = (d: Date) =>
-  isToday(d)
-    ? `Today · ${format(d, "EEEE d MMM")}`
-    : isTomorrow(d)
-      ? `Tomorrow · ${format(d, "EEEE d MMM")}`
-      : isYesterday(d)
-        ? `Yesterday · ${format(d, "EEEE d MMM")}`
-        : format(d, d.getFullYear() === new Date().getFullYear() ? "EEEE d MMM" : "EEEE d MMM yyyy");
+// Days and times are the academy's (Nairobi), whatever zone the server or phone is in
+const dayLabel = (d: Date) => {
+  const sameYear = academyDate(d).slice(0, 4) === academyToday().slice(0, 4);
+  const long = formatAcademy(d, { weekday: "long", day: "numeric", month: "short", ...(sameYear ? {} : { year: "numeric" }) });
+  const rel = academyRelativeDay(d);
+  return rel ? `${rel} · ${long}` : long;
+};
+const endOf = (d: Date, minutes: number) => new Date(new Date(d).getTime() + minutes * 60_000);
 
 /** Attendance taken out of squad size, as a thin progress bar. */
 function AttendanceMeter({ taken, squad }: { taken: number; squad: number }) {
@@ -36,7 +36,7 @@ function AttendanceMeter({ taken, squad }: { taken: number; squad: number }) {
 export function SessionsList({ rows }: { rows: SessionRow[] }) {
   const groups = new Map<string, SessionRow[]>();
   for (const r of rows) {
-    const key = format(r.date, "yyyy-MM-dd");
+    const key = academyDate(r.date);
     groups.set(key, [...(groups.get(key) ?? []), r]);
   }
 
@@ -47,7 +47,7 @@ export function SessionsList({ rows }: { rows: SessionRow[] }) {
           <h2
             className={cn(
               "sticky top-14 z-10 border-b bg-muted/80 px-4 py-1.5 text-xs font-semibold tracking-wide text-muted-foreground uppercase backdrop-blur",
-              isToday(day[0].date) && "text-foreground",
+              academyRelativeDay(day[0].date) === "Today" && "text-foreground",
             )}
           >
             {dayLabel(day[0].date)}
@@ -59,9 +59,9 @@ export function SessionsList({ rows }: { rows: SessionRow[] }) {
                 className="grid grid-cols-[4.5rem_1fr_auto] items-center gap-x-4 gap-y-2 px-4 py-3 sm:grid-cols-[4.5rem_1fr_auto_auto_auto]"
               >
                 <div className="leading-tight">
-                  <p className="font-display text-xl font-bold tabular">{format(s.date, "HH:mm")}</p>
+                  <p className="font-display text-xl font-bold tabular">{academyHHmm(s.date)}</p>
                   <p className="tabular text-xs text-muted-foreground">
-                    to {format(addMinutes(s.date, s.duration), "HH:mm")}
+                    to {academyHHmm(endOf(s.date, s.duration))}
                   </p>
                 </div>
                 <Link href={`/sessions/view/${s.id}`} className="group min-w-0">

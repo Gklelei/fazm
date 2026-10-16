@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { addMinutes, format } from "date-fns";
 import { ArrowLeft, ClipboardCheck, Pencil, Phone, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import type { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
 import { SessionPdfButton } from "./SessionPdfButton";
+import { academyHHmm, formatAcademy } from "@/lib/academy-time";
 
 const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replaceAll("_", " ");
 
@@ -87,10 +87,10 @@ export default function ViewTrainingSession({ data }: { data: GetAllTrainingSess
 
       <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border bg-card p-4 md:grid-cols-5">
         <Fact label="When">
-          {format(data.date, "EEE d MMM yyyy")}
+          {formatAcademy(data.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" })}
         </Fact>
         <Fact label="Time">
-          {format(data.date, "HH:mm")}–{format(addMinutes(data.date, data.duration), "HH:mm")}
+          {academyHHmm(data.date)}–{academyHHmm(new Date(new Date(data.date).getTime() + data.duration * 60_000))}
         </Fact>
         <Fact label="Batch">{data.batch.name}</Fact>
         <Fact label="Location">{data.location.name}</Fact>

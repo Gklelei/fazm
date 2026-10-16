@@ -2,6 +2,7 @@ import { unstable_cache, updateTag } from "next/cache";
 import { db } from "@/lib/prisma";
 import { ROLE_GROUPS } from "@/lib/roles";
 import { getCachedAcademy } from "@/lib/academy-cache";
+import { byBatchOrder } from "@/lib/batch-order";
 
 /**
  * Settings data used across the app (locations, drills, batches, coaches,
@@ -34,8 +35,8 @@ const getLocations = cached(LOOKUP.locations, () =>
 const getDrills = cached(LOOKUP.drills, () =>
   db.drills.findMany({ where: { voided: 0 }, orderBy: { name: "asc" } }),
 );
-const getBatches = cached(LOOKUP.batches, () =>
-  db.batches.findMany({ where: { isArchived: false }, orderBy: { name: "asc" } }),
+const getBatches = cached(LOOKUP.batches, async () =>
+  (await db.batches.findMany({ where: { isArchived: false } })).sort(byBatchOrder),
 );
 const getCoaches = cached(LOOKUP.coaches, () =>
   db.staff.findMany({

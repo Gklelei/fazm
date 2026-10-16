@@ -2,8 +2,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
 import { makeBatch, makeLocation, resetDb, signedIn } from "@/tests/support/db";
 import { signInAs } from "@/tests/support/session";
-import { CreateTrainingSession } from "@/features/trainings/actions/create-session";
-import { EditTrainingSessionAction } from "@/features/trainings/actions/edit-session";
+import { createSession, updateSession } from "@/features/trainings/actions/save-session";
 import { DeleteTrainingSession } from "@/features/trainings/actions/delete-session";
 import { NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
 
@@ -26,15 +25,17 @@ async function setup() {
       staffId: other.staff!.staffId,
     },
   });
-  const form = (coach: string, date = "2026-11-09T13:00:00.000Z") => ({
+  const form = (coach: string, date = "2026-11-09") => ({
     title: "Training",
     description: "Passing",
     date,
-    duration: 60,
+    start: "16:00",
+    end: "17:00",
     location: pitch.id,
     drills: [drill.id],
     coach,
     batch: batch.id,
+    note: "",
   });
   signBackIn(mine.user);
   return { mine, other, theirs, form };
@@ -45,14 +46,14 @@ describe("coaches manage only their own sessions", () => {
 
   it("lets a coach plan a session for themselves, not for a colleague", async () => {
     const { mine, other, form } = await setup();
-    expect((await CreateTrainingSession(form(mine.staff!.staffId))).success).toBe(true);
-    expect(await CreateTrainingSession(form(other.staff!.staffId, "2026-11-10T13:00:00.000Z"))).toEqual({ success: false, message: NOT_YOUR_SESSION });
+    expect((await createSession(form(mine.staff!.staffId))).success).toBe(true);
+    expect(await createSession(form(other.staff!.staffId, "2026-11-10"))).toEqual({ success: false, message: NOT_YOUR_SESSION });
     expect(await db.training.count({ where: { staffId: other.staff!.staffId } })).toBe(1);
   });
 
   it("refuses editing or deleting a colleague's session", async () => {
     const { mine, theirs, form } = await setup();
-    expect(await EditTrainingSessionAction(form(mine.staff!.staffId), theirs.id)).toEqual({ success: false, message: NOT_YOUR_SESSION });
+    expect(await updateSession(theirs.id, form(mine.staff!.staffId))).toEqual({ success: false, message: NOT_YOUR_SESSION });
     expect(await DeleteTrainingSession(theirs.id)).toEqual({ success: false, message: NOT_YOUR_SESSION });
     expect(await db.training.findUniqueOrThrow({ where: { id: theirs.id } })).toMatchObject({ name: "Their session", isArchived: false });
   });

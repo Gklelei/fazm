@@ -2,6 +2,7 @@ import "server-only";
 
 import { db } from "@/lib/prisma";
 import { ROLE_GROUPS } from "@/lib/roles";
+import { byBatchOrder } from "@/lib/batch-order";
 
 const WEEK = 7 * 24 * 3_600_000;
 
@@ -59,12 +60,7 @@ export async function getSettingsData() {
   ]);
 
   const next = new Map(upcoming.map((u) => [u.batchesId, u]));
-  // U7, U9, U11 … by age, then named batches, with the catch-all last
-  const rank = (name: string) => [/unassigned/i.test(name) ? 2 : /\d/.test(name) ? 0 : 1, Number(name.match(/\d+/)?.[0] ?? 0)];
-  batches.sort((a, b) => {
-    const [ga, na] = rank(a.name), [gb, nb] = rank(b.name);
-    return ga - gb || na - nb || a.name.localeCompare(b.name);
-  });
+  batches.sort(byBatchOrder);
   return {
     batches: batches.map((s) => {
       const u = next.get(s.id);

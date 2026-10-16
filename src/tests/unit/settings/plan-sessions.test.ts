@@ -77,3 +77,11 @@ describe("formatAcademy", () => {
     expect(formatAcademy("2026-11-02T13:00:00Z", { hour: "2-digit", minute: "2-digit", hourCycle: "h23" })).toBe("16:00");
   });
 });
+
+describe("academy date helpers", () => {
+  it("reads the date and time in Nairobi", async () => {
+    const { academyDate, academyHHmm } = await import("@/lib/academy-time");
+    expect(academyDate("2026-11-01T22:30:00Z")).toBe("2026-11-02");
+    expect(academyHHmm("2026-11-01T22:30:00Z")).toBe("01:30");
+  });
+});

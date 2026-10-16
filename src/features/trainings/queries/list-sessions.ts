@@ -1,6 +1,7 @@
-import { startOfDay } from "date-fns";
+import { academyInstant, academyToday } from "@/lib/academy-time";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
+import { cursorArgs, pageOf } from "@/lib/cursor";
 
 export type SessionView = "upcoming" | "past";
 
@@ -8,19 +9,25 @@ export type SessionListParams = {
   view: SessionView;
   search: string;
   batchId: string;
-  page: number;
-  pageSize: number;
 };
 
-export function parseSessionParams(sp: Record<string, string | undefined>): SessionListParams {
-  const page = Number(sp.page);
+export const SESSION_PAGE_SIZE = 25;
+
+export function parseSessionParams(sp: Record<string, string | undefined | null>): SessionListParams {
   return {
     view: sp.view === "past" ? "past" : "upcoming",
-    search: (sp.search ?? "").trim(),
+    search: (sp.search ?? "").trim().slice(0, 100),
     batchId: sp.batchId ?? "",
-    page: Number.isInteger(page) && page > 0 ? page : 1,
-    pageSize: 25,
   };
+}
+
+/** The filters as a query string (empty ones dropped), for the API and links. */
+export function sessionParams(p: SessionListParams) {
+  const q = new URLSearchParams();
+  if (p.view !== "upcoming") q.set("view", p.view);
+  if (p.search) q.set("search", p.search);
+  if (p.batchId) q.set("batchId", p.batchId);
+  return q;
 }
 
 const SESSION_ROW_SELECT = {
@@ -41,11 +48,15 @@ export type SessionRow = Prisma.trainingGetPayload<{ select: typeof SESSION_ROW_
  * Upcoming: today onwards, soonest first. Past: before today, latest first.
  * Coaches only ever see the sessions they run.
  */
+export type SessionsPage = { rows: SessionRow[]; nextCursor: string | null; total: number };
+
 export async function listSessions(
   p: SessionListParams,
   viewer: { userId: string; role: string | null },
-) {
-  const today = startOfDay(new Date());
+  cursor?: string | null,
+): Promise<SessionsPage> {
+  // Midnight in Nairobi, not in the server's zone
+  const today = academyInstant(academyToday(), "00:00");
   const ci = { contains: p.search, mode: "insensitive" as const };
 
   const where: Prisma.trainingWhereInput = {
@@ -66,16 +77,16 @@ export async function listSessions(
       : {}),
   };
 
+  const dir = p.view === "upcoming" ? "asc" : "desc";
   const [total, rows] = await Promise.all([
     db.training.count({ where }),
     db.training.findMany({
       where,
       select: SESSION_ROW_SELECT,
-      orderBy: { date: p.view === "upcoming" ? "asc" : "desc" },
-      take: p.pageSize,
-      skip: (p.page - 1) * p.pageSize,
+      orderBy: [{ date: dir }, { id: dir }],
+      ...cursorArgs(cursor, SESSION_PAGE_SIZE),
     }),
   ]);
-
-  return { total, rows, pages: Math.max(1, Math.ceil(total / p.pageSize)) };
+  const { items, nextCursor } = pageOf(rows, SESSION_PAGE_SIZE);
+  return { rows: items, nextCursor, total };
 }

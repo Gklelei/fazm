@@ -29,3 +29,18 @@ export function minutesBetween(start: string, end: string): number {
 export function formatAcademy(date: Date | string, options: Intl.DateTimeFormatOptions): string {
   return new Intl.DateTimeFormat("en-GB", { timeZone: ACADEMY_TIME_ZONE, ...options }).format(new Date(date));
 }
+
+/** The academy-time date of an instant, as "YYYY-MM-DD". */
+export const academyDate = (d: Date | string) =>
+  formatAcademy(d, { year: "numeric", month: "2-digit", day: "2-digit" }).split("/").reverse().join("-");
+
+/** The academy-time clock time of an instant, as "HH:mm". */
+export const academyHHmm = (d: Date | string) => formatAcademy(d, { hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
+
+/** "Today", "Tomorrow" or "Yesterday" in academy time, or null. */
+export function academyRelativeDay(d: Date | string): string | null {
+  const day = academyDate(d);
+  const today = academyToday();
+  const shift = (n: number) => new Date(Date.parse(`${today}T00:00:00Z`) + n * 86_400_000).toISOString().slice(0, 10);
+  return day === today ? "Today" : day === shift(1) ? "Tomorrow" : day === shift(-1) ? "Yesterday" : null;
+}

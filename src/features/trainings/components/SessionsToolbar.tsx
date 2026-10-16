@@ -73,7 +73,7 @@ export function SessionsToolbar({ view }: { view: SessionView }) {
         <Input
           type="search"
           aria-label="Search sessions"
-          placeholder="Search session, batch, location or coach"
+          placeholder="Search sessions"
           className="pl-9"
           value={search}
           onChange={(e) => setSearch(e.target.value)}

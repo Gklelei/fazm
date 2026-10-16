@@ -1,177 +1,91 @@
 "use client";
 
-import React, { useMemo } from "react";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  verticalListSortingStrategy,
-  useSortable,
-} from "@dnd-kit/sortable";
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, TouchSensor, useSensor, useSensors, type DragEndEvent } from "@dnd-kit/core";
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
+import { GripVertical, Plus, X } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-interface DrillType {
-  id: string;
-  name: string;
-}
+type Drill = { id: string; name: string };
 
-interface SortableDrillListProps {
-  availableDrills: DrillType[];
-  selectedDrillIds: string[];
-  onChange: (ids: string[]) => void;
-}
-
-function SortableItem({
-  id,
-  drill,
-  onRemove,
-}: {
-  id: string;
-  drill: DrillType;
-  onRemove: (id: string) => void;
-}) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id });
-
-  const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
-    zIndex: isDragging ? 10 : 1,
-  };
-
+function Row({ drill, index, onRemove }: { drill: Drill; index: number; onRemove: () => void }) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: drill.id });
   return (
-    <div
+    <li
       ref={setNodeRef}
-      style={style}
-      className={`flex items-center gap-2 p-2 border rounded-md mb-2 bg-background shadow-sm ${
-        isDragging ? "opacity-50 ring-2 ring-primary" : ""
-      }`}
+      style={{ transform: CSS.Transform.toString(transform), transition }}
+      className={cn("flex items-center gap-2 rounded-md border bg-background py-1 pr-1 pl-2", isDragging && "z-10 shadow-lg ring-2 ring-primary")}
     >
-      <div
-        {...attributes}
-        {...listeners}
-        className="cursor-move text-muted-foreground hover:text-foreground touch-none"
-      >
-        <GripVertical className="h-4 w-4" />
-      </div>
-      <span className="flex-1 text-sm">{drill.name}</span>
       <button
         type="button"
-        onClick={() => onRemove(id)}
-        className="text-muted-foreground hover:text-destructive transition-colors p-1"
+        {...attributes}
+        {...listeners}
+        aria-label={`Move ${drill.name}`}
+        className="grid size-9 cursor-grab touch-none place-items-center text-muted-foreground hover:text-foreground"
       >
-        <X className="h-4 w-4" />
+        <GripVertical className="size-4" />
       </button>
-    </div>
+      <span className="tabular w-5 text-sm text-muted-foreground">{index + 1}</span>
+      <span className="flex-1 text-sm">{drill.name}</span>
+      <button type="button" onClick={onRemove} aria-label={`Remove ${drill.name}`} className="grid size-9 place-items-center text-muted-foreground hover:text-destructive">
+        <X className="size-4" />
+      </button>
+    </li>
   );
 }
 
+/** Pick drills by tapping them, then drag the chosen ones into running order. */
 export function SortableDrillList({
   availableDrills,
   selectedDrillIds,
   onChange,
-}: SortableDrillListProps) {
+}: {
+  availableDrills: Drill[];
+  selectedDrillIds: string[];
+  onChange: (ids: string[]) => void;
+}) {
   const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 4 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 150, tolerance: 6 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
   );
+  const chosen = selectedDrillIds.map((id) => availableDrills.find((d) => d.id === id)).filter((d): d is Drill => !!d);
+  const left = availableDrills.filter((d) => !selectedDrillIds.includes(d.id));
 
-  const selectedDrills = useMemo(() => {
-    return selectedDrillIds
-      .map((id) => availableDrills.find((d) => d.id === id))
-      .filter(Boolean) as DrillType[];
-  }, [availableDrills, selectedDrillIds]);
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    const { active, over } = event;
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
     if (over && active.id !== over.id) {
-      const oldIndex = selectedDrillIds.indexOf(active.id as string);
-      const newIndex = selectedDrillIds.indexOf(over.id as string);
-      const newOrder = arrayMove(selectedDrillIds, oldIndex, newIndex);
-      onChange(newOrder);
+      onChange(arrayMove(selectedDrillIds, selectedDrillIds.indexOf(String(active.id)), selectedDrillIds.indexOf(String(over.id))));
     }
   };
 
-  const handleToggle = (drillId: string, checked: boolean) => {
-    if (checked) {
-      onChange([...selectedDrillIds, drillId]);
-    } else {
-      onChange(selectedDrillIds.filter((id) => id !== drillId));
-    }
-  };
+  if (!availableDrills.length) return <p className="text-sm text-muted-foreground">No drills yet.</p>;
 
   return (
-    <div className="space-y-4">
-      {/* Selection Box */}
-      <div className="p-3 border rounded-md bg-muted/20 max-h-48 overflow-y-auto space-y-2">
-        <p className="text-xs font-semibold text-muted-foreground mb-2 uppercase tracking-wide">
-          Available Drills
-        </p>
-        {availableDrills.map((drill) => (
-          <label
-            key={drill.id}
-            className="flex items-center gap-2 text-sm cursor-pointer"
-          >
-            <Checkbox
-              checked={selectedDrillIds.includes(drill.id)}
-              onCheckedChange={(checked) => handleToggle(drill.id, !!checked)}
-            />
-            <span>{drill.name}</span>
-          </label>
-        ))}
-        {availableDrills.length === 0 && (
-          <span className="text-sm text-destructive">
-            No drills available. Please contact admin.
-          </span>
-        )}
-      </div>
-
-      {/* Drag and Drop Reordering Area */}
-      {selectedDrillIds.length > 0 && (
-        <div className="p-3 border rounded-md bg-muted/10">
-          <p className="text-xs font-semibold text-muted-foreground mb-3 uppercase tracking-wide">
-            Session Sequence (Drag to Recorder)
-          </p>
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleDragEnd}
-          >
-            <SortableContext
-              items={selectedDrillIds}
-              strategy={verticalListSortingStrategy}
+    <div className="space-y-3">
+      {chosen.length > 0 && (
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={onDragEnd}>
+          <SortableContext items={selectedDrillIds} strategy={verticalListSortingStrategy}>
+            <ol className="space-y-1.5">
+              {chosen.map((d, i) => (
+                <Row key={d.id} drill={d} index={i} onRemove={() => onChange(selectedDrillIds.filter((id) => id !== d.id))} />
+              ))}
+            </ol>
+          </SortableContext>
+        </DndContext>
+      )}
+      {left.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {left.map((d) => (
+            <button
+              key={d.id}
+              type="button"
+              onMouseDown={(e) => e.preventDefault()}
+              onClick={() => onChange([...selectedDrillIds, d.id])}
+              className="inline-flex h-9 items-center gap-1 rounded-full border border-dashed px-3 text-sm hover:border-primary hover:bg-muted"
             >
-              <div className="space-y-1">
-                {selectedDrills.map((drill) => (
-                  <SortableItem
-                    key={drill.id}
-                    id={drill.id}
-                    drill={drill}
-                    onRemove={(id) => handleToggle(id, false)}
-                  />
-                ))}
-              </div>
-            </SortableContext>
-          </DndContext>
+              <Plus className="size-3.5" /> {d.name}
+            </button>
+          ))}
         </div>
       )}
     </div>

@@ -3,6 +3,7 @@ import autoTable, { RowInput } from "jspdf-autotable";
 import { formatDuration } from "@/lib/format";
 import { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
 import { logExport } from "@/features/audit-logs/actions/log-export";
+import { academyDate, academyHHmm, formatAcademy } from "@/lib/academy-time";
 
 function safeText(v: unknown) {
   return String(v ?? "").trim();
@@ -33,18 +34,10 @@ export function downloadTrainingSessionPdf(
   const marginX = 40;
   const topY = 40;
 
-  const dateStr = new Date(data.date).toDateString();
-  const startTime = new Date(data.date).toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-  const endDate = new Date(
-    new Date(data.date).getTime() + data.duration * 60000,
-  );
-  const endTime = endDate.toLocaleTimeString([], {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+  // Academy (Nairobi) time, whatever zone the browser is in
+  const dateStr = formatAcademy(data.date, { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  const startTime = academyHHmm(data.date);
+  const endTime = academyHHmm(new Date(new Date(data.date).getTime() + data.duration * 60000));
 
   // ---- Header (Title + Status pill-like text) ----
   doc.setFont("helvetica", "bold");
@@ -55,7 +48,7 @@ export function downloadTrainingSessionPdf(
   doc.setFontSize(10);
   doc.setTextColor(90);
   doc.text(
-    `Generated: ${new Date().toLocaleString()}`,
+    `Generated: ${formatAcademy(new Date(), { dateStyle: "medium", timeStyle: "short" })}`,
     pageWidth - marginX,
     topY,
     { align: "right" },
@@ -279,11 +272,7 @@ export function downloadTrainingSessionPdf(
     },
   });
 
-  const fileName = `training_${safeText(data.name).replaceAll(" ", "_")}_${new Date(
-    data.date,
-  )
-    .toISOString()
-    .slice(0, 10)}.pdf`;
+  const fileName = `training_${safeText(data.name).replaceAll(" ", "_")}_${academyDate(data.date)}.pdf`;
 
   doc.save(fileName);
   void logExport({ what: `session sheet "${safeText(data.name)}"`, format: "PDF", recordId: data.id }).catch(() => {});

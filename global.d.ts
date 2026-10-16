@@ -59,6 +59,7 @@ declare global {
     coaches: {
       staffId: string;
       fullNames: string;
+      userId: string;
     }[];
 
     attendance: {
