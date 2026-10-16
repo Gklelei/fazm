@@ -6,7 +6,7 @@ export async function recipientsInBatches(batches: string[]) {
   if (!batches.length) return [];
   return db.athlete.findMany({
     where: { batchesId: { in: batches }, isArchived: false, status: { not: "DEACTIVATED" } },
-    select: { athleteId: true },
-    orderBy: { athleteId: "asc" },
+    select: { athleteId: true, firstName: true, middleName: true, lastName: true, batchesId: true },
+    orderBy: [{ firstName: "asc" }, { lastName: "asc" }],
   });
 }

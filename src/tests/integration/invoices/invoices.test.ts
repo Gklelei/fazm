@@ -3,11 +3,11 @@ import { db } from "@/lib/prisma";
 import { makeAthlete, makeInvoice, makePlan, resetDb, signedIn } from "@/tests/support/db";
 import { createInvoices, updateInvoice } from "@/features/invoices/actions/save-invoice";
 import { setInvoiceCancelled } from "@/features/invoices/actions/cancel-invoice";
+import { recipientsInBatches } from "@/features/invoices/lib/recipients";
 import type { CreateInvoiceInput } from "@/features/invoices/schemas";
 
 const base = (athletes: string[], over: Partial<CreateInvoiceInput> = {}): CreateInvoiceInput => ({
   athletes,
-  batches: [],
   type: "MANUAL",
   lines: [{ description: "November fees", quantity: 1, unitAmount: 2500 }],
   dueDate: "2026-11-30",
@@ -149,16 +149,21 @@ describe("cancelling and restoring an invoice", () => {
 describe("billing whole batches", () => {
   beforeEach(resetDb);
 
-  it("invoices each billable athlete in the batches once", async () => {
-    await signedIn("FINANCE");
+  it("offers each billable athlete in the batch", async () => {
     const batch = await db.batches.create({ data: { name: "U13" } });
-    const [a] = await Promise.all([
+    await Promise.all([
       makeAthlete({ batchesId: batch.id }),
       makeAthlete({ batchesId: batch.id, status: "PENDING" }),
       makeAthlete({ batchesId: batch.id, status: "DEACTIVATED" }),
     ]);
-    const res = await createInvoices(base([a.athleteId], { batches: [batch.id] }));
-    expect(res).toMatchObject({ success: true, message: "2 invoices created." });
-    expect(await db.invoice.count()).toBe(2);
+    expect(await recipientsInBatches([batch.id])).toHaveLength(2);
+  });
+
+  it("bills each athlete once", async () => {
+    await signedIn("FINANCE");
+    const a = await makeAthlete();
+    const res = await createInvoices(base([a.athleteId, a.athleteId]));
+    expect(res).toMatchObject({ success: true, message: expect.stringMatching(/^Invoice /) });
+    expect(await db.invoice.count()).toBe(1);
   });
 });

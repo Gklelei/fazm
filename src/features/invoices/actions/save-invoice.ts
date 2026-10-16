@@ -9,7 +9,6 @@ import { academyDate, academyInstant } from "@/lib/academy-time";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { formatCurrency } from "@/lib/format";
 import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
-import { recipientsInBatches } from "@/features/invoices/lib/recipients";
 import {
   createInvoiceSchema,
   editInvoiceSchema,
@@ -48,15 +47,13 @@ const dueAt = (ymd: string) => academyInstant(ymd, "23:59");
 export async function createInvoices(input: CreateInvoiceInput) {
   return asRole("finance", async (user) => {
     const v = createInvoiceSchema.parse(input);
-    const picked = await db.athlete.findMany({
-      where: { athleteId: { in: [...new Set(v.athletes)] }, isArchived: false },
+    const ids = [...new Set(v.athletes)];
+    const athletes = await db.athlete.findMany({
+      where: { athleteId: { in: ids }, isArchived: false },
       select: { athleteId: true },
+      orderBy: { athleteId: "asc" },
     });
-    if (picked.length !== new Set(v.athletes).size) throw new ActionError("Some of those athletes are no longer active. Choose again.");
-    const inBatches = await recipientsInBatches(v.batches);
-    // Each athlete once, even if chosen directly and through a batch
-    const athletes = [...new Map([...picked, ...inBatches].map((a) => [a.athleteId, a])).values()];
-    if (!athletes.length) throw new ActionError("Those batches have no athletes to bill.");
+    if (athletes.length !== ids.length) throw new ActionError("Some of those athletes are no longer active. Choose again.");
     const { rows, total, description, subscriptionPlanId } = fromLines(v.lines);
     const dueDate = dueAt(v.dueDate);
 

@@ -31,13 +31,10 @@ const invoiceFields = z.object({
 });
 
 export const editInvoiceSchema = invoiceFields;
-export const createInvoiceSchema = invoiceFields
-  .extend({
-    athletes: z.array(z.string().min(1)).max(1000),
-    /** Bill everyone in these batches (deactivated athletes excluded) */
-    batches: z.array(z.string().min(1)).max(50),
-  })
-  .refine((v) => v.athletes.length + v.batches.length > 0, { message: "Choose athletes or batches", path: ["athletes"] });
+export const createInvoiceSchema = invoiceFields.extend({
+  /** One invoice each; the form fills this from chosen batches and athletes */
+  athletes: z.array(z.string().min(1)).min(1, "Choose who to bill").max(1000, "Up to 1,000 athletes at a time"),
+});
 
 export type InvoiceLineInput = z.input<typeof invoiceLineSchema>;
 export type EditInvoiceInput = z.input<typeof editInvoiceSchema>;
