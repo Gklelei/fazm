@@ -1,4 +1,4 @@
-import { format } from "date-fns";
+import { academyDate } from "@/lib/academy-time";
 import type { Prisma } from "@/generated/prisma/client";
 
 type Kind = "INV" | "FEES";
@@ -18,7 +18,8 @@ export async function nextDocumentNumbers(
   count = 1,
   at = new Date(),
 ): Promise<string[]> {
-  const prefix = `${kind}-${format(at, "yyyyMMdd")}-`;
+  // The day is the academy's (Nairobi), not the server's
+  const prefix = `${kind}-${academyDate(at).replaceAll("-", "")}-`;
   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${prefix}))::text`;
 
   const issued =

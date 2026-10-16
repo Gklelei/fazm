@@ -117,7 +117,7 @@ export async function listInvoices(
       : db.invoice.aggregate({
           where: { ...where, status: where.status ?? { not: "CANCELED" } },
           _count: { _all: true },
-          _sum: { amountDue: true, amountPaid: true },
+          _sum: { amountDue: true, amountPaid: true, discount: true },
         }),
   ]);
 
@@ -129,7 +129,8 @@ export async function listInvoices(
     ...(totals && {
       summary: {
         count: totals._count._all,
-        due: Number(totals._sum.amountDue ?? 0),
+        // What was asked for: totals less discounts
+        due: Number(totals._sum.amountDue ?? 0) - Number(totals._sum.discount ?? 0),
         paid: Number(totals._sum.amountPaid ?? 0),
       },
     }),

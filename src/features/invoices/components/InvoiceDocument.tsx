@@ -7,8 +7,8 @@ import {
   StyleSheet,
   Image,
 } from "@react-pdf/renderer";
-import { InvoiceType } from "@/features/invoices/queries";
-import { formatDate } from "@/lib/format";
+import type { Prisma } from "@/generated/prisma/client";
+import { formatAcademy } from "@/lib/academy-time";
 import { getAcademyQueryType } from "@/features/academy/queries";
 
 const styles = StyleSheet.create({
@@ -89,12 +89,11 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#f1f5f9",
   },
-  col1: { width: "10%" },
-  col2: { width: "45%" },
+  col1: { width: "8%" },
+  col2: { width: "50%" },
   col3: { width: "10%", textAlign: "center" },
-  col4: { width: "15%", textAlign: "right" }, // unit
-  col5: { width: "10%", textAlign: "right" }, // discount
-  col6: { width: "10%", textAlign: "right" }, // total
+  col4: { width: "16%", textAlign: "right" },
+  col5: { width: "16%", textAlign: "right" },
 
   totalsContainer: { alignItems: "flex-end", marginTop: 20 },
   totalRow: {
@@ -135,6 +134,15 @@ function asNumber(v: unknown) {
   return Number.isFinite(n) ? n : 0;
 }
 
+const day = (d: Date) => formatAcademy(d, { day: "2-digit", month: "short", year: "numeric" });
+
+export type InvoicePdfData = Prisma.InvoiceGetPayload<{
+  include: {
+    athlete: { select: { firstName: true; middleName: true; lastName: true; email: true; phoneNumber: true } };
+    lines: true;
+  };
+}>;
+
 function moneyKES(n: number) {
   return `KES ${n.toLocaleString()}`;
 }
@@ -144,7 +152,7 @@ export default function InvoiceDocument({
   logoUrl,
   academy,
 }: {
-  invoice: InvoiceType;
+  invoice: InvoicePdfData;
   logoUrl: string;
   academy: getAcademyQueryType | null;
 }) {
@@ -156,7 +164,6 @@ export default function InvoiceDocument({
     .filter(Boolean)
     .join(" ");
 
-  // ✅ Correct math (discount affects both line total + balance)
   const amountDue = asNumber(invoice.amountDue);
   const amountPaid = asNumber(invoice.amountPaid);
   const discount = asNumber(invoice.discount);
@@ -196,13 +203,8 @@ export default function InvoiceDocument({
             <Text style={styles.invoiceTitle}>Invoice</Text>
             <Text style={styles.metaText}>No: {invoice.invoiceNumber}</Text>
 
-            {/* ✅ day month year depends on your formatDate implementation */}
-            <Text style={styles.metaText}>
-              Issued: {formatDate(new Date())}
-            </Text>
-            <Text style={styles.metaText}>
-              Due: {formatDate(new Date(invoice.dueDate))}
-            </Text>
+            <Text style={styles.metaText}>Issued: {day(invoice.createdAt)}</Text>
+            <Text style={styles.metaText}>Due: {day(invoice.dueDate)}</Text>
 
             <View
               style={[styles.statusBadge, { backgroundColor: statusColor }]}
@@ -228,12 +230,12 @@ export default function InvoiceDocument({
             ) : null}
           </View>
 
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sectionTitle}>Notes</Text>
-            <Text style={{ lineHeight: 1.4 }}>
-              {invoice.notes || "No additional notes provided."}
-            </Text>
-          </View>
+          {invoice.notes ? (
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sectionTitle}>Notes</Text>
+              <Text style={{ lineHeight: 1.4 }}>{invoice.notes}</Text>
+            </View>
+          ) : null}
         </View>
 
         {/* Table */}
@@ -242,41 +244,35 @@ export default function InvoiceDocument({
             <Text style={styles.col1}>#</Text>
             <Text style={styles.col2}>Description</Text>
             <Text style={styles.col3}>Qty</Text>
-            <Text style={styles.col4}>Unit</Text>
-            <Text style={styles.col5}>Disc</Text>
-            <Text style={styles.col6}>Total</Text>
+            <Text style={styles.col4}>Unit (KES)</Text>
+            <Text style={styles.col5}>Amount (KES)</Text>
           </View>
 
-          <View style={styles.tableRow}>
-            <Text style={styles.col1}>1</Text>
-            <Text style={styles.col2}>
-              {invoice.description || "General Services"}
-            </Text>
-            <Text style={styles.col3}>1</Text>
-
-            <Text style={styles.col4}>
-              {moneyKES(amountDue).replace("KES ", "")}
-            </Text>
-            <Text style={styles.col5}>
-              {moneyKES(discount).replace("KES ", "")}
-            </Text>
-
-            <Text style={[styles.col6, { fontWeight: "bold" }]}>
-              {moneyKES(lineTotal).replace("KES ", "")}
-            </Text>
-          </View>
+          {invoice.lines.map((l, i) => (
+            <View key={l.id} style={styles.tableRow} wrap={false}>
+              <Text style={styles.col1}>{i + 1}</Text>
+              <Text style={styles.col2}>{l.description}</Text>
+              <Text style={styles.col3}>{l.quantity}</Text>
+              <Text style={styles.col4}>{asNumber(l.unitAmount).toLocaleString()}</Text>
+              <Text style={[styles.col5, { fontWeight: "bold" }]}>{asNumber(l.amount).toLocaleString()}</Text>
+            </View>
+          ))}
         </View>
 
         {/* Summary */}
         <View style={styles.totalsContainer}>
-          <View style={styles.totalRow}>
-            <Text>Subtotal</Text>
-            <Text>{moneyKES(amountDue)}</Text>
-          </View>
-          <View style={styles.totalRow}>
-            <Text>Discount</Text>
-            <Text>- {moneyKES(discount)}</Text>
-          </View>
+          {discount > 0 && (
+            <>
+              <View style={styles.totalRow}>
+                <Text>Subtotal</Text>
+                <Text>{moneyKES(amountDue)}</Text>
+              </View>
+              <View style={styles.totalRow}>
+                <Text>Discount</Text>
+                <Text>- {moneyKES(discount)}</Text>
+              </View>
+            </>
+          )}
           <View style={styles.totalRow}>
             <Text>Total</Text>
             <Text>{moneyKES(lineTotal)}</Text>

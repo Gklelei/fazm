@@ -56,7 +56,7 @@ export async function GET(
           phoneNumber: true,
         },
       },
-      subscriptionPlan: true,
+      lines: { orderBy: { position: "asc" } },
     },
   });
   const cached = await getCachedAcademy();
@@ -80,7 +80,7 @@ export async function GET(
   return new Response(stream as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="invoice-${id}.pdf"`,
+      "Content-Disposition": `inline; filename="${invoice.invoiceNumber}.pdf"`,
       "Cache-Control": "no-cache",
     },
   });

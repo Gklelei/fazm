@@ -16,6 +16,7 @@ import {
 import { setInvoiceCancelled } from "../actions/cancel-invoice";
 import type { InvoiceListRow } from "../queries/list";
 import ApplyCoupon from "./ApplyCoupon";
+import { invoiceBalance } from "../lib/status";
 import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import { athleteName } from "@/features/athletes/lib/names";
 
@@ -24,7 +25,7 @@ export function InvoiceRowActions({ invoice }: { invoice: InvoiceListRow }) {
   const [couponOpen, setCouponOpen] = useState(false);
   const [payOpen, setPayOpen] = useState(false);
   const [pending, start] = useTransition();
-  const balance = Math.max(invoice.amountDue - invoice.amountPaid, 0);
+  const balance = invoiceBalance(invoice);
   const cancelled = invoice.status === "CANCELED";
   const refresh = () => queryClient.invalidateQueries({ queryKey: ["invoices"] });
 
@@ -52,7 +53,7 @@ export function InvoiceRowActions({ invoice }: { invoice: InvoiceListRow }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48">
           <DropdownMenuItem asChild>
-            <Link href={`/invoices/${invoice.id}`}>
+            <Link href={`/invoices/${invoice.invoiceNumber}`}>
               <Eye /> View invoice
             </Link>
           </DropdownMenuItem>

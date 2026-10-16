@@ -150,6 +150,8 @@ model Invoice {
   createdAt DateTime   @default(now())
   updatedAt DateTime   @updatedAt
   finances  Finance[]
+  /// What the invoice is for; amountDue is always the sum of the lines
+  lines     InvoiceLine[]
   coupon    Coupon?    @relation(fields: [couponId], references: [id])
   couponId  String?
   auditLogs AuditLog[]
@@ -264,4 +266,22 @@ model ExpenseCategories {
 enum EXPENSECATGORIES_STATUS {
   ACTIVE
   INACTIVE
+}
+
+/// One charge on an invoice (e.g. "Monthly training", "Training kit").
+model InvoiceLine {
+  id          String  @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  position    Int
+  description String
+  quantity    Int     @default(1)
+  unitAmount  Decimal @db.Decimal(10, 2)
+  /// quantity x unitAmount
+  amount      Decimal @db.Decimal(10, 2)
+  /// Set when the line came from a fee plan
+  subscriptionPlanId String?
+
+  @@index([invoiceId, position])
+  @@map("invoice_lines")
 }

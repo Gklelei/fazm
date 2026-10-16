@@ -1,75 +1,50 @@
-import z from "zod";
+import { z } from "zod";
 
-const requiredString = z.string().trim().min(1, "This field is required");
-const optionalString = z.string().optional().or(z.literal(""));
-const dateStringSchema = z.string().refine(
-  (val) => {
-    if (!val) return false;
-    const date = new Date(val);
-    return !isNaN(date.getTime());
-  },
-  { message: "Invalid date format" },
-);
+/** Shared by the invoice form (browser) and the actions (server). */
 
-const amountSchema = z
-  .string()
-  .trim()
-  .min(1, "Amount is required")
-  .refine((val) => /^\d+(\.\d{1,2})?$/.test(val), {
-    message: "Must be a valid amount with up to 2 decimal places",
-  });
+export const INVOICE_TYPES = [
+  { value: "SUBSCRIPTION", label: "Fees" },
+  { value: "ITEM_PURCHASE", label: "Item" },
+  { value: "LATE_FEE", label: "Late fee" },
+  { value: "MANUAL", label: "Other" },
+] as const;
 
-export const CreateInvoiceSchema = z
-  .object({
-    athleteId: z
-      .array(requiredString)
-      .min(1, "At least one athlete must be selected"),
+const money = z.coerce
+  .number({ error: "Enter an amount" })
+  .positive("Enter an amount above 0")
+  .max(10_000_000, "That amount is too large")
+  .refine((n) => Math.round(n * 100) === n * 100, "Use at most 2 decimal places");
 
-    subScriptionName: requiredString,
+export const invoiceLineSchema = z.object({
+  description: z.string().trim().min(1, "Describe the charge").max(120, "Keep it under 120 characters"),
+  quantity: z.coerce.number({ error: "Enter a quantity" }).int("Whole numbers only").min(1, "At least 1").max(99, "Up to 99"),
+  unitAmount: money,
+  /** Set when the line was added from a fee plan */
+  subscriptionPlanId: z.string().optional(),
+});
 
-    subScriptionAmount: amountSchema,
+const invoiceFields = z.object({
+  type: z.enum(["SUBSCRIPTION", "ITEM_PURCHASE", "LATE_FEE", "MANUAL"]),
+  lines: z.array(invoiceLineSchema).min(1, "Add at least one line").max(20, "Up to 20 lines"),
+  dueDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a due date"),
+  notes: z.string().trim().max(500, "Keep it under 500 characters"),
+});
 
-    subscriptionInterval: z.enum(["MONTHLY", "WEEKLY", "DAILY", "ONCE"]),
-
-    startDate: dateStringSchema,
-
-    // status: z.enum(["ACTIVE", "PAUSED", "CANCELED", "EXPIRED"]),
-
-    dueDate: dateStringSchema,
-
-    subType: requiredString,
-
-    description: optionalString,
+export const editInvoiceSchema = invoiceFields;
+export const createInvoiceSchema = invoiceFields
+  .extend({
+    athletes: z.array(z.string().min(1)).max(1000),
+    /** Bill everyone in these batches (deactivated athletes excluded) */
+    batches: z.array(z.string().min(1)).max(50),
   })
-  .refine(
-    (data) => {
-      const startDate = new Date(data.startDate);
-      const dueDate = new Date(data.dueDate);
-      return dueDate >= startDate;
-    },
-    {
-      message: "Due date must be on or after start date",
-      path: ["dueDate"],
-    },
-  );
+  .refine((v) => v.athletes.length + v.batches.length > 0, { message: "Choose athletes or batches", path: ["athletes"] });
 
-export type CreateInvoiceSchemaType = z.infer<typeof CreateInvoiceSchema>;
+export type InvoiceLineInput = z.input<typeof invoiceLineSchema>;
+export type EditInvoiceInput = z.input<typeof editInvoiceSchema>;
+export type CreateInvoiceInput = z.input<typeof createInvoiceSchema>;
 
-interface SelectOption {
-  name: string;
-  value: string;
-}
-
-export const SUBSCRIPTION_TYPES: SelectOption[] = [
-  { name: "Subscription", value: "SUBSCRIPTION" },
-  { name: "Manual Entry", value: "MANUAL" },
-  { name: "Late Fee / Penalty", value: "LATE_FEE" },
-  { name: "Item Purchase (Jersey/Boots/etc..)", value: "ITEM_PURCHASE" },
-];
-
-export const SUBSCRIPTION_INTERVAL: SelectOption[] = [
-  { name: "Monthly", value: "MONTHLY" },
-  { name: "Weekly", value: "WEEKLY" },
-  { name: "Daily", value: "DAILY" },
-  { name: "One-time Only", value: "ONCE" },
-];
+/** Line total and invoice total, in cents to avoid floating-point drift. */
+export const lineTotal = (l: { quantity: unknown; unitAmount: unknown }) =>
+  Math.round(Number(l.quantity) * Math.round(Number(l.unitAmount) * 100)) / 100;
+export const invoiceTotal = (lines: { quantity: unknown; unitAmount: unknown }[]) =>
+  Math.round(lines.reduce((sum, l) => sum + Math.round(lineTotal(l) * 100), 0)) / 100;

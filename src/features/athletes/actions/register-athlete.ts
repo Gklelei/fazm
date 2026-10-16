@@ -159,6 +159,9 @@ export async function registerAthlete(input: RegistrationInput) {
           invoiceNumber,
           type: "SUBSCRIPTION",
           description: `Initial ${plan.name} subscription (full amount)`,
+          lines: {
+            create: { position: 0, description: plan.name, quantity: 1, unitAmount: planAmount, amount: planAmount, subscriptionPlanId: plan.id },
+          },
           unitAmount: planAmount,
           quantity: 1,
           amountDue: planAmount,

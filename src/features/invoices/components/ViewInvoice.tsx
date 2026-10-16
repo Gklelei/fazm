@@ -1,308 +1,202 @@
-"use client";
-
-import Image from "next/image";
-import { ArrowLeftCircle, PrinterIcon } from "lucide-react";
-
-import { Card, CardContent } from "@/components/ui/card";
+import Link from "next/link";
+import { ArrowLeft } from "lucide-react";
+import type { Prisma } from "@/generated/prisma/client";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { StatusBadge } from "@/components/shared/StatusBadge";
+import { formatAcademy } from "@/lib/academy-time";
+import { formatCurrency } from "@/lib/format";
+import { cn } from "@/lib/utils";
+import { athleteName } from "@/features/athletes/lib/names";
+import { METHOD_LABEL } from "@/features/finance/lib/methods";
+import { payableOf } from "../lib/status";
+import { INVOICE_TYPES } from "../schemas";
+import { InvoiceActions } from "./InvoiceActions";
 
-import { InvoiceType } from "@/features/invoices/queries";
-import { formatDate, formatCurrency } from "@/lib/format";
-import { useRouter } from "next/navigation";
-import { UseUtilsContext } from "@/providers/UtilsContext";
+export const INVOICE_PAGE_INCLUDE = {
+  athlete: { select: { athleteId: true, firstName: true, middleName: true, lastName: true } },
+  lines: { orderBy: { position: "asc" } },
+  finances: { where: { isArchived: false }, orderBy: { paymentDate: "desc" } },
+  coupon: { select: { name: true } },
+  auditLogs: {
+    where: { action: { notIn: ["VIEW", "EXPORT", "EXPORT_PDF"] } },
+    orderBy: { createdAt: "desc" },
+    // ponytail: one invoice gathers a handful of entries; page it if that ever grows
+    take: 30,
+    select: { id: true, details: true, changes: true, createdAt: true, user: { select: { name: true } } },
+  },
+} satisfies Prisma.InvoiceInclude;
 
-interface Props {
-  data: InvoiceType;
+type Invoice = Prisma.InvoiceGetPayload<{ include: typeof INVOICE_PAGE_INCLUDE }>;
+
+const LABEL: Record<string, string> = { total: "Total", dueDate: "Due", type: "Type", notes: "Notes", lines: "Charges" };
+
+/** "Total Ksh 3,900 → Ksh 4,350 · Charges changed" from an edit's before/after. */
+function changesOf(c: unknown) {
+  const { before, after } = (c ?? {}) as { before?: Record<string, unknown>; after?: Record<string, unknown> };
+  if (!before || !after) return null;
+  const show = (k: string, v: unknown) => (k === "total" ? formatCurrency(Number(v)) : k === "type" ? (INVOICE_TYPES.find((t) => t.value === v)?.label ?? String(v)) : String(v || "—"));
+  return Object.keys(after)
+    .filter((k) => k in LABEL)
+    .map((k) => (k === "lines" || k === "notes" ? `${LABEL[k]} changed` : `${LABEL[k]} ${show(k, before[k])} → ${show(k, after[k])}`))
+    .join(" · ");
 }
 
-const asNumber = (v: unknown) => {
-  const n = Number(v ?? 0);
-  return Number.isFinite(n) ? n : 0;
-};
+const day = (d: Date) => formatAcademy(d, { day: "numeric", month: "short", year: "numeric" });
+const when = (d: Date) => formatAcademy(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
-const ViewInvoicePage = ({ data }: Props) => {
-  const router = useRouter();
+function Fact({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
+  return (
+    <div className="min-w-0">
+      <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</dt>
+      <dd className={cn("tabular mt-0.5 truncate font-display text-xl font-bold md:text-2xl", className)}>{children}</dd>
+    </div>
+  );
+}
 
-  const fullName = [
-    data.athlete.firstName,
-    data.athlete.middleName,
-    data.athlete.lastName,
-  ]
-    .filter(Boolean)
-    .join(" ");
+function Panel({ title, aside, children }: { title: string; aside?: React.ReactNode; children: React.ReactNode }) {
+  return (
+    <section className="overflow-hidden rounded-lg border bg-card">
+      <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <h2 className="font-display text-lg font-semibold tracking-wide uppercase">{title}</h2>
+        {aside}
+      </header>
+      {children}
+    </section>
+  );
+}
 
-  const { data: Utils } = UseUtilsContext();
-
-  const amountDue = asNumber(data.amountDue);
-  const discount = asNumber(data.discount);
-  const amountPaid = asNumber(data.amountPaid);
-
-  // ✅ Apply discount to total and balance
-  const totalAfterDiscount = Math.max(amountDue - discount, 0);
-  const balance = Math.max(totalAfterDiscount - amountPaid, 0);
-
-  const statusVariant =
-    data.status === "PAID"
-      ? "default"
-      : data.status === "PARTIAL"
-        ? "secondary"
-        : data.status === "CANCELED"
-          ? "outline"
-          : "destructive";
+export default function ViewInvoice({ data, issuer }: { data: Invoice; issuer: string }) {
+  const total = Number(data.amountDue);
+  const discount = Number(data.discount ?? 0);
+  const paid = Number(data.amountPaid);
+  const balance = Math.max(payableOf({ amountDue: total, discount }) - paid, 0);
+  const name = athleteName(data.athlete);
+  const late = balance > 0 && data.status !== "CANCELED" && data.dueDate < new Date();
 
   return (
-    <div className="mx-auto max-w-full px-4 py-6 md:px-8">
-      {/* Sticky header */}
-      <div className="sticky top-0 z-20 mb-6 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 print:hidden">
-        <div className="flex items-center justify-between border-b py-4">
-          <div className="flex flex-1 items-center">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => router.back()}
-              className="gap-2 px-2 hover:bg-transparent hover:text-primary md:px-4"
-            >
-              <ArrowLeftCircle className="h-5 w-5" />
-              <span className="hidden font-medium md:inline">
-                Back to Invoices
-              </span>
-            </Button>
-          </div>
+    <div className="space-y-6">
+      <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
+        <Link href="/invoices">
+          <ArrowLeft /> Invoices
+        </Link>
+      </Button>
 
-          <div className="hidden flex-1 text-center md:block">
-            <h1 className="text-lg font-bold tracking-tight text-muted-foreground">
-              Invoice{" "}
-              <span className="text-foreground">#{data.invoiceNumber}</span>
-            </h1>
-          </div>
+      <PageHeader
+        title={<span className="font-mono normal-case">{data.invoiceNumber}</span>}
+        description={
+          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+            <StatusBadge status={data.status} />
+            <Link href={`/players/user-profile/${data.athlete.athleteId}`} className="font-medium text-foreground hover:underline">
+              {name}
+            </Link>
+            <span>
+              {INVOICE_TYPES.find((t) => t.value === data.type)?.label ?? data.type} · Issued {day(data.createdAt)}
+            </span>
+          </span>
+        }
+        actions={
+          <InvoiceActions
+            id={data.id}
+            invoiceNumber={data.invoiceNumber}
+            status={data.status}
+            balance={balance}
+            athlete={{ athleteId: data.athlete.athleteId, name }}
+          />
+        }
+      />
 
-          <div className="flex flex-1 justify-end">
-            <Button asChild size="sm" className="shadow-sm">
-              <a
-                href={`/api/finance/invoice/${data.id}/pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2"
-              >
-                <PrinterIcon className="h-4 w-4" />
-                <span>Download PDF</span>
-              </a>
-            </Button>
-          </div>
-        </div>
-      </div>
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border bg-card p-4 md:grid-cols-4">
+        <Fact label="Total">{formatCurrency(total - discount)}</Fact>
+        <Fact label="Paid" className="text-success">{formatCurrency(paid)}</Fact>
+        <Fact label="Balance" className={cn(balance > 0 && data.status !== "CANCELED" ? "text-foreground" : "text-muted-foreground")}>
+          {formatCurrency(balance)}
+        </Fact>
+        <Fact label="Due" className={cn(late && "text-destructive")}>{day(data.dueDate)}</Fact>
+      </dl>
 
-      <div id="print-receipt">
-        <Card className="print:border print:shadow-none">
-          <CardContent className="space-y-10 p-6 md:p-8">
-            {/* Header */}
-            <section className="flex flex-col gap-8 md:flex-row md:justify-between">
-              <div className="space-y-4">
-                <Image
-                  src="/Fazam Logo Half.jpg"
-                  alt="Fazam Football Academy"
-                  width={80}
-                  height={80}
-                  className="rounded-md"
-                />
-
-                <div className="text-sm leading-relaxed text-muted-foreground">
-                  <p className="text-lg font-bold text-foreground">
-                    {Utils?.academy?.academyName || "Fazam Football Academy"}
-                  </p>
-                  <p>{Utils?.academy?.address || "Kimathi Street, Nairobi"}</p>
-                  <p>
-                    {Utils?.academy?.contactEmail ||
-                      "academy@fazamfootball.org"}
-                  </p>
-                  <p>{Utils?.academy?.contactPhone || "0714401466"}</p>
-                </div>
-              </div>
-
-              <div className="space-y-2 text-left md:text-right">
-                <h2 className="text-4xl font-black uppercase tracking-tighter opacity-20 print:opacity-100">
-                  Invoice
-                </h2>
-
-                <p className="text-sm font-medium">
-                  Invoice No:{" "}
-                  <span className="font-mono">{data.invoiceNumber}</span>
-                </p>
-
-                <div className="text-sm text-muted-foreground">
-                  <p>Issued: {formatDate(new Date())}</p>
-                  <p>
-                    Due:{" "}
-                    <span className="font-semibold text-foreground">
-                      {formatDate(new Date(data.dueDate))}
-                    </span>
-                  </p>
-                </div>
-
-                <Badge variant={statusVariant} className="uppercase">
-                  {data.status}
-                </Badge>
-              </div>
-            </section>
-
-            <Separator />
-
-            {/* Billing Info */}
-            <section className="grid gap-8 md:grid-cols-2">
-              <div className="space-y-3">
-                <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                  Billed To
-                </h3>
-
-                <div className="space-y-1 text-sm">
-                  <p className="text-base font-semibold">{fullName}</p>
-                  <p>ID: {data.athleteId}</p>
-                  {data.athlete.email ? <p>{data.athlete.email}</p> : null}
-                  {data.athlete.phoneNumber ? (
-                    <p>{data.athlete.phoneNumber}</p>
-                  ) : null}
-                </div>
-              </div>
-
-              {(data.subscriptionPlan?.name || data.description) && (
-                <div className="space-y-3">
-                  <h3 className="text-sm font-bold uppercase tracking-wider text-muted-foreground">
-                    Notes
-                  </h3>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
-                    {data.subscriptionPlan?.name || ""}
-                    {data.subscriptionPlan?.description ? (
-                      <>
-                        <br />
-                        {data.subscriptionPlan.description}
-                      </>
-                    ) : null}
-                    {data.description ? (
-                      <>
-                        <br />
-                        {data.description}
-                      </>
-                    ) : null}
-                  </p>
-                </div>
+      <div className="grid gap-6 xl:grid-cols-5">
+        <div className="space-y-6 xl:col-span-3">
+          <Panel title="Charges">
+            <ul className="divide-y">
+              {data.lines.map((l) => (
+                <li key={l.id} className="flex items-baseline justify-between gap-4 px-4 py-3">
+                  <span className="min-w-0">
+                    <span className="block font-medium">{l.description}</span>
+                    {l.quantity > 1 && (
+                      <span className="tabular block text-sm text-muted-foreground">
+                        {l.quantity} × {formatCurrency(Number(l.unitAmount))}
+                      </span>
+                    )}
+                  </span>
+                  <span className="tabular shrink-0 font-medium">{formatCurrency(Number(l.amount))}</span>
+                </li>
+              ))}
+            </ul>
+            <dl className="tabular space-y-1.5 border-t bg-muted/30 px-4 py-3 text-sm">
+              {discount > 0 && (
+                <>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Subtotal</dt>
+                    <dd>{formatCurrency(total)}</dd>
+                  </div>
+                  <div className="flex justify-between">
+                    <dt className="text-muted-foreground">Discount{data.coupon ? ` (${data.coupon.name})` : ""}</dt>
+                    <dd>−{formatCurrency(discount)}</dd>
+                  </div>
+                </>
               )}
-            </section>
-
-            {/* Line Items */}
-            <section className="rounded-md border">
-              <Table>
-                <TableHeader className="bg-muted/50">
-                  <TableRow>
-                    <TableHead className="w-12">#</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead className="text-center">Qty</TableHead>
-                    <TableHead className="text-right">Unit Price</TableHead>
-                    <TableHead className="text-right">Discount</TableHead>
-                    <TableHead className="text-right">Total</TableHead>
-                  </TableRow>
-                </TableHeader>
-
-                <TableBody>
-                  <TableRow>
-                    <TableCell>1</TableCell>
-                    <TableCell className="font-medium">
-                      {data.subscriptionPlan?.name ||
-                        data.description ||
-                        "General Services"}
-                    </TableCell>
-                    <TableCell className="text-center">1</TableCell>
-
-                    <TableCell className="text-right font-mono">
-                      KES {formatCurrency(amountDue)}
-                    </TableCell>
-
-                    <TableCell className="text-right font-mono">
-                      KES {formatCurrency(discount)}
-                    </TableCell>
-
-                    <TableCell className="text-right font-mono font-bold">
-                      KES {formatCurrency(totalAfterDiscount)}
-                    </TableCell>
-                  </TableRow>
-                </TableBody>
-              </Table>
-            </section>
-
-            {/* Totals */}
-            <section className="flex justify-end">
-              <div className="w-full space-y-2 md:w-1/3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal</span>
-                  <span className="font-mono">
-                    KES {formatCurrency(amountDue)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Discount</span>
-                  <span className="font-mono">
-                    - KES {formatCurrency(discount)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-sm font-medium">
-                  <span>Total</span>
-                  <span className="font-mono">
-                    KES {formatCurrency(totalAfterDiscount)}
-                  </span>
-                </div>
-
-                <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Paid</span>
-                  <span className="font-mono text-success">
-                    KES {formatCurrency(amountPaid)}
-                  </span>
-                </div>
-
-                <Separator />
-
-                <div className="flex justify-between text-lg font-bold">
-                  <span>Balance</span>
-                  <span className="font-mono">
-                    KES {formatCurrency(balance)}
-                  </span>
-                </div>
+              <div className="flex justify-between text-base font-semibold">
+                <dt>Total</dt>
+                <dd>{formatCurrency(total - discount)}</dd>
               </div>
-            </section>
+            </dl>
+            {data.notes && <p className="border-t px-4 py-3 text-sm whitespace-pre-line text-muted-foreground">{data.notes}</p>}
+          </Panel>
 
-            {/* Payment Instructions */}
-            <section className="rounded-lg bg-muted/30 p-4">
-              <h4 className="mb-2 text-xs font-bold uppercase">
-                Payment Instructions
-              </h4>
-              <p className="text-sm text-muted-foreground">
-                {Utils?.academy?.paymentMethodType || "Mpesa Send money:"}
-                <span className="ml-2 font-mono font-bold text-foreground">
-                  {Utils?.academy?.paymentMathod || "0714401466"}
-                </span>
-              </p>
-            </section>
+          <Panel title="Payments">
+            {data.finances.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted-foreground">No payments yet.</p>
+            ) : (
+              <ul className="divide-y">
+                {data.finances.map((p) => (
+                  <li key={p.id} className="flex items-center justify-between gap-4 px-4 py-3">
+                    <span className="grid min-w-0 leading-tight">
+                      <span className="font-medium">{METHOD_LABEL[p.paymentType]}</span>
+                      <span className="truncate text-sm text-muted-foreground">
+                        {day(p.paymentDate)} · <span className="font-mono text-xs">{p.receiptNumber}</span>
+                      </span>
+                    </span>
+                    <span className="tabular shrink-0 font-medium text-success">{formatCurrency(p.amountPaid)}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </Panel>
+        </div>
 
-            {/* Footer */}
-            <p className="pt-8 text-center text-[10px] italic text-muted-foreground">
-              This invoice is system-generated. Contact the administrator for
-              discrepancies.
-            </p>
-          </CardContent>
-        </Card>
+        <div className="xl:col-span-2">
+          <Panel title="History">
+            <ol className="divide-y">
+              {data.auditLogs.map((h) => (
+                <li key={h.id} className="px-4 py-3 text-sm">
+                  <p>{h.details}</p>
+                  {changesOf(h.changes) && <p className="tabular">{changesOf(h.changes)}</p>}
+                  <p className="text-muted-foreground">
+                    {h.user?.name ?? "System"} · {when(h.createdAt)}
+                  </p>
+                </li>
+              ))}
+              <li className="px-4 py-3 text-sm">
+                <p>Issued</p>
+                <p className="text-muted-foreground">
+                  {issuer} · {when(data.createdAt)}
+                </p>
+              </li>
+            </ol>
+          </Panel>
+        </div>
       </div>
     </div>
   );
-};
-
-export default ViewInvoicePage;
+}

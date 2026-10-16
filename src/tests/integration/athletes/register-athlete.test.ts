@@ -81,6 +81,9 @@ describe("registering an athlete", () => {
     ]);
     expect(a.athleteSubscriptions).toHaveLength(1);
     expect(a.invoices.map((i) => [i.type, Number(i.amountDue), i.status])).toEqual([["SUBSCRIPTION", 4000, "PENDING"]]);
+    const [line] = await db.invoiceLine.findMany({ include: { invoice: { select: { subscriptionPlanId: true } } } });
+    expect(line).toMatchObject({ description: expect.stringMatching(/^Monthly \d+$/), quantity: 1 });
+    expect([Number(line.amount), line.subscriptionPlanId]).toEqual([4000, line.invoice.subscriptionPlanId]);
     expect(await db.auditLog.count({ where: { action: "CREATE_ATHLETE", userId: user.id, athleteId: a.id } })).toBe(1);
   });
 

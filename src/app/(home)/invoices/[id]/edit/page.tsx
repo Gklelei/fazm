@@ -1,25 +1,40 @@
-import { db } from "@/lib/prisma";
-import { EditInvoiceQuery } from "@/features/invoices/queries";
-import EditInvoice from "@/features/invoices/components/EditInvoice";
-import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { notFound, redirect } from "next/navigation";
+import { db } from "@/lib/prisma";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { academyDate } from "@/lib/academy-time";
+import { athleteName } from "@/features/athletes/lib/names";
+import { InvoiceForm } from "@/features/invoices/components/InvoiceForm";
 
-export const metadata: Metadata = { title: "Edit Invoice" };
+export const metadata: Metadata = { title: "Edit invoice" };
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-
-const page = async ({ params }: Props) => {
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
+  const inv = await db.invoice.findFirst({
+    where: { OR: [{ invoiceNumber: id }, { id }] },
+    include: { lines: { orderBy: { position: "asc" } }, athlete: { select: { firstName: true, middleName: true, lastName: true } } },
+  });
+  if (!inv) notFound();
+  if (inv.status === "CANCELED") redirect(`/invoices/${inv.invoiceNumber}`);
 
-  const invoice = await db.invoice.findUnique(EditInvoiceQuery(id));
-
-  if (!invoice) return notFound();
-
-  const safeInvoice = JSON.parse(JSON.stringify(invoice));
-
-  return <EditInvoice data={safeInvoice} />;
-};
-
-export default page;
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader title={`Edit ${inv.invoiceNumber}`} description={athleteName(inv.athlete)} />
+      <InvoiceForm
+        invoiceNumber={inv.invoiceNumber}
+        defaultDue={academyDate(inv.dueDate)}
+        values={{
+          type: inv.type,
+          dueDate: academyDate(inv.dueDate),
+          notes: inv.notes ?? "",
+          lines: inv.lines.map((l) => ({
+            description: l.description,
+            quantity: l.quantity,
+            unitAmount: Number(l.unitAmount),
+            subscriptionPlanId: l.subscriptionPlanId ?? undefined,
+          })),
+        }}
+      />
+    </div>
+  );
+}

@@ -102,6 +102,7 @@ export async function makeInvoice(athleteId: string, amountDue = 4000, extra: Pa
       dueDate: extra.dueDate ?? new Date(Date.now() + 7 * 86_400_000),
       type: extra.type ?? "MANUAL",
       description: extra.description ?? "October fees",
+      lines: { create: { position: 0, description: extra.description ?? "October fees", quantity: 1, unitAmount: amountDue, amount: amountDue } },
     },
   });
 }

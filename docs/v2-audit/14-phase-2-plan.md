@@ -349,6 +349,27 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
 - **Later:** day-only dates elsewhere (registered, payments) still use the server's zone; fix
   them as each area is reworked.
 
+**Invoices (Stage 1, item 4): done 2026-10-16.**
+- **Invoices have lines** (`invoice_lines`): description, quantity and unit price, up to 20.
+  The migration copies each existing invoice into one line, so totals are unchanged. The
+  invoice's own amount is the sum of its lines; its description is a summary for lists.
+- **One page for creating and editing:**
+  - who: chosen athletes and/or whole batches (deactivated athletes are skipped; each athlete
+    is billed once), with the number of invoices shown before saving;
+  - charges: type, lines, and one-tap lines from the fee plans;
+  - due date (the end of that day, Nairobi time) and notes.
+- **Editing** can't take an invoice below its discount or what's been paid, recalculates the
+  status, and is refused for a cancelled invoice. Every edit logs what changed.
+- **The invoice page:** total, paid, balance and due at the top; charges; payments; history
+  (edits, payments, cancelling, with what changed). Pay, edit, PDF, coupon and cancel/restore
+  are on the page.
+- **Discounts count everywhere:** list balances, the "still owed" total and the export.
+- **Links use the invoice number;** old links by id still open.
+- **The invoice PDF** lists the lines and shows issue and due dates in Nairobi time.
+- **Invoice numbers take the Nairobi day,** so an invoice raised between midnight and 3am isn't dated
+  the day before.
+- **Deploy:** run `yarn db:deploy` (this adds `invoice_lines`) before starting the new code.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:

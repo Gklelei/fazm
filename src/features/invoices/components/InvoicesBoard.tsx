@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
+import { LoadMore } from "@/components/shared/LoadMore";
 import { format, isPast } from "date-fns";
 import { FilePlus2, Loader2, RefreshCcw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -35,6 +35,7 @@ import { cn } from "@/lib/utils";
 import { athleteName } from "@/features/athletes/lib/names";
 import type { InvoiceFilters, InvoiceListRow, InvoicesPage } from "../queries/list";
 import { InvoiceRowActions } from "./InvoiceRowActions";
+import { invoiceBalance } from "../lib/status";
 
 const ALL = "all";
 const STATUSES = ["PENDING", "PARTIAL", "OVERDUE", "PAID", "CANCELED"] as const;
@@ -53,7 +54,7 @@ const params = (f: InvoiceFilters) => {
 
 /** Balance, red when the invoice is overdue. */
 function Balance({ invoice }: { invoice: InvoiceListRow }) {
-  const balance = Math.max(invoice.amountDue - invoice.amountPaid, 0);
+  const balance = invoiceBalance(invoice);
   if (invoice.status === "CANCELED") return <span className="text-muted-foreground">—</span>;
   return (
     <span className={cn(balance > 0 && invoice.status === "OVERDUE" && "text-destructive", balance === 0 && "text-muted-foreground")}>
@@ -98,16 +99,11 @@ export default function InvoicesBoard({
   const invoices = useMemo(() => data?.pages.flatMap((p) => p.items) ?? [], [data]);
   const summary = data?.pages[0]?.summary;
 
-  const { ref, inView } = useInView({ rootMargin: "400px" });
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) fetchNextPage();
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
   return (
     <div className="space-y-6">
       <PageHeader
         title="Invoices"
-        description="Fees billed to athletes. Payments are recorded against an invoice and update its balance."
+        description="Bill athletes and follow up what they owe."
         actions={
           <>
             <ExportDropdown<ExportInvoice>
@@ -124,7 +120,7 @@ export default function InvoicesBoard({
                 i.subscriptionPlan?.name ?? i.description ?? "",
                 String(Number(i.amountDue)),
                 String(Number(i.amountPaid)),
-                String(Math.max(Number(i.amountDue) - Number(i.amountPaid), 0)),
+                String(invoiceBalance(i)),
                 i.status,
               ]}
             />
@@ -143,7 +139,7 @@ export default function InvoicesBoard({
           <StatCard label="Collected" value={formatCurrency(summary.paid)} tone="success" />
           <StatCard
             label="Still owed"
-            value={formatCurrency(Math.max(summary.due - summary.paid, 0))}
+            value={formatCurrency(invoiceBalance({ amountDue: summary.due, amountPaid: summary.paid }))}
             tone={summary.due > summary.paid ? "danger" : "default"}
             className="col-span-2 lg:col-span-1"
           />
@@ -229,7 +225,7 @@ export default function InvoicesBoard({
             <ul className="divide-y md:hidden">
               {invoices.map((i) => (
                 <li key={i.id} className="flex items-start justify-between gap-3 px-4 py-3">
-                  <Link href={`/invoices/${i.id}`} className="min-w-0 space-y-1">
+                  <Link href={`/invoices/${i.invoiceNumber}`} className="min-w-0 space-y-1">
                     <p className="truncate font-medium">{athleteName(i.athlete)}</p>
                     <p className="font-mono text-xs text-muted-foreground">
                       {i.invoiceNumber} · due {format(new Date(i.dueDate), "d MMM")}
@@ -264,7 +260,7 @@ export default function InvoicesBoard({
                   {invoices.map((i) => (
                     <TableRow key={i.id} className={cn(i.status === "CANCELED" && "text-muted-foreground")}>
                       <TableCell className="pl-4">
-                        <Link href={`/invoices/${i.id}`} className="grid leading-tight hover:underline">
+                        <Link href={`/invoices/${i.invoiceNumber}`} className="grid leading-tight hover:underline">
                           <span className="font-mono text-sm">{i.invoiceNumber}</span>
                           <span className="truncate text-xs text-muted-foreground">
                             {i.subscriptionPlan?.name ?? i.description ?? "Manual invoice"}
@@ -296,15 +292,14 @@ export default function InvoicesBoard({
               </Table>
             </div>
 
-            <div ref={ref} className="flex h-14 items-center justify-center border-t text-sm text-muted-foreground">
-              {isFetchingNextPage ? (
-                <span className="inline-flex items-center gap-2"><Loader2 className="size-4 animate-spin" /> Loading more</span>
-              ) : hasNextPage ? (
-                <Button variant="ghost" size="sm" onClick={() => fetchNextPage()}>Load more</Button>
-              ) : (
-                <span className="tabular">{invoices.length} invoice{invoices.length === 1 ? "" : "s"}</span>
-              )}
-            </div>
+            <LoadMore
+              shown={invoices.length}
+              total={summary?.count}
+              noun={["invoice", "invoices"]}
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={fetchNextPage}
+            />
           </>
         )}
       </section>
