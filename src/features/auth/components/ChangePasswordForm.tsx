@@ -1,52 +1,15 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Loader2, LogOut } from "lucide-react";
+import { Loader2, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { authClient } from "@/lib/auth-client";
 import { passwordProblem } from "@/lib/password-policy";
+import { AuthCard, FormError } from "./AuthCard";
+import { PasswordInput } from "./PasswordInput";
 import { PasswordRules } from "./PasswordRules";
-
-const field =
-  "h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/30 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10";
-
-function PasswordInput({
-  id,
-  value,
-  onChange,
-  autoComplete,
-}: {
-  id: string;
-  value: string;
-  onChange: (v: string) => void;
-  autoComplete: string;
-}) {
-  const [show, setShow] = useState(false);
-  return (
-    <div className="relative">
-      <Input
-        id={id}
-        type={show ? "text" : "password"}
-        autoComplete={autoComplete}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className={field}
-      />
-      <button
-        type="button"
-        onClick={() => setShow((s) => !s)}
-        className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/40 hover:text-white/80"
-        aria-label={show ? "Hide password" : "Show password"}
-      >
-        {show ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
-      </button>
-    </div>
-  );
-}
 
 export default function ChangePasswordForm({ name, required }: { name: string; required: boolean }) {
   const router = useRouter();
@@ -55,29 +18,29 @@ export default function ChangePasswordForm({ name, required }: { name: string; r
   const [confirm, setConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [saving, start] = useTransition();
+  const mismatch = confirm.length > 0 && next !== confirm;
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
-    const problem = passwordProblem(next);
     if (!current) return setError("Enter your current password.");
+    const problem = passwordProblem(next);
     if (problem) return setError(problem);
-    if (next !== confirm) return setError("The new passwords don't match.");
+    if (next !== confirm) return setError("The two new passwords don't match.");
     if (next === current) return setError("Choose a password you haven't used here before.");
-    setError(null);
 
     start(async () => {
+      setError(null);
       const { error: err } = await authClient.changePassword({
         currentPassword: current,
         newPassword: next,
         revokeOtherSessions: true,
       });
       if (err) {
-        setError(
-          err.code === "INVALID_PASSWORD" ? "Your current password is wrong." : err.message ?? "Couldn't change the password.",
-        );
-        return;
+        if (err.code === "INVALID_PASSWORD") return setError("Your current password is wrong.");
+        if (err.status === 429) return setError("Too many attempts. Wait a minute, then try again.");
+        return setError(err.status === 400 && err.message ? err.message : "We couldn't change the password. Try again.");
       }
-      // Re-read the session so the lock lifts immediately
+      // Re-read the session so the must-change lock lifts straight away
       await authClient.getSession({ query: { disableCookieCache: true } });
       router.replace("/");
       router.refresh();
@@ -85,63 +48,52 @@ export default function ChangePasswordForm({ name, required }: { name: string; r
   };
 
   return (
-    <div className="relative z-10 w-full max-w-md space-y-7 rounded-3xl border border-white/10 bg-white/5 px-8 py-10 shadow-2xl backdrop-blur-xl">
-      <div className="flex flex-col items-center gap-3 text-center">
-        <Image src="/fazam-logo.webp" alt="" width={64} height={64} className="drop-shadow-2xl" />
-        <div className="space-y-1.5">
-          <h1 className="font-display text-2xl font-bold tracking-wide text-white uppercase">
-            {required ? "Set a new password" : "Change password"}
-          </h1>
-          <p className="text-sm text-white/60">
-            {required
-              ? `${name.split(" ")[0]}, the academy now requires stronger passwords. Set a new one to continue.`
-              : "Choose a new password for your account."}
-          </p>
+    <AuthCard
+      title={required ? "Set a new password" : "Change password"}
+      description={
+        required
+          ? `${name.split(" ")[0]}, the academy now requires stronger passwords. Set a new one to continue.`
+          : "Choose a new password. You'll be signed out on your other devices."
+      }
+    >
+      <form onSubmit={submit} className="space-y-5" noValidate>
+        <FormError message={error} />
+        <div className="grid gap-2">
+          <Label htmlFor="current">Current password</Label>
+          <PasswordInput id="current" value={current} onChange={(e) => setCurrent(e.target.value)} autoComplete="current-password" autoFocus />
         </div>
-      </div>
-
-      <form onSubmit={submit} className="space-y-4" noValidate>
-        <div className="grid gap-1.5">
-          <Label htmlFor="current" className="text-white/80">Current password</Label>
-          <PasswordInput id="current" value={current} onChange={setCurrent} autoComplete="current-password" />
+        <div className="grid gap-2">
+          <Label htmlFor="new">New password</Label>
+          <PasswordInput id="new" value={next} onChange={(e) => setNext(e.target.value)} autoComplete="new-password" />
+          <PasswordRules value={next} />
         </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="new" className="text-white/80">New password</Label>
-          <PasswordInput id="new" value={next} onChange={setNext} autoComplete="new-password" />
-          <PasswordRules value={next} tone="onDark" />
+        <div className="grid gap-2">
+          <Label htmlFor="confirm">Confirm new password</Label>
+          <PasswordInput
+            id="confirm"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+            autoComplete="new-password"
+            aria-invalid={mismatch || undefined}
+          />
+          {mismatch && <p className="text-sm text-destructive">Doesn&apos;t match the new password yet.</p>}
         </div>
-        <div className="grid gap-1.5">
-          <Label htmlFor="confirm" className="text-white/80">Confirm new password</Label>
-          <PasswordInput id="confirm" value={confirm} onChange={setConfirm} autoComplete="new-password" />
-        </div>
-
-        {error && (
-          <p role="alert" className="rounded-md border border-destructive/40 bg-destructive/15 px-3 py-2 text-sm text-white">
-            {error}
-          </p>
-        )}
-
-        <Button
-          type="submit"
-          disabled={saving}
-          className="h-11 w-full bg-brand-gold font-semibold text-brand-navy hover:bg-brand-gold/90"
-        >
+        <Button type="submit" disabled={saving} className="h-12 w-full text-base">
           {saving && <Loader2 className="animate-spin" />}
           Save new password
         </Button>
-        <p className="text-center text-xs text-white/40">You&apos;ll be signed out on your other devices.</p>
+        <Button
+          type="button"
+          variant="ghost"
+          className="w-full text-muted-foreground"
+          onClick={async () => {
+            await authClient.signOut();
+            router.replace("/sign-in");
+          }}
+        >
+          <LogOut /> {required ? "Sign out instead" : "Cancel and sign out"}
+        </Button>
       </form>
-
-      <button
-        type="button"
-        onClick={async () => {
-          await authClient.signOut();
-          router.replace("/sign-in");
-        }}
-        className="mx-auto flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70"
-      >
-        <LogOut className="size-3" /> Sign out instead
-      </button>
-    </div>
+    </AuthCard>
   );
 }

@@ -260,7 +260,6 @@ const StaffProfilePage = ({ data }: Props) => {
               <div>
                 <SendPasswordResetLinkButton
                   className="w-full md:grid-cols-2"
-                  showEmailPopUp={false}
                   buttonText="Change Password"
                   email={data.email}
                 />

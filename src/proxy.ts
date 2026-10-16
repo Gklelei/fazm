@@ -19,7 +19,7 @@ export const config = {
      * - files served from /public (images etc.) — otherwise a logged-out
      *   request for /fazam-logo.webp is redirected to /sign-in and breaks
      */
-    "/((?!api/auth|api/cron-jobs|api/health|_next/static|_next/image|favicon.ico|uploads|sign-in|res-password|.*\\.(?:png|jpe?g|gif|svg|webp|ico|txt)$).*)",
+    "/((?!api/auth|api/cron-jobs|api/health|_next/static|_next/image|favicon.ico|uploads|sign-in|forgot-password|res-password|.*\\.(?:png|jpe?g|gif|svg|webp|ico|txt)$).*)",
   ],
 };
 
@@ -53,9 +53,10 @@ export async function proxy(request: NextRequest) {
   if (!session?.user) {
     // API handlers answer 401 themselves
     if (isApi) return withAuthCookies(NextResponse.next());
-    return withAuthCookies(
-      NextResponse.redirect(new URL("/sign-in", request.url)),
-    );
+    // Come back to this page after signing in (checked by safeNext there)
+    const signIn = new URL("/sign-in", request.url);
+    if (pathname !== "/") signIn.searchParams.set("next", pathname + request.nextUrl.search);
+    return withAuthCookies(NextResponse.redirect(signIn));
   }
 
   // Until the password meets the policy, the account can do nothing else

@@ -1,182 +1,107 @@
 "use client";
 
-import { useForm } from "react-hook-form";
-import { signInSchema, signInSchemaType } from "@/features/auth/schemas";
+import { useState, useTransition } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { CheckCircle2, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useState, useTransition } from "react";
-import { signIn } from "@/lib/auth-client";
-import { Sweetalert } from "@/lib/alerts";
-import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
-import { Eye, EyeOff } from "lucide-react";
-import SendPasswordResetLinkButton from "@/features/auth/components/SendPasswordResetLinkButton";
-import Image from "next/image";
-import { AuthBackground } from "@/components/shared/AuthBackground";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { authClient } from "@/lib/auth-client";
+import { signInSchema, type signInSchemaType } from "@/features/auth/schemas";
+import { AuthCard, FormError } from "./AuthCard";
+import { PasswordInput } from "./PasswordInput";
 
-const SignInForm = () => {
-  const [isPending, startTransition] = useTransition();
-  const [showPassword, setShowPassword] = useState(false);
+/** Plain words for what better-auth reports; never its raw message. */
+function signInProblem(error: { code?: string; status?: number }) {
+  if (error.status === 429) return "Too many attempts. Wait a minute, then try again.";
+  if (error.code === "INVALID_EMAIL_OR_PASSWORD") return "That email and password don't match. Check both and try again.";
+  if (error.code === "FAILED_TO_CREATE_SESSION") return "This account has been deactivated. Ask an administrator to restore it.";
+  return "We couldn't sign you in. Check your connection and try again.";
+}
 
+export default function SignInForm({ next, passwordReset }: { next: string; passwordReset: boolean }) {
+  const router = useRouter();
+  const [error, setError] = useState<string | null>(null);
+  const [pending, start] = useTransition();
   const form = useForm<signInSchemaType>({
     resolver: zodResolver(signInSchema),
     defaultValues: { email: "", password: "" },
   });
 
-  const handleSubmit = async (data: signInSchemaType) => {
-    startTransition(async () => {
-      const { error } = await signIn.email({
-        email: data.email,
-        password: data.password,
-        callbackURL: "/",
-      });
-
-      if (error) {
-        Sweetalert({
-          icon: "error",
-          text:
-            error.code === "FAILED_TO_CREATE_SESSION"
-              ? "This account has been deactivated. Contact an administrator."
-              : (error.message as string) || "Couldn't sign you in. Try again.",
-          title: "Authentication failed",
-          showCloseButton: true,
-        });
+  const submit = (data: signInSchemaType) =>
+    start(async () => {
+      setError(null);
+      const { error: err } = await authClient.signIn.email(data);
+      if (err) {
+        setError(signInProblem(err));
+        form.setValue("password", "");
+        form.setFocus("password");
         return;
       }
-
-      Sweetalert({ icon: "success", text: "Welcome back!", title: "Success!" });
-      form.reset();
+      router.replace(next);
+      router.refresh();
     });
-  };
+
+  const email = (useWatch({ control: form.control, name: "email" }) ?? "").trim();
 
   return (
-    /* Full-page background — Fazam hero image, single unified overlay */
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-      <AuthBackground />
+    <AuthCard title="Staff sign in" description="For Fazam coaches, finance and administrators.">
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(submit)} className="space-y-5" noValidate>
+          {passwordReset && !error && (
+            <Alert className="border-success/40 bg-success/5 text-success">
+              <CheckCircle2 />
+              <AlertDescription className="text-foreground">Your password was changed. Sign in with the new one.</AlertDescription>
+            </Alert>
+          )}
+          <FormError message={error} />
 
-      {/* Centered form card */}
-      <div className="relative z-10 w-full max-w-md space-y-8 rounded-3xl border border-white/10 bg-white/5 px-8 py-10 shadow-2xl backdrop-blur-xl">
-        {/* Logo + brand */}
-        <div className="flex flex-col items-center gap-2">
-          <Image
-            src="/fazam-logo.webp"
-            alt="Fazam Football Academy"
-            width={80}
-            height={80}
-            className="drop-shadow-2xl"
+          <FormField
+            name="email"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Email address</FormLabel>
+                <FormControl>
+                  <Input {...field} type="email" autoComplete="username" inputMode="email" autoFocus className="h-12 text-base" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
           />
-          <div className="text-center">
-            <p className="text-base font-black uppercase tracking-widest text-white">
-              Fazam FC
-            </p>
-            <p className="text-xs uppercase tracking-widest text-brand-gold">
-              Football Academy Portal
-            </p>
-          </div>
-        </div>
 
-        <div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-white">
-            Welcome back
-          </h2>
-          <p className="mt-1 text-sm text-white/50">
-            Sign in to your academy dashboard
-          </p>
-        </div>
+          <FormField
+            name="password"
+            control={form.control}
+            render={({ field }) => (
+              <FormItem>
+                <div className="flex items-center justify-between">
+                  <FormLabel>Password</FormLabel>
+                  <Link
+                    href={email ? `/forgot-password?email=${encodeURIComponent(email)}` : "/forgot-password"}
+                    className="text-sm font-medium text-primary underline-offset-4 dark:text-[#9DB1EE] hover:underline"
+                  >
+                    Forgot password?
+                  </Link>
+                </div>
+                <FormControl>
+                  <PasswordInput {...field} autoComplete="current-password" />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
 
-        <Form {...form}>
-          <form
-            onSubmit={form.handleSubmit(handleSubmit)}
-            className="space-y-5"
-          >
-            <FormField
-              name="email"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm font-medium text-white/80">
-                    Email address
-                  </FormLabel>
-                  <FormControl>
-                    <Input
-                      {...field}
-                      type="email"
-                      placeholder="you@example.com"
-                      className="h-11 border-white/10 bg-white/10 text-white placeholder:text-white/30 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10"
-                    />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              name="password"
-              control={form.control}
-              render={({ field }) => (
-                <FormItem>
-                  <div className="flex items-center justify-between">
-                    <FormLabel className="text-sm font-medium text-white/80">
-                      Password
-                    </FormLabel>
-                    <SendPasswordResetLinkButton
-                      showEmailPopUp={true}
-                      redirectTo="/res-password"
-                      className="h-auto p-0 text-xs text-brand-gold hover:text-brand-gold/80 transition-colors"
-                      buttonText="Forgot password?"
-                    />
-                  </div>
-                  <FormControl>
-                    <div className="relative">
-                      <Input
-                        {...field}
-                        type={showPassword ? "text" : "password"}
-                        placeholder="••••••••"
-                        className="h-11 border-white/10 bg-white/10 pr-10 text-white placeholder:text-white/30 focus-visible:border-brand-gold/60 focus-visible:ring-brand-gold/10"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword((p) => !p)}
-                        className="absolute inset-y-0 right-0 flex items-center pr-3 text-white/40 hover:text-white/80"
-                        tabIndex={-1}
-                      >
-                        {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
-                        ) : (
-                          <Eye className="h-4 w-4" />
-                        )}
-                      </button>
-                    </div>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            <Button
-              type="submit"
-              disabled={isPending}
-              className="h-11 w-full bg-brand-gold font-semibold text-brand-navy shadow-lg shadow-brand-gold/10 hover:bg-brand-gold/90 active:scale-[0.98] transition-all"
-            >
-              {isPending ? <Loader2Spinner /> : "Sign in →"}
-            </Button>
-          </form>
-        </Form>
-
-        <p className="text-center text-xs text-white/30">
-          Having trouble? Contact your system administrator.
-        </p>
-      </div>
-    </div>
+          <Button type="submit" disabled={pending} className="h-12 w-full text-base">
+            {pending && <Loader2 className="animate-spin" />}
+            {pending ? "Signing in…" : "Sign in"}
+          </Button>
+        </form>
+      </Form>
+    </AuthCard>
   );
-};
-
-export default SignInForm;
+}

@@ -3,10 +3,8 @@ import { inferAdditionalFields } from "better-auth/client/plugins";
 import type { auth } from "./auth";
 
 export const authClient = createAuthClient({
-  baseURL:
-    process.env.NODE_ENV === "production"
-      ? (process.env.BETTER_AUTH_URL as string)
-      : "http://localhost:3000",
+  // No baseURL: in the browser better-auth uses the page's own address, so
+  // any host or port works and no server-only env var reaches the client.
   // Types server-only user fields (e.g. `role`) on the client session
   plugins: [inferAdditionalFields<typeof auth>()],
 });

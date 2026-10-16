@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AuthBackground } from "@/components/shared/AuthBackground";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -12,15 +11,6 @@ export default async function Page() {
     headers: await headers(),
     query: { disableCookieCache: true },
   });
-  if (!session) redirect("/sign-in");
-
-  return (
-    <div className="relative flex min-h-screen items-center justify-center px-4 py-12">
-      <AuthBackground />
-      <ChangePasswordForm
-        name={session.user.name}
-        required={!!session.user.mustChangePassword}
-      />
-    </div>
-  );
+  if (!session) redirect("/sign-in?next=/change-password");
+  return <ChangePasswordForm name={session.user.name} required={!!session.user.mustChangePassword} />;
 }
