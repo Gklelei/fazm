@@ -11,6 +11,7 @@ import { db } from "@/lib/prisma";
 import { INVOICE_TYPE } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 interface Props {
   data: CreateInvoiceSchemaType;
@@ -74,7 +75,7 @@ const EditInvoiceAction = async ({
       });
 
       if (!existingInvoice) {
-        throw new Error("Invoice does not exist");
+        throw new ActionError("Invoice does not exist");
       }
 
       const subAmount = parseFloat(parsedData.subScriptionAmount);
@@ -130,7 +131,7 @@ const EditInvoiceAction = async ({
     console.error("EditInvoiceAction Error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

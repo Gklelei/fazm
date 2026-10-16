@@ -8,6 +8,7 @@ import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 import { Prisma } from "@/generated/prisma/client";
+import { actionErrorMessage } from "@/lib/action";
 
 type ActionResult = {
   success: boolean;
@@ -311,7 +312,7 @@ export const ApplyCouponToInvoice = async ({
     return {
       success: false,
       status: 500,
-      message: e instanceof Error ? e.message : "Internal server error",
+      message: actionErrorMessage(e),
     };
   }
 };

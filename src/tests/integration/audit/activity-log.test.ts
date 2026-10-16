@@ -6,7 +6,7 @@ import createFinancialTransaction from "@/features/finance/actions/create-transa
 import deleteFinancialTransaction from "@/features/finance/actions/delete-transaction";
 import { UpdateSubscriptionPlan } from "@/features/finance/actions/edit-plan";
 import { CreateExpenseCategoryAction } from "@/features/expenses/actions/expense-categories";
-import { EditStaffProfile } from "@/features/staff/actions/edit-staff";
+import { AdminDeleteStaff, EditStaffProfile } from "@/features/staff/actions/edit-staff";
 
 describe("activity log entries", () => {
   beforeEach(resetDb);
@@ -51,8 +51,17 @@ describe("activity log entries", () => {
     expect(entry.athleteId).toBe(athlete.id);
   });
 
+  it("link an athlete by either their record id or public number", async () => {
+    const athlete = await makeAthlete();
+    await createAuditLog({ action: "X", resource: "Y", athleteId: athlete.athleteId });
+    await createAuditLog({ action: "X", resource: "Y", athleteId: athlete.id });
+    await createAuditLog({ action: "X", resource: "Y", athleteId: "no-such-athlete" });
+    const rows = await db.auditLog.findMany({ orderBy: { createdAt: "asc" } });
+    expect(rows.map((r) => r.athleteId)).toEqual([athlete.id, athlete.id, null]);
+  });
+
   it("never fail the change when the log can't be written", async () => {
-    await expect(createAuditLog({ action: "X", resource: "Y", athleteId: "no-such-athlete" })).resolves.toBeUndefined();
+    await expect(createAuditLog({ action: "X", resource: "Y", userId: "no-such-user" })).resolves.toBeUndefined();
     expect(await db.auditLog.count()).toBe(0);
   });
 
@@ -74,5 +83,18 @@ describe("own profile", () => {
     const res = await EditStaffProfile({ id: other.id, data: { fullNames: "Hacked", phoneNumber: "+254700000001", profilePicture: "" } as never });
     expect(res).toMatchObject({ success: false, message: "You can only edit your own profile." });
     expect((await db.user.findUniqueOrThrow({ where: { id: other.id } })).name).not.toBe("Hacked");
+  });
+});
+
+describe("archiving a staff member", () => {
+  beforeEach(resetDb);
+
+  it("signs them out everywhere", async () => {
+    const { user: coach, staff } = await signedIn("COACH");
+    await db.session.create({ data: { userId: coach.id, token: "t1", expiresAt: new Date(Date.now() + 3_600_000) } });
+    await signedIn("ADMIN");
+    expect((await AdminDeleteStaff({ staffId: staff!.staffId })).success).toBe(true);
+    expect(await db.session.count({ where: { userId: coach.id } })).toBe(0);
+    expect((await db.user.findUniqueOrThrow({ where: { id: coach.id } })).isArchived).toBe(true);
   });
 });

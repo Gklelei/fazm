@@ -7,6 +7,7 @@ import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 export const DeleteAssessmentSection = async (
   id: string,
@@ -35,11 +36,11 @@ export const DeleteAssessmentSection = async (
       });
 
       if (!section) {
-        throw new Error("Assessment section does not exist");
+        throw new ActionError("Assessment section does not exist");
       }
 
       if (section.isArchived) {
-        throw new Error("Section is already archived");
+        throw new ActionError("Section is already archived");
       }
 
       await ctx.assessmentTemplateSection.update({
@@ -66,7 +67,7 @@ export const DeleteAssessmentSection = async (
     console.error("Archive Error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

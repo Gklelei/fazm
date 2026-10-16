@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const CreateSubscriptionFees = async (
   data: SubscriptionsSchemaType,
@@ -100,7 +101,7 @@ export const CreateSubscriptionFees = async (
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

@@ -1,10 +1,31 @@
 import "server-only";
 import { headers } from "next/headers";
+import { ZodError } from "zod";
+import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
 import { FORBIDDEN_MESSAGE, hasRole, type RoleGroup } from "@/lib/roles";
 
 /** A problem worth telling the user about; its message is shown as is. */
 export class ActionError extends Error {}
+
+const GENERIC = "Something went wrong and nothing was saved. Try again.";
+
+/**
+ * What to tell the user about a failed action: our own ActionError messages,
+ * the first form problem, or plain words for common database errors. Anything
+ * else (a raw database or library message) stays in the server log.
+ */
+export function actionErrorMessage(error: unknown): string {
+  if (error instanceof ActionError) return error.message;
+  if (error instanceof ZodError) return error.issues[0]?.message ?? "Check the form and try again.";
+  if (error instanceof Prisma.PrismaClientKnownRequestError) {
+    if (error.code === "P2002") return "That already exists. Use a different name or number.";
+    if (error.code === "P2025") return "That record no longer exists. Refresh the page.";
+    if (error.code === "P2003") return "That's still linked to other records, so it can't be changed this way.";
+  }
+  console.error(error);
+  return GENERIC;
+}
 
 type User = { id: string; name: string; role?: string | null };
 
@@ -23,8 +44,6 @@ export async function asRole<T extends ActionResult>(
   try {
     return await run(session.user);
   } catch (error) {
-    if (error instanceof ActionError) return { success: false, message: error.message };
-    console.error(error);
-    return { success: false, message: "Something went wrong and nothing was saved. Try again." };
+    return { success: false, message: actionErrorMessage(error) };
   }
 }

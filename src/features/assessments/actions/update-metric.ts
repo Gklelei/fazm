@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 export const UpdateAssesmentMetric = async (
   id: string,
@@ -32,7 +33,9 @@ export const UpdateAssesmentMetric = async (
     };
   }
 
-  const { description, metrics, name } = MetricsSchema.parse(data);
+  const input1 = MetricsSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const { description, metrics, name } = input1.data;
 
   try {
     await db.$transaction(async (ctx) => {
@@ -41,7 +44,7 @@ export const UpdateAssesmentMetric = async (
       });
 
       if (!existingSection) {
-        throw new Error("Assessment section not found");
+        throw new ActionError("Assessment section not found");
       }
 
       await ctx.assessmentTemplateSection.update({
@@ -101,7 +104,7 @@ export const UpdateAssesmentMetric = async (
   } catch (error) {
     console.error("Update Error:", error);
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }

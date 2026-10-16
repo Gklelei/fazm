@@ -11,6 +11,7 @@ import {
 } from "@/features/assessments/schemas";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const CreateAssesmentMetricAction = async (
   data: MetricsSchemaType,
@@ -31,7 +32,9 @@ export const CreateAssesmentMetricAction = async (
     };
   }
 
-  const parsedData = MetricsSchema.parse(data);
+  const input1 = MetricsSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const parsedData = input1.data;
 
   try {
     const section = await db.$transaction(async (ctx) => {
@@ -71,7 +74,7 @@ export const CreateAssesmentMetricAction = async (
     if (error instanceof Error) {
       return {
         success: false,
-        message: error.message,
+        message: actionErrorMessage(error),
       };
     }
     return {

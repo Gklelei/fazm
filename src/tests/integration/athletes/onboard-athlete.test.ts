@@ -82,17 +82,17 @@ describe("registering an athlete", () => {
     expect((await AthleteOnboardingAction(data)).status).toBe("ERROR");
   });
 
-  // Known bugs, kept visible: these pass while the bug exists and fail once it's fixed.
-  it.fails("KNOWN BUG: saves the passport cover and bio-data page in the right fields", async () => {
+  it("saves the passport cover and bio-data page in the right fields", async () => {
     await signedIn("ADMIN");
     await AthleteOnboardingAction(await form());
     const a = await db.athlete.findFirstOrThrow();
     expect([a.passportCover, a.passportBioData]).toEqual(["cover.jpg", "biodata.jpg"]);
   });
 
-  it.fails("KNOWN BUG: answers invalid data with an error instead of throwing", async () => {
+  it("answers invalid data with an error instead of throwing", async () => {
     await signedIn("ADMIN");
     const data = { ...(await form()), firstName: "" };
     await expect(AthleteOnboardingAction(data)).resolves.toMatchObject({ status: "ERROR" });
+    expect(await db.athlete.count()).toBe(0);
   });
 });

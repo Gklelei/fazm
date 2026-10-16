@@ -44,13 +44,18 @@ export async function createAuditLog({
   request?: Pick<Headers, "get">;
 }) {
   try {
-    const [request, user] = await Promise.all([
+    const [request, user, athlete] = await Promise.all([
       // Outside a request (a script) there are no headers; log without them
       given ??
         Promise.resolve()
           .then(() => headers())
           .catch(() => null),
       userId ? db.user.findUnique({ where: { id: userId }, select: { role: true } }) : null,
+      // Payments, invoices and assessments hold the public athlete number
+      // (ATH-FFA-042); the log links the athlete record, so accept either
+      athleteId
+        ? db.athlete.findFirst({ where: { OR: [{ id: athleteId }, { athleteId }] }, select: { id: true } })
+        : null,
     ]);
     await db.auditLog.create({
       data: {
@@ -65,7 +70,7 @@ export async function createAuditLog({
         recordId,
         changes: (changes ?? undefined) as Prisma.InputJsonValue | undefined,
         academyId,
-        athleteId,
+        athleteId: athlete?.id,
         invoiceId,
         trainingId,
         assessmentId,

@@ -13,6 +13,7 @@ import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { createAuditLog } from "@/lib/audit";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 type ActionPromise =
   | { status: "SUCCESS"; successMessage: string }
@@ -103,7 +104,9 @@ const AthleteOnboardingAction = async (
     };
   }
 
-  const validatedData = AthleteOnBoardingSchema.parse(data);
+  const parsed = AthleteOnBoardingSchema.safeParse(data);
+  if (!parsed.success) return { status: "ERROR", errorMessage: actionErrorMessage(parsed.error) };
+  const validatedData = parsed.data;
 
   try {
     const newAthleteId = await db.$transaction(async (ctx) => {
@@ -123,7 +126,7 @@ const AthleteOnboardingAction = async (
       // ---------- Subscription plan (required) ----------
       const subscriptionPlanId = validatedData.subscriptionPlanId;
       if (!subscriptionPlanId) {
-        throw new Error("Subscription plan is required.");
+        throw new ActionError("Subscription plan is required.");
       }
 
       const plan = await ctx.subscriptionPlan.findFirst({
@@ -136,7 +139,7 @@ const AthleteOnboardingAction = async (
       });
 
       if (!plan) {
-        throw new Error("Selected subscription plan is not available.");
+        throw new ActionError("Selected subscription plan is not available.");
       }
 
       const { interval, amount: planAmountRaw, name: planName } = plan;
@@ -167,8 +170,8 @@ const AthleteOnboardingAction = async (
           birthCertificate: validatedData.birthCertificate || "",
           nationalIdBack: validatedData.idBack || "",
           nationalIdFront: validatedData.idFront || "",
-          passportBioData: validatedData.passportCover || "",
-          passportCover: validatedData.passportPage || "",
+          passportCover: validatedData.passportCover || "",
+          passportBioData: validatedData.passportPage || "",
 
           address: {
             create: {
@@ -294,7 +297,7 @@ const AthleteOnboardingAction = async (
     }
 
     if (error instanceof Error) {
-      return { status: "ERROR", errorMessage: error.message };
+      return { status: "ERROR", errorMessage: actionErrorMessage(error) };
     }
 
     return { status: "ERROR", errorMessage: "Internal server error." };

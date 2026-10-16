@@ -7,6 +7,8 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
+import { mayManageSession, NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
 
 export const DeleteTrainingSession = async (
   id: string,
@@ -35,6 +37,9 @@ export const DeleteTrainingSession = async (
         message: "Training session does not exist",
         success: false,
       };
+    }
+    if (!(await mayManageSession(session!.user, existingTrainingSession.staffId))) {
+      return { success: false, message: NOT_YOUR_SESSION };
     }
 
     await db.training.update({
@@ -65,7 +70,7 @@ export const DeleteTrainingSession = async (
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

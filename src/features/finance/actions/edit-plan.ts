@@ -11,6 +11,7 @@ import {
   SubscriptionsSchema,
   SubscriptionsSchemaType,
 } from "@/features/finance/schemas/plans";
+import { actionErrorMessage } from "@/lib/action";
 
 export const UpdateSubscriptionPlan = async ({
   data,
@@ -111,7 +112,7 @@ export const UpdateSubscriptionPlan = async ({
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };
@@ -170,7 +171,7 @@ export const archiveSubscriptionPlan = async (
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

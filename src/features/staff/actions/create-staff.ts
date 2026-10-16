@@ -12,6 +12,8 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { APIError } from "better-auth";
 import { createAuditLog } from "@/lib/audit";
+import { Prisma } from "@/generated/prisma/client";
+import { nextStaffId, STAFF_ID_PREFIX } from "@/features/staff/lib/staff-id";
 
 export const CreateStaffAction = async (
   data: CreateStaffSchemaType,
@@ -64,16 +66,21 @@ export const CreateStaffAction = async (
       data: { role: parsedData.role, mustChangePassword: true },
     });
 
-    const ACADEMY_PREFIX = "STAFF-FFA";
-
-    await db.staff.create({
-      data: {
-        fullNames: parsedData.fullName,
-        userId: user.id,
-        staffId: `${ACADEMY_PREFIX}-${Math.floor(1000 + Math.random() * 9000)}`,
-        phoneNumber: parsedData.phoneNumber,
-      },
-    });
+    // Next number in sequence; if another admin takes it at the same moment, try the next
+    let staffId = "";
+    for (let attempt = 0; !staffId; attempt++) {
+      const taken = await db.staff.findMany({ where: { staffId: { startsWith: STAFF_ID_PREFIX } }, select: { staffId: true } });
+      const candidate = nextStaffId(taken.map((t) => t.staffId));
+      try {
+        await db.staff.create({
+          data: { fullNames: parsedData.fullName, userId: user.id, staffId: candidate, phoneNumber: parsedData.phoneNumber },
+        });
+        staffId = candidate;
+      } catch (error) {
+        const clash = error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002";
+        if (!clash || attempt >= 4) throw error;
+      }
+    }
 
     revalidatePath("/staff");
     lookupsChanged(LOOKUP.coaches);
@@ -81,8 +88,9 @@ export const CreateStaffAction = async (
     await createAuditLog({
       action: "CREATE_STAFF",
       resource: "Staff",
-      details: `Created staff profile for ${parsedData.fullName}`,
+      details: `Created staff profile for ${parsedData.fullName} (${staffId}, ${parsedData.role.toLowerCase()})`,
       userId: session.user.id,
+      recordId: staffId,
     });
 
     return { success: true, message: "User created successfully" };

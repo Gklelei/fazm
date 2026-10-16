@@ -7,11 +7,13 @@ import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { mayManageSession, NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
 
 type SaveAssessmentInput = {
   athleteId: string;
   trainingId: string;
-  coachId: string;
+  /** Ignored: the session's coach is recorded */
+  coachId?: string;
   scores: Record<string, string>;
   comment: string | null;
 };
@@ -30,7 +32,18 @@ export async function saveAssessment(input: SaveAssessmentInput) {
   if (!hasRole(session.user.role, "coaching"))
     return { status: "ERROR", errorMessage: FORBIDDEN_MESSAGE };
 
-  const { athleteId, trainingId, coachId, scores, comment } = input;
+  const { athleteId, trainingId, scores, comment } = input;
+
+  // The assessing coach is the session's coach (input.coachId from the browser
+  // is ignored); a coach assesses only their own sessions' athletes
+  const training = await db.training.findUnique({
+    where: { id: trainingId },
+    select: { staffId: true, isArchived: true, athletes: { where: { athleteId }, select: { athleteId: true } } },
+  });
+  if (!training || training.isArchived) return { status: "ERROR", errorMessage: "This session no longer exists." };
+  if (!(await mayManageSession(session.user, training.staffId))) return { status: "ERROR", errorMessage: NOT_YOUR_SESSION };
+  if (!training.athletes.length) return { status: "ERROR", errorMessage: "This athlete isn't on this session's register." };
+  const coachId = training.staffId;
 
   try {
     const assessmentResult = await db.$transaction(async (tx) => {

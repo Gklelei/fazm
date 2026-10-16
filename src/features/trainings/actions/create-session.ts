@@ -10,6 +10,8 @@ import { addMinutes } from "date-fns";
 import z from "zod";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { mayManageSession, NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
+import { actionErrorMessage } from "@/lib/action";
 
 class TrainingConflictError extends Error {
   constructor() {
@@ -21,7 +23,9 @@ class TrainingConflictError extends Error {
 export const CreateTrainingSession = async (
   data: z.input<typeof ClientTrainingSessionSchema>,
 ): Promise<ActionResult> => {
-  const parsedData = ClientTrainingSessionSchema.parse(data);
+  const input1 = ClientTrainingSessionSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const parsedData = input1.data;
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -40,6 +44,9 @@ export const CreateTrainingSession = async (
       success: false,
       message: "Unauthorized: You are not allowed to perform this action.",
     };
+  }
+  if (!(await mayManageSession(session.user, parsedData.coach))) {
+    return { success: false, message: NOT_YOUR_SESSION };
   }
 
   try {

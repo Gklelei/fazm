@@ -10,6 +10,7 @@ import {
 } from "@/features/athletes/schemas/guardian";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const AddAthleteGuardian = async (
   data: AthleteGuardianSchemaType,
@@ -35,7 +36,9 @@ export const AddAthleteGuardian = async (
     };
   }
 
-  const parsedData = AthleteGuardianSchema.parse(data);
+  const input1 = AthleteGuardianSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const parsedData = input1.data;
 
   try {
     const athlete = await db.athlete.findUnique({

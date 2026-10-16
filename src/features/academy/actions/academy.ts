@@ -6,6 +6,7 @@ import { db } from "@/lib/prisma";
 import { updateTag } from "next/cache";
 import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
 import { createAuditLog, diffFields } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const CreateAcademyUtils = async ({
   data,
@@ -50,7 +51,7 @@ export const CreateAcademyUtils = async ({
   } catch (error) {
     console.log({ error });
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }
@@ -105,7 +106,7 @@ export const EditAcademyUtils = async ({
   } catch (error) {
     console.log({ error });
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }

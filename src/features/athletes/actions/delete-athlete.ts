@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 type ActionResult = {
   status: "SUCCESS" | "ERROR";
@@ -111,7 +112,7 @@ export async function DeleteAthlete(id: string): Promise<ActionResult> {
     return {
       status: "ERROR",
       errorMessage:
-        error instanceof Error ? error.message : "An unknown error occurred",
+        actionErrorMessage(error),
     };
   }
 }

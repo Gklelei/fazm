@@ -10,11 +10,14 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 import { headers } from "next/headers";
+import { actionErrorMessage } from "@/lib/action";
 
 export async function CreateExpense(
   data: ServerCreateExpenseType,
 ): Promise<ActionResult> {
-  const parsedData = CreateExpenseSchema.parse(data);
+  const input1 = CreateExpenseSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const parsedData = input1.data;
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -62,7 +65,7 @@ export async function CreateExpense(
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 }
@@ -125,7 +128,7 @@ export const VoidExpenses = async (id: string): Promise<ActionResult> => {
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };
@@ -134,7 +137,9 @@ export async function EditExpense(
   data: ServerCreateExpenseType,
   id: string,
 ): Promise<ActionResult> {
-  const parsedData = CreateExpenseSchema.parse(data);
+  const input2 = CreateExpenseSchema.safeParse(data);
+  if (!input2.success) return { success: false, message: actionErrorMessage(input2.error) };
+  const parsedData = input2.data;
 
   const session = await auth.api.getSession({
     headers: await headers(),
@@ -197,7 +202,7 @@ export async function EditExpense(
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 }

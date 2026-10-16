@@ -7,6 +7,7 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 const BILLING_DAY = 30;
 
@@ -176,7 +177,7 @@ export const AddAthleteToSubscriptionPlan = async ({
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

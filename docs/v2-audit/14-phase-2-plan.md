@@ -113,6 +113,42 @@ committed, then deployed when the server can be reached.
 - Retention: nothing is two years old yet (data starts Dec 2025). Archiving old entries is
   scheduled work for 2027.
 
+**Server review: done 2026-10-16.** Stage 0 is complete apart from the deferred archived toggle.
+
+Fixed:
+- **Raw errors on screen.** About 20 actions returned `error.message` (database text included). Now
+  `actionErrorMessage` (`src/lib/action.ts`) shows our own `ActionError` messages, the first form
+  problem, or plain words for common database errors, and logs the rest. The Cloudinary action
+  also sent the raw error object to the browser.
+- **Invalid input crashed actions.** `.parse()` ran outside `try` in 9 actions, registration
+  included. These now use `safeParse` and return the first problem.
+- **Passport cover and bio-data page were swapped at registration.** New registrations are now
+  correct. Check production for athletes registered before the fix:
+  `SELECT count(*) FROM athletes WHERE coalesce(passport_cover,'') <> '' OR coalesce(passport_bio_data,'') <> '';`
+  Those two images are stored the wrong way round, and swapping them back is a decision for the
+  academy. The local data has none.
+- **Coaches could plan, edit or delete any coach's session.** Now only their own; admins can
+  manage any. Same for assessments: the assessing coach now comes from the session, not the
+  browser, and the athlete must be on the register.
+- **`/api/athlete/[id]` gave any signed-in user a full athlete record, medical details included.**
+  Nothing used it, so it's deleted.
+- **Staff IDs were random 4-digit numbers that could collide.** Now sequential
+  (STAFF-FFA-1001…), with a retry if two are created at once.
+- **Assessment logs were silently lost** (the same wrong-athlete-id problem as payments).
+  `createAuditLog` now accepts either athlete id.
+- **Archiving a staff member didn't sign them out.** Their sessions now end, within the
+  5-minute sign-in cache.
+
+Left as decisions for the academy:
+- Coaches can edit athletes' details, medical included. Should only admins or the medical role?
+- Uploaded files (photos, passports, medical documents) open for any signed-in user who has the
+  link. The names are random and unguessable, but the check is "signed in", not "allowed to
+  see this athlete".
+- A role change reaches the person within 5 minutes (the sign-in cache), not instantly.
+
+Dashboard load (production build, median of 5): normal 0.59 s before vs 0.61 s now; phone
+(slow 3G, 4x CPU) **5.07 s before vs 1.66 s now**.
+
 **Deploying: migrations first.** `scripts/deploy.sh` doesn't run migrations. Apply them on the
 server with `yarn db:deploy` (`prisma migrate deploy`) before the new code starts. The new code
 writes columns the old database lacks, and a log write that fails is dropped silently (by design,
@@ -120,6 +156,7 @@ so the user's change still saves). `yarn test:db` checks that the migrations reb
 `prisma/schema`.
 
 **Archived records: visible to system admins only.**
+*Deferred by the developer (2026-10-16). The Settings tabs already have the switch; the other lists will get it later.*
 - Lists hide archived records for everyone.
 - System admins (`SUPER_ADMIN` and `ADMIN`) get a **"Show archived"** toggle on every list.
   - Archived rows show an "Archived" badge.

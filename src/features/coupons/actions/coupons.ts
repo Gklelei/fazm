@@ -9,11 +9,14 @@ import { CouponInterval, DiscountType } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 import { db } from "@/lib/prisma";
+import { actionErrorMessage } from "@/lib/action";
 
 export const CreateCouponsAction = async (
   data: couponSchemaType,
 ): Promise<ActionResult> => {
-  const parsedData = couponSchema.parse(data);
+  const input1 = couponSchema.safeParse(data);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const parsedData = input1.data;
 
   const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
@@ -78,7 +81,7 @@ export const CreateCouponsAction = async (
   } catch (error) {
     console.log({ error });
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }
@@ -148,7 +151,7 @@ export const DeleteCouponsAction = async (
     return {
       success: false,
       message:
-        error instanceof Error ? error.message : " Internal server error",
+        actionErrorMessage(error),
     };
   }
 };
@@ -157,7 +160,9 @@ export const EditCouponsAction = async (
   data: couponSchemaType,
   id: string,
 ): Promise<ActionResult> => {
-  const parsedData = couponSchema.parse(data);
+  const input2 = couponSchema.safeParse(data);
+  if (!input2.success) return { success: false, message: actionErrorMessage(input2.error) };
+  const parsedData = input2.data;
 
   const allowedRoles = [...ROLE_GROUPS.finance] as string[];
 
@@ -224,7 +229,7 @@ export const EditCouponsAction = async (
   } catch (error) {
     console.log({ error });
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }
@@ -299,7 +304,7 @@ export const toggleCouponStatus = async (
 
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       statusCode: 500,
     };
   }

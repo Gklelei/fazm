@@ -13,13 +13,14 @@ import { INVOICE_TYPE } from "@/generated/prisma/enums";
 import { Prisma } from "@/generated/prisma/client";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 
 
 function toDecimal(val: string | number | Prisma.Decimal) {
   if (val instanceof Prisma.Decimal) return val.toDecimalPlaces(2);
   const n = typeof val === "string" ? Number(val) : val;
-  if (Number.isNaN(n)) throw new Error("Invalid amount");
+  if (Number.isNaN(n)) throw new ActionError("Invalid amount");
   return new Prisma.Decimal(n).toDecimalPlaces(2);
 }
 
@@ -37,11 +38,11 @@ async function CreateAthleteInvoice(
     const parsed = CreateInvoiceSchema.parse(data);
 
     const dueDate = new Date(parsed.dueDate);
-    if (Number.isNaN(dueDate.getTime())) throw new Error("Invalid due date");
+    if (Number.isNaN(dueDate.getTime())) throw new ActionError("Invalid due date");
 
     const periodStart = parsed.startDate ? new Date(parsed.startDate) : null;
     if (periodStart && Number.isNaN(periodStart.getTime())) {
-      throw new Error("Invalid start date");
+      throw new ActionError("Invalid start date");
     }
 
     await db.$transaction(async (tx) => {
@@ -57,7 +58,7 @@ async function CreateAthleteInvoice(
         : null;
 
       if (!isManual && !selectedPlan) {
-        throw new Error("Selected subscription plan does not exist");
+        throw new ActionError("Selected subscription plan does not exist");
       }
 
       const invoiceType = isManual
@@ -74,7 +75,7 @@ async function CreateAthleteInvoice(
 
       for (const athleteId of parsed.athleteId) {
         const athlete = await tx.athlete.findUnique({ where: { athleteId } });
-        if (!athlete) throw new Error(`Athlete ${athleteId} not found`);
+        if (!athlete) throw new ActionError(`Athlete ${athleteId} not found`);
 
         const [invoiceNumber] = await nextDocumentNumbers(tx, "INV", 1, now);
 
@@ -122,7 +123,7 @@ async function CreateAthleteInvoice(
     console.error("SERVER_ACTION_ERROR:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 }

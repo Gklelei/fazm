@@ -7,6 +7,7 @@ import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const ApplyCouponToAtheleteSubscriptionPlan = async ({
   couponCode,
@@ -163,7 +164,7 @@ export const ApplyCouponToAtheleteSubscriptionPlan = async ({
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import { EditStaffSchemaType } from "@/features/staff/schemas";
 import { headers } from "next/headers";
 import { createAuditLog, diffFields } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 
 export const EditStaffProfile = async ({
@@ -78,7 +79,7 @@ export const EditStaffProfile = async ({
   } catch (error) {
     console.log(error);
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }
@@ -178,7 +179,7 @@ export const AdminEditStaffProfile = async ({
   } catch (error) {
     console.log(error);
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }
@@ -235,6 +236,9 @@ export const AdminDeleteStaff = async ({
         },
       },
     });
+    // Sign them out everywhere now, not when their session would expire
+    // (a cached sign-in can last up to 5 more minutes)
+    await db.session.deleteMany({ where: { userId: existingUser.userId } });
 
     revalidatePath("/staff");
     lookupsChanged(LOOKUP.coaches);
@@ -253,7 +257,7 @@ export const AdminDeleteStaff = async ({
   } catch (error) {
     console.log({ error });
     return {
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
       success: false,
     };
   }

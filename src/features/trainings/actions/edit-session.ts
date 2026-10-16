@@ -9,6 +9,8 @@ import { db } from "@/lib/prisma";
 import { addMinutes, isEqual } from "date-fns";
 import { revalidatePath } from "next/cache";
 import { createAuditLog, diffFields } from "@/lib/audit";
+import { mayManageSession, NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
+import { ActionError, actionErrorMessage } from "@/lib/action";
 
 export const EditTrainingSessionAction = async (
   data: z.input<typeof ClientTrainingSessionSchema>,
@@ -25,6 +27,8 @@ export const EditTrainingSessionAction = async (
       success: false,
     };
 
+  const parsedInput = ClientTrainingSessionSchema.safeParse(data);
+  if (!parsedInput.success) return { success: false, message: actionErrorMessage(parsedInput.error) };
   const {
     batch,
     coach,
@@ -35,12 +39,16 @@ export const EditTrainingSessionAction = async (
     location,
     title,
     note,
-  } = ClientTrainingSessionSchema.parse(data);
+  } = parsedInput.data;
 
   try {
     const before = await db.$transaction(async (ctx) => {
       const existingTraining = await ctx.training.findUnique({ where: { id } });
-      if (!existingTraining) throw new Error("Training session does not exist");
+      if (!existingTraining) throw new ActionError("Training session does not exist");
+      // A coach edits only their own sessions, and can't hand one to another coach
+      if (!(await mayManageSession(session.user, existingTraining.staffId)) || !(await mayManageSession(session.user, coach))) {
+        throw new ActionError(NOT_YOUR_SESSION);
+      }
 
       const newStart = new Date(date);
       const newEnd = addMinutes(newStart, duration);
@@ -68,10 +76,10 @@ export const EditTrainingSessionAction = async (
         ]);
 
         if (batchConflict.length > 0)
-          throw new Error("Batch has another training at this time");
+          throw new ActionError("Batch has another training at this time");
 
         if (coachConflict.length > 0)
-          throw new Error("Coach has another training at this time");
+          throw new ActionError("Coach has another training at this time");
       }
 
       // Validate related records
@@ -86,9 +94,9 @@ export const EditTrainingSessionAction = async (
           }),
         ]);
 
-      if (!batchExists) throw new Error("Batch does not exist");
-      if (!coachExists) throw new Error("Coach does not exist");
-      if (!locationExists) throw new Error("Location does not exist");
+      if (!batchExists) throw new ActionError("Batch does not exist");
+      if (!coachExists) throw new ActionError("Coach does not exist");
+      if (!locationExists) throw new ActionError("Location does not exist");
 
       await ctx.training.update({
         where: { id },
@@ -129,7 +137,7 @@ export const EditTrainingSessionAction = async (
     console.error(error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };

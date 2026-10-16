@@ -4,6 +4,7 @@ import { FORBIDDEN_MESSAGE, hasRole } from "@/lib/roles";import { v2 as cloudina
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 cloudinary.config({
   cloud_name: process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -50,8 +51,7 @@ export async function deleteCloudinaryImage(publicId: string) {
     console.error("Cloudinary delete error:", error);
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Unknown error",
-      error,
+      message: actionErrorMessage(error),
     };
   }
 }

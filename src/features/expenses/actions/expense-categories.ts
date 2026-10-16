@@ -11,6 +11,7 @@ import { headers } from "next/headers";
 import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog, diffFields } from "@/lib/audit";
+import { actionErrorMessage } from "@/lib/action";
 
 export const CreateExpenseCategoryAction = async (
   values: ExpenseCategoryType,
@@ -34,7 +35,9 @@ export const CreateExpenseCategoryAction = async (
     };
   }
 
-  const { name, status, description } = ExpenseCategorySchema.parse(values);
+  const input1 = ExpenseCategorySchema.safeParse(values);
+  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
+  const { name, status, description } = input1.data;
 
   try {
     const category = await db.$transaction(async (ctx) => {
@@ -65,7 +68,7 @@ export const CreateExpenseCategoryAction = async (
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };
@@ -204,7 +207,7 @@ export const DeleteExpenseCategory = async ({
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 };
@@ -264,7 +267,7 @@ export async function EditExpenseCategory(
     console.log({ error });
     return {
       success: false,
-      message: error instanceof Error ? error.message : "Internal server error",
+      message: actionErrorMessage(error),
     };
   }
 }
