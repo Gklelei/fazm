@@ -32,6 +32,19 @@ const ci = (term: string) => ({
 });
 
 /**
+ * A search word that is an athlete ID matches IDs only, not phone numbers:
+ * "ATH-FFA-501", "ffa-50" or "ath-ffa-5" within the ID, and a short number like "501" or "7"
+ * as the athlete number (ATH-FFA-501, ATH-FFA-007). Longer numbers are phones.
+ */
+export function athleteIdTerm(term: string): Prisma.AthleteWhereInput | null {
+  if (/^(ath-|ffa-)/i.test(term))
+    return { athleteId: { contains: term, mode: "insensitive" } };
+  if (/^\d{1,5}$/.test(term))
+    return { athleteId: { endsWith: `-${term.padStart(3, "0")}` } };
+  return null;
+}
+
+/**
  * Shared by the roster list and the export so both return the same athletes.
  * Each search word must match a name, ID, contact, or any guardian detail.
  */
@@ -57,27 +70,31 @@ export function buildAthleteWhere({
     ...(from || to ? { createdAt } : {}),
     ...(terms.length
       ? {
-          AND: terms.map((term) => ({
-            OR: [
-              { firstName: ci(term) },
-              { lastName: ci(term) },
-              { middleName: ci(term) },
-              { athleteId: ci(term) },
-              { phoneNumber: ci(term) },
-              { email: ci(term) },
-              {
-                guardians: {
-                  some: {
-                    OR: [
-                      { fullNames: ci(term) },
-                      { phoneNumber: ci(term) },
-                      { email: ci(term) },
-                    ],
+          AND: terms.map((term): Prisma.AthleteWhereInput => {
+            const id = athleteIdTerm(term);
+            if (id) return id;
+            return {
+              OR: [
+                { firstName: ci(term) },
+                { lastName: ci(term) },
+                { middleName: ci(term) },
+                { athleteId: ci(term) },
+                { phoneNumber: ci(term) },
+                { email: ci(term) },
+                {
+                  guardians: {
+                    some: {
+                      OR: [
+                        { fullNames: ci(term) },
+                        { phoneNumber: ci(term) },
+                        { email: ci(term) },
+                      ],
+                    },
                   },
                 },
-              },
-            ],
-          })),
+              ],
+            };
+          }),
         }
       : {}),
   };

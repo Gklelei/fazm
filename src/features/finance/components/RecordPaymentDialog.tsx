@@ -19,13 +19,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { useAuthSession } from "@/providers/SessionProvider";
@@ -34,6 +27,10 @@ import type { InvoicesPage } from "@/features/invoices/queries/list";
 import createFinancialTransaction from "../actions/create-transaction";
 import { FinanceSchema, PAYMENT_TYPE } from "../schemas";
 import { METHOD_LABEL } from "../lib/methods";
+import { invoiceBalance } from "@/features/invoices/lib/status";
+import { formatAcademy } from "@/lib/academy-time";
+
+const day = (d: string) => formatAcademy(d, { day: "numeric", month: "short" });
 
 
 type Errors = Partial<Record<string, string>>;
@@ -92,7 +89,7 @@ export function RecordPaymentDialog({
   const invoiceNumber =
     form.invoiceNumber || (openInvoices.length === 1 ? openInvoices[0].invoiceNumber : "");
   const invoice = openInvoices.find((i) => i.invoiceNumber === invoiceNumber);
-  const balance = invoice ? Math.max(invoice.amountDue - invoice.amountPaid, 0) : 0;
+  const balance = invoice ? invoiceBalance(invoice) : 0;
   const amount = form.amountPaid ?? (invoice ? String(balance) : "");
 
 
@@ -167,39 +164,52 @@ export function RecordPaymentDialog({
             {errors.athleteId && <p className="text-sm text-destructive">Choose who paid.</p>}
           </div>
 
-          <div className="grid gap-1.5">
-            <Label htmlFor="pay-invoice">Invoice</Label>
-            <Select
-              value={invoiceNumber}
-              onValueChange={(v) => set({ invoiceNumber: v, amountPaid: null })}
-              disabled={!athleteId || loadingInvoices}
-            >
-              <SelectTrigger id="pay-invoice" className="w-full" aria-invalid={!!errors.invoiceId}>
-                <SelectValue
-                  placeholder={
-                    !athleteId
-                      ? "Choose an athlete first"
-                      : loadingInvoices
-                        ? "Loading invoices…"
-                        : openInvoices.length
-                          ? "Choose invoice"
-                          : "No unpaid invoices"
-                  }
-                />
-              </SelectTrigger>
-              <SelectContent>
-                {openInvoices.map((i) => (
-                  <SelectItem key={i.id} value={i.invoiceNumber}>
-                    <span className="font-mono">{i.invoiceNumber}</span>
-                    <span className="text-muted-foreground">
-                      · {formatCurrency(Math.max(i.amountDue - i.amountPaid, 0))} due
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <fieldset className="grid min-w-0 grid-cols-1 gap-1.5" disabled={!athleteId}>
+            <legend className="mb-1.5 text-sm font-medium">Invoice</legend>
+            {!athleteId || loadingInvoices || !openInvoices.length ? (
+              <p className="rounded-md border border-dashed px-3 py-3 text-sm text-muted-foreground">
+                {!athleteId ? "Choose an athlete first" : loadingInvoices ? "Loading invoices…" : "No unpaid invoices"}
+              </p>
+            ) : (
+              <div className="grid max-h-72 grid-cols-1 gap-2 overflow-y-auto">
+                {openInvoices.map((i) => {
+                  const chosen = i.invoiceNumber === invoiceNumber;
+                  const total = invoiceBalance({ amountDue: i.amountDue, discount: i.discount, amountPaid: 0 });
+                  return (
+                    <label
+                      key={i.id}
+                      className={cn(
+                        "flex cursor-pointer items-start gap-3 rounded-md border px-3 py-2.5 text-sm has-focus-visible:ring-2 has-focus-visible:ring-ring",
+                        chosen && "border-primary bg-primary/5",
+                      )}
+                    >
+                      <input
+                        type="radio"
+                        name="invoice"
+                        value={i.invoiceNumber}
+                        checked={chosen}
+                        onChange={() => set({ invoiceNumber: i.invoiceNumber, amountPaid: null })}
+                        className="mt-1 accent-primary"
+                      />
+                      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                        <span className="flex items-baseline justify-between gap-3">
+                          <span className="line-clamp-2 font-medium">{i.description || i.subscriptionPlan?.name || "Invoice"}</span>
+                          <span className="tabular shrink-0 font-semibold">{formatCurrency(invoiceBalance(i))}</span>
+                        </span>
+                        <span className="flex flex-wrap items-center gap-x-2 text-xs text-muted-foreground">
+                          <span>Issued {day(i.createdAt)}</span>
+                          <span className={cn(i.status === "OVERDUE" && "font-medium text-destructive")}>Due {day(i.dueDate)}</span>
+                          {i.amountPaid > 0 && <span className="tabular">{formatCurrency(i.amountPaid)} of {formatCurrency(total)} paid</span>}
+                          <span className="font-mono">{i.invoiceNumber}</span>
+                        </span>
+                      </span>
+                    </label>
+                  );
+                })}
+              </div>
+            )}
             {errors.invoiceId && <p className="text-sm text-destructive">Choose the invoice being paid.</p>}
-          </div>
+          </fieldset>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="grid gap-1.5">

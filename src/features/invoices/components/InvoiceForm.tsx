@@ -123,6 +123,11 @@ export function InvoiceForm({
                         form.clearErrors("athletes");
                       }}
                     />
+                    {field.value.length > 0 && inBatches && (
+                      <p className="text-sm text-muted-foreground">
+                        Bills all {inBatches.count} {inBatches.count === 1 ? "athlete" : "athletes"} in {field.value.length === 1 ? "this batch" : "these batches"}
+                      </p>
+                    )}
                   </FormItem>
                 )}
               />
