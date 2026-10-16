@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { LoadMore } from "@/components/shared/LoadMore";
 import { formatAcademy, academyToday } from "@/lib/academy-time";
+import { deviceOf } from "@/lib/device";
 import { ROLE_LABEL } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { areaOf, toneOf, type Tone } from "../lib/catalog";
@@ -68,20 +69,12 @@ function describe(r: Wire, fallback: string) {
   }
 }
 
-/** "Chrome on Android" from a user-agent string; good enough to tell devices apart. */
-function deviceOf(ua: string | null) {
-  if (!ua) return null;
-  const browser = /Edg\//.test(ua) ? "Edge" : /Firefox\//.test(ua) ? "Firefox" : /Chrome\//.test(ua) ? "Chrome" : /Safari\//.test(ua) ? "Safari" : "Browser";
-  const os = /Android/.test(ua) ? "Android" : /iPhone|iPad/.test(ua) ? "iPhone" : /Windows/.test(ua) ? "Windows" : /Mac OS X/.test(ua) ? "Mac" : /Linux/.test(ua) ? "Linux" : "";
-  return os ? `${browser} on ${os}` : browser;
-}
-
 /** Where the entry's record lives in the app, when it has a page. */
 function recordLink(r: Wire) {
   if (r.athlete) return { href: `/players/user-profile/${r.athlete.athleteId}`, label: "Open athlete" };
   if (r.invoice) return { href: `/invoices/${r.invoice.id}`, label: "Open invoice" };
   if (r.training) return { href: `/sessions/view/${r.training.id}`, label: "Open session" };
-  if (r.resource === "Staff" && r.recordId) return { href: `/staff/${r.recordId}/view`, label: "Open staff profile" };
+  if (r.resource === "Staff" && r.recordId) return { href: `/staff/${r.recordId}`, label: "Open staff profile" };
   if (r.resource === "Batch") return { href: "/settings", label: "Open batches" };
   return null;
 }

@@ -43,6 +43,7 @@ model Batches {
 
   // ✅ NEW: schedule rules (optional feature)
   schedules BatchSchedule[]
+  coaches   staff[]         @relation("CoachBatches")
 
   isArchived Boolean @default(false)
 

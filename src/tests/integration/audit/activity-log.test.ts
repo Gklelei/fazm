@@ -6,7 +6,8 @@ import createFinancialTransaction from "@/features/finance/actions/create-transa
 import deleteFinancialTransaction from "@/features/finance/actions/delete-transaction";
 import { UpdateSubscriptionPlan } from "@/features/finance/actions/edit-plan";
 import { CreateExpenseCategoryAction } from "@/features/expenses/actions/expense-categories";
-import { AdminDeleteStaff, EditStaffProfile } from "@/features/staff/actions/edit-staff";
+import { updateMyProfile } from "@/features/staff/actions/edit-staff";
+import { setStaffArchived } from "@/features/staff/actions/save-staff";
 
 describe("activity log entries", () => {
   beforeEach(resetDb);
@@ -77,12 +78,14 @@ describe("activity log entries", () => {
 describe("own profile", () => {
   beforeEach(resetDb);
 
-  it("can't be used to edit someone else's account", async () => {
+  it("changes only your own record", async () => {
     const { user: other } = await signedIn("ADMIN");
-    await signedIn("COACH");
-    const res = await EditStaffProfile({ id: other.id, data: { fullNames: "Hacked", phoneNumber: "+254700000001", profilePicture: "" } as never });
-    expect(res).toMatchObject({ success: false, message: "You can only edit your own profile." });
-    expect((await db.user.findUniqueOrThrow({ where: { id: other.id } })).name).not.toBe("Hacked");
+    const { user: me, staff } = await signedIn("COACH");
+    const res = await updateMyProfile({ fullNames: "New Name", photo: "", phoneNumber: "0711 222 333", emergencyName: "", emergencyRelationship: "", emergencyPhone: "" });
+    expect(res.success).toBe(true);
+    expect((await db.staff.findUniqueOrThrow({ where: { id: staff!.id } })).phoneNumber).toBe("0711222333");
+    expect((await db.user.findUniqueOrThrow({ where: { id: me.id } })).name).toBe("New Name");
+    expect((await db.user.findUniqueOrThrow({ where: { id: other.id } })).name).not.toBe("New Name");
   });
 });
 
@@ -93,7 +96,7 @@ describe("archiving a staff member", () => {
     const { user: coach, staff } = await signedIn("COACH");
     await db.session.create({ data: { userId: coach.id, token: "t1", expiresAt: new Date(Date.now() + 3_600_000) } });
     await signedIn("ADMIN");
-    expect((await AdminDeleteStaff({ staffId: staff!.staffId })).success).toBe(true);
+    expect((await setStaffArchived(staff!.staffId, true)).success).toBe(true);
     expect(await db.session.count({ where: { userId: coach.id } })).toBe(0);
     expect((await db.user.findUniqueOrThrow({ where: { id: coach.id } })).isArchived).toBe(true);
   });

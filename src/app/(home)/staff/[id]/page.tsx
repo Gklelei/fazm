@@ -1,26 +1,39 @@
-import NotFound from "@/app/not-found";
-import { db } from "@/lib/prisma";
-import { GetStaffByIdQuery } from "@/features/staff/queries";
-import CreateStaffForm from "@/features/staff/components/CreateStaffForm";
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import { notFound } from "next/navigation";
+import { auth } from "@/lib/auth";
+import { db } from "@/lib/prisma";
 import { logView } from "@/lib/audit-view";
+import { findStaff } from "@/features/staff/queries/detail";
+import { StaffDetails } from "@/features/staff/components/StaffDetails";
 
-export const metadata: Metadata = { title: "Edit Staff" };
+export const metadata: Metadata = { title: "Staff" };
 
-interface Props {
-  params: Promise<{ id: string }>;
-}
-const page = async ({ params }: Props) => {
+const SESSION = { id: true, name: true, date: true, status: true, batch: { select: { name: true } } } as const;
+const LOG = { id: true, details: true, createdAt: true, user: { select: { name: true } } } as const;
+
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-
-  const user = await db.staff.findUnique(GetStaffByIdQuery(id));
-  if (!user) return <NotFound />;
-  await logView({
-    resource: "Staff",
-    recordId: user.staffId,
-    details: `Opened ${user.fullNames}'s record for editing (${user.staffId})`,
-  });
-  return <CreateStaffForm user={user} />;
-};
-
-export default page;
+  const staff = await findStaff(id);
+  if (!staff) notFound();
+  const session = await auth.api.getSession({ headers: await headers() });
+  const now = new Date();
+  const [upcoming, recent, history, activity] = await Promise.all([
+    db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { gte: now } }, select: SESSION, orderBy: { date: "asc" }, take: 5 }),
+    db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { lt: now } }, select: SESSION, orderBy: { date: "desc" }, take: 5 }),
+    // ponytail: last 20 changes; the activity log has the rest
+    db.auditLog.findMany({
+      where: { recordId: staff.staffId, action: { notIn: ["VIEW", "EXPORT", "EXPORT_PDF"] } },
+      select: LOG,
+      orderBy: { createdAt: "desc" },
+      take: 20,
+    }),
+    staff.userId
+      ? db.auditLog.findMany({ where: { userId: staff.userId, action: { not: "VIEW" } }, select: LOG, orderBy: { createdAt: "desc" }, take: 10 })
+      : null,
+  ]);
+  await logView({ resource: "Staff", recordId: staff.staffId, details: `Opened ${staff.fullNames}'s profile (${staff.staffId})` });
+  return (
+    <StaffDetails staff={staff} upcoming={upcoming} recent={recent} history={history} activity={activity} self={staff.userId === session?.user.id} />
+  );
+}

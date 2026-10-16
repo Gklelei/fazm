@@ -5,7 +5,6 @@ import { NextRequest, NextResponse } from "next/server";
 import { GetExpensesQuery } from "@/features/expenses/queries";
 import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
 import { GetCouponsQuery } from "@/features/coupons/queries";
-import { GetStaffQuery } from "@/features/staff/queries";
 import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
@@ -19,6 +18,7 @@ import {
   athleteFiltersFromParams,
   buildAthleteWhere,
 } from "@/features/athletes/queries/filters";
+import { buildStaffWhere, STAFF_LIST_SELECT, staffFiltersFromParams } from "@/features/staff/queries/list";
 import { ACTIVITY_SELECT, activityFiltersFromParams, buildActivityWhere } from "@/features/audit-logs/queries/list";
 
 export const dynamic = "force-dynamic";
@@ -27,9 +27,9 @@ const EXPORT_ACCESS: Record<string, RoleGroup> = {
   expenses: "finance",
   "expense-categories": "finance",
   coupons: "finance",
+  staff: "admin",
   invoices: "finance",
   finance: "finance",
-  staff: "admin",
   sessions: "coaching",
   athletes: "coaching",
   activity: "admin",
@@ -109,26 +109,6 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(data);
       }
 
-      case "staff": {
-        const whereClause: Prisma.staffWhereInput = {};
-        if (query) {
-          whereClause.OR = [
-            { fullNames: { contains: query, mode: "insensitive" } },
-            { staffId: { contains: query, mode: "insensitive" } },
-            { phoneNumber: { contains: query, mode: "insensitive" } },
-            { user: { email: { contains: query, mode: "insensitive" } } },
-          ];
-        }
-
-        const data = await db.staff.findMany({
-          ...GetStaffQuery,
-          where: whereClause,
-          orderBy: { createAt: "desc" },
-          take: MAX_EXPORT_ROWS,
-        });
-        return NextResponse.json(data);
-      }
-
       case "sessions": {
         const whereClause: Prisma.trainingWhereInput = {
           isArchived: false,
@@ -149,6 +129,17 @@ export async function GET(req: NextRequest) {
           ...GetAllTrainingSessionsQuery,
           where: whereClause,
           orderBy: { date: "desc" },
+          take: MAX_EXPORT_ROWS,
+        });
+        return NextResponse.json(data);
+      }
+
+      case "staff": {
+        // The list's columns only: no pay or statutory details
+        const data = await db.staff.findMany({
+          where: buildStaffWhere(staffFiltersFromParams(req.nextUrl.searchParams)),
+          select: STAFF_LIST_SELECT,
+          orderBy: [{ fullNames: "asc" }, { id: "asc" }],
           take: MAX_EXPORT_ROWS,
         });
         return NextResponse.json(data);

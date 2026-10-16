@@ -75,6 +75,16 @@ export function SessionForm({ id, values }: { id?: string; values?: SessionInput
     }
   }, [batchId, batches, form, id]);
 
+  // A new session's coach starts as the batch's coach, until someone picks one
+  useEffect(() => {
+    if (id || isCoach || form.getFieldState("coach").isDirty) return;
+    const theirs = batches.find((b) => b.id === batchId)?.coaches?.find((c) => coaches.some((x) => x.staffId === c.staffId));
+    if (theirs) {
+      form.setValue("coach", theirs.staffId);
+      form.clearErrors("coach");
+    }
+  }, [batchId, batches, coaches, form, id, isCoach]);
+
   const submit = form.handleSubmit((v) =>
     start(async () => {
       setError(null);

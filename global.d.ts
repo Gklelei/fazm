@@ -55,6 +55,8 @@ declare global {
       id: string;
       name: string;
       description: string;
+      /** Staff who coach this batch */
+      coaches?: { staffId: string }[];
     }[];
     coaches: {
       staffId: string;

@@ -13,13 +13,13 @@ const get = (dir: string) => GET(new NextRequest(`http://test/uploads/${dir}/${F
 
 describe("opening uploaded files", () => {
   beforeAll(async () => {
-    for (const dir of ["PASSPORTS", "PROFILE"]) {
+    for (const dir of ["PASSPORTS", "PROFILE", "STAFF_DOCUMENTS"]) {
       await mkdir(path.join(UPLOAD_ROOT, dir), { recursive: true });
       await writeFile(path.join(UPLOAD_ROOT, dir, FILE), PNG);
     }
   });
   afterAll(async () => {
-    for (const dir of ["PASSPORTS", "PROFILE"]) await rm(path.join(UPLOAD_ROOT, dir, FILE), { force: true });
+    for (const dir of ["PASSPORTS", "PROFILE", "STAFF_DOCUMENTS"]) await rm(path.join(UPLOAD_ROOT, dir, FILE), { force: true });
   });
   beforeEach(resetDb);
 
@@ -34,6 +34,15 @@ describe("opening uploaded files", () => {
     await signedIn("FINANCE");
     expect((await get("PASSPORTS")).status).toBe(404);
     expect((await get("PROFILE")).status).toBe(200);
+  });
+
+  it("shows staff documents to admins only", async () => {
+    await signedIn("ADMIN");
+    expect((await get("STAFF_DOCUMENTS")).status).toBe(200);
+    for (const role of ["COACH", "FINANCE", "DOCTOR"] as const) {
+      await signedIn(role);
+      expect((await get("STAFF_DOCUMENTS")).status).toBe(404);
+    }
   });
 
   it("hides everything when signed out", async () => {

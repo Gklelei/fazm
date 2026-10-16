@@ -1,5 +1,5 @@
 import { PageSkeleton } from "@/components/shared/PageSkeleton";
 
 export default function Loading() {
-  return <PageSkeleton variant="form" />;
+  return <PageSkeleton variant="detail" />;
 }

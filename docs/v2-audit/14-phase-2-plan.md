@@ -370,6 +370,32 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   the day before.
 - **Deploy:** run `yarn db:deploy` (this adds `invoice_lines`) before starting the new code.
 
+**Staff (Stage 1, item 5): done 2026-10-16.**
+- **Decisions (developer, 2026-10-16):**
+  - a staff member doesn't need a login (groundsman, cook, kit person);
+  - a new login gets a one-time password, generated per person and shown once to the admin,
+    which must be changed at first sign-in (no shared default password);
+  - details kept: job title, start date, national ID, KRA PIN, NSSF, SHIF, monthly salary,
+    emergency contact and documents, all optional; this is not a payroll system;
+  - coaches are linked to the batches they coach.
+- **One transaction for a new login:** the user, its password and the staff record are
+  written together, so a failure can't leave a login without a staff record (the old
+  two-step sign-up could). A migration gives every such existing login a staff record, so
+  it shows on the list and can be managed; fill in their phone.
+- **Staff list:** the shared table, phone cards, a sign-in filter, export (no pay or ID
+  details), and a row menu: view, edit, new one-time password, archive.
+- **Staff page:** contacts, batches, sessions coached (coming up and recent), documents,
+  their activity, emergency contact, pay and statutory details, and history.
+- **Sign-in on the staff form:** turning it off signs them out and stops access; turning it
+  back on gives a new one-time password; a role change applies at once. Nobody can change
+  their own role or sign-in, and only super admins can give or remove super admin.
+- **Archiving** signs them out; restoring leaves sign-in off until it's turned on again.
+- **Staff documents** can only be opened by admins.
+- **My profile:** your name, photo, phone and emergency contact; change password; your
+  devices, with "sign out others"; your recent activity.
+- **Planning a session** starts with the batch's coach.
+- **Deploy:** `yarn db:deploy` adds `staff_details` and `staff_for_every_login`.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:

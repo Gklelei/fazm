@@ -1,18 +1,55 @@
 model staff {
   id          String          @id @default(cuid())
   staffId     String          @unique
-  userId      String          @unique
+  /// Set when they can sign in to the app; staff without a login have none
+  userId      String?         @unique
   fullNames   String
   phoneNumber String          @map("phone_number")
+  email       String?
+  photo       String?
+  jobTitle    String?         @map("job_title")
+  startDate   DateTime?       @map("start_date") @db.Date
+
+  // Optional: kept for pay and statutory returns
+  nationalId String?  @map("national_id")
+  kraPin     String?  @map("kra_pin")
+  nssfNumber String?  @map("nssf_number")
+  shifNumber String?  @map("shif_number")
+  salary     Decimal? @db.Decimal(10, 2)
+
+  emergencyName         String? @map("emergency_name")
+  emergencyPhone        String? @map("emergency_phone")
+  emergencyRelationship String? @map("emergency_relationship")
+
+  /// Left the academy. Their login (if any) is switched off too.
+  isArchived  Boolean         @default(false)
   createAt    DateTime        @default(now())
   updateAt    DateTime        @updatedAt()
-  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User?           @relation(fields: [userId], references: [id], onDelete: SetNull)
+  /// Batches they coach
+  batches     Batches[]       @relation("CoachBatches")
+  documents   StaffDocument[]
   trainings   training[]
   schedules   BatchSchedule[]
   attendances attendance[]
   assessments Assessment[]
 
   @@map("staff")
+}
+
+model StaffDocument {
+  id           String   @id @default(cuid())
+  staffId      String
+  staff        staff    @relation(fields: [staffId], references: [id], onDelete: Cascade)
+  /// ID_COPY, CONTRACT, CERTIFICATE or OTHER
+  kind         String
+  name         String
+  url          String
+  uploadedById String?
+  createdAt    DateTime @default(now())
+
+  @@index([staffId])
+  @@map("staff_documents")
 }
 
 enum ROLES {

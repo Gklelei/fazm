@@ -1,10 +1,14 @@
-import CreateStaffForm from "@/features/staff/components/CreateStaffForm";
 import type { Metadata } from "next";
+import { PageHeader } from "@/components/shared/PageHeader";
+import { StaffForm } from "@/features/staff/components/StaffForm";
 
-export const metadata: Metadata = { title: "Add Staff" };
+export const metadata: Metadata = { title: "Add staff" };
 
-const page = () => {
-  return <CreateStaffForm />;
-};
-
-export default page;
+export default function Page() {
+  return (
+    <div className="mx-auto max-w-3xl space-y-6">
+      <PageHeader title="Add staff" />
+      <StaffForm />
+    </div>
+  );
+}

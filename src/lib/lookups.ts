@@ -36,12 +36,17 @@ const getDrills = cached(LOOKUP.drills, () =>
   db.drills.findMany({ where: { voided: 0 }, orderBy: { name: "asc" } }),
 );
 const getBatches = cached(LOOKUP.batches, async () =>
-  (await db.batches.findMany({ where: { isArchived: false } })).sort(byBatchOrder),
+  (
+    await db.batches.findMany({
+      where: { isArchived: false },
+      include: { coaches: { where: { isArchived: false }, select: { staffId: true } } },
+    })
+  ).sort(byBatchOrder),
 );
 const getCoaches = cached(LOOKUP.coaches, () =>
   db.staff.findMany({
     // Anyone allowed to run a session (ROLE_GROUPS.coaching) who has a staff record
-    where: { user: { role: { in: [...ROLE_GROUPS.coaching] }, isArchived: false } },
+    where: { isArchived: false, user: { role: { in: [...ROLE_GROUPS.coaching] }, isArchived: false } },
     orderBy: { fullNames: "asc" },
   }),
 );
