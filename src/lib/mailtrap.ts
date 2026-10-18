@@ -18,10 +18,11 @@ interface SendMAilProps {
     subject: string;
     text: string;
     html: string;
+    attachments?: { filename: string; content: Buffer; contentType: string }[];
 }
 
 
-export const SendMail = async ({ to, subject, text, html }: SendMAilProps): Promise<ActionResult> => {
+export const SendMail = async ({ to, subject, text, html, attachments }: SendMAilProps): Promise<ActionResult> => {
     try {
         await client.send({
             from: {
@@ -35,7 +36,8 @@ export const SendMail = async ({ to, subject, text, html }: SendMAilProps): Prom
             ],
             subject: subject,
             text: text,
-            html: html
+            html: html,
+            attachments: attachments?.map((a) => ({ filename: a.filename, content: a.content, type: a.contentType }))
         })
 
         return {

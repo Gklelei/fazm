@@ -3,6 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
+import { inBackground } from "@/lib/background";
+import { emailInvoice } from "@/features/invoices/lib/emails";
 import { createAuditLog, diffFields } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { academyDate, academyInstant } from "@/lib/academy-time";
@@ -88,6 +90,9 @@ export async function createInvoices(input: CreateInvoiceInput) {
     });
 
     revalidatePath("/invoices");
+    inBackground(async () => {
+      for (const n of numbers) await emailInvoice(n);
+    });
     await createAuditLog({
       action: "CREATE_INVOICES",
       resource: "Invoice",

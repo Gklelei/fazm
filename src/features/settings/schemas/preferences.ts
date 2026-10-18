@@ -21,6 +21,19 @@ const prefix = z
   .toUpperCase()
   .regex(/^[A-Z]{2,6}$/, "Use 2 to 6 letters");
 
+const emailOrEmpty = z
+  .string()
+  .trim()
+  .toLowerCase()
+  .refine((v) => !v || z.email().safeParse(v).success, "Enter an email address")
+  .transform((v) => v || null);
+const textOrEmpty = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max, `Keep it under ${max} characters`)
+    .transform((v) => v || null);
+
 export const PREFERENCE_SCHEMAS = {
   documents: z
     .object({
@@ -48,6 +61,31 @@ export const PREFERENCE_SCHEMAS = {
     attendanceEditDays: wholeOrEmpty(0, 60, "Enter 0 to 60 days, or leave it empty"),
     inactiveWeeks: whole(2, 52, "Enter 2 to 52 weeks"),
   }),
+  emails: z
+    .object({
+      senderName: textOrEmpty(80),
+      senderEmail: emailOrEmpty,
+      replyTo: emailOrEmpty,
+      smtpHost: z
+        .string()
+        .trim()
+        .toLowerCase()
+        .refine((v) => !v || /^[a-z0-9.-]+$/.test(v), "Enter a server name like mail.example.com")
+        .transform((v) => v || null),
+      smtpPort: wholeOrEmpty(1, 65535, "Enter a port number, e.g. 465 or 587"),
+      smtpUser: textOrEmpty(200),
+      /** Empty keeps the saved password */
+      smtpPassword: z.string().max(200, "That's too long"),
+      smtpSecure: z.boolean(),
+      financeReportTo: z
+        .array(z.object({ name: z.string().trim().toLowerCase().pipe(z.email("Enter an email address")) }))
+        .max(10, "Up to 10 people")
+        .transform((rows) => [...new Set(rows.map((r) => r.name))]),
+      emailInvoices: z.boolean(),
+      emailReceipts: z.boolean(),
+      emailOverdue: z.boolean(),
+    })
+    .refine((v) => !v.smtpHost || v.senderEmail, { path: ["senderEmail"], message: "Enter the address emails come from" }),
   registration: z.object({
     requiredDocuments: z.array(z.enum(REGISTRATION_DOCUMENTS.map((d) => d.value) as [string, ...string[]])).max(REGISTRATION_DOCUMENTS.length),
   }),

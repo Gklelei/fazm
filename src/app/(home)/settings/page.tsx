@@ -78,6 +78,26 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             />
           )}
           {academy && tab === "registration" && <PreferencesForm section="registration" values={{ requiredDocuments: s.requiredDocuments }} />}
+          {academy && tab === "emails" && (
+            <PreferencesForm
+              section="emails"
+              passwordSaved={!!academy.smtpPassword}
+              values={{
+                senderName: academy.senderName ?? "",
+                senderEmail: academy.senderEmail ?? "",
+                replyTo: academy.replyTo ?? "",
+                smtpHost: academy.smtpHost ?? "",
+                smtpPort: text(academy.smtpPort),
+                smtpUser: academy.smtpUser ?? "",
+                smtpPassword: "",
+                smtpSecure: academy.smtpSecure,
+                financeReportTo: s.financeReportTo.map((name) => ({ name })),
+                emailInvoices: s.emailInvoices,
+                emailReceipts: s.emailReceipts,
+                emailOverdue: s.emailOverdue,
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

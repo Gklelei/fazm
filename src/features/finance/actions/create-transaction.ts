@@ -8,6 +8,8 @@ import { FinanceSchema, FinanceSchemaType } from "@/features/finance/schemas";
 import { db } from "@/lib/prisma";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
+import { inBackground } from "@/lib/background";
+import { emailReceipt } from "@/features/invoices/lib/emails";
 
 type returnPromise =
   | { success: true; message: string; receiptNumber?: string }
@@ -117,6 +119,8 @@ const createFinancialTransaction = async (
       athleteId: existingUser.id,
       invoiceId: existingInvoice.id,
     });
+
+    inBackground(() => emailReceipt(result.receiptNumber));
 
     return {
       success: true,

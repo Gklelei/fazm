@@ -49,6 +49,28 @@ const FIELD: Record<string, string> = {
   paymentMathod: "Payment method",
   paymentMethodType: "Payment method type",
   receiptFooterNotes: "Receipt footer",
+  // Settings
+  invoicePrefix: "Invoice letters",
+  receiptPrefix: "Receipt letters",
+  invoiceDueDays: "Invoices due after (days)",
+  kraPin: "KRA PIN",
+  documentTerms: "Invoice terms",
+  defaultPlanId: "Fee plan picked first",
+  sessionMinutes: "Session length (minutes)",
+  attendanceEditDays: "Coaches can change attendance for (days)",
+  inactiveWeeks: "Inactive after (weeks)",
+  senderName: "From name",
+  senderEmail: "From address",
+  replyTo: "Replies go to",
+  smtpHost: "Mail server",
+  smtpPort: "Mail server port",
+  smtpUser: "Mail server username",
+  smtpPassword: "Mail server password",
+  smtpSecure: "Secure connection",
+  financeReportTo: "Finance report to",
+  emailInvoices: "Email new invoices",
+  emailReceipts: "Email receipts",
+  emailOverdue: "Email overdue reminders",
 };
 const fieldLabel = (k: string) =>
   FIELD[k] ?? k.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/^./, (c) => c.toUpperCase()).replace(/ ([A-Z])/g, (_, c) => ` ${c.toLowerCase()}`);

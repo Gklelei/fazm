@@ -6,11 +6,13 @@ import { useForm, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { CalendarClock, Hash, IdCard, Loader2, Receipt, UserMinus, Wallet } from "lucide-react";
+import { AtSign, CalendarClock, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
+import { ListField } from "@/components/form/ListField";
 import { ChoiceChips } from "@/components/form/ChoiceChips";
 import { FormAlert } from "@/components/form/FormAlert";
 import { FormSection } from "@/components/form/FormSection";
@@ -18,7 +20,7 @@ import { StickyActions } from "@/components/form/StickyActions";
 import { TextField } from "@/components/form/TextField";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { REGISTRATION_DOCUMENTS } from "@/features/athletes/schemas/registration";
-import { saveSettings } from "../actions/preferences";
+import { saveSettings, sendTestEmail } from "../actions/preferences";
 import { PREFERENCE_SCHEMAS, type PreferenceInput, type PreferenceSection } from "../schemas/preferences";
 
 const NO_PLAN = "none";
@@ -28,15 +30,19 @@ export function PreferencesForm<S extends PreferenceSection>({
   section,
   values,
   plans = [],
+  passwordSaved = false,
 }: {
   section: S;
   values: PreferenceInput<S>;
   plans?: { id: string; name: string }[];
+  /** Emails: a mail server password is stored */
+  passwordSaved?: boolean;
 }) {
   const router = useRouter();
   const queryClient = useQueryClient();
   const [error, setError] = useState<string | null>(null);
   const [saving, start] = useTransition();
+  const [testing, startTest] = useTransition();
   const form = useForm<FieldValues>({
     resolver: zodResolver(PREFERENCE_SCHEMAS[section] as never),
     defaultValues: values as FieldValues,
@@ -51,7 +57,8 @@ export function PreferencesForm<S extends PreferenceSection>({
       const res = await saveSettings(section, form.getValues() as PreferenceInput<S>);
       if (!res.success) return setError(res.message);
       toast.success(res.message);
-      form.reset(form.getValues());
+      // A typed password is saved now; clear it from the screen
+      form.reset(section === "emails" ? { ...form.getValues(), smtpPassword: "" } : form.getValues());
       queryClient.invalidateQueries({ queryKey: ["utils"] });
       router.refresh();
     }),
@@ -75,6 +82,28 @@ export function PreferencesForm<S extends PreferenceSection>({
       )}
     />
   );
+
+  const toggle = (name: string, label: string) => (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="flex items-center justify-between gap-4 rounded-md border p-3">
+          <FormLabel className="leading-snug">{label}</FormLabel>
+          <FormControl>
+            <Switch checked={field.value} onCheckedChange={field.onChange} />
+          </FormControl>
+        </FormItem>
+      )}
+    />
+  );
+
+  const test = () =>
+    startTest(async () => {
+      const res = await sendTestEmail();
+      if (res.success) toast.success(res.message);
+      else toast.error(res.message);
+    });
 
   return (
     <Form {...form}>
@@ -141,6 +170,49 @@ export function PreferencesForm<S extends PreferenceSection>({
             </FormSection>
             <FormSection title="Inactive athletes" icon={UserMinus}>
               <TextField name="inactiveWeeks" label="Mark inactive after (weeks without training)" inputMode="numeric" />
+            </FormSection>
+          </>
+        )}
+
+        {section === "emails" && (
+          <>
+            <FormSection title="Sender" icon={AtSign}>
+              <TextField name="senderName" label="From name" optional placeholder="Fazam Football Academy" />
+              <TextField name="senderEmail" label="From address" optional type="email" autoComplete="off" placeholder="accounts@example.com" />
+              <TextField name="replyTo" label="Replies go to" optional type="email" autoComplete="off" />
+            </FormSection>
+
+            <FormSection
+              title="Mail server"
+              icon={Server}
+              aside={
+                <Button type="button" variant="outline" size="sm" onClick={test} disabled={testing || form.formState.isDirty}>
+                  {testing ? <Loader2 className="animate-spin" /> : <Send />} Send test email
+                </Button>
+              }
+            >
+              <TextField name="smtpHost" label="Server" optional autoComplete="off" placeholder="mail.example.com" />
+              <TextField name="smtpPort" label="Port" optional inputMode="numeric" placeholder="465" />
+              <TextField name="smtpUser" label="Username" optional autoComplete="off" />
+              <TextField
+                name="smtpPassword"
+                label="Password"
+                optional
+                type="password"
+                autoComplete="new-password"
+                placeholder={passwordSaved ? "Saved. Type to replace it" : undefined}
+              />
+              {toggle("smtpSecure", "Secure connection (SSL/TLS)")}
+            </FormSection>
+
+            <FormSection title="Emails to guardians" icon={Send} columns={1}>
+              {toggle("emailInvoices", "New invoices, with the PDF attached")}
+              {toggle("emailReceipts", "Receipts for payments")}
+              {toggle("emailOverdue", "Reminders for overdue invoices, at most once a week")}
+            </FormSection>
+
+            <FormSection title="Weekly finance report" icon={Receipt} columns={1} description="Sent every Monday morning.">
+              <ListField name="financeReportTo" itemLabel="email" placeholder="name@example.com" emptyText="No one yet." max={10} />
             </FormSection>
           </>
         )}

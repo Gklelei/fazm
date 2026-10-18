@@ -1,10 +1,11 @@
 import { startOfDay, subDays, startOfMonth, format } from "date-fns";
 import { db } from "@/lib/prisma";
 import { getSettings } from "@/lib/settings";
-import { SendMail } from "@/lib/mailtrap";
+import { sendMail } from "@/lib/mail";
 import { invoiceBalance } from "@/features/invoices/lib/status";
 import { formatCurrency } from "@/lib/format";
 import { ageFromDob } from "./age";
+import { overdueReminders } from "@/features/invoices/lib/emails";
 
 /**
  * Scheduled jobs. Each returns a small summary that is logged and stored in
@@ -133,13 +134,16 @@ export async function cleanupAuth({ now = new Date() }: JobOptions = {}): Promis
   return { expiredSessionsRemoved: sessions.count, expiredTokensRemoved: tokens.count };
 }
 
-/** Monday summary for the people in FINANCE_REPORT_EMAILS (comma-separated). */
+/** Monday summary for the people chosen in Settings → Emails (else FINANCE_REPORT_EMAILS, comma-separated). */
 export async function financeReport({ now = new Date(), dryRun = false }: JobOptions = {}): Promise<JobResult> {
-  const to = (process.env.FINANCE_REPORT_EMAILS ?? "")
-    .split(",")
-    .map((e) => e.trim())
-    .filter(Boolean);
-  if (!to.length) return { sent: false, reason: "FINANCE_REPORT_EMAILS is not set" };
+  const chosen = (await getSettings()).financeReportTo;
+  const to = chosen.length
+    ? chosen
+    : (process.env.FINANCE_REPORT_EMAILS ?? "")
+        .split(",")
+        .map((e) => e.trim())
+        .filter(Boolean);
+  if (!to.length) return { sent: false, reason: "No one is chosen for the finance report" };
 
   const weekStart = startOfDay(subDays(now, 7));
   const [week, month, overdue, open] = await Promise.all([
@@ -177,7 +181,7 @@ export async function financeReport({ now = new Date(), dryRun = false }: JobOpt
     .join("")}</table><p style="font-family:sans-serif;color:#888;font-size:12px">Sent automatically every Monday by the Fazam academy system.</p>`;
 
   if (dryRun) return { sent: false, dryRun: true, recipients: to.length, preview: text };
-  const res = await SendMail({ to, subject, text, html });
+  const res = await sendMail({ to, subject, text, html });
   return { sent: res.success, recipients: to.length, ...(res.success ? {} : { error: res.message }) };
 }
 
@@ -189,6 +193,7 @@ export const JOBS = {
   "deactivate-inactive": deactivateInactive,
   "cleanup-auth": cleanupAuth,
   "finance-report": financeReport,
+  "overdue-reminders": overdueReminders,
 } as const;
 
 export type JobName = keyof typeof JOBS;

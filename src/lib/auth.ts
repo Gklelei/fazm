@@ -4,7 +4,7 @@ import { nextCookies } from "better-auth/next-js";
 import { APIError, createAuthMiddleware, isAPIError } from "better-auth/api";
 import { passwordProblem } from "./password-policy";
 import { db } from "./prisma";
-import { SendMail } from "./mailtrap";
+import { sendMail } from "./mail";
 import { SendResetPasswordMailTemplate } from "@/features/mail/templates/ResetPasswordMail";
 import { createAuditLog } from "./audit";
 
@@ -34,7 +34,7 @@ export const auth = betterAuth({
       await createAuditLog({ action: "PASSWORD_RESET", resource: "User", userId: user.id });
     },
     sendResetPassword: async ({ url, user }) => {
-      SendMail({
+      sendMail({
         to: [user.email],
         subject: "Reset Password",
         text: "Reset Password",

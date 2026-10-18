@@ -34,10 +34,10 @@ export async function getSettings(): Promise<Settings> {
   return { ...(picked as Settings), lateFeeAmount: a.lateFeeAmount == null ? null : Number(a.lateFeeAmount) };
 }
 
-/** The academy row without the mail server login, for anything that reaches a browser. */
+/** The academy row without the mail server login or report recipients, for anything that reaches a browser. */
 export function withoutSecrets<T extends Record<string, unknown> | null>(academy: T) {
   if (!academy) return academy;
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { smtpPassword, smtpUser, smtpHost, smtpPort, smtpSecure, ...rest } = academy;
-  return rest as Omit<NonNullable<T>, "smtpPassword" | "smtpUser" | "smtpHost" | "smtpPort" | "smtpSecure">;
+  const { smtpPassword, smtpUser, smtpHost, smtpPort, smtpSecure, financeReportTo, ...rest } = academy;
+  return rest as Omit<NonNullable<T>, "smtpPassword" | "smtpUser" | "smtpHost" | "smtpPort" | "smtpSecure" | "financeReportTo">;
 }

@@ -11,6 +11,8 @@ import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
 import { ageOn, missingDocuments, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
 import { getSettings } from "@/lib/settings";
+import { inBackground } from "@/lib/background";
+import { emailInvoice } from "@/features/invoices/lib/emails";
 
 /**
  * Monthly is unified to the 30th of next month (see src/lib/billing.ts).
@@ -184,6 +186,7 @@ export async function registerAthlete(input: RegistrationInput) {
     });
 
     revalidatePath("/players");
+    inBackground(() => emailInvoice(created.invoiceNumber));
     revalidatePath("/invoices");
     await createAuditLog({
       action: "CREATE_ATHLETE",
