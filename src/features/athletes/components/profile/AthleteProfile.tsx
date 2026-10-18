@@ -22,7 +22,8 @@ import EmergencyContacts from "./EmergencyContacts";
 import FinancialRecords from "./FinancialRecords";
 import AthleteStatement from "./AthleteStatement";
 import AthleteInvoices from "./AthleteInvoices";
-import AthleteAssesments from "./AthleteAssessments";
+import AthleteAssessments from "./AthleteAssessments";
+import type { AthleteProgress } from "@/features/assessments/queries/progress";
 import AthleteSubscriptionPlans from "./AthleteSubscriptionPlans";
 import AthleteDocuments from "./AthleteDocuments";
 import AthleteExportButton from "./AthleteExportButton";
@@ -62,11 +63,13 @@ export default function AthleteProfile({
   coupons,
   summary,
   canManageConsent,
+  progress,
 }: {
   data: GetAthleteByIdQueryType;
   coupons: AthleteCouponOption[];
   summary: AthleteSummary;
   canManageConsent: boolean;
+  progress: AthleteProgress;
 }) {
   const name = athleteName(data);
   const guardian = data.guardians[0];
@@ -88,7 +91,7 @@ export default function AthleteProfile({
     { key: "invoice", label: "Invoices", description: "What has been billed and what is still due.", content: <AthleteInvoices data={data} /> },
     { key: "fees", label: "Payments", description: "Payments received, with receipts.", content: <FinancialRecords data={data} /> },
     { key: "plan", label: "Fee plan", description: "The plan they're billed on, and coupons.", content: <AthleteSubscriptionPlans data={data} coupons={coupons} /> },
-    { key: "assessments", label: "Assessments", description: "Coach assessments and notes.", content: <AthleteAssesments data={data} /> },
+    { key: "assessments", label: "Assessments", description: "Progress on each skill, against the batch.", content: <AthleteAssessments athleteId={data.athleteId} progress={progress} /> },
     { key: "medical", label: "Medical", description: "Blood group, allergies and conditions.", content: <MedicalEmergencyInformation data={data} /> },
     { key: "emergency", label: "Emergency", description: "Who to call in an emergency.", content: <EmergencyContacts data={data} /> },
     { key: "address", label: "Address", description: "Where they live.", content: <AddressInfo data={data} /> },

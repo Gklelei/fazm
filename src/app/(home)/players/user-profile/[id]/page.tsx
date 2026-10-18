@@ -8,6 +8,7 @@ import AthleteProfile from "@/features/athletes/components/profile/AthleteProfil
 import { GetAthleteByIdQuery } from "@/features/athletes/queries";
 import { getAthleteSummary } from "@/features/athletes/queries/summary";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
+import { athleteProgress } from "@/features/assessments/queries/progress";
 import { logView } from "@/lib/audit-view";
 
 export const metadata: Metadata = { title: "Athlete" };
@@ -15,9 +16,10 @@ export const metadata: Metadata = { title: "Athlete" };
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
 
-  const [athlete, summary, coupons] = await Promise.all([
+  const [athlete, summary, progress, coupons] = await Promise.all([
     db.athlete.findUnique(GetAthleteByIdQuery(id)),
     getAthleteSummary(id),
+    athleteProgress(id),
     // Repeating coupons that can still go on this athlete's fee plan
     db.coupon.findMany({
       where: {
@@ -65,5 +67,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
 
   const session = await auth.api.getSession({ headers: await headers() });
-  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} />;
+  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} progress={progress} />;
 }

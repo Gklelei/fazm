@@ -6,6 +6,14 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import type { GetAllTrainingSessionsByIdQueryType } from "@/features/assessments/queries";
 import { SessionPdfButton } from "./SessionPdfButton";
 import { academyHHmm, formatAcademy } from "@/lib/academy-time";
+import { gradeLabel, gradeScore } from "@/features/assessments/lib/grades";
+
+/** "Average Good · 2 measured" from one assessment's responses. */
+function assessmentSummary(responses: { grade: string | null; value: unknown }[]) {
+  const scores = responses.flatMap((r) => (r.grade ? [gradeScore(r.grade)!] : []));
+  const measured = responses.length - scores.length;
+  return [scores.length && `Average ${gradeLabel(scores.reduce((a, b) => a + b, 0) / scores.length)}`, measured && `${measured} measured`].filter(Boolean).join(" · ") || "Comment only";
+}
 
 const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replaceAll("_", " ");
 
@@ -198,13 +206,7 @@ export default function ViewTrainingSession({ data }: { data: GetAllTrainingSess
                 {data.assessments.map((as) => (
                   <li key={as.id} className="space-y-1.5 px-4 py-3">
                     <p className="font-medium">{names.get(as.athleteId) ?? as.athleteId}</p>
-                    <p className="flex flex-wrap gap-1">
-                      {as.responses.map((r) => (
-                        <span key={r.id} className="rounded bg-muted px-1.5 py-0.5 text-xs">
-                          {sentence(r.grade)}
-                        </span>
-                      ))}
-                    </p>
+                    <p className="text-sm text-muted-foreground">{assessmentSummary(as.responses)}</p>
                     {as.comment && <p className="text-sm text-muted-foreground">{as.comment}</p>}
                   </li>
                 ))}

@@ -414,6 +414,23 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   on, and its history. "Remove coupon" is on the invoice page and the athlete's fee plan.
 - **Deploy:** `yarn db:deploy` adds `coupon_rules`.
 
+**Assessments (Stage 1, item 7): done 2026-10-18.**
+- **Decisions (developer, 2026-10-18):** one shared checklist; assessed per session; skills
+  are graded 1–5 or measured (time, count, distance), with a note per section; the history
+  shows progress, a report for parents, and a comparison with the batch.
+- **Checklist:** sections of skills, in order; each skill is a 1–5 grade or a measurement
+  with a unit and whether higher or lower is better. Admins edit it; skills taken out are
+  archived, so past assessments keep them.
+- **Assessing (phone first):** pick an athlete from the session's register, tap grades, type
+  measurements, add section notes and a comment, then "Save & next". Saving again replaces
+  that athlete's assessment for the session.
+- **History on the athlete's profile:** for each skill the latest score, the change since the
+  last assessment (better is always shown as up, so a faster sprint is +), the best, the
+  batch average (each batch athlete's latest score over the last 6 months) and a trend line;
+  then the coach notes.
+- **Progress report PDF** for parents, from the athlete's Assessments tab.
+- **Deploy:** `yarn db:deploy` adds `assessment_measures`.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:

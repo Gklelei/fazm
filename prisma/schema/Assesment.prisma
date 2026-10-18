@@ -12,6 +12,7 @@ model Assessment {
   coach   staff  @relation(fields: [coachId], references: [staffId])
 
   responses AssessmentResponse[]
+  notes     AssessmentSectionNote[]
   auditLogs AuditLog[]
 
   comment String?
@@ -27,11 +28,19 @@ model AssessmentTemplateSection {
   order       Int
   isArchived  Boolean            @default(false)
   metrics     AssessmentMetric[]
+  notes       AssessmentSectionNote[]
 }
 
 model AssessmentMetric {
   id         String                    @id @default(cuid())
   label      String
+  /// A 1–5 grade, or a measured value (time, count, distance)
+  kind       MetricKind                @default(GRADE)
+  /// For measurements, e.g. "s", "m", "touches"
+  unit       String?
+  /// For measurements: a bigger number is better (counts) or smaller is (sprint times)
+  higherIsBetter Boolean               @default(true)
+  position   Int                       @default(0)
   sectionId  String
   isArchived Boolean                   @default(false)
   section    AssessmentTemplateSection @relation(fields: [sectionId], references: [id])
@@ -45,9 +54,29 @@ model AssessmentResponse {
   metricId     String
   metric       AssessmentMetric @relation(fields: [metricId], references: [id])
 
-  grade GradeRating
+  /// Set for graded skills
+  grade GradeRating?
+  /// Set for measured skills
+  value Decimal?    @db.Decimal(10, 2)
 
   @@unique([assessmentId, metricId])
+}
+
+/// A coach's note on one section of an assessment
+model AssessmentSectionNote {
+  id           String                    @id @default(cuid())
+  assessmentId String
+  assessment   Assessment                @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  sectionId    String
+  section      AssessmentTemplateSection @relation(fields: [sectionId], references: [id])
+  note         String
+
+  @@unique([assessmentId, sectionId])
+}
+
+enum MetricKind {
+  GRADE
+  MEASURE
 }
 
 enum GradeRating {

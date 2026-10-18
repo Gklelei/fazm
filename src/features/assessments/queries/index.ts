@@ -1,47 +1,6 @@
 import { Prisma } from "@/generated/prisma/client";
 import { trainingFindUniqueArgs } from "@/generated/prisma/models";
 
-export const GetAssesmentMetricsQuery = {
-  where: {
-    isArchived: false,
-  },
-  include: {
-    metrics: {
-      where: {
-        isArchived: false,
-      },
-    },
-  },
-} satisfies Prisma.AssessmentTemplateSectionFindManyArgs;
-
-export const AssesmentAthleteQuery = (id: string) =>
-  ({
-    where: {
-      id,
-    },
-    select: {
-      id: true,
-      name: true,
-      description: true,
-      athletes: {
-        where: {
-          assessments: {
-            none: {
-              trainingId: id,
-            },
-          },
-        },
-        select: {
-          firstName: true,
-          lastName: true,
-          middleName: true,
-          athleteId: true,
-        },
-      },
-      staffId: true,
-    },
-  }) satisfies Prisma.trainingFindManyArgs;
-
 export const GetAllTrainingSessionsQuery = {
   include: {
     batch: { select: { id: true, name: true } },
@@ -101,11 +60,4 @@ export type GetAllTrainingSessionsByIdQueryType = Prisma.trainingGetPayload<
 
 export type GetAllTrainingSessionsQueryType = Prisma.trainingGetPayload<
   typeof GetAllTrainingSessionsQuery
->;
-
-export type GetAssesmentMetricsQueryType =
-  Prisma.AssessmentTemplateSectionGetPayload<typeof GetAssesmentMetricsQuery>;
-
-export type AssesmentAthleteQueryType = Prisma.trainingGetPayload<
-  ReturnType<typeof AssesmentAthleteQuery>
 >;

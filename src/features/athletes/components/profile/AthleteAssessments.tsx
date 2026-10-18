@@ -1,216 +1,144 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { ClipboardList } from "lucide-react";
-import { format } from "date-fns";
+import Link from "next/link";
+import { ArrowDownRight, ArrowUpRight, FileDown } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { formatAcademy } from "@/lib/academy-time";
+import { cn } from "@/lib/utils";
+import { averageText, scoreText } from "@/features/assessments/lib/grades";
+import type { AthleteProgress, MetricProgress } from "@/features/assessments/queries/progress";
 
-const GRADE_STYLES: Record<string, { label: string; className: string }> = {
-  EXCELLENT: {
-    label: "Excellent",
-    className:
-      "bg-success/10 text-success border-success/30  ",
-  },
-  VERY_GOOD: {
-    label: "Very Good",
-    className:
-      "bg-info/10 text-info border-info/30  ",
-  },
-  GOOD: {
-    label: "Good",
-    className:
-      "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30  ",
-  },
-  NEEDS_WORK: {
-    label: "Needs Work",
-    className:
-      "bg-warning/10 text-warning-foreground dark:text-warning border-warning/30  ",
-  },
-  BELOW_STANDARD: {
-    label: "Below Standard",
-    className:
-      "bg-destructive/10 text-destructive border-destructive/30  ",
-  },
-  POOR: {
-    label: "Poor",
-    className:
-      "bg-destructive/10 text-destructive border-destructive/30  ",
-  },
-};
-
-function gradeInfo(grade: string) {
+/** A small line of the skill's scores, oldest to newest; up is always better. */
+function Trend({ m }: { m: MetricProgress }) {
+  const s = m.points.map((p) => p.score);
+  if (s.length < 2) return <span className="text-xs text-muted-foreground">—</span>;
+  const [lo, hi] = m.kind === "GRADE" ? [1, 5] : [Math.min(...s), Math.max(...s)];
+  const up = m.kind === "GRADE" || m.higherIsBetter;
+  const W = 80;
+  const H = 22;
+  const pts = s
+    .map((v, i) => {
+      const t = hi === lo ? 0.5 : (v - lo) / (hi - lo);
+      return `${((i / (s.length - 1)) * W).toFixed(1)},${(H - 2 - (up ? t : 1 - t) * (H - 4)).toFixed(1)}`;
+    })
+    .join(" ");
   return (
-    GRADE_STYLES[grade] ?? {
-      label: grade.replace(/_/g, " "), // Fix: replace ALL underscores, not just first
-      className: "",
-    }
+    <svg viewBox={`0 0 ${W} ${H}`} width={W} height={H} className="text-primary" aria-label={`${s.length} assessments`}>
+      <polyline points={pts} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinejoin="round" strokeLinecap="round" />
+    </svg>
   );
 }
 
-const AthleteAssesments = ({ data }: { data: GetAthleteByIdQueryType }) => {
-  const hasAssessments = data?.assessments?.length > 0;
+function Change({ m }: { m: MetricProgress }) {
+  if (m.change == null || m.change === 0) return <span className="text-muted-foreground">—</span>;
+  const better = m.change > 0;
+  const Icon = better ? ArrowUpRight : ArrowDownRight;
+  return (
+    <span className={cn("inline-flex items-center gap-0.5 tabular-nums", better ? "text-success" : "text-destructive")}>
+      <Icon className="size-3.5" />
+      {m.kind === "GRADE" ? Math.abs(m.change) : `${Math.abs(m.change)}${m.unit ? ` ${m.unit}` : ""}`}
+    </span>
+  );
+}
+
+const show = (m: MetricProgress, v: number | null) => (v == null ? "—" : scoreText(m, v));
+
+/** An athlete's assessments: each skill's progress against their batch, then the coaches' notes. */
+export default function AthleteAssessments({ athleteId, progress }: { athleteId: string; progress: AthleteProgress }) {
+  if (!progress.assessments.length) {
+    return <p className="rounded-lg border bg-card px-4 py-10 text-center text-sm text-muted-foreground">No assessments yet.</p>;
+  }
 
   return (
-    <Card>
-      <CardHeader className="pb-3 border-b">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-md bg-primary/10">
-            <ClipboardList className="h-4 w-4 text-primary" />
-          </div>
-          <CardTitle className="text-base font-bold">Assessments</CardTitle>
-          {hasAssessments && (
-            <span className="ml-auto text-xs text-muted-foreground">
-              {data.assessments.length} session
-              {data.assessments.length !== 1 ? "s" : ""}
-            </span>
-          )}
-        </div>
-      </CardHeader>
-      <CardContent className="p-0">
-        <div className="overflow-x-auto">
-          <Table>
-            <TableHeader className="bg-muted/30">
-              <TableRow>
-                <TableHead className="w-14 pl-4">#</TableHead>
-                <TableHead>Training</TableHead>
-                <TableHead>Coach</TableHead>
-                <TableHead>Metric</TableHead>
-                <TableHead>Grade</TableHead>
-                <TableHead>Comment</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {hasAssessments ? (
-                data.assessments.map((item, itemIdx) =>
-                  item.responses.length > 0 ? (
-                    item.responses.map((response, respIdx) => {
-                      const { label, className } = gradeInfo(response.grade);
-                      return (
-                        <TableRow key={response.id}>
-                          <TableCell className="pl-4 text-xs text-muted-foreground font-mono">
-                            {itemIdx + 1}.{respIdx + 1}
-                          </TableCell>
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          {progress.assessments.length} assessment{progress.assessments.length === 1 ? "" : "s"}
+          {progress.batch && ` · compared with ${progress.batch} over the last 6 months`}
+        </p>
+        <Button variant="outline" asChild>
+          <a href={`/api/athlete/${athleteId}/assessment-report`} target="_blank" rel="noopener noreferrer">
+            <FileDown /> Report
+          </a>
+        </Button>
+      </div>
 
-                          {/* Training: only on first response row for this assessment */}
-                          {respIdx === 0 ? (
-                            <TableCell rowSpan={item.responses.length}>
-                              <div className="flex flex-col gap-0.5">
-                                <span className="font-semibold text-sm leading-tight">
-                                  {item.training.name}
-                                </span>
-                                <span className="text-xs text-muted-foreground">
-                                  {format(
-                                    new Date(item.training.date),
-                                    "dd MMM yyyy",
-                                  )}
-                                </span>
-                              </div>
-                            </TableCell>
-                          ) : null}
+      {progress.sections.map((s) => (
+        <section key={s.id} className="overflow-hidden rounded-lg border bg-card">
+          <h3 className="border-b px-4 py-3 font-display text-base font-semibold tracking-wide uppercase">{s.name}</h3>
+          {/* Phone: one block per skill */}
+          <ul className="divide-y md:hidden">
+            {s.metrics.map((m) => (
+              <li key={m.id} className="space-y-1 px-4 py-3">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="font-medium">{m.label}</span>
+                  <span className="font-semibold">{show(m, m.latest)}</span>
+                </div>
+                <div className="flex items-center justify-between gap-3 text-sm text-muted-foreground">
+                  <span className="flex items-center gap-3">
+                    <Change m={m} />
+                    {m.batchAverage != null && <span>Batch {(m.batchAverage == null ? "—" : averageText(m, m.batchAverage))}</span>}
+                  </span>
+                  <Trend m={m} />
+                </div>
+              </li>
+            ))}
+          </ul>
+          {/* Desktop: a table */}
+          <table className="hidden w-full table-fixed text-sm md:table">
+            <thead className="border-b bg-muted/40 text-left text-xs font-medium tracking-wide text-muted-foreground uppercase">
+              <tr>
+                <th className="w-[30%] px-4 py-2">Skill</th>
+                <th className="px-4 py-2">Latest</th>
+                <th className="px-4 py-2">Change</th>
+                <th className="px-4 py-2">Best</th>
+                <th className="px-4 py-2">Batch</th>
+                <th className="px-4 py-2">Trend</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {s.metrics.map((m) => (
+                <tr key={m.id}>
+                  <td className="px-4 py-2.5 font-medium">{m.label}</td>
+                  <td className="px-4 py-2.5 font-semibold">{show(m, m.latest)}</td>
+                  <td className="px-4 py-2.5">
+                    <Change m={m} />
+                  </td>
+                  <td className="px-4 py-2.5">{show(m, m.best)}</td>
+                  <td className="px-4 py-2.5 text-muted-foreground">{(m.batchAverage == null ? "—" : averageText(m, m.batchAverage))}</td>
+                  <td className="px-4 py-2.5">
+                    <Trend m={m} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </section>
+      ))}
 
-                          {/* Coach: only on first row */}
-                          {respIdx === 0 ? (
-                            <TableCell
-                              rowSpan={item.responses.length}
-                              className="text-sm"
-                            >
-                              {item.coach.fullNames}
-                            </TableCell>
-                          ) : null}
-
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className="font-normal text-xs"
-                            >
-                              {response.metric.label}
-                            </Badge>
-                          </TableCell>
-
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={`text-xs font-semibold border ${className}`}
-                            >
-                              {label}
-                            </Badge>
-                          </TableCell>
-
-                          {/* Comment: only on first row, spans all responses */}
-                          {respIdx === 0 ? (
-                            <TableCell
-                              rowSpan={item.responses.length}
-                              className="max-w-48 text-xs text-muted-foreground italic align-top pt-3"
-                            >
-                              {item.comment ? `"${item.comment}"` : "—"}
-                            </TableCell>
-                          ) : null}
-                        </TableRow>
-                      );
-                    })
-                  ) : (
-                    /* Assessment with no responses yet */
-                    <TableRow key={item.id}>
-                      <TableCell className="pl-4 text-xs text-muted-foreground font-mono">
-                        {itemIdx + 1}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-semibold text-sm">
-                            {item.training.name}
-                          </span>
-                          <span className="text-xs text-muted-foreground">
-                            {format(
-                              new Date(item.training.date),
-                              "dd MMM yyyy",
-                            )}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-sm">
-                        {item.coach.fullNames}
-                      </TableCell>
-                      <TableCell
-                        colSpan={2}
-                        className="text-xs text-muted-foreground italic"
-                      >
-                        No grades recorded
-                      </TableCell>
-                      <TableCell className="text-xs text-muted-foreground italic">
-                        {item.comment ? `"${item.comment}"` : "—"}
-                      </TableCell>
-                    </TableRow>
-                  ),
-                )
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={6}
-                    className="h-32 text-center text-muted-foreground"
-                  >
-                    <div className="flex flex-col items-center gap-1">
-                      <ClipboardList className="h-7 w-7 opacity-20 mb-1" />
-                      <p className="font-medium">No assessments found</p>
-                      <p className="text-xs">
-                        This athlete has not been assessed yet.
-                      </p>
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </CardContent>
-    </Card>
+      <section className="overflow-hidden rounded-lg border bg-card">
+        <h3 className="border-b px-4 py-3 font-display text-base font-semibold tracking-wide uppercase">Coach notes</h3>
+        <ol className="divide-y">
+          {progress.assessments.map((a) => (
+            <li key={a.id} className="space-y-1.5 px-4 py-3 text-sm">
+              <p className="text-muted-foreground">
+                {formatAcademy(a.date, { day: "numeric", month: "short", year: "numeric" })} · {a.session} · {a.coach}
+              </p>
+              {a.notes.map((n) => (
+                <p key={n.section}>
+                  <span className="font-medium">{n.section}:</span> {n.note}
+                </p>
+              ))}
+              {a.comment && <p>{a.comment}</p>}
+              {!a.comment && !a.notes.length && <p className="text-muted-foreground">No notes.</p>}
+            </li>
+          ))}
+        </ol>
+      </section>
+      <p className="text-xs text-muted-foreground">
+        Grades: 1 Below standard · 2 Needs work · 3 Good · 4 Very good · 5 Excellent.{" "}
+        <Link href="/assesments" className="underline">
+          See the checklist
+        </Link>
+      </p>
+    </div>
   );
-};
-
-export default AthleteAssesments;
+}
