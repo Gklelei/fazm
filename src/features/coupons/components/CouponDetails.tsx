@@ -5,9 +5,13 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useInfiniteQuery, type InfiniteData } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { ArchiveRestore, ArrowLeft, Pencil } from "lucide-react";
+import { ArchiveRestore, ArrowLeft, Gauge, History as HistoryIcon, Pencil, ReceiptText, TicketPercent, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PageHeader } from "@/components/shared/PageHeader";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { cn } from "@/lib/utils";
+import { CouponCode } from "./CouponCode";
 import { LoadMore } from "@/components/shared/LoadMore";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatAcademy } from "@/lib/academy-time";
@@ -18,35 +22,42 @@ import { couponState, discountLabel } from "../lib/state";
 import type { CouponRow } from "../queries/list";
 import type { CouponInvoicesPage } from "../queries/usage";
 import { CouponActionsMenu, CouponStateBadge } from "./CouponRowActions";
-import { appliesTo, validity } from "./CouponsList";
+import { appliesTo } from "./CouponsList";
 
 type FeePlan = { id: string; athleteId: string; name: string; plan: string };
 type LogEntry = { id: string; details: string | null; createdAt: string; user: string | null };
 
 const when = (d: string) => formatAcademy(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
-function Fact({ label, children }: { label: string; children: React.ReactNode }) {
+function Detail({ label, children }: { label: string; children: React.ReactNode }) {
   return (
-    <div className="min-w-0">
-      <dt className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</dt>
-      <dd className="mt-0.5 truncate font-medium">{children}</dd>
+    <div>
+      <span className="block text-xs text-muted-foreground">{label}</span>
+      <span className="font-medium">{children}</span>
     </div>
   );
 }
 
-function Panel({ title, aside, children }: { title: string; aside?: React.ReactNode; children: React.ReactNode }) {
+function Stat({ label, value, note }: { label: string; value: React.ReactNode; note?: string }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card">
-      <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
-        <h2 className="font-display text-lg font-semibold tracking-wide uppercase">{title}</h2>
-        {aside}
-      </header>
-      {children}
-    </section>
+    <Card className="border-none bg-muted/40 shadow-none">
+      <CardContent className="flex flex-col items-center p-4 text-center">
+        <span className="text-xs tracking-wider text-muted-foreground uppercase">{label}</span>
+        <span className="tabular text-2xl font-bold">{value}</span>
+        {note && <span className="text-xs text-muted-foreground">{note}</span>}
+      </CardContent>
+    </Card>
   );
 }
 
-const Empty = ({ children }: { children: React.ReactNode }) => <p className="px-4 py-8 text-center text-sm text-muted-foreground">{children}</p>;
+function SectionTitle({ icon: Icon, children }: { icon: React.ComponentType<{ className?: string }>; children: React.ReactNode }) {
+  return (
+    <div className="flex items-center gap-2">
+      <Icon className="size-5 text-muted-foreground" />
+      <h2 className="text-lg font-semibold">{children}</h2>
+    </div>
+  );
+}
 
 export function CouponDetails({
   coupon: c,
@@ -56,15 +67,14 @@ export function CouponDetails({
   history,
 }: {
   coupon: CouponRow;
-  given: number;
   invoices: CouponInvoicesPage;
+  given: number;
   feePlans: FeePlan[];
   history: LogEntry[];
 }) {
   const router = useRouter();
   const [restoring, start] = useTransition();
   const state = couponState(c);
-
   const { data, isFetchingNextPage, hasNextPage, fetchNextPage } = useInfiniteQuery({
     queryKey: ["coupon-invoices", c.id],
     queryFn: async ({ pageParam }): Promise<CouponInvoicesPage> => (await fetch(`/api/coupons/${c.id}/invoices?cursor=${pageParam}`)).json(),
@@ -73,28 +83,34 @@ export function CouponDetails({
     initialData: { pages: [initial], pageParams: [""] } as InfiniteData<CouponInvoicesPage, string>,
   });
   const invoices = data.pages.flatMap((p) => p.items);
+  const day = (d: string) => formatAcademy(d, { day: "numeric", month: "short", year: "numeric" });
+  const share = c.usageLimit ? Math.min(100, Math.round((c.timesUsed / c.usageLimit) * 100)) : null;
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6">
       <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
         <Link href="/coupons">
           <ArrowLeft /> Coupons
         </Link>
       </Button>
 
-      <PageHeader
-        title={<span className="font-mono normal-case">{c.name}</span>}
-        description={
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      {/* Header */}
+      <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+        <div className="min-w-0 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <CouponCode code={c.name} large />
             <CouponStateBadge state={state} />
-            <span className="font-medium text-foreground">{discountLabel(c, formatCurrency)} off</span>
-            <span>· {appliesTo(c)}</span>
-          </span>
-        }
-        actions={
-          state === "ARCHIVED" ? (
+          </div>
+          <p className="text-sm text-muted-foreground">
+            <span className="font-bold text-primary">{c.discountType === "PERCENTAGE" ? `${c.value}% off` : `${formatCurrency(c.value)} off`}</span> ·{" "}
+            {appliesTo(c)}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {state === "ARCHIVED" ? (
             <Button
               variant="outline"
+              size="sm"
               disabled={restoring}
               onClick={() =>
                 start(async () => {
@@ -109,58 +125,108 @@ export function CouponDetails({
             </Button>
           ) : (
             <>
-              <Button asChild>
+              <Button size="sm" asChild>
                 <Link href={`/coupons/${c.id}/edit`}>
                   <Pencil /> Edit
                 </Link>
               </Button>
               <CouponActionsMenu coupon={c} onPage onChanged={() => router.refresh()} />
             </>
-          )
-        }
-      />
+          )}
+        </div>
+      </div>
 
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-4 rounded-lg border bg-card p-4 md:grid-cols-4">
-        <Fact label="Used">
-          <span className="tabular">{c.usageLimit != null ? `${c.timesUsed} of ${c.usageLimit}` : `${c.timesUsed} times`}</span>
-        </Fact>
-        <Fact label="Valid">{validity(c)}</Fact>
-        <Fact label="Per athlete">{c.oncePerAthlete ? "Once" : "No limit"}</Fact>
-        <Fact label="Fee plans">{c.plans.map((p) => p.name).join(", ") || "Any charge"}</Fact>
-      </dl>
+      <Separator />
 
-      <div className="grid gap-6 xl:grid-cols-5">
-        <div className="space-y-6 xl:col-span-3">
-          <Panel
-            title="Invoices"
-            aside={
-              invoices.length > 0 && (
-                <span className="tabular text-sm text-muted-foreground">{formatCurrency(given)} off in all</span>
-              )
-            }
-          >
+      {/* Top cards */}
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3 md:gap-6">
+        <Card className="gap-3 md:col-span-2">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base font-medium">
+              <TicketPercent className="size-4 text-muted-foreground" /> Coupon details
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
+            <Detail label="Discount">{discountLabel(c, formatCurrency)}</Detail>
+            <Detail label="Used on">{c.interval === "REPEATING" ? "Fee plan, every fees invoice" : "One invoice"}</Detail>
+            <Detail label="Valid from">{day(c.startDate)}</Detail>
+            <Detail label="Valid until">{c.expiryDate ? day(c.expiryDate) : "No end date"}</Detail>
+            <Detail label="Fee plans">{c.plans.map((p) => p.name).join(", ") || "Any charge"}</Detail>
+            <Detail label="Per athlete">{c.oncePerAthlete ? "Once" : "No limit"}</Detail>
+          </CardContent>
+        </Card>
+
+        <Card className="gap-3">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-2 text-base font-medium">
+              <Gauge className="size-4 text-muted-foreground" /> Usage
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3 text-sm">
+            <p className="tabular text-3xl font-bold">
+              {c.timesUsed}
+              <span className="text-lg font-normal text-muted-foreground"> / {c.usageLimit ?? "∞"}</span>
+            </p>
+            {share != null && (
+              <div className="h-2 overflow-hidden rounded-full bg-muted" aria-hidden>
+                <div className={cn("h-full rounded-full", share >= 100 ? "bg-warning" : "bg-primary")} style={{ width: `${share}%` }} />
+              </div>
+            )}
+            <p className="text-muted-foreground">{c.usageLimit ? `${Math.max(c.usageLimit - c.timesUsed, 0)} left to use` : "No limit on uses"}</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
+        <Stat label="Times used" value={c.timesUsed} />
+        <Stat label="Discount given" value={formatCurrency(given)} />
+        <Stat label="Invoices" value={data.pages[0]?.total ?? invoices.length} />
+        <Stat label="On fee plans" value={c.interval === "REPEATING" ? feePlans.length : "—"} />
+      </div>
+
+      <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
+        <div className="space-y-3 xl:col-span-2">
+          <SectionTitle icon={ReceiptText}>Invoices</SectionTitle>
+          <Card className="overflow-hidden py-0">
             {invoices.length === 0 ? (
-              <Empty>Not used on an invoice yet.</Empty>
+              <CardContent className="p-8 text-center text-sm text-muted-foreground">Not used on an invoice yet.</CardContent>
             ) : (
               <>
-                <ul className="divide-y">
-                  {invoices.map((i) => (
-                    <li key={i.id}>
-                      <Link href={`/invoices/${i.invoiceNumber}`} className="flex items-center justify-between gap-3 px-4 py-2.5 hover:bg-muted/40">
-                        <span className="grid min-w-0 leading-tight">
-                          <span className="truncate font-medium">{athleteName(i.athlete)}</span>
-                          <span className="truncate text-sm text-muted-foreground">
-                            <span className="font-mono text-xs">{i.invoiceNumber}</span> · {formatAcademy(i.createdAt, { day: "numeric", month: "short", year: "numeric" })}
-                          </span>
-                        </span>
-                        <span className="flex shrink-0 items-center gap-3">
-                          <span className="tabular font-medium">−{formatCurrency(i.discount)}</span>
-                          <StatusBadge status={i.status} />
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
+                <div className="overflow-x-auto">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead className="pl-4">Invoice</TableHead>
+                        <TableHead>Athlete</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead className="text-right">Discount</TableHead>
+                        <TableHead className="pr-4">Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {invoices.map((i) => (
+                        <TableRow key={i.id}>
+                          <TableCell className="pl-4">
+                            <Link href={`/invoices/${i.invoiceNumber}`} className="font-mono text-sm hover:underline">
+                              {i.invoiceNumber}
+                            </Link>
+                          </TableCell>
+                          <TableCell>
+                            <Link href={`/players/user-profile/${i.athlete.athleteId}`} className="font-medium hover:underline">
+                              {athleteName(i.athlete)}
+                            </Link>
+                          </TableCell>
+                          <TableCell className="tabular whitespace-nowrap text-muted-foreground">{day(i.createdAt)}</TableCell>
+                          <TableCell className="tabular text-right font-medium">−{formatCurrency(i.discount)}</TableCell>
+                          <TableCell className="pr-4">
+                            <StatusBadge status={i.status} />
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
                 <LoadMore
                   shown={invoices.length}
                   total={data.pages[0]?.total}
@@ -171,47 +237,53 @@ export function CouponDetails({
                 />
               </>
             )}
-          </Panel>
+          </Card>
         </div>
 
-        <div className="space-y-6 xl:col-span-2">
+        <div className="space-y-6">
           {c.interval === "REPEATING" && (
-            <Panel title="On fee plans">
-              {feePlans.length === 0 ? (
-                <Empty>Not on any athlete&apos;s fee plan.</Empty>
-              ) : (
-                <ul className="divide-y">
-                  {feePlans.map((f) => (
-                    <li key={f.id}>
-                      <Link href={`/players/user-profile/${f.athleteId}`} className="grid px-4 py-2.5 leading-tight hover:bg-muted/40">
-                        <span className="font-medium">{f.name}</span>
-                        <span className="text-sm text-muted-foreground">
-                          <span className="font-mono text-xs">{f.athleteId}</span> · {f.plan}
-                        </span>
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              )}
-            </Panel>
+            <div className="space-y-3">
+              <SectionTitle icon={Users}>On fee plans</SectionTitle>
+              <Card className="overflow-hidden py-0">
+                {feePlans.length === 0 ? (
+                  <CardContent className="p-6 text-center text-sm text-muted-foreground">Not on any athlete&apos;s fee plan.</CardContent>
+                ) : (
+                  <ul className="divide-y">
+                    {feePlans.map((f) => (
+                      <li key={f.id}>
+                        <Link href={`/players/user-profile/${f.athleteId}`} className="grid px-4 py-2.5 leading-tight hover:bg-muted/40">
+                          <span className="font-medium">{f.name}</span>
+                          <span className="text-sm text-muted-foreground">
+                            <span className="font-mono text-xs">{f.athleteId}</span> · {f.plan}
+                          </span>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </Card>
+            </div>
           )}
 
-          <Panel title="History">
-            {history.length === 0 ? (
-              <Empty>No changes yet.</Empty>
-            ) : (
-              <ol className="divide-y">
-                {history.map((h) => (
-                  <li key={h.id} className="px-4 py-2.5 text-sm">
-                    <p>{h.details}</p>
-                    <p className="text-muted-foreground">
-                      {h.user ?? "System"} · {when(h.createdAt)}
-                    </p>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </Panel>
+          <div className="space-y-3">
+            <SectionTitle icon={HistoryIcon}>History</SectionTitle>
+            <Card className="py-0">
+              {history.length === 0 ? (
+                <CardContent className="p-6 text-center text-sm text-muted-foreground">No changes yet.</CardContent>
+              ) : (
+                <ol className="space-y-3 p-4">
+                  {history.map((h) => (
+                    <li key={h.id} className="border-l-2 border-primary/25 pl-3 text-sm">
+                      <p>{h.details}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {h.user ?? "System"} · {when(h.createdAt)}
+                      </p>
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </Card>
+          </div>
         </div>
       </div>
     </div>

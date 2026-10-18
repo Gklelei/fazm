@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useInfiniteQuery, useQueryClient, type InfiniteData } from "@tanstack/react-query";
-import { Loader2, Plus, RefreshCcw, Search, X } from "lucide-react";
+import { CalendarDays, Loader2, Plus, RefreshCcw, Search, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,9 +17,11 @@ import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { formatAcademy } from "@/lib/academy-time";
 import { formatCurrency } from "@/lib/format";
+import { cn } from "@/lib/utils";
 import type { CouponRow, CouponsPage } from "../queries/list";
 import { COUPON_STATE_LABEL, couponState, discountLabel, type CouponState } from "../lib/state";
 import { CouponActionsMenu, CouponStateBadge } from "./CouponRowActions";
+import { CouponCode } from "./CouponCode";
 
 const ALL = "all";
 const STATES: CouponState[] = ["ON", "OFF", "NOT_STARTED", "EXPIRED", "USED_UP"];
@@ -178,7 +180,7 @@ export function CouponsList({ initial }: { initial: CouponsPage }) {
                 {coupons.map((c) => (
                   <div key={c.id} className="flex items-start justify-between gap-3 px-4 py-3">
                     <Link href={`/coupons/${c.id}`} className="grid min-w-0 gap-1 leading-tight">
-                      <span className="font-mono font-semibold">{c.name}</span>
+                      <CouponCode code={c.name} />
                       <span className="truncate text-sm text-muted-foreground">
                         {discountLabel(c, formatCurrency)} · {appliesTo(c)}
                       </span>
@@ -197,7 +199,7 @@ export function CouponsList({ initial }: { initial: CouponsPage }) {
                   <TableRow className="hover:bg-transparent">
                     <TableHead className="pl-4">Code</TableHead>
                     <TableHead>Discount</TableHead>
-                    <TableHead>Applies to</TableHead>
+                    <TableHead>Fee plans</TableHead>
                     <TableHead className="text-right">Used</TableHead>
                     <TableHead>Valid</TableHead>
                     <TableHead>State</TableHead>
@@ -210,15 +212,34 @@ export function CouponsList({ initial }: { initial: CouponsPage }) {
                   {coupons.map((c) => (
                     <TableRow key={c.id}>
                       <TableCell className="pl-4">
-                        <Link href={`/coupons/${c.id}`} className="font-mono font-semibold hover:underline">
-                          {c.name}
-                        </Link>
-                        {c.oncePerAthlete && <span className="ml-2 text-xs text-muted-foreground">once per athlete</span>}
+                        <div className="flex items-center gap-1">
+                          <Link href={`/coupons/${c.id}`} className="hover:underline">
+                            <CouponCode code={c.name} />
+                          </Link>
+                        </div>
+                        {c.oncePerAthlete && <span className="mt-1 block text-xs text-muted-foreground">Once per athlete</span>}
                       </TableCell>
-                      <TableCell className="tabular">{discountLabel(c, formatCurrency)}</TableCell>
-                      <TableCell>{appliesTo(c)}</TableCell>
-                      <TableCell className="tabular text-right">{usage(c)}</TableCell>
-                      <TableCell className="tabular whitespace-nowrap text-muted-foreground">{validity(c)}</TableCell>
+                      <TableCell>
+                        <span className="tabular block font-bold text-primary">{c.discountType === "PERCENTAGE" ? `${c.value}% off` : `−${formatCurrency(c.value)}`}</span>
+                        <span className="text-xs text-muted-foreground">{c.interval === "REPEATING" ? "Each fees invoice" : "One invoice"}</span>
+                      </TableCell>
+                      <TableCell className="text-sm">{c.plans.length ? c.plans.map((p) => p.name).join(", ") : <span className="text-muted-foreground">Any charge</span>}</TableCell>
+                      <TableCell className="tabular text-right text-sm">
+                        <span className="font-medium">{c.timesUsed}</span>
+                        <span className="mx-1 text-muted-foreground">/</span>
+                        <span className="text-muted-foreground">{c.usageLimit ?? "∞"}</span>
+                      </TableCell>
+                      <TableCell>
+                        <span className="flex items-center gap-1 text-sm text-muted-foreground">
+                          <CalendarDays className="size-3" />
+                          {formatAcademy(c.startDate, { day: "numeric", month: "short", year: "numeric" })}
+                        </span>
+                        {c.expiryDate && (
+                          <span className={cn("text-xs", new Date(c.expiryDate) < new Date() ? "text-destructive" : "text-muted-foreground")}>
+                            {new Date(c.expiryDate) < new Date() ? "Expired" : "Expires"} {formatAcademy(c.expiryDate, { day: "numeric", month: "short" })}
+                          </span>
+                        )}
+                      </TableCell>
                       <TableCell>
                         <CouponStateBadge state={couponState(c)} />
                       </TableCell>
