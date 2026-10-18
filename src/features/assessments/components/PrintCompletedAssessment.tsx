@@ -272,7 +272,7 @@ export default function PrintCompletedAssessment({
 
   return (
     <Button
-      variant="outline"
+      variant="secondary"
       size="sm"
       className="gap-2"
       onClick={handleExport}

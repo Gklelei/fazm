@@ -1,12 +1,11 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Activity, IdCard, KeyRound, Loader2, LogOut, Mail, Monitor, Siren, UserRound } from "lucide-react";
+import { Activity, IdCard, Loader2, LogOut, Mail, Monitor, Siren, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import ProfileAvatar from "@/components/shared/ProfileAvatar";
@@ -19,6 +18,7 @@ import { formatAcademy } from "@/lib/academy-time";
 import { ROLE_LABEL } from "@/lib/roles";
 import type { ROLES } from "@/generated/prisma/enums";
 import { updateMyProfile } from "../actions/edit-staff";
+import { ChangePasswordDialog } from "./ChangePasswordDialog";
 import { myProfileSchema, type MyProfileInput } from "../schemas/profile";
 
 type Device = { id: string; device: string; ip: string | null; lastActive: string; current: boolean; count: number };
@@ -115,6 +115,27 @@ export function MyProfile({
               </div>
             </form>
           </Form>
+
+          <section className="mt-4 overflow-hidden rounded-xl border bg-card shadow-xs">
+            <h2 className="flex items-center gap-3 border-b px-4 py-3 text-base font-semibold sm:px-5">
+              <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary" aria-hidden>
+                <Activity className="size-4" />
+              </span>
+              Your activity
+            </h2>
+            {activity.length === 0 ? (
+              <p className="px-4 py-6 text-sm text-muted-foreground sm:px-5">Nothing yet.</p>
+            ) : (
+              <ol className="divide-y">
+                {activity.map((a) => (
+                  <li key={a.id} className="flex items-baseline justify-between gap-4 px-4 py-2.5 text-sm sm:px-5">
+                    <span>{a.details}</span>
+                    <span className="shrink-0 text-xs text-muted-foreground">{when(a.createdAt)}</span>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </section>
         </div>
 
         <aside className="space-y-4 lg:sticky lg:top-20 lg:order-2 max-lg:order-first">
@@ -153,11 +174,7 @@ export function MyProfile({
               </dl>
             </div>
             <div className="border-t border-white/10 bg-white/5 p-4">
-              <Button asChild className="h-10 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
-                <Link href="/change-password">
-                  <KeyRound /> Change password
-                </Link>
-              </Button>
+              <ChangePasswordDialog className="h-10 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90" />
             </div>
           </section>
 
@@ -192,20 +209,6 @@ export function MyProfile({
             </ul>
           </Panel>
 
-          <Panel title="Your activity" icon={Activity}>
-            {activity.length === 0 ? (
-              <p className="px-4 pb-4 text-sm text-muted-foreground">Nothing yet.</p>
-            ) : (
-              <ol className="divide-y border-t">
-                {activity.map((a) => (
-                  <li key={a.id} className="px-4 py-2.5 text-sm">
-                    <p>{a.details}</p>
-                    <p className="text-muted-foreground">{when(a.createdAt)}</p>
-                  </li>
-                ))}
-              </ol>
-            )}
-          </Panel>
         </aside>
       </div>
     </div>
