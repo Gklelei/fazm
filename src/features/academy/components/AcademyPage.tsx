@@ -8,7 +8,6 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Building2, Check, Loader2, MapPin, Palette, Receipt, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -18,7 +17,7 @@ import { StickyActions } from "@/components/form/StickyActions";
 import { TextField } from "@/components/form/TextField";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { LocalFsUpload } from "@/components/shared/LocalFsUpload";
-import { COLOR_PRESETS, isCustomColor, readableOnWhite, themeAttributes } from "@/lib/brand-color";
+import { APP_THEMES, COLOR_PRESETS, isCustomColor, readableOnWhite, themeAttributes } from "@/lib/brand-color";
 import { cn } from "@/lib/utils";
 import { saveAcademy } from "../actions/academy";
 import { AcademySchema, type AcademyInput } from "../schemas";
@@ -33,6 +32,29 @@ const SWATCH: Record<string, string> = {
   orange: "oklch(0.646 0.222 41.116)",
   rose: "oklch(0.511 0.262 27.681)",
 };
+
+/** A tiny working copy of the app (sidebar, header, a button) in a theme and colour. */
+function MiniApp({ theme, color, className }: { theme: string; color: string; className?: string }) {
+  const safe = isCustomColor(color) && !readableOnWhite(color) ? null : color;
+  return (
+    <div aria-hidden {...themeAttributes(safe, theme)} className={cn("flex h-24 overflow-hidden rounded-md border bg-background", className)}>
+      <div className="flex w-[30%] flex-col gap-1.5 bg-sidebar p-2">
+        <span className="h-1.5 w-3/4 rounded-full bg-sidebar-foreground/40" />
+        <span className="mt-1 flex items-center gap-1 rounded-sm bg-sidebar-accent px-1 py-1">
+          <span className="h-2.5 w-0.5 rounded-full bg-sidebar-primary" />
+          <span className="h-1.5 flex-1 rounded-full bg-sidebar-accent-foreground/80" />
+        </span>
+        <span className="h-1.5 w-2/3 rounded-full bg-sidebar-foreground/30" />
+        <span className="h-1.5 w-1/2 rounded-full bg-sidebar-foreground/30" />
+      </div>
+      <div className="flex flex-1 flex-col gap-2 p-2">
+        <span className="h-2 w-1/2 rounded-full bg-foreground/70" />
+        <span className="h-1.5 w-3/4 rounded-full bg-muted-foreground/30" />
+        <span className="mt-auto ml-auto h-4 w-12 rounded bg-primary" />
+      </div>
+    </div>
+  );
+}
 
 /** The academy profile: name, contacts, how parents pay, receipt footer, logo and colour. */
 export default function AcademyPage({ academy }: { academy: getAcademyQueryType | null }) {
@@ -55,6 +77,7 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
       footerNotes: academy?.receiptFooterNotes ?? "",
       logoUrl: academy?.logoUrl ?? "",
       primaryColor: academy?.primaryColor || "fazam",
+      theme: academy?.theme || "fazam",
     },
     mode: "onTouched",
   });
@@ -122,6 +145,41 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
         <FormSection title="Branding" icon={Palette}>
           <FormField
             control={form.control}
+            name="theme"
+            render={({ field }) => (
+              <FormItem className="@md:col-span-2">
+                <FormLabel>Theme</FormLabel>
+                <div role="radiogroup" aria-label="Theme" className="grid grid-cols-2 gap-3 @xl:grid-cols-4">
+                  {APP_THEMES.map((t) => {
+                    const on = field.value === t.value;
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        onClick={() => {
+                          field.onChange(t.value);
+                          form.setValue("primaryColor", t.highlight, { shouldDirty: true, shouldValidate: true });
+                        }}
+                        className={cn("space-y-2 rounded-lg border p-2 text-left transition-colors hover:bg-muted", on && "border-primary bg-primary/5 ring-1 ring-primary")}
+                      >
+                        <MiniApp theme={t.value} color={on ? color : t.highlight} />
+                        <span className="flex items-center justify-between px-1 text-sm font-medium">
+                          {t.label}
+                          {on && <Check className="size-4 text-primary" />}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
             name="logoUrl"
             render={({ field }) => (
               <FormItem>
@@ -142,8 +200,8 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
             name="primaryColor"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Colour</FormLabel>
-                <div role="radiogroup" aria-label="Colour" className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                <FormLabel>Buttons and links</FormLabel>
+                <div role="radiogroup" aria-label="Buttons and links colour" className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                   {COLOR_PRESETS.map((p) => {
                     const on = field.value === p.value;
                     return (
@@ -190,17 +248,6 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
             )}
           />
 
-          {/* Preview in the chosen colour */}
-          <div aria-hidden {...themeAttributes(custom && !readableOnWhite(custom) ? null : color)} className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed p-4 @md:col-span-2">
-            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Preview</span>
-            <Button type="button" size="sm" tabIndex={-1}>
-              Button
-            </Button>
-            <Badge variant="outline" className="border-primary/40 text-primary">
-              Scheduled
-            </Badge>
-            <span className="text-sm font-medium text-primary underline-offset-4 hover:underline">A link</span>
-          </div>
         </FormSection>
 
         <StickyActions className="justify-end">

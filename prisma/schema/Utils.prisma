@@ -12,6 +12,8 @@ model academy {
   heroImageUrl       String?  @map("hero_image_url")
   receiptFooterNotes String?  @map("receipt_notes")
   primaryColor       String?  @map("primary_color")
+  /// The app's look: sidebar and its highlight (fazam, pitch, charcoal, light)
+  theme              String   @default("fazam")
 
   // Documents (invoices, receipts)
   invoicePrefix  String  @default("INV") @map("invoice_prefix")

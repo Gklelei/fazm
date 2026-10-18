@@ -84,7 +84,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      {...themeAttributes(academy?.primaryColor)}
+      {...themeAttributes(academy?.primaryColor, academy?.theme)}
       suppressHydrationWarning
     >
       <body

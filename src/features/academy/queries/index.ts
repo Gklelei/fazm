@@ -14,6 +14,7 @@ export const getAcademyQuery = {
     paymentMathod: true,
     paymentMethodType: true,
     primaryColor: true,
+    theme: true,
     tagline: true,
     updatedAt: true,
     receiptFooterNotes: true,

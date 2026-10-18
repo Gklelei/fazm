@@ -208,6 +208,44 @@
   --primary-foreground: oklch(0.141 0.005 285.823);
   --ring: oklch(0.712 0.194 13.428);
 }
+/*
+ * App themes (Academy profile → Branding): the sidebar's look. Fazam is the
+ * default in :root. The highlight colour above is chosen separately.
+ */
+[data-app-theme="pitch"] {
+  --sidebar: oklch(0.3 0.08 155);
+  --sidebar-foreground: oklch(0.9 0.03 150);
+  --sidebar-primary: oklch(0.9 0.17 120);
+  --sidebar-primary-foreground: oklch(0.25 0.07 155);
+  --sidebar-accent: oklch(0.37 0.09 155);
+  --sidebar-accent-foreground: oklch(0.99 0 0);
+  --sidebar-ring: oklch(0.9 0.17 120);
+}
+.dark[data-app-theme="pitch"] {
+  --sidebar: oklch(0.19 0.05 155);
+  --sidebar-accent: oklch(0.27 0.07 155);
+}
+[data-app-theme="charcoal"] {
+  --sidebar: oklch(0.2 0.006 285);
+  --sidebar-foreground: oklch(0.86 0.005 285);
+  --sidebar-accent: oklch(0.28 0.006 285);
+}
+.dark[data-app-theme="charcoal"] {
+  --sidebar: oklch(0.14 0.005 285);
+  --sidebar-accent: oklch(0.23 0.006 285);
+}
+/* Light in light mode only; in dark mode it keeps the dark sidebar */
+[data-app-theme="light"]:not(.dark, .dark *) {
+  --sidebar: oklch(1 0 0);
+  --sidebar-foreground: oklch(0.38 0.04 262);
+  --sidebar-primary: var(--brand-navy);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.95 0.012 255);
+  --sidebar-accent-foreground: var(--brand-navy);
+  --sidebar-border: oklch(0.91 0.008 255);
+  --sidebar-ring: var(--brand-navy);
+}
+
 /* A custom colour (checked to keep white text readable); lightened for dark mode */
 [data-theme-color="custom"] {
   --primary: var(--brand-custom);

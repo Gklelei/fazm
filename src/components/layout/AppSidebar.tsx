@@ -35,7 +35,7 @@ function CentreCircle() {
     <svg
       aria-hidden
       viewBox="0 0 120 120"
-      className="pointer-events-none absolute top-0 left-1/2 size-40 -translate-x-1/2 -translate-y-1/2 text-white/[0.07] group-data-[collapsible=icon]:hidden"
+      className="pointer-events-none absolute top-0 left-1/2 size-40 -translate-x-1/2 -translate-y-1/2 text-sidebar-foreground/[0.07] group-data-[collapsible=icon]:hidden"
       fill="none"
       stroke="currentColor"
       strokeWidth="1"
@@ -59,9 +59,9 @@ function NavLink({ item, active, onNavigate }: { item: NavItem; active: boolean;
         isActive={active}
         tooltip={item.title}
         className={cn(
-          "relative h-9 text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-white",
+          "relative h-9 text-sidebar-foreground/85 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
           // Captain's armband: a gold bar marks where you are
-          "data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-white",
+          "data-[active=true]:bg-sidebar-accent data-[active=true]:font-semibold data-[active=true]:text-sidebar-accent-foreground",
           "data-[active=true]:before:absolute data-[active=true]:before:inset-y-2 data-[active=true]:before:left-0 data-[active=true]:before:w-[3px] data-[active=true]:before:rounded-r data-[active=true]:before:bg-sidebar-primary",
         )}
       >
@@ -123,7 +123,7 @@ export function AppSidebar({
             priority
           />
           <span className="grid leading-none group-data-[collapsible=icon]:hidden">
-            <span className="font-display text-lg font-bold uppercase tracking-wide text-white">
+            <span className="font-display text-lg font-bold uppercase tracking-wide text-sidebar-accent-foreground">
               Fazam
             </span>
             <span className="mt-0.5 truncate text-[11px] text-sidebar-foreground/70">
@@ -156,7 +156,7 @@ export function AppSidebar({
                 onClick={() => toggle(section.label)}
                 aria-expanded={open}
                 aria-controls={id}
-                className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left font-display text-[11px] font-semibold tracking-[0.18em] text-sidebar-foreground/55 uppercase transition-colors hover:bg-sidebar-accent/60 hover:text-white focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:hidden"
+                className="flex h-8 w-full items-center gap-2 rounded-md px-2 text-left font-display text-[11px] font-semibold tracking-[0.18em] text-sidebar-foreground/55 uppercase transition-colors hover:bg-sidebar-accent/60 hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:hidden"
               >
                 <span className="flex-1">{section.label}</span>
                 {/* Folded away but you're inside it: a gold dot says so */}
@@ -201,7 +201,7 @@ export function AppSidebar({
                 onClick={toggleSidebar}
                 tooltip={collapsed ? "Expand sidebar · Ctrl B" : undefined}
                 aria-expanded={!collapsed}
-                className="h-8 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-white"
+                className="h-8 text-sidebar-foreground/60 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
               >
                 {collapsed ? <PanelLeftOpen /> : <PanelLeftClose />}
                 <span>Collapse sidebar</span>
@@ -220,7 +220,7 @@ export function AppSidebar({
             </AvatarFallback>
           </Avatar>
           <div className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-sm font-semibold text-white">
+            <span className="truncate text-sm font-semibold text-sidebar-accent-foreground">
               {user.name}
             </span>
             <span className="truncate text-xs text-sidebar-primary">
@@ -233,7 +233,7 @@ export function AppSidebar({
               await authClient.signOut();
               router.push("/sign-in");
             }}
-            className="grid size-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-white focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:hidden"
+            className="grid size-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:hidden"
             aria-label="Sign out"
             title="Sign out"
           >

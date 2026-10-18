@@ -25,6 +25,7 @@ declare global {
       logoUrl: string | null;
       heroImageUrl: string | null;
       primaryColor: string | null;
+      theme?: string;
       receiptFooterNotes: string | null;
       // Settings the browser uses (mail server fields are never sent)
       invoicePrefix?: string;

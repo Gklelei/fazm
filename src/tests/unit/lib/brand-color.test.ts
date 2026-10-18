@@ -10,9 +10,9 @@ describe("academy colour", () => {
   });
 
   it("falls back to Fazam for anything unknown", () => {
-    expect(themeAttributes("blue")).toEqual({ "data-theme-color": "blue" });
-    expect(themeAttributes("purple")).toEqual({ "data-theme-color": "fazam" });
-    expect(themeAttributes(null)).toEqual({ "data-theme-color": "fazam" });
-    expect(themeAttributes("#1d4ed8")).toEqual({ "data-theme-color": "custom", style: { "--brand-custom": "#1d4ed8" } });
+    expect(themeAttributes("blue", "pitch")).toEqual({ "data-app-theme": "pitch", "data-theme-color": "blue" });
+    expect(themeAttributes("purple", "neon")).toEqual({ "data-app-theme": "fazam", "data-theme-color": "fazam" });
+    expect(themeAttributes(null)).toEqual({ "data-app-theme": "fazam", "data-theme-color": "fazam" });
+    expect(themeAttributes("#1d4ed8", "light")).toEqual({ "data-app-theme": "light", "data-theme-color": "custom", style: { "--brand-custom": "#1d4ed8" } });
   });
 });

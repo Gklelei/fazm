@@ -22,6 +22,7 @@ export async function saveAcademy(input: AcademyInput) {
       receiptFooterNotes: v.footerNotes || null,
       logoUrl: v.logoUrl || null,
       primaryColor: v.primaryColor,
+      theme: v.theme,
     };
     const before = await db.academy.findFirst();
     const after = before ? await db.academy.update({ where: { id: before.id }, data }) : await db.academy.create({ data });

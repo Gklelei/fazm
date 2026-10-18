@@ -1,5 +1,5 @@
 import z from "zod";
-import { COLOR_PRESETS, isCustomColor, readableOnWhite } from "@/lib/brand-color";
+import { APP_THEMES, COLOR_PRESETS, isCustomColor, readableOnWhite } from "@/lib/brand-color";
 
 const required = (message: string, max = 120) => z.string().trim().min(1, message).max(max, `Keep it under ${max} characters`);
 const optional = (max: number) => z.string().trim().max(max, `Keep it under ${max} characters`);
@@ -16,6 +16,7 @@ export const AcademySchema = z.object({
   paymentMethod: required("Enter the number or account", 60),
   footerNotes: optional(300),
   logoUrl: optional(300),
+  theme: z.enum(APP_THEMES.map((t) => t.value) as [string, ...string[]], { error: "Pick a theme" }),
   primaryColor: z
     .string()
     .trim()
