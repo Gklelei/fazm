@@ -1,6 +1,7 @@
 "use client";
 
 import { PageHeader } from "@/components/shared/PageHeader";
+import { statusLabel } from "@/components/shared/StatusBadge";
 import { Card, CardContent } from "@/components/ui/card";
 import CreateExpenseCategory from "@/features/expenses/components/CreateExpenseCategory";
 import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
@@ -135,14 +136,14 @@ const ExpenseCategories = ({ data, page, limit, total }: Props) => {
               rows={rows.map((item, idx) => [
                 String(idx + 1),
                 item.name,
-                item.status,
+                statusLabel(item.status),
               ])}
               fetchAllUrl="/api/export?resource=expense-categories"
               filterFn={() => true}
               mapRow={(item: GetExpenseCategoriesQuery, i: number) => [
                 String(i + 1),
                 item.name,
-                item.status,
+                statusLabel(item.status),
               ]}
             />
             <CreateExpenseCategory />

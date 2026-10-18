@@ -39,7 +39,8 @@ const STATUS_TONE: Record<string, Tone> = {
   CANCELLED: "neutral",
 };
 
-const label = (s: string) =>
+/** "IN_PROGRESS" → "In progress", as badges and exports show it. */
+export const statusLabel = (s: string) =>
   s.charAt(0) + s.slice(1).toLowerCase().replaceAll("_", " ");
 
 export function StatusBadge({
@@ -63,7 +64,7 @@ export function StatusBadge({
       )}
     >
       <span aria-hidden className="size-1.5 rounded-full bg-current" />
-      {children ?? (key ? label(key) : "—")}
+      {children ?? (key ? statusLabel(key) : "—")}
     </span>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { statusLabel } from "@/components/shared/StatusBadge";
 import { academyHHmm, formatAcademy } from "@/lib/academy-time";
 
 type ExportSession = {
@@ -30,7 +31,7 @@ export function SessionsExport() {
         s.coach.fullNames,
         String(s._count.athletes),
         String(s._count.attendances),
-        s.status,
+        statusLabel(s.status),
       ]}
     />
   );

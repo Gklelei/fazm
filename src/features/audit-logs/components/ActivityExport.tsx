@@ -2,6 +2,7 @@
 
 import ExportDropdown from "@/components/shared/ExportDropdown";
 import { formatAcademy } from "@/lib/academy-time";
+import { ROLE_LABEL } from "@/lib/roles";
 import type { ActivityRow } from "../queries/list";
 
 type Wire = Omit<ActivityRow, "createdAt"> & { createdAt: string };
@@ -17,7 +18,7 @@ export function ActivityExport({ query }: { query: string }) {
       mapRow={(r) => [
         formatAcademy(r.createdAt, { dateStyle: "medium", timeStyle: "medium", hourCycle: "h23" }),
         r.user?.name ?? "System",
-        r.role ?? "",
+        r.role ? (ROLE_LABEL[r.role as keyof typeof ROLE_LABEL] ?? r.role) : "",
         r.details ?? "",
         r.action,
         r.resource,

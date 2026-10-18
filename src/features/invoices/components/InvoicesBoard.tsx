@@ -27,7 +27,7 @@ import {
 } from "@/components/ui/table";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
-import { StatusBadge } from "@/components/shared/StatusBadge";
+import { StatusBadge, statusLabel } from "@/components/shared/StatusBadge";
 import ExportDropdown from "@/components/shared/ExportDropdown";
 import { useDebounce } from "@/hooks/use-debounce";
 import { formatCurrency } from "@/lib/format";
@@ -121,7 +121,7 @@ export default function InvoicesBoard({
                 String(Number(i.amountDue)),
                 String(Number(i.amountPaid)),
                 String(invoiceBalance(i)),
-                i.status,
+                statusLabel(i.status),
               ]}
             />
             <Button asChild>
