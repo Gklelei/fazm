@@ -2,6 +2,13 @@ model academy {
   id                 String   @id @default(cuid())
   paymentMathod      String
   paymentMethodType  String
+  /// Paybill account number parents type: ATHLETE_ID or INVOICE_NUMBER; empty: none asked
+  paymentReference   String?  @map("payment_reference")
+  /// Optional second way to pay
+  bankName           String?  @map("bank_name")
+  bankAccountName    String?  @map("bank_account_name")
+  bankAccountNumber  String?  @map("bank_account_number")
+  bankBranch         String?  @map("bank_branch")
   academyName        String   @map("academy_name")
   tagline            String?  @map("tagline")
   description        String?  @map("description")

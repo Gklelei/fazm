@@ -6,11 +6,12 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Check, Loader2, MapPin, Palette, Receipt, Wallet } from "lucide-react";
+import { Building2, Check, Landmark, Loader2, MapPin, Palette, Receipt, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { ChoiceChips } from "@/components/form/ChoiceChips";
 import { FormAlert } from "@/components/form/FormAlert";
 import { FormSection } from "@/components/form/FormSection";
 import { StickyActions } from "@/components/form/StickyActions";
@@ -20,6 +21,7 @@ import { LocalFsUpload } from "@/components/shared/LocalFsUpload";
 import { APP_THEMES, COLOR_PRESETS, isCustomColor, readableOnWhite, themeAttributes } from "@/lib/brand-color";
 import { cn } from "@/lib/utils";
 import { saveAcademy } from "../actions/academy";
+import { PAYMENT_REFERENCES } from "../lib/how-to-pay";
 import { AcademySchema, type AcademyInput } from "../schemas";
 import type { getAcademyQueryType } from "../queries";
 
@@ -74,6 +76,11 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
       email: academy?.contactEmail ?? "",
       paymentType: academy?.paymentMethodType ?? "",
       paymentMethod: academy?.paymentMathod ?? "",
+      paymentReference: (academy?.paymentReference as AcademyInput["paymentReference"]) ?? "",
+      bankName: academy?.bankName ?? "",
+      bankAccountName: academy?.bankAccountName ?? "",
+      bankAccountNumber: academy?.bankAccountNumber ?? "",
+      bankBranch: academy?.bankBranch ?? "",
       footerNotes: academy?.receiptFooterNotes ?? "",
       logoUrl: academy?.logoUrl ?? "",
       primaryColor: academy?.primaryColor || "fazam",
@@ -133,9 +140,38 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
           <TextField<AcademyInput> name="email" label="Email" type="email" placeholder="info@example.com" />
         </FormSection>
 
-        <FormSection title="How parents pay" icon={Wallet} description="Printed on every invoice.">
-          <TextField<AcademyInput> name="paymentType" label="Payment method" placeholder="e.g. M-Pesa Paybill" />
-          <TextField<AcademyInput> name="paymentMethod" label="Number or account" className="[&_input]:font-mono" placeholder="e.g. 123456" />
+        <FormSection title="How parents pay" icon={Wallet} description="Printed on every invoice and in emails to guardians.">
+          <TextField<AcademyInput> name="paymentType" label="Payment method" list="payment-methods" autoComplete="off" placeholder="e.g. M-Pesa Paybill" />
+          <datalist id="payment-methods">
+            {["M-Pesa Paybill", "M-Pesa Till", "M-Pesa Send Money"].map((m) => (
+              <option key={m} value={m} />
+            ))}
+          </datalist>
+          <TextField<AcademyInput> name="paymentMethod" label="Number" className="[&_input]:font-mono" inputMode="numeric" placeholder="e.g. 123456" />
+          <FormField
+            control={form.control}
+            name="paymentReference"
+            render={({ field }) => (
+              <FormItem className="@md:col-span-2">
+                <FormLabel>Account number parents enter</FormLabel>
+                <ChoiceChips
+                  label="Account number parents enter"
+                  options={[{ value: "NONE", label: "None" }, ...PAYMENT_REFERENCES]}
+                  value={field.value || "NONE"}
+                  onChange={(v) => field.onChange(v === "NONE" ? "" : v)}
+                />
+                <FormDescription>For Paybill payments.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        </FormSection>
+
+        <FormSection title="Bank account" icon={Landmark} description="Optional second way to pay.">
+          <TextField<AcademyInput> name="bankName" label="Bank" optional placeholder="e.g. KCB" />
+          <TextField<AcademyInput> name="bankBranch" label="Branch" optional placeholder="e.g. Eastleigh" />
+          <TextField<AcademyInput> name="bankAccountName" label="Account name" optional />
+          <TextField<AcademyInput> name="bankAccountNumber" label="Account number" optional className="[&_input]:font-mono" inputMode="numeric" />
         </FormSection>
 
         <FormSection title="Receipts" icon={Receipt} columns={1}>

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
 import { logView } from "@/lib/audit-view";
+import { howToPay } from "@/features/academy/lib/how-to-pay";
 import { getCachedAcademy } from "@/lib/academy-cache";
 import ViewInvoice, { INVOICE_PAGE_INCLUDE } from "@/features/invoices/components/ViewInvoice";
 
@@ -26,8 +27,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         contactEmail: a?.contactEmail ?? null,
         contactPhone: a?.contactPhone ?? null,
         logoUrl: a?.logoUrl ?? null,
-        paymentMethodType: a?.paymentMethodType ?? null,
-        paymentMethod: a?.paymentMathod ?? null,
+        pay: howToPay(a, invoice),
         footer: a?.receiptFooterNotes ?? null,
         kraPin: a?.kraPin ?? null,
         terms: a?.documentTerms ?? null,

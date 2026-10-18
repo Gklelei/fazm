@@ -8,6 +8,7 @@ import { formatCurrency } from "@/lib/format";
 import { formatAcademy } from "@/lib/academy-time";
 import { invoiceBalance } from "@/features/invoices/lib/status";
 import { invoicePdf } from "@/features/invoices/lib/pdf";
+import { howToPay } from "@/features/academy/lib/how-to-pay";
 
 /**
  * Emails to guardians, each switched on in Settings → Emails: a new invoice
@@ -26,11 +27,11 @@ export async function guardianEmails(athleteId: string) {
 }
 
 /** A plain letter: greeting, a few label/value rows, a closing line. */
-async function letter(title: string, intro: string, rows: [string, string][], outro?: string) {
+async function letter(title: string, intro: string, rows: [string, string][], { pay, outro }: { pay?: { athleteId: string; invoiceNumber: string }; outro?: string } = {}) {
   const a = await getCachedAcademy().catch(() => null);
   const name = a?.academyName || "Fazam Football Academy";
-  const pay = a?.paymentMethodType || a?.paymentMathod ? `${a?.paymentMethodType ?? ""} ${a?.paymentMathod ?? ""}`.trim() : null;
-  const all: [string, string][] = pay && outro !== undefined ? [...rows, ["How to pay", pay]] : rows;
+  // Payment instructions from Academy profile → How parents pay
+  const all: [string, string][] = [...rows, ...(pay ? howToPay(a, pay).map((r): [string, string] => [r.label, r.value]) : [])];
   const text = [intro, "", ...all.map(([k, v]) => `${k}: ${v}`), "", outro ?? "", "", name].join("\n");
   const html = `<div style="font-family:sans-serif;max-width:560px;color:#111">
 <h2 style="margin:0 0 12px">${esc(title)}</h2>
@@ -60,7 +61,7 @@ export async function emailInvoice(invoiceNumber: string) {
       ["To pay", formatCurrency(invoiceBalance(inv))],
       ["Due", day(inv.dueDate)],
     ],
-    "Use the invoice number as the payment reference.",
+    { pay: inv },
   );
   await sendMail({
     to,
@@ -120,7 +121,7 @@ export async function overdueReminders({ now = new Date(), dryRun = false } = {}
         ["For", inv.description ?? "Fees"],
         ["Still to pay", formatCurrency(invoiceBalance(inv))],
       ],
-      "Please pay as soon as you can, using the invoice number as the reference. If you've already paid, thank you, and ignore this email.",
+      { pay: inv, outro: "Please pay as soon as you can. If you've already paid, thank you, and ignore this email." },
     );
     const res = await sendMail({ to, subject: `Reminder: invoice ${inv.invoiceNumber} is overdue`, text, html });
     if (res.success) {

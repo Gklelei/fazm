@@ -59,8 +59,8 @@ export type InvoiceLetterhead = {
   contactEmail: string | null;
   contactPhone: string | null;
   logoUrl: string | null;
-  paymentMethodType: string | null;
-  paymentMethod: string | null;
+  /** Rows from howToPay(): method, account number, bank */
+  pay: { label: string; value: string }[];
   footer: string | null;
   kraPin: string | null;
   terms: string | null;
@@ -278,13 +278,17 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
 
             {data.notes && <p className="text-sm whitespace-pre-line text-muted-foreground">{data.notes}</p>}
 
-            {(lh.paymentMethod || lh.paymentMethodType) && (
+            {lh.pay.length > 0 && (
               <div className="rounded-lg border-l-4 border-brand-gold bg-muted/40 p-4 text-sm">
                 <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">How to pay</p>
-                <p className="mt-1">
-                  {lh.paymentMethodType}
-                  {lh.paymentMethod && <span className="ml-2 font-mono font-bold">{lh.paymentMethod}</span>}
-                </p>
+                <dl className="mt-1 space-y-0.5">
+                  {lh.pay.map((r) => (
+                    <div key={r.label} className="flex flex-wrap gap-x-2">
+                      <dt>{r.label}</dt>
+                      <dd className="font-mono font-bold">{r.value}</dd>
+                    </div>
+                  ))}
+                </dl>
               </div>
             )}
 

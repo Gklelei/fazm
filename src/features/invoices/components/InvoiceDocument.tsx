@@ -10,6 +10,7 @@ import {
 import type { Prisma } from "@/generated/prisma/client";
 import { formatAcademy } from "@/lib/academy-time";
 import { getAcademyQueryType } from "@/features/academy/queries";
+import { howToPay } from "@/features/academy/lib/how-to-pay";
 
 const styles = StyleSheet.create({
   page: {
@@ -291,10 +292,11 @@ export default function InvoiceDocument({
         {/* Payment */}
         <View style={styles.paymentBox}>
           <Text style={styles.sectionTitle}>Payment Instructions</Text>
-          <Text>
-            {academy?.paymentMethodType || "M-Pesa Send Money"}:{" "}
-            {academy?.paymentMathod || "0758080448"}
-          </Text>
+          {(academy ? howToPay(academy, invoice) : [{ label: "M-Pesa Send Money", value: "0758080448" }]).map((r) => (
+            <Text key={r.label}>
+              {r.label}: {r.value}
+            </Text>
+          ))}
         </View>
 
         {academy?.documentTerms && (
