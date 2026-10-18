@@ -25,6 +25,7 @@ export const GetAthleteByIdQuery = (id: string) =>
         orderBy: { createdAt: "desc" },
         include: {
           subscriptionPlan: true,
+          coupon: { select: { name: true } },
         },
       },
       assessments: {

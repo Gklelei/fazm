@@ -63,12 +63,14 @@ export default function AthleteProfile({
   coupons,
   summary,
   canManageConsent,
+  canSendStatement,
   progress,
 }: {
   data: GetAthleteByIdQueryType;
   coupons: AthleteCouponOption[];
   summary: AthleteSummary;
   canManageConsent: boolean;
+  canSendStatement: boolean;
   progress: AthleteProgress;
 }) {
   const name = athleteName(data);
@@ -87,7 +89,7 @@ export default function AthleteProfile({
   const sections: Section[] = [
     { key: "details", label: "Details", description: "Personal and physical details.", content: <Details data={data} /> },
     { key: "guardian", label: "Guardians", description: "Parents and guardians to contact.", content: <GuardianInfo data={data} /> },
-    { key: "statement", label: "Statement", description: "Charges, payments and running balance.", content: <AthleteStatement data={data} /> },
+    { key: "statement", label: "Statement", description: "Charges, payments and running balance.", content: <AthleteStatement data={data} canSend={canSendStatement} /> },
     { key: "invoice", label: "Invoices", description: "What has been billed and what is still due.", content: <AthleteInvoices data={data} /> },
     { key: "fees", label: "Payments", description: "Payments received, with receipts.", content: <FinancialRecords data={data} /> },
     { key: "plan", label: "Fee plan", description: "The plan they're billed on, and coupons.", content: <AthleteSubscriptionPlans data={data} coupons={coupons} /> },

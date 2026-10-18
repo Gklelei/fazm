@@ -67,5 +67,5 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
 
   const session = await auth.api.getSession({ headers: await headers() });
-  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} progress={progress} />;
+  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} canSendStatement={hasRole(session?.user.role, "finance")} progress={progress} />;
 }
