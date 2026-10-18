@@ -497,6 +497,21 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   - `ADMIN` and `SUPER_ADMIN` keep access to everything (they're the academy's system admins).
   - Payroll visibility is decided by Q3.
 
+**Done 2026-10-18/19:**
+- **Student statement** (athlete profile → Statement): coupon and sibling discounts count, From/To
+  period with balance brought forward, closing total, a phone list; finance roles download it as a
+  PDF or email it to the guardians. One calculation: `src/features/finance/lib/statement.ts`.
+- **Families:** staff link siblings from the profile's Family section. Athletes whose guardian has
+  the same mobile are suggested (placeholders ignored); a suggestion is never linked automatically.
+  Family statement PDF; one family payment split oldest-first across the children's invoices
+  (editable), one receipt per invoice, all saved together.
+- **Sibling discount** (Settings → Fees, developer 2026-10-18): a percentage or fixed amount off
+  fees invoices for every child after the first registered; with a coupon, the bigger one wins.
+- **Finance officer** (developer 2026-10-19): opens athlete profiles with only Guardians, Family,
+  Statement, Invoices, Payments and Fee plan (nothing medical or personal is sent to their
+  browser), and sees Reports.
+- **Deploy:** `yarn db:deploy` adds `families` and `sibling_discount`.
+
 ## Stage 4: payroll
 
 Research (2026-10-16, Kenyan sources; check against KRA and NSSF before go-live).
