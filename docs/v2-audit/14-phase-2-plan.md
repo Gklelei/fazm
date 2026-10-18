@@ -468,6 +468,17 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   - **CSV:** readable column names, and names instead of IDs.
   - **Printable PDF lists:** for example, the batch list for printing that the client asked for.
 
+**Done 2026-10-18, improving within the existing designs (developer's choice):**
+- **Layouts unchanged:** the invoice, receipt and list PDFs keep their current layouts. A full new
+  document design waits until the developer asks, with a mockup shown first.
+- **Excel:** money and numbers stay numbers, in KES format; money columns get a total row; the
+  header row has filters. Freezing the header isn't possible with the free SheetJS build.
+- **PDFs:** list PDFs show the academy name, Nairobi time and page numbers; invoice and receipt PDFs
+  get page numbers; the receipt shows the KRA PIN.
+- **Batch list:** already printable from the roster (pick a batch, then Export → PDF). The file is
+  now named after the batch and shows the guardian's phone.
+- **Exports in words:** statuses and roles read as words ("Overdue", "In progress", "Head coach").
+
 ## Stage 3: finance
 
 - **Student statement:** a running ledger for one athlete over a chosen period:
