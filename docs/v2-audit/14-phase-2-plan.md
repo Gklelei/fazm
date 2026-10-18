@@ -441,10 +441,19 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   (PDF attached), receipt to the guardian, overdue reminders (at most weekly). Sent through the
   academy's own mail server (SMTP, password encrypted at rest, "Send test email"); the current
   Mailtrap sending stays as the fallback until SMTP is set.
-- **Security and data:** session timeout (idle minutes), activity log retention (2 years, as
-  decided; deleting old entries waits for the backup archive). "Last backup" shows only once the
-  server's backup job writes its time where the app can read it (a server change, to confirm).
+- **Security and data:** session timeout (idle minutes). Activity log retention (2 years, as
+  decided) is not built yet: deleting old entries waits for the backup archive. "Last backup" shows
+  only once the server's backup job writes its time where the app can read it (a server change,
+  to confirm).
 - **Every setting starts at today's behaviour**, so nothing changes until someone edits it.
+- **Built (2026-10-18):** Settings has a section menu (club lists, then preferences): invoices and
+  receipts (letters, due days, KRA PIN, terms), fees (fee plan picked first, late fee and grace
+  days, charged by the `late-fees` job), attendance and sessions, registration (documents to
+  collect), emails (mail server, test email, finance report recipients, guardian emails for
+  invoices, receipts and the `overdue-reminders` job), security (idle sign-out).
+- **Open:** a prorated first invoice needs a rule first: registration already bills from today to
+  the 30th of next month, so "the rest of the month" can mean more than one thing. Company
+  signature on documents also waits.
 
 ## Stage 2: documents and exports
 

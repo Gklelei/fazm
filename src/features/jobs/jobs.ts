@@ -6,6 +6,7 @@ import { invoiceBalance } from "@/features/invoices/lib/status";
 import { formatCurrency } from "@/lib/format";
 import { ageFromDob } from "./age";
 import { overdueReminders } from "@/features/invoices/lib/emails";
+import { lateFees } from "@/features/invoices/lib/late-fees";
 
 /**
  * Scheduled jobs. Each returns a small summary that is logged and stored in
@@ -194,6 +195,7 @@ export const JOBS = {
   "cleanup-auth": cleanupAuth,
   "finance-report": financeReport,
   "overdue-reminders": overdueReminders,
+  "late-fees": lateFees,
 } as const;
 
 export type JobName = keyof typeof JOBS;

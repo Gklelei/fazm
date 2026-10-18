@@ -34,6 +34,7 @@ declare global {
       sessionMinutes?: number;
       requiredDocuments?: string[];
       attendanceEditDays?: number | null;
+      sessionTimeoutMinutes?: number | null;
     } | null;
 
     plans: {

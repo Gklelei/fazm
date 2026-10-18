@@ -10,7 +10,6 @@ export const SETTING_DEFAULTS = {
   receiptPrefix: "FEES",
   invoiceDueDays: 7,
   defaultPlanId: null as string | null,
-  prorateFirstInvoice: false,
   lateFeeAmount: null as number | null,
   lateFeeGraceDays: 7,
   inactiveWeeks: 13,
@@ -21,8 +20,7 @@ export const SETTING_DEFAULTS = {
   emailInvoices: false,
   emailReceipts: false,
   emailOverdue: false,
-  sessionTimeoutMinutes: 30,
-  logRetentionMonths: 24,
+  sessionTimeoutMinutes: null as number | null,
 };
 
 export type Settings = typeof SETTING_DEFAULTS;

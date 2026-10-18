@@ -2,7 +2,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "@/lib/prisma";
 import { makeAthlete, makeInvoice, resetDb } from "@/tests/support/db";
 
-const sendMail = vi.fn(async (_mail: { to: string[]; subject: string; attachments?: unknown[] }) => ({ success: true, message: "sent" }));
+const sendMail = vi.fn<(mail: { to: string[]; subject: string; attachments?: unknown[] }) => Promise<ActionResult>>(async () => ({ success: true, message: "sent" }));
 vi.mock("@/lib/mail", () => ({ sendMail: (m: never) => sendMail(m) }));
 vi.mock("@/features/invoices/lib/pdf", () => ({
   invoicePdf: async (where: { invoiceNumber: string }) => ({

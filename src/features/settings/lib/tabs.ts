@@ -9,6 +9,7 @@ export const SETTINGS_TABS = [
   { key: "attendance", label: "Attendance and sessions", group: "Preferences", list: false },
   { key: "registration", label: "Registration", group: "Preferences", list: false },
   { key: "emails", label: "Emails", group: "Preferences", list: false },
+  { key: "security", label: "Security", group: "Preferences", list: false },
 ] as const;
 export type SettingsTab = (typeof SETTINGS_TABS)[number]["key"];
 export type ListTab = Extract<(typeof SETTINGS_TABS)[number], { list: true }>["key"];

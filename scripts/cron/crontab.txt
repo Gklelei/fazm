@@ -9,6 +9,8 @@ J=/home/gklelei/apps/fazm-cron/run-job.sh
 5 * * * *     $J sync-session-athletes
 # Unpaid invoices become overdue the day after their due date
 10 0 * * *    $J overdue-invoices
+# Late fee on invoices overdue past the grace days, when a late fee is set
+15 0 * * *    $J late-fees
 # Recompute ages from date of birth
 20 0 * * *    $J update-ages
 # Active athletes with no attendance and no payment for a while (Settings,

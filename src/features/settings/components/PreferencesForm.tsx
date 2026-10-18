@@ -6,7 +6,7 @@ import { useForm, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AtSign, CalendarClock, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, Wallet } from "lucide-react";
+import { AtSign, CalendarClock, Clock, Hourglass, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -152,6 +152,25 @@ export function PreferencesForm<S extends PreferenceSection>({
                   <FormMessage />
                 </FormItem>
               )}
+            />
+          </FormSection>
+        )}
+
+        {section === "fees" && (
+          <FormSection title="Late fees" icon={Hourglass}>
+            <TextField name="lateFeeAmount" label="Late fee (KES)" optional inputMode="decimal" hint="Leave empty for no late fees." />
+            <TextField name="lateFeeGraceDays" label="Charged after overdue for (days)" inputMode="numeric" />
+          </FormSection>
+        )}
+
+        {section === "security" && (
+          <FormSection title="Signing out" icon={Clock}>
+            <TextField
+              name="sessionTimeoutMinutes"
+              label="Sign out after idle for (minutes)"
+              optional
+              inputMode="numeric"
+              hint="Leave empty to stay signed in."
             />
           </FormSection>
         )}

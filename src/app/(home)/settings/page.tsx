@@ -69,7 +69,11 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             />
           )}
           {academy && tab === "fees" && (
-            <PreferencesForm section="fees" values={{ defaultPlanId: s.defaultPlanId ?? "" }} plans={data.plans} />
+            <PreferencesForm
+              section="fees"
+              values={{ defaultPlanId: s.defaultPlanId ?? "", lateFeeAmount: text(s.lateFeeAmount), lateFeeGraceDays: String(s.lateFeeGraceDays) }}
+              plans={data.plans}
+            />
           )}
           {academy && tab === "attendance" && (
             <PreferencesForm
@@ -78,6 +82,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             />
           )}
           {academy && tab === "registration" && <PreferencesForm section="registration" values={{ requiredDocuments: s.requiredDocuments }} />}
+          {academy && tab === "security" && <PreferencesForm section="security" values={{ sessionTimeoutMinutes: text(s.sessionTimeoutMinutes) }} />}
           {academy && tab === "emails" && (
             <PreferencesForm
               section="emails"

@@ -18,14 +18,10 @@ model academy {
   receiptPrefix  String  @default("FEES") @map("receipt_prefix")
   invoiceDueDays Int     @default(7) @map("invoice_due_days")
   documentTerms  String? @map("document_terms")
-  bankDetails    String? @map("bank_details")
   kraPin         String? @map("kra_pin")
-  signatureUrl   String? @map("signature_url")
 
   // Fees
   defaultPlanId       String?  @map("default_plan_id")
-  /// First invoice charges only the rest of the month
-  prorateFirstInvoice Boolean  @default(false) @map("prorate_first_invoice")
   /// Empty: no late fees
   lateFeeAmount       Decimal? @map("late_fee_amount") @db.Decimal(10, 2)
   lateFeeGraceDays    Int      @default(7) @map("late_fee_grace_days")
@@ -55,8 +51,8 @@ model academy {
   emailOverdue   Boolean  @default(false) @map("email_overdue")
 
   // Security and data
-  sessionTimeoutMinutes Int @default(30) @map("session_timeout_minutes")
-  logRetentionMonths    Int @default(24) @map("log_retention_months")
+  /// Sign out after this many idle minutes; empty: never
+  sessionTimeoutMinutes Int? @map("session_timeout_minutes")
 
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")

@@ -55,6 +55,12 @@ export const PREFERENCE_SCHEMAS = {
     .refine((v) => v.invoicePrefix !== v.receiptPrefix, { path: ["receiptPrefix"], message: "Use different letters from invoices" }),
   fees: z.object({
     defaultPlanId: z.string().transform((v) => v || null),
+    lateFeeAmount: z
+      .string()
+      .trim()
+      .refine((v) => !v || (/^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 1_000_000), "Enter an amount, or leave it empty")
+      .transform((v) => (v ? Number(v) : null)),
+    lateFeeGraceDays: whole(0, 90, "Enter 0 to 90 days"),
   }),
   attendance: z.object({
     sessionMinutes: whole(15, 300, "Enter 15 to 300 minutes"),
@@ -86,6 +92,9 @@ export const PREFERENCE_SCHEMAS = {
       emailOverdue: z.boolean(),
     })
     .refine((v) => !v.smtpHost || v.senderEmail, { path: ["senderEmail"], message: "Enter the address emails come from" }),
+  security: z.object({
+    sessionTimeoutMinutes: wholeOrEmpty(5, 720, "Enter 5 to 720 minutes, or leave it empty"),
+  }),
   registration: z.object({
     requiredDocuments: z.array(z.enum(REGISTRATION_DOCUMENTS.map((d) => d.value) as [string, ...string[]])).max(REGISTRATION_DOCUMENTS.length),
   }),

@@ -3,8 +3,9 @@
 import { ReactNode } from "react";
 import { UtilsProviderWrapper } from "@/providers/UtilsProvider";
 import { DynamicThemeProvider } from "@/providers/DynamicThemeProvider";
+import { IdleSignOut } from "@/providers/IdleSignOut";
 
-/** Signed-in app only: settings lookups, and live updates to the academy colour. */
+/** Signed-in app only: settings lookups, live updates to the academy colour, idle sign-out. */
 const MainLayoutWrapper = ({
   utils,
   children,
@@ -14,6 +15,7 @@ const MainLayoutWrapper = ({
 }) => (
   <UtilsProviderWrapper initialData={utils}>
     <DynamicThemeProvider />
+    <IdleSignOut />
     {children}
   </UtilsProviderWrapper>
 );
