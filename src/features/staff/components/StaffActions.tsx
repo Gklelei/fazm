@@ -17,7 +17,7 @@ export function StaffActions({ staff, archived }: { staff: StaffMenuTarget; arch
   if (archived) {
     return staff.self ? null : (
       <Button
-        variant="outline"
+        className="h-10 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90"
         disabled={pending}
         onClick={() =>
           start(async () => {
@@ -34,13 +34,13 @@ export function StaffActions({ staff, archived }: { staff: StaffMenuTarget; arch
   }
 
   return (
-    <>
-      <Button asChild>
+    <div className="flex gap-2">
+      <Button asChild className="h-10 flex-1 bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
         <Link href={`/staff/${staff.staffId}/edit`}>
           <Pencil /> Edit
         </Link>
       </Button>
       <StaffActionsMenu staff={staff} onPage onChanged={() => router.refresh()} />
-    </>
+    </div>
   );
 }

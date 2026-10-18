@@ -66,9 +66,9 @@ export function StaffActionsMenu({
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <Button
-            variant={onPage ? "outline" : "ghost"}
+            variant={onPage ? "secondary" : "ghost"}
             size="icon"
-            className={onPage ? undefined : "size-8"}
+            className={onPage ? "size-10" : "size-8"}
             disabled={pending}
             aria-label={`Actions for ${s.name}`}
           >

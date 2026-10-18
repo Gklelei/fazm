@@ -6,10 +6,10 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { KeyRound, Loader2, LogOut, Monitor, Siren, UserRound } from "lucide-react";
+import { Activity, IdCard, KeyRound, Loader2, LogOut, Mail, Monitor, Siren, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
-import { PageHeader } from "@/components/shared/PageHeader";
+import ProfileAvatar from "@/components/shared/ProfileAvatar";
 import { FormAlert } from "@/components/form/FormAlert";
 import { FormSection } from "@/components/form/FormSection";
 import { PhotoField } from "@/components/form/PhotoField";
@@ -21,18 +21,18 @@ import type { ROLES } from "@/generated/prisma/enums";
 import { updateMyProfile } from "../actions/edit-staff";
 import { myProfileSchema, type MyProfileInput } from "../schemas/profile";
 
-type Device = { id: string; device: string; ip: string | null; lastActive: string; current: boolean };
+type Device = { id: string; device: string; ip: string | null; lastActive: string; current: boolean; count: number };
 type LogEntry = { id: string; details: string | null; createdAt: string };
 
 const when = (d: string) => formatAcademy(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
 
-function Panel({ title, aside, children }: { title: string; aside?: React.ReactNode; children: React.ReactNode }) {
+function Panel({ title, icon: Icon, aside, children }: { title: string; icon: React.ComponentType<{ className?: string }>; aside?: React.ReactNode; children: React.ReactNode }) {
   return (
-    <section className="overflow-hidden rounded-lg border bg-card">
-      <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
-        <h2 className="font-display text-lg font-semibold tracking-wide uppercase">{title}</h2>
-        {aside}
-      </header>
+    <section className="rounded-xl border bg-card">
+      <h2 className="flex items-center gap-2 px-4 pt-4 pb-2 text-sm font-semibold">
+        <Icon className="size-4 text-primary" /> {title}
+        {aside && <span className="ml-auto font-normal">{aside}</span>}
+      </h2>
       {children}
     </section>
   );
@@ -82,20 +82,9 @@ export function MyProfile({
     });
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="My profile"
-        description={
-          <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-            <span className="rounded-full border border-primary/25 bg-primary/8 px-2 py-0.5 text-xs font-medium text-primary">{ROLE_LABEL[role]}</span>
-            {work?.jobTitle && <span className="font-medium text-foreground">{work.jobTitle}</span>}
-            {work && <span className="font-mono text-xs">{work.staffId}</span>}
-          </span>
-        }
-      />
-
-      <div className="grid gap-6 xl:grid-cols-5">
-        <div className="xl:col-span-3">
+    <div className="space-y-4">
+      <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_22rem]">
+        <div className="min-w-0 lg:order-1">
           <Form {...form}>
             <form onSubmit={submit} className="space-y-4" noValidate>
               <FormAlert message={error} />
@@ -128,42 +117,62 @@ export function MyProfile({
           </Form>
         </div>
 
-        <div className="space-y-6 xl:col-span-2">
-          <Panel
-            title="Sign-in"
-            aside={
-              <Button variant="outline" size="sm" asChild>
+        <aside className="space-y-4 lg:sticky lg:top-20 lg:order-2 max-lg:order-first">
+          <section className="overflow-hidden rounded-xl bg-brand-navy text-white shadow-sm dark:ring-1 dark:ring-white/10">
+            <div className="space-y-4 p-5">
+              <div className="flex items-center gap-4">
+                <ProfileAvatar name={values.fullNames} url={values.photo || undefined} size={64} className="ring-2 ring-brand-gold" />
+                <div className="min-w-0">
+                  <p className="text-xs font-medium tracking-wide text-white/60 uppercase">My profile</p>
+                  <h1 className="font-display text-2xl leading-tight font-bold">{values.fullNames}</h1>
+                  {work?.jobTitle && <p className="text-sm text-white/70">{work.jobTitle}</p>}
+                </div>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                <span className="rounded-full bg-white px-2.5 py-0.5 text-xs font-medium text-brand-navy">{ROLE_LABEL[role]}</span>
+                {work?.batches
+                  .split(", ")
+                  .filter(Boolean)
+                  .map((b) => (
+                    <span key={b} className="rounded-md bg-brand-gold px-2 py-0.5 text-xs font-bold text-brand-navy">
+                      {b}
+                    </span>
+                  ))}
+              </div>
+              <dl className="grid gap-2 text-sm">
+                <div className="flex items-center gap-2">
+                  <Mail className="size-4 text-brand-gold" />
+                  <dd className="truncate">{email}</dd>
+                </div>
+                {work && (
+                  <div className="flex items-center gap-2">
+                    <IdCard className="size-4 text-brand-gold" />
+                    <dd className="font-mono text-xs">{work.staffId}</dd>
+                  </div>
+                )}
+              </dl>
+            </div>
+            <div className="border-t border-white/10 bg-white/5 p-4">
+              <Button asChild className="h-10 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
                 <Link href="/change-password">
                   <KeyRound /> Change password
                 </Link>
               </Button>
-            }
-          >
-            <dl className="divide-y text-sm">
-              <div className="flex justify-between gap-4 px-4 py-2.5">
-                <dt className="text-muted-foreground">Email</dt>
-                <dd className="truncate font-medium">{email}</dd>
-              </div>
-              {work && (
-                <div className="flex justify-between gap-4 px-4 py-2.5">
-                  <dt className="text-muted-foreground">Batches</dt>
-                  <dd className="font-medium">{work.batches || "—"}</dd>
-                </div>
-              )}
-            </dl>
-          </Panel>
+            </div>
+          </section>
 
           <Panel
             title="Devices"
+            icon={Monitor}
             aside={
-              devices.length > 1 && (
+              devices.reduce((n, d) => n + d.count, 0) > 1 && (
                 <Button variant="ghost" size="sm" onClick={signOutOthers} disabled={signingOut}>
                   {signingOut ? <Loader2 className="animate-spin" /> : <LogOut />} Sign out others
                 </Button>
               )
             }
           >
-            <ul className="divide-y">
+            <ul className="divide-y border-t">
               {devices.map((d) => (
                 <li key={d.id} className="flex items-center gap-3 px-4 py-2.5 text-sm">
                   <Monitor className="size-4 shrink-0 text-muted-foreground" />
@@ -175,6 +184,7 @@ export function MyProfile({
                     <span className="truncate text-muted-foreground">
                       Active {when(d.lastActive)}
                       {d.ip && ` · ${d.ip}`}
+                      {d.count > 1 && ` · ${d.count} sign-ins`}
                     </span>
                   </span>
                 </li>
@@ -182,11 +192,11 @@ export function MyProfile({
             </ul>
           </Panel>
 
-          <Panel title="Your activity">
+          <Panel title="Your activity" icon={Activity}>
             {activity.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted-foreground">Nothing yet.</p>
+              <p className="px-4 pb-4 text-sm text-muted-foreground">Nothing yet.</p>
             ) : (
-              <ol className="divide-y">
+              <ol className="divide-y border-t">
                 {activity.map((a) => (
                   <li key={a.id} className="px-4 py-2.5 text-sm">
                     <p>{a.details}</p>
@@ -196,7 +206,7 @@ export function MyProfile({
               </ol>
             )}
           </Panel>
-        </div>
+        </aside>
       </div>
     </div>
   );

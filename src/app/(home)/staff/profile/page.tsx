@@ -9,6 +9,21 @@ import { MyProfile } from "@/features/staff/components/MyProfile";
 
 export const metadata: Metadata = { title: "My profile" };
 
+/** One row per device (browser, system and address), newest first, with how many sign-ins it holds. */
+function devicesOf(sessions: { id: string; userAgent: string | null; ipAddress: string | null; updatedAt: Date }[], currentId: string) {
+  const rows = new Map<string, { id: string; device: string; ip: string | null; lastActive: string; current: boolean; count: number }>();
+  for (const x of sessions) {
+    const device = deviceOf(x.userAgent) ?? "Unknown device";
+    const key = `${device}|${x.ipAddress ?? ""}`;
+    const row = rows.get(key);
+    if (row) {
+      row.count++;
+      row.current ||= x.id === currentId;
+    } else rows.set(key, { id: x.id, device, ip: x.ipAddress, lastActive: x.updatedAt.toISOString(), current: x.id === currentId, count: 1 });
+  }
+  return [...rows.values()];
+}
+
 export default async function Page() {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) redirect("/sign-in?next=/staff/profile");
@@ -45,13 +60,7 @@ export default async function Page() {
       email={me.email}
       role={me.role}
       work={s ? { staffId: s.staffId, jobTitle: s.jobTitle, batches: s.batches.map((b) => b.name).join(", ") } : null}
-      devices={sessions.map((x) => ({
-        id: x.id,
-        device: deviceOf(x.userAgent) ?? "Unknown device",
-        ip: x.ipAddress,
-        lastActive: x.updatedAt.toISOString(),
-        current: x.id === session.session.id,
-      }))}
+      devices={devicesOf(sessions, session.session.id)}
       activity={activity.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))}
     />
   );
