@@ -55,6 +55,9 @@ model SubscriptionPlan {
   activeSubscriptions AthleteSubscription[]
   invoices            Invoice[]
 
+  /// Coupons that only work on this plan
+  coupons             Coupon[]            @relation("CouponPlans")
+
   @@map("subscription_plans")
 }
 
@@ -221,6 +224,10 @@ model Coupon {
 
   usageLimit Int? @map("usage_limit")
   timesUsed  Int  @default(0) @map("times_used")
+  /// An athlete can get it only once
+  oncePerAthlete Boolean @default(false) @map("once_per_athlete")
+  /// Only these fee plans' charges; none = any charge
+  plans          SubscriptionPlan[] @relation("CouponPlans")
   status     Int  @default(1) /* 1 for active and 0 for inactive */
   voided     Int  @default(0) /* 1 - voided 0 - not voided */
 

@@ -1,32 +1,9 @@
-import { db } from "@/lib/prisma";
-import { GetCouponsQuery } from "@/features/coupons/queries";
-import Coupons from "@/features/coupons/components/CouponsTable";
 import type { Metadata } from "next";
+import { listCoupons } from "@/features/coupons/queries/list";
+import { CouponsList } from "@/features/coupons/components/CouponsList";
 
 export const metadata: Metadata = { title: "Coupons" };
 
-export default async function Page({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-  const unresolvedSearchParams = await searchParams;
-  const page = parseInt((unresolvedSearchParams.page as string) || "1", 10);
-  const limit = parseInt((unresolvedSearchParams.limit as string) || "10", 10);
-  const skip = (page - 1) * limit;
-
-  const [coupons, total] = await db.$transaction([
-    db.coupon.findMany({
-      ...GetCouponsQuery,
-      where: { status: 1, voided: 0 },
-      orderBy: {
-        createdAt: "desc",
-      },
-      skip,
-      take: limit,
-    }),
-    db.coupon.count({ where: { status: 1, voided: 0 } }),
-  ]);
-
-  return <Coupons coupons={coupons} page={page} limit={limit} total={total} />;
+export default async function Page() {
+  return <CouponsList initial={await listCoupons({})} />;
 }

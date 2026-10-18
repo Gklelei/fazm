@@ -19,7 +19,7 @@ import {
 import SubscriptionPlans from "@/features/athletes/components/profile/SubscriptionPlans";
 import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
 import { UseUtilsContext } from "@/providers/UtilsContext";
-import { ApplyCouponToAtheleteSubscriptionPlan } from "@/features/athletes/actions/apply-coupon";
+import { applyCouponToFeePlan, removeCouponFromFeePlan } from "@/features/coupons/actions/redeem";
 import { Sweetalert } from "@/lib/alerts";
 import { formatDate } from "@/lib/format";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
@@ -64,7 +64,7 @@ const AthleteSubscriptionPlans = ({
     setErrorText(null);
 
     startTransition(async () => {
-      const res = await ApplyCouponToAtheleteSubscriptionPlan({
+      const res = await applyCouponToFeePlan({
         couponCode: finalCode,
         athleteId: data.athleteId,
         subId: activeSub.id,
@@ -153,10 +153,21 @@ const AthleteSubscriptionPlans = ({
                         <Tag className="h-3.5 w-3.5" />
                         {activeSub.coupon.name}
                       </Badge>
-                      <span className="text-xs text-muted-foreground">
-                        Coupon attached to subscription (usage increments on
-                        invoice discount).
-                      </span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        disabled={isPending}
+                        onClick={() =>
+                          startTransition(async () => {
+                            const res = await removeCouponFromFeePlan({ athleteId: data.athleteId, subId: activeSub.id });
+                            if (res.success) Sweetalert({ icon: "success", text: res.message, title: "Removed" });
+                            else setErrorText(res.message);
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
                     </div>
                   ) : (
                     <div className="text-xs text-muted-foreground pt-1">

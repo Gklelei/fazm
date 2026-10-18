@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { GetExpensesQuery } from "@/features/expenses/queries";
 import { GetExpenseCategoriesQuery } from "@/features/expenses/queries";
-import { GetCouponsQuery } from "@/features/coupons/queries";
+import { buildCouponWhere, COUPON_LIST_SELECT, couponFiltersFromParams, toCouponRow } from "@/features/coupons/queries/list";
 import { GetAllTrainingSessionsQuery } from "@/features/assessments/queries";
 import { Prisma } from "@/generated/prisma/client";
 import { apiError } from "@/lib/api-response";
@@ -95,18 +95,13 @@ export async function GET(req: NextRequest) {
       }
 
       case "coupons": {
-        const whereClause: Prisma.CouponWhereInput = { status: 1, voided: 0 };
-        if (query) {
-          whereClause.name = { contains: query, mode: "insensitive" };
-        }
-
-        const data = await db.coupon.findMany({
-          ...GetCouponsQuery,
-          where: whereClause,
-          orderBy: { createdAt: "desc" },
+        const rows = await db.coupon.findMany({
+          where: buildCouponWhere(couponFiltersFromParams(req.nextUrl.searchParams)),
+          select: COUPON_LIST_SELECT,
+          orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           take: MAX_EXPORT_ROWS,
         });
-        return NextResponse.json(data);
+        return NextResponse.json(rows.map(toCouponRow));
       }
 
       case "sessions": {

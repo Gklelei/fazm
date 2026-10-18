@@ -4,7 +4,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Ban, Banknote, FileDown, MoreHorizontal, Pencil, RotateCcw, Tag } from "lucide-react";
+import { Ban, Banknote, FileDown, MoreHorizontal, Pencil, RotateCcw, Tag, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -16,6 +16,7 @@ import {
 import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import type { PickedAthlete } from "@/features/athletes/components/AthletePicker";
 import { setInvoiceCancelled } from "../actions/cancel-invoice";
+import { removeCouponFromInvoice } from "@/features/coupons/actions/redeem";
 import ApplyCoupon from "./ApplyCoupon";
 
 /** The invoice page's buttons: pay first, then edit and PDF, the rest in a menu. */
@@ -25,12 +26,15 @@ export function InvoiceActions({
   status,
   balance,
   athlete,
+  coupon,
 }: {
   id: string;
   invoiceNumber: string;
   status: string;
   balance: number;
   athlete: PickedAthlete;
+  /** The coupon on this invoice, if any */
+  coupon: string | null;
 }) {
   const router = useRouter();
   const [payOpen, setPayOpen] = useState(false);
@@ -66,7 +70,7 @@ export function InvoiceActions({
           <Banknote /> Record payment
         </Button>
       )}
-      {(open || status !== "PAID") && (
+      {(open || coupon || status !== "PAID") && (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon" disabled={pending} aria-label="More actions">
@@ -74,12 +78,26 @@ export function InvoiceActions({
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="w-48">
-            {open && (
+            {open && !coupon && (
               <DropdownMenuItem onSelect={() => setCouponOpen(true)}>
                 <Tag /> Apply coupon
               </DropdownMenuItem>
             )}
-            {open && status !== "PAID" && <DropdownMenuSeparator />}
+            {coupon && !cancelled && (
+              <DropdownMenuItem
+                onSelect={() =>
+                  start(async () => {
+                    const res = await removeCouponFromInvoice(invoiceNumber);
+                    if (!res.success) return void toast.error(res.message);
+                    toast.success(res.message);
+                    router.refresh();
+                  })
+                }
+              >
+                <X /> Remove {coupon}
+              </DropdownMenuItem>
+            )}
+            {(open || coupon) && status !== "PAID" && <DropdownMenuSeparator />}
             {status !== "PAID" && (
               <DropdownMenuItem variant={cancelled ? "default" : "destructive"} onSelect={toggleCancelled}>
                 {cancelled ? <RotateCcw /> : <Ban />}

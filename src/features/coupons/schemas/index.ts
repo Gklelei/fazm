@@ -1,56 +1,32 @@
 import { z } from "zod";
 
+/** Shared by the coupon form (browser) and the actions (server). */
+const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date");
+
 export const couponSchema = z
   .object({
     name: z
       .string()
-      .min(2, "Coupon code must be at least 2 characters")
-      .max(20, "Coupon code is too long (max 20 characters)")
-      .regex(
-        /^[a-zA-Z0-9_]+$/,
-        "Code can only contain letters, numbers, and underscores",
-      ),
-
-    discountType: z
-      .string()
-      .min(1, "This field is required")
-      .refine((data) => ["PERCENTAGE", "FIXED_AMOUNT"].includes(data)),
-    value: z.coerce
-      .number<number>({ error: "Discount value must be a number" })
-      .positive("Discount must be greater than zero")
-      .refine((val) => val > 0, "Value must be positive"),
-
-    interval: z
+      .trim()
+      .toUpperCase()
+      .regex(/^[A-Z0-9_]{2,20}$/, "Use 2 to 20 letters, numbers or _"),
+    discountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]),
+    value: z.coerce.number({ error: "Enter the discount" }).positive("Enter the discount").max(10_000_000, "That's too large"),
+    interval: z.enum(["ONCE", "REPEATING"]),
+    startDate: ymd,
+    expiryDate: z.string().refine((v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v), "Pick a date"),
+    usageLimit: z
       .string()
       .trim()
-      .min(1, "Select if this is a one-time or repeating discount")
-      .refine((data) => ["ONCE", "REPEATING"].includes(data), {
-        error: "Please select a valid interval",
-      }),
-
-    startDate: z.date({
-      error: "Please select a start date",
-    }),
-
-    expiryDate: z.date().optional(),
-
-    usageLimit: z
-      .number()
-      .int("Limit must be a whole number")
-      .positive("Limit must be at least 1")
-      .optional(),
+      .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1), "Enter a whole number, or leave it empty"),
+    oncePerAthlete: z.boolean(),
+    /** Only these fee plans' charges; none = any charge */
+    plans: z.array(z.string().min(1)).max(50),
   })
-  .refine(
-    (data) => {
-      if (data.expiryDate && data.expiryDate < data.startDate) {
-        return false;
-      }
-      return true;
-    },
-    {
-      message: "Expiry date cannot be before the start date",
-      path: ["expiryDate"],
-    },
-  );
+  .superRefine((v, ctx) => {
+    if (v.discountType === "PERCENTAGE" && v.value > 100) ctx.addIssue({ code: "custom", path: ["value"], message: "Up to 100%" });
+    if (v.expiryDate && v.expiryDate < v.startDate) ctx.addIssue({ code: "custom", path: ["expiryDate"], message: "Pick a date after it starts" });
+  });
 
-export type couponSchemaType = z.infer<typeof couponSchema>;
+export type CouponInput = z.input<typeof couponSchema>;
+export type CouponValues = z.output<typeof couponSchema>;

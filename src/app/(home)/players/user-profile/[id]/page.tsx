@@ -18,9 +18,11 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const [athlete, summary, coupons] = await Promise.all([
     db.athlete.findUnique(GetAthleteByIdQuery(id)),
     getAthleteSummary(id),
-    // Coupons that can still be applied to this athlete's plan
+    // Repeating coupons that can still go on this athlete's fee plan
     db.coupon.findMany({
       where: {
+        interval: "REPEATING",
+        startDate: { lte: new Date() },
         voided: 0,
         status: 1,
         OR: [{ expiryDate: null }, { expiryDate: { gt: new Date() } }],

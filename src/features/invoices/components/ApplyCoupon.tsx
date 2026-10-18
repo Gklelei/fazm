@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
-import { ApplyCouponToInvoice } from "../actions/apply-discounts";
+import { applyCouponToInvoice } from "@/features/coupons/actions/redeem";
 
 /** Controlled dialog: open it from a row menu or a button. */
 export default function ApplyCoupon({
@@ -41,7 +41,7 @@ export default function ApplyCoupon({
     if (!normalized) return setError("Enter a coupon code.");
     setError(null);
     start(async () => {
-      const res = await ApplyCouponToInvoice({ invoiceNumber, couponCode: normalized });
+      const res = await applyCouponToInvoice(invoiceNumber, normalized);
       if (!res.success) return setError(res.message);
       toast.success(res.message);
       setCode("");
@@ -58,7 +58,7 @@ export default function ApplyCoupon({
             <DialogTitle>Apply a coupon</DialogTitle>
             <DialogDescription>
               Discounts invoice <span className="font-mono text-foreground">{invoiceNumber}</span>,
-              balance {formatCurrency(balance)}. A discount larger than the balance just clears it.
+              balance {formatCurrency(balance)}.
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-1.5">

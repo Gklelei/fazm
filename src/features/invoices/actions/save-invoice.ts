@@ -9,6 +9,7 @@ import { academyDate, academyInstant } from "@/lib/academy-time";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { formatCurrency } from "@/lib/format";
 import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
+import { discountFor, feePlanCoupon } from "@/features/coupons/lib/redeem";
 import {
   createInvoiceSchema,
   editInvoiceSchema,
@@ -60,6 +61,8 @@ export async function createInvoices(input: CreateInvoiceInput) {
     const numbers = await db.$transaction(async (tx) => {
       const issued = await nextDocumentNumbers(tx, "INV", athletes.length, new Date());
       for (const [i, a] of athletes.entries()) {
+        // A repeating coupon on the athlete's fee plan discounts new fees invoices
+        const auto = v.type === "SUBSCRIPTION" ? await feePlanCoupon(tx, a.athleteId, rows) : null;
         await tx.invoice.create({
           data: {
             invoiceNumber: issued[i],
@@ -72,7 +75,8 @@ export async function createInvoices(input: CreateInvoiceInput) {
             quantity: 1,
             amountDue: total,
             amountPaid: new Prisma.Decimal(0),
-            status: invoiceStatusFor(0, Number(total), dueDate),
+            ...(auto && { couponId: auto.coupon.id, discount: new Prisma.Decimal(auto.amount) }),
+            status: invoiceStatusFor(0, Number(total) - (auto?.amount ?? 0), dueDate),
             dueDate,
             subscriptionPlanId,
             isRecurring: false,
@@ -114,7 +118,9 @@ export async function updateInvoice(invoiceNumber: string, input: EditInvoiceInp
       const inv = await tx.invoice.findUnique({ where: { invoiceNumber }, include: { lines: { orderBy: { position: "asc" } } } });
       if (!inv) throw new ActionError("That invoice no longer exists.");
       if (inv.status === "CANCELED") throw new ActionError("Restore the invoice before editing it.");
-      const discount = Number(inv.discount ?? 0);
+      // A coupon's discount follows the new lines (a percentage, or only some fee plans' charges)
+      const coupon = inv.couponId ? await tx.coupon.findUnique({ where: { id: inv.couponId }, select: { discountType: true, value: true, plans: { select: { id: true } } } }) : null;
+      const discount = coupon ? discountFor(coupon, rows) : Number(inv.discount ?? 0);
       if (discount > Number(total)) throw new ActionError(`The invoice has a ${formatCurrency(discount)} discount, so the total can't be less than that.`);
       const payable = payableOf({ amountDue: total, discount });
       if (Number(inv.amountPaid) > payable) {
@@ -131,6 +137,7 @@ export async function updateInvoice(invoiceNumber: string, input: EditInvoiceInp
           unitAmount: total,
           quantity: 1,
           amountDue: total,
+          discount: new Prisma.Decimal(discount),
           dueDate,
           status: invoiceStatusFor(Number(inv.amountPaid), payable, dueDate),
           // Keep the original plan link unless the lines now name exactly one plan

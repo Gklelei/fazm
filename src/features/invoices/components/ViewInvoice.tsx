@@ -102,6 +102,7 @@ export default function ViewInvoice({ data, issuer }: { data: Invoice; issuer: s
             status={data.status}
             balance={balance}
             athlete={{ athleteId: data.athlete.athleteId, name }}
+            coupon={data.coupon?.name ?? null}
           />
         }
       />

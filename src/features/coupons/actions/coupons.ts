@@ -1,311 +1,117 @@
 "use server";
 
-import { ROLE_GROUPS } from "@/lib/roles";
-
-import { auth } from "@/lib/auth";
-import { couponSchema, couponSchemaType } from "@/features/coupons/schemas";
-import { headers } from "next/headers";
-import { CouponInterval, DiscountType } from "@/generated/prisma/enums";
 import { revalidatePath } from "next/cache";
-import { createAuditLog } from "@/lib/audit";
+import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
-import { actionErrorMessage } from "@/lib/action";
+import { createAuditLog, diffFields } from "@/lib/audit";
+import { ActionError, asRole } from "@/lib/action";
+import { academyDate, academyInstant } from "@/lib/academy-time";
+import { couponSchema, type CouponInput, type CouponValues } from "@/features/coupons/schemas";
 
-export const CreateCouponsAction = async (
-  data: couponSchemaType,
-): Promise<ActionResult> => {
-  const input1 = couponSchema.safeParse(data);
-  if (!input1.success) return { success: false, message: actionErrorMessage(input1.error) };
-  const parsedData = input1.data;
+const fields = (v: CouponValues) => ({
+  name: v.name,
+  discountType: v.discountType,
+  value: new Prisma.Decimal(v.value),
+  interval: v.interval,
+  startDate: academyInstant(v.startDate, "00:00"),
+  // Valid to the end of that day in Nairobi
+  expiryDate: v.expiryDate ? academyInstant(v.expiryDate, "23:59") : null,
+  usageLimit: v.usageLimit ? Number(v.usageLimit) : null,
+  oncePerAthlete: v.oncePerAthlete,
+});
 
-  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
+/** The saved coupon as the log shows it. */
+const logged = (c: ReturnType<typeof fields> & { plans: string[] }) => ({
+  ...c,
+  value: Number(c.value),
+  startDate: academyDate(c.startDate),
+  expiryDate: c.expiryDate ? academyDate(c.expiryDate) : null,
+});
 
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
+async function nameFree(name: string, exceptId?: string) {
+  const other = await db.coupon.findFirst({ where: { name, ...(exceptId && { NOT: { id: exceptId } }) }, select: { id: true } });
+  if (other) throw new ActionError(`${name} already exists. Choose another code.`);
+}
 
-  if (!session?.user) {
-    return {
-      message: "Unauthorized access,please login to continue",
-      success: false,
-    };
+async function checkPlans(ids: string[]) {
+  if ((await db.subscriptionPlan.count({ where: { id: { in: ids } } })) !== new Set(ids).size) {
+    throw new ActionError("One of those fee plans no longer exists. Choose again.");
   }
+}
 
-  if (!allowedRoles.includes(session.user?.role || "")) {
-    return {
-      message:
-        "Unauthorized access, you are not allowed to perfome this action",
-      success: false,
-    };
-  }
-
-  try {
-    const existingCoupon = await db.coupon.findUnique({
-      where: {
-        name: parsedData.name.toUpperCase(),
-      },
-    });
-
-    if (existingCoupon) {
-      return {
-        message:
-          "Please choose another name, coupon with this name already exists",
-        success: false,
-      };
-    }
-    await db.coupon.create({
-      data: {
-        name: parsedData.name.toUpperCase(),
-        value: parsedData.value,
-        interval: parsedData.interval as CouponInterval,
-        discountType: parsedData.discountType as DiscountType,
-        startDate: parsedData.startDate,
-        expiryDate: parsedData.expiryDate,
-        usageLimit: parsedData.usageLimit,
-        status: 1,
-      },
-    });
-    revalidatePath("/coupons");
-
-    await createAuditLog({
-      action: "CREATE_COUPON",
-      resource: "Coupon",
-      details: `Created coupon ${parsedData.name.toUpperCase()} for ${parsedData.value} off`,
-      userId: session.user.id,
-    });
-
-    return {
-      message: "Coupon created",
-      success: true,
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      message: actionErrorMessage(error),
-      success: false,
-    };
-  }
+const touched = (id?: string) => {
+  revalidatePath("/coupons");
+  if (id) revalidatePath(`/coupons/${id}`);
 };
 
-export const DeleteCouponsAction = async (
-  id: string,
-): Promise<ActionResult> => {
-  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
+export async function createCoupon(input: CouponInput) {
+  return asRole("finance", async (user) => {
+    const v = couponSchema.parse(input);
+    await nameFree(v.name);
+    await checkPlans(v.plans);
+    const c = await db.coupon.create({ data: { ...fields(v), plans: { connect: v.plans.map((id) => ({ id })) } } });
+    touched();
+    await createAuditLog({ action: "CREATE_COUPON", resource: "Coupon", details: `Created coupon ${c.name}`, userId: user.id, recordId: c.id });
+    return { success: true as const, message: `${c.name} is ready to use.`, id: c.id };
   });
+}
 
-  if (!session?.user) {
-    return {
-      message: "Unauthorized access,please login to continue",
-      success: false,
-    };
-  }
-
-  if (!allowedRoles.includes(session.user?.role || "")) {
-    return {
-      message:
-        "Unauthorized access, you are not allowed to perfome this action",
-      success: false,
-    };
-  }
-
-  try {
-    const existingCoupon = await db.coupon.findUnique({
-      where: {
-        id,
-      },
-    });
-
-    if (!existingCoupon) {
-      return {
-        message: "Coupon does not exist",
-        success: false,
-      };
+export async function updateCoupon(id: string, input: CouponInput) {
+  return asRole("finance", async (user) => {
+    const v = couponSchema.parse(input);
+    const before = await db.coupon.findUnique({ where: { id }, include: { plans: { select: { id: true } } } });
+    if (!before) throw new ActionError("That coupon no longer exists.");
+    if (before.voided) throw new ActionError("Restore the coupon before editing it.");
+    if (v.usageLimit && Number(v.usageLimit) < before.timesUsed) {
+      throw new ActionError(`It's been used ${before.timesUsed} times, so the limit can't be lower than that.`);
     }
-
-    await db.coupon.update({
-      where: {
-        id,
-      },
-      data: {
-        voided: 1,
-        name: undefined,
-      },
-    });
-    revalidatePath("/coupons");
-
-    await createAuditLog({
-      action: "DELETE_COUPON",
-      resource: "Coupon",
-      details: `Voided coupon with ID ${id}`,
-      userId: session.user.id,
-    });
-
-    return {
-      success: true,
-      message: "Coupon deleted",
-    };
-  } catch (error) {
-    return {
-      success: false,
-      message:
-        actionErrorMessage(error),
-    };
-  }
-};
-
-export const EditCouponsAction = async (
-  data: couponSchemaType,
-  id: string,
-): Promise<ActionResult> => {
-  const input2 = couponSchema.safeParse(data);
-  if (!input2.success) return { success: false, message: actionErrorMessage(input2.error) };
-  const parsedData = input2.data;
-
-  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!session?.user) {
-    return {
-      message: "Unauthorized access,please login to continue",
-      success: false,
-    };
-  }
-
-  if (!allowedRoles.includes(session.user?.role || "")) {
-    return {
-      message:
-        "Unauthorized access, you are not allowed to perfome this action",
-      success: false,
-    };
-  }
-
-  try {
-    // Another coupon with this name; the one being edited may keep its own
-    const existingCoupon = await db.coupon.findFirst({
-      where: { name: parsedData.name.toUpperCase(), NOT: { id } },
-      select: { id: true },
-    });
-
-    if (existingCoupon) {
-      return {
-        message:
-          "Please choose another name, coupon with this name already exists",
-        success: false,
-      };
-    }
-    await db.coupon.update({
-      where: { id },
-      data: {
-        name: parsedData.name.toUpperCase(),
-        value: parsedData.value,
-        interval: parsedData.interval as CouponInterval,
-        discountType: parsedData.discountType as DiscountType,
-        startDate: parsedData.startDate,
-        expiryDate: parsedData.expiryDate,
-        // timesUsed is not touched: editing must not reset a usage limit
-        usageLimit: parsedData.usageLimit,
-        // status: 1,
-      },
-    });
-    revalidatePath("/coupons");
-
+    await nameFree(v.name, id);
+    await checkPlans(v.plans);
+    // Discounts already given stay as they are; changes apply from now on
+    await db.coupon.update({ where: { id }, data: { ...fields(v), plans: { set: v.plans.map((p) => ({ id: p })) } } });
+    touched(id);
     await createAuditLog({
       action: "UPDATE_COUPON",
       resource: "Coupon",
-      details: `Updated coupon ${parsedData.name.toUpperCase()}`,
-      userId: session.user.id,
+      details: `Updated coupon ${v.name}`,
+      userId: user.id,
+      recordId: id,
+      changes: diffFields(logged({ ...before, plans: before.plans.map((p) => p.id).sort() }), logged({ ...fields(v), plans: [...v.plans].sort() })),
     });
-
-    return {
-      message: "Coupon updated",
-      success: true,
-    };
-  } catch (error) {
-    console.log({ error });
-    return {
-      message: actionErrorMessage(error),
-      success: false,
-    };
-  }
-};
-
-export const toggleCouponStatus = async (
-  id: string,
-  status: 0 | 1,
-): Promise<ActionResult & { statusCode: number }> => {
-  const allowedRoles = [...ROLE_GROUPS.finance] as string[];
-
-  const session = await auth.api.getSession({
-    headers: await headers(),
+    return { success: true as const, message: "Changes saved.", id };
   });
+}
 
-  if (!session?.user) {
-    return {
-      success: false,
-      message: "Unauthorized access, please login to continue",
-      statusCode: 401,
-    };
-  }
-
-  if (!allowedRoles.includes(session.user.role || "")) {
-    return {
-      success: false,
-      message:
-        "Unauthorized access, you are not allowed to perform this action",
-      statusCode: 403,
-    };
-  }
-
-  try {
-    const updated = await db.coupon.updateMany({
-      where: {
-        id,
-        voided: 0,
-        expiryDate: {
-          equals: null,
-          gt: new Date(),
-        },
-      },
-      data: {
-        status,
-      },
-    });
-
-    if (updated.count === 0) {
-      return {
-        success: false,
-        message: "Coupon does not exist or has been voided or has expired",
-        statusCode: 404,
-      };
-    }
-
-    revalidatePath("/coupons");
-
+/** Switch a coupon on or off; switched off, it can't be applied but keeps its history. */
+export async function setCouponActive(id: string, active: boolean) {
+  return asRole("finance", async (user) => {
+    const c = await db.coupon.update({ where: { id, voided: 0 }, data: { status: active ? 1 : 0 } }).catch(() => null);
+    if (!c) throw new ActionError("That coupon no longer exists.");
+    touched(id);
     await createAuditLog({
-      action: "TOGGLE_COUPON_STATUS",
+      action: active ? "ACTIVATE_COUPON" : "DEACTIVATE_COUPON",
       resource: "Coupon",
-      details: `Toggled coupon ${id} status to ${status === 1 ? "ACTIVE" : "INACTIVE"}`,
-      userId: session.user.id,
+      details: `Switched ${active ? "on" : "off"} coupon ${c.name}`,
+      userId: user.id,
+      recordId: id,
     });
+    return { success: true as const, message: active ? `${c.name} is on.` : `${c.name} is off.` };
+  });
+}
 
-    return {
-      success: true,
-      message: status === 1 ? "Coupon activated" : "Coupon deactivated",
-      statusCode: 200,
-    };
-  } catch (error) {
-    console.log({ error });
-
-    return {
-      success: false,
-      message: actionErrorMessage(error),
-      statusCode: 500,
-    };
-  }
-};
+/** Archive (or restore) a coupon. Discounts it already gave stay. */
+export async function setCouponArchived(id: string, archived: boolean) {
+  return asRole("finance", async (user) => {
+    const c = await db.coupon.update({ where: { id }, data: { voided: archived ? 1 : 0 } }).catch(() => null);
+    if (!c) throw new ActionError("That coupon no longer exists.");
+    touched(id);
+    await createAuditLog({
+      action: archived ? "ARCHIVE_COUPON" : "RESTORE_COUPON",
+      resource: "Coupon",
+      details: `${archived ? "Archived" : "Restored"} coupon ${c.name}`,
+      userId: user.id,
+      recordId: id,
+    });
+    return { success: true as const, message: archived ? `${c.name} is archived.` : `${c.name} is restored.` };
+  });
+}

@@ -396,6 +396,24 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
 - **Planning a session** starts with the batch's coach.
 - **Deploy:** `yarn db:deploy` adds `staff_details` and `staff_for_every_login`.
 
+**Coupons (Stage 1, item 6): done 2026-10-18.**
+- **Decisions (developer, 2026-10-16):**
+  - a repeating coupon goes on an athlete's fee plan and discounts every new fees invoice for
+    them (by hand, batch billing) until it expires or is removed;
+  - finance can take a coupon off an invoice or a fee plan; the use is given back;
+  - limits: total uses, once per athlete, and only for chosen fee plans.
+- **One-time coupons go on one invoice; repeating ones on a fee plan.** A use is counted when
+  it's applied (to the invoice, or to the fee plan), safely when two people apply at once.
+- **The discount** is a percentage or a fixed amount of the whole invoice, or only of the chosen
+  fee plans' charges; it never takes an invoice below what's been paid. Editing an invoice's
+  lines recalculates its coupon discount.
+- **Fixed:** switching a coupon off never worked; applying one overwrote the invoice's notes and
+  set its status by hand; switched-off coupons vanished from the list.
+- **Pages:** the coupons list (standard table, state filter, export, row menu), one form for
+  creating and editing, and a coupon page with the invoices it discounted, the fee plans it's
+  on, and its history. "Remove coupon" is on the invoice page and the athlete's fee plan.
+- **Deploy:** `yarn db:deploy` adds `coupon_rules`.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:
