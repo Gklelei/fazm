@@ -22,7 +22,7 @@ export const GetAllTrainingSessionsByIdQuery = (id: string) =>
     include: {
       assessments: {
         include: {
-          responses: true,
+          responses: { include: { metric: { select: { label: true, kind: true, unit: true } } } },
         },
       },
       athletes: {
