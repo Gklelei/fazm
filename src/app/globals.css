@@ -231,11 +231,12 @@
     body:has(#print-receipt) * {
       visibility: hidden;
     }
-    #print-receipt,
-    #print-receipt * {
+    /* Same :has() as above so it outranks the hiding rule */
+    body:has(#print-receipt) #print-receipt,
+    body:has(#print-receipt) #print-receipt * {
       visibility: visible;
     }
-    #print-receipt {
+    body:has(#print-receipt) #print-receipt {
       position: absolute;
       left: 0;
       top: 0;

@@ -4,7 +4,17 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Ban, Banknote, FileDown, MoreHorizontal, Pencil, RotateCcw, Tag, X } from "lucide-react";
+import {
+  Ban,
+  Banknote,
+  FileDown,
+  MoreHorizontal,
+  Pencil,
+  Printer,
+  RotateCcw,
+  Tag,
+  X,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,7 +29,7 @@ import { setInvoiceCancelled } from "../actions/cancel-invoice";
 import { removeCouponFromInvoice } from "@/features/coupons/actions/redeem";
 import ApplyCoupon from "./ApplyCoupon";
 
-/** The invoice page's buttons: pay first, then edit and PDF, the rest in a menu. */
+/** The invoice page's actions, on the balance card: pay, then PDF, print, edit and a menu. */
 export function InvoiceActions({
   id,
   invoiceNumber,
@@ -51,62 +61,86 @@ export function InvoiceActions({
       router.refresh();
     });
 
+  // On the balance card: pay first and full width, then the document actions in a row
   return (
-    <>
-      <Button variant="outline" asChild>
-        <a href={`/api/finance/invoice/${id}/pdf`} target="_blank" rel="noopener noreferrer">
-          <FileDown /> PDF
-        </a>
-      </Button>
-      {!cancelled && (
-        <Button variant="outline" asChild>
-          <Link href={`/invoices/${invoiceNumber}/edit`}>
-            <Pencil /> Edit
-          </Link>
-        </Button>
-      )}
+    <div className="grid gap-2">
       {open && (
-        <Button onClick={() => setPayOpen(true)}>
+        <Button
+          onClick={() => setPayOpen(true)}
+          className="h-11 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90"
+        >
           <Banknote /> Record payment
         </Button>
       )}
-      {(open || coupon || status !== "PAID") && (
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" size="icon" disabled={pending} aria-label="More actions">
-              <MoreHorizontal />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-48">
-            {open && !coupon && (
-              <DropdownMenuItem onSelect={() => setCouponOpen(true)}>
-                <Tag /> Apply coupon
-              </DropdownMenuItem>
-            )}
-            {coupon && !cancelled && (
-              <DropdownMenuItem
-                onSelect={() =>
-                  start(async () => {
-                    const res = await removeCouponFromInvoice(invoiceNumber);
-                    if (!res.success) return void toast.error(res.message);
-                    toast.success(res.message);
-                    router.refresh();
-                  })
-                }
+      <div className="flex gap-2 [&>*]:flex-1">
+        <Button variant="secondary" size="sm" asChild>
+          <a
+            href={`/api/finance/invoice/${id}/pdf`}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <FileDown /> PDF
+          </a>
+        </Button>
+        <Button variant="secondary" size="sm" onClick={() => window.print()}>
+          <Printer /> Print
+        </Button>
+        {!cancelled && (
+          <Button variant="secondary" size="sm" asChild>
+            <Link href={`/invoices/${invoiceNumber}/edit`}>
+              <Pencil /> Edit
+            </Link>
+          </Button>
+        )}
+        {(open || coupon || status !== "PAID") && (
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="secondary"
+                size="icon"
+                className="size-8 !flex-none"
+                disabled={pending}
+                aria-label="More actions"
               >
-                <X /> Remove {coupon}
-              </DropdownMenuItem>
-            )}
-            {(open || coupon) && status !== "PAID" && <DropdownMenuSeparator />}
-            {status !== "PAID" && (
-              <DropdownMenuItem variant={cancelled ? "default" : "destructive"} onSelect={toggleCancelled}>
-                {cancelled ? <RotateCcw /> : <Ban />}
-                {cancelled ? "Restore invoice" : "Cancel invoice"}
-              </DropdownMenuItem>
-            )}
-          </DropdownMenuContent>
-        </DropdownMenu>
-      )}
+                <MoreHorizontal />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-48">
+              {open && !coupon && (
+                <DropdownMenuItem onSelect={() => setCouponOpen(true)}>
+                  <Tag /> Apply coupon
+                </DropdownMenuItem>
+              )}
+              {coupon && !cancelled && (
+                <DropdownMenuItem
+                  onSelect={() =>
+                    start(async () => {
+                      const res = await removeCouponFromInvoice(invoiceNumber);
+                      if (!res.success) return void toast.error(res.message);
+                      toast.success(res.message);
+                      router.refresh();
+                    })
+                  }
+                >
+                  <X /> Remove {coupon}
+                </DropdownMenuItem>
+              )}
+              {(open || coupon) && status !== "PAID" && (
+                <DropdownMenuSeparator />
+              )}
+              {status !== "PAID" && (
+                <DropdownMenuItem
+                  variant={cancelled ? "default" : "destructive"}
+                  onSelect={toggleCancelled}
+                >
+                  {cancelled ? <RotateCcw /> : <Ban />}
+                  {cancelled ? "Restore invoice" : "Cancel invoice"}
+                </DropdownMenuItem>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        )}
+      </div>
 
       <ApplyCoupon
         invoiceNumber={invoiceNumber}
@@ -116,8 +150,14 @@ export function InvoiceActions({
         onApplied={() => router.refresh()}
       />
       {payOpen && (
-        <RecordPaymentDialog trigger={null} open={payOpen} onOpenChange={setPayOpen} athlete={athlete} invoiceNumber={invoiceNumber} />
+        <RecordPaymentDialog
+          trigger={null}
+          open={payOpen}
+          onOpenChange={setPayOpen}
+          athlete={athlete}
+          invoiceNumber={invoiceNumber}
+        />
       )}
-    </>
+    </div>
   );
 }
