@@ -53,15 +53,28 @@ export const PREFERENCE_SCHEMAS = {
         .transform((v) => v || null),
     })
     .refine((v) => v.invoicePrefix !== v.receiptPrefix, { path: ["receiptPrefix"], message: "Use different letters from invoices" }),
-  fees: z.object({
-    defaultPlanId: z.string().transform((v) => v || null),
-    lateFeeAmount: z
-      .string()
-      .trim()
-      .refine((v) => !v || (/^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 1_000_000), "Enter an amount, or leave it empty")
-      .transform((v) => (v ? Number(v) : null)),
-    lateFeeGraceDays: whole(0, 90, "Enter 0 to 90 days"),
-  }),
+  fees: z
+    .object({
+      defaultPlanId: z.string().transform((v) => v || null),
+      lateFeeAmount: z
+        .string()
+        .trim()
+        .refine((v) => !v || (/^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 1_000_000), "Enter an amount, or leave it empty")
+        .transform((v) => (v ? Number(v) : null)),
+      lateFeeGraceDays: whole(0, 90, "Enter 0 to 90 days"),
+      siblingDiscountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]),
+      siblingDiscountValue: z
+        .string()
+        .trim()
+        .refine((v) => !v || (/^\d+(\.\d{1,2})?$/.test(v) && Number(v) > 0 && Number(v) <= 1_000_000), "Enter an amount, or leave it empty")
+        .transform((v) => (v ? Number(v) : null)),
+    })
+    .refine((v) => v.siblingDiscountType !== "PERCENTAGE" || v.siblingDiscountValue == null || v.siblingDiscountValue <= 100, {
+      path: ["siblingDiscountValue"],
+      message: "Up to 100%",
+    })
+    // No amount: no sibling discount
+    .transform((v) => ({ ...v, siblingDiscountType: v.siblingDiscountValue == null ? null : v.siblingDiscountType })),
   attendance: z.object({
     sessionMinutes: whole(15, 300, "Enter 15 to 300 minutes"),
     attendanceEditDays: wholeOrEmpty(0, 60, "Enter 0 to 60 days, or leave it empty"),

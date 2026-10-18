@@ -71,7 +71,13 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           {academy && tab === "fees" && (
             <PreferencesForm
               section="fees"
-              values={{ defaultPlanId: s.defaultPlanId ?? "", lateFeeAmount: text(s.lateFeeAmount), lateFeeGraceDays: String(s.lateFeeGraceDays) }}
+              values={{
+                defaultPlanId: s.defaultPlanId ?? "",
+                lateFeeAmount: text(s.lateFeeAmount),
+                lateFeeGraceDays: String(s.lateFeeGraceDays),
+                siblingDiscountType: s.siblingDiscountType ?? "PERCENTAGE",
+                siblingDiscountValue: text(s.siblingDiscountValue),
+              }}
               plans={data.plans}
             />
           )}

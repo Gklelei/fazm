@@ -261,7 +261,7 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
                 </div>
                 {discount > 0 && (
                   <div className="flex justify-between">
-                    <dt className="text-muted-foreground">Discount{data.coupon ? ` (${data.coupon.name})` : ""}</dt>
+                    <dt className="text-muted-foreground">{data.coupon ? `Discount (${data.coupon.name})` : data.siblingDiscount ? "Sibling discount" : "Discount"}</dt>
                     <dd>−{formatCurrency(discount)}</dd>
                   </div>
                 )}

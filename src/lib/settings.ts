@@ -12,6 +12,8 @@ export const SETTING_DEFAULTS = {
   defaultPlanId: null as string | null,
   lateFeeAmount: null as number | null,
   lateFeeGraceDays: 7,
+  siblingDiscountType: null as "PERCENTAGE" | "FIXED_AMOUNT" | null,
+  siblingDiscountValue: null as number | null,
   inactiveWeeks: 13,
   attendanceEditDays: null as number | null,
   sessionMinutes: 90,
@@ -29,7 +31,11 @@ export async function getSettings(): Promise<Settings> {
   const a = await getCachedAcademy().catch(() => null);
   if (!a) return SETTING_DEFAULTS;
   const picked = Object.fromEntries(Object.keys(SETTING_DEFAULTS).map((k) => [k, a[k as keyof typeof a] ?? SETTING_DEFAULTS[k as keyof Settings]]));
-  return { ...(picked as Settings), lateFeeAmount: a.lateFeeAmount == null ? null : Number(a.lateFeeAmount) };
+  return {
+    ...(picked as Settings),
+    lateFeeAmount: a.lateFeeAmount == null ? null : Number(a.lateFeeAmount),
+    siblingDiscountValue: a.siblingDiscountValue == null ? null : Number(a.siblingDiscountValue),
+  };
 }
 
 /** The academy row without the mail server login or report recipients, for anything that reaches a browser. */

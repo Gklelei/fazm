@@ -56,13 +56,17 @@ export async function applyCouponToInvoice(invoiceNumber: string, code: string) 
       if (amount <= 0) {
         throw new ActionError(c.plans.length ? `This invoice has no ${c.plans.map((p) => p.name).join(" or ")} charges.` : "This invoice is already paid.");
       }
+      // The sibling discount stays unless the coupon takes off more
+      if (inv.siblingDiscount && amount <= Number(inv.discount)) {
+        throw new ActionError(`The sibling discount (${formatCurrency(Number(inv.discount))}) is bigger, so it stays.`);
+      }
       const used = await takeUse(tx, c);
       if (used) throw new ActionError(used);
 
       const discount = new Prisma.Decimal(amount);
       await tx.invoice.update({
         where: { id: inv.id },
-        data: { couponId: c.id, discount, status: invoiceStatusFor(Number(inv.amountPaid), payableOf({ amountDue: total, discount }), inv.dueDate) },
+        data: { couponId: c.id, siblingDiscount: false, discount, status: invoiceStatusFor(Number(inv.amountPaid), payableOf({ amountDue: total, discount }), inv.dueDate) },
       });
       return { inv, c, amount };
     });

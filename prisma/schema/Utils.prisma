@@ -37,6 +37,9 @@ model academy {
   /// Empty: no late fees
   lateFeeAmount       Decimal? @map("late_fee_amount") @db.Decimal(10, 2)
   lateFeeGraceDays    Int      @default(7) @map("late_fee_grace_days")
+  /// Off every fees invoice for each child after a family's first: PERCENTAGE or FIXED_AMOUNT; empty: none
+  siblingDiscountType  String?  @map("sibling_discount_type")
+  siblingDiscountValue Decimal? @map("sibling_discount_value") @db.Decimal(10, 2)
 
   // Attendance and sessions
   inactiveWeeks      Int  @default(13) @map("inactive_weeks")

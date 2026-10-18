@@ -270,7 +270,7 @@ export default function InvoiceDocument({
                 <Text>{moneyKES(amountDue)}</Text>
               </View>
               <View style={styles.totalRow}>
-                <Text>Discount</Text>
+                <Text>{invoice.siblingDiscount ? "Sibling discount" : "Discount"}</Text>
                 <Text>- {moneyKES(discount)}</Text>
               </View>
             </>

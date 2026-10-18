@@ -170,6 +170,8 @@ model Invoice {
   lateFeeForId String?   @unique @map("late_fee_for_id")
   lateFeeFor   Invoice?  @relation("LateFee", fields: [lateFeeForId], references: [id], onDelete: SetNull)
   lateFee      Invoice?  @relation("LateFee")
+  /// The discount is the family's sibling discount (no coupon)
+  siblingDiscount Boolean @default(false) @map("sibling_discount")
   /// Last overdue reminder emailed to the guardian
   remindedAt   DateTime? @map("reminded_at")
 }

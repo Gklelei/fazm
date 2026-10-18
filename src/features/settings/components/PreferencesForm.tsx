@@ -2,11 +2,11 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm, type FieldValues } from "react-hook-form";
+import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AtSign, CalendarClock, Clock, Hourglass, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, Wallet } from "lucide-react";
+import { AtSign, CalendarClock, Clock, Hourglass, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, UsersRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -49,6 +49,7 @@ export function PreferencesForm<S extends PreferenceSection>({
     mode: "onTouched",
   });
   useLeaveWarning(form.formState.isDirty);
+  const siblingType = useWatch({ control: form.control, name: "siblingDiscountType" });
 
   const submit = form.handleSubmit(() =>
     start(async () => {
@@ -160,6 +161,37 @@ export function PreferencesForm<S extends PreferenceSection>({
           <FormSection title="Late fees" icon={Hourglass}>
             <TextField name="lateFeeAmount" label="Late fee (KES)" optional inputMode="decimal" hint="Leave empty for no late fees." />
             <TextField name="lateFeeGraceDays" label="Charged after overdue for (days)" inputMode="numeric" />
+          </FormSection>
+        )}
+
+        {section === "fees" && (
+          <FormSection title="Sibling discount" icon={UsersRound} description="Off fees invoices for every brother or sister after the first.">
+            <FormField
+              control={form.control}
+              name="siblingDiscountType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Discount</FormLabel>
+                  <ChoiceChips
+                    label="Discount"
+                    options={[
+                      { value: "PERCENTAGE", label: "Percentage" },
+                      { value: "FIXED_AMOUNT", label: "Fixed amount" },
+                    ]}
+                    value={field.value}
+                    onChange={field.onChange}
+                  />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <TextField
+              name="siblingDiscountValue"
+              label={siblingType === "FIXED_AMOUNT" ? "Amount off (KES)" : "Percent off"}
+              optional
+              inputMode="decimal"
+              hint="Leave empty for no sibling discount."
+            />
           </FormSection>
         )}
 

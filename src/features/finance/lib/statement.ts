@@ -15,6 +15,7 @@ export type StatementInvoice = {
   discount: unknown;
   status: string;
   coupon?: { name: string } | null;
+  siblingDiscount?: boolean;
 };
 export type StatementPayment = {
   id: string;
@@ -61,7 +62,7 @@ export function buildStatement({
     all.push({ key: `inv-${inv.id}`, day, description: inv.description || "Invoice", reference: inv.invoiceNumber, kind: "CHARGE", charge: Number(inv.amountDue), credit: 0 });
     const off = Number(inv.discount ?? 0);
     if (off > 0) {
-      all.push({ key: `disc-${inv.id}`, day, description: inv.coupon ? `Discount (${inv.coupon.name})` : "Discount", reference: inv.invoiceNumber, kind: "DISCOUNT", charge: 0, credit: off });
+      all.push({ key: `disc-${inv.id}`, day, description: inv.coupon ? `Discount (${inv.coupon.name})` : inv.siblingDiscount ? "Sibling discount" : "Discount", reference: inv.invoiceNumber, kind: "DISCOUNT", charge: 0, credit: off });
     }
   }
   for (const p of payments) {

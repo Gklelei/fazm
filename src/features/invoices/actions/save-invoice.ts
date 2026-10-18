@@ -12,6 +12,7 @@ import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { formatCurrency } from "@/lib/format";
 import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
 import { discountFor, feePlanCoupon } from "@/features/coupons/lib/redeem";
+import { siblingDiscountFor } from "@/features/families/lib/sibling-discount";
 import {
   createInvoiceSchema,
   editInvoiceSchema,
@@ -63,8 +64,10 @@ export async function createInvoices(input: CreateInvoiceInput) {
     const numbers = await db.$transaction(async (tx) => {
       const issued = await nextDocumentNumbers(tx, "INV", athletes.length, new Date());
       for (const [i, a] of athletes.entries()) {
-        // A repeating coupon on the athlete's fee plan discounts new fees invoices
-        const auto = v.type === "SUBSCRIPTION" ? await feePlanCoupon(tx, a.athleteId, rows) : null;
+        // New fees invoices get the fee plan's repeating coupon or the sibling discount, whichever is bigger
+        const coupon = v.type === "SUBSCRIPTION" ? await feePlanCoupon(tx, a.athleteId, rows) : null;
+        const sibling = v.type === "SUBSCRIPTION" ? await siblingDiscountFor(tx, a.athleteId, rows) : 0;
+        const auto = sibling > (coupon?.amount ?? 0) ? { coupon: null, amount: sibling } : coupon;
         await tx.invoice.create({
           data: {
             invoiceNumber: issued[i],
@@ -77,7 +80,7 @@ export async function createInvoices(input: CreateInvoiceInput) {
             quantity: 1,
             amountDue: total,
             amountPaid: new Prisma.Decimal(0),
-            ...(auto && { couponId: auto.coupon.id, discount: new Prisma.Decimal(auto.amount) }),
+            ...(auto && { couponId: auto.coupon?.id ?? null, siblingDiscount: !auto.coupon, discount: new Prisma.Decimal(auto.amount) }),
             status: invoiceStatusFor(0, Number(total) - (auto?.amount ?? 0), dueDate),
             dueDate,
             subscriptionPlanId,
