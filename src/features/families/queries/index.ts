@@ -1,5 +1,6 @@
 import "server-only";
 import { db } from "@/lib/prisma";
+import type { Prisma } from "@/generated/prisma/client";
 import { invoiceBalance } from "@/features/invoices/lib/status";
 import { athleteName } from "@/features/athletes/lib/names";
 import { siblingPhoneKey } from "../lib/phone-key";
@@ -11,17 +12,35 @@ const member = {
   lastName: true,
   status: true,
   batches: { select: { name: true } },
-  invoices: { where: { status: { not: "CANCELED" } }, select: { amountDue: true, discount: true, amountPaid: true } },
-} as const;
+  invoices: {
+    where: { status: { not: "CANCELED" } },
+    select: { invoiceNumber: true, description: true, dueDate: true, amountDue: true, discount: true, amountPaid: true },
+    orderBy: [{ dueDate: "asc" }, { createdAt: "asc" }],
+  },
+} satisfies Prisma.AthleteSelect;
 
-type Row = { athleteId: string; firstName: string; middleName: string | null; lastName: string; status: string; batches: { name: string } | null; invoices: Parameters<typeof invoiceBalance>[0][] };
-const view = (a: Row) => ({
-  athleteId: a.athleteId,
-  name: athleteName(a),
-  batch: a.batches?.name ?? null,
-  status: a.status,
-  owes: a.invoices.reduce((s, i) => s + invoiceBalance(i), 0),
-});
+type Row = {
+  athleteId: string;
+  firstName: string;
+  middleName: string | null;
+  lastName: string;
+  status: string;
+  batches: { name: string } | null;
+  invoices: (Parameters<typeof invoiceBalance>[0] & { invoiceNumber: string; description: string | null; dueDate: Date })[];
+};
+const view = (a: Row) => {
+  const open = a.invoices
+    .map((i) => ({ invoiceNumber: i.invoiceNumber, description: i.description, dueDate: i.dueDate.toISOString(), balance: invoiceBalance(i) }))
+    .filter((i) => i.balance > 0);
+  return {
+    athleteId: a.athleteId,
+    name: athleteName(a),
+    batch: a.batches?.name ?? null,
+    status: a.status,
+    owes: open.reduce((s, i) => s + i.balance, 0),
+    open,
+  };
+};
 export type FamilyMember = ReturnType<typeof view>;
 
 /**

@@ -1,7 +1,6 @@
 "use server";
 
-import { invoiceStatusFor, payableOf, invoiceBalance } from "@/features/invoices/lib/status";
-import { nextDocumentNumbers } from "@/lib/document-numbers";
+import { applyPayment, OverpaymentError } from "@/features/finance/lib/apply-payment";
 import { hasRole } from "@/lib/roles";
 import { auth } from "@/lib/auth";
 import { FinanceSchema, FinanceSchemaType } from "@/features/finance/schemas";
@@ -14,8 +13,6 @@ import { emailReceipt } from "@/features/invoices/lib/emails";
 type returnPromise =
   | { success: true; message: string; receiptNumber?: string }
   | { success: false; message: string };
-
-class OverpaymentError extends Error {}
 
 const createFinancialTransaction = async (
   data: FinanceSchemaType,
@@ -52,62 +49,15 @@ const createFinancialTransaction = async (
     const newPaymentAmount = parseFloat(parsedData.amountPaid);
 
     const result = await db.$transaction(async (ctx) => {
-      // Row lock: a second payment on this invoice waits here until this
-      // one commits, so both can't start from the same balance.
-      await ctx.$queryRaw`SELECT id FROM invoices WHERE id = ${existingInvoice.id} FOR UPDATE`;
-      const currentInvoice = await ctx.invoice.findUniqueOrThrow({
-        where: { id: existingInvoice.id },
+      const { finance } = await applyPayment(ctx, {
+        invoiceId: existingInvoice.id,
+        athleteId: existingUser.athleteId,
+        amount: newPaymentAmount,
+        paymentDate: new Date(parsedData.paymentDate),
+        paymentType: parsedData.paymentType,
+        collectedBy: parsedData.collectedBy,
+        notes: parsedData.notes || "",
       });
-
-      // What's left after any discount and earlier payments
-      const remainingBalance = invoiceBalance(currentInvoice);
-
-      if (newPaymentAmount > remainingBalance) {
-        throw new OverpaymentError(
-          `Overpayment detected. The balance is KES ${remainingBalance}`,
-        );
-      }
-
-      const [generatedReceipt] = await nextDocumentNumbers(ctx, "FEES");
-
-      const totalPaidSoFar =
-        Number(currentInvoice.amountPaid) + newPaymentAmount;
-      const newStatus = invoiceStatusFor(
-        totalPaidSoFar,
-        payableOf(currentInvoice),
-        currentInvoice.dueDate,
-      );
-      const isFullyPaid = newStatus === "PAID";
-
-      const finance = await ctx.finance.create({
-        data: {
-          amountPaid: newPaymentAmount,
-          paymentDate: new Date(parsedData.paymentDate),
-          paymentType: parsedData.paymentType,
-          receiptNumber: generatedReceipt,
-          collectedBy: parsedData.collectedBy,
-          notes: parsedData.notes || "",
-          athleteId: existingUser.athleteId,
-          invoiceId: currentInvoice.id,
-        },
-      });
-
-      await ctx.invoice.update({
-        where: { id: currentInvoice.id },
-        data: { amountPaid: totalPaidSoFar, status: newStatus },
-      });
-
-      const isInitial =
-        currentInvoice.description?.toLowerCase().includes("initial") ||
-        currentInvoice.type === "SUBSCRIPTION";
-
-      if (isInitial && isFullyPaid) {
-        await ctx.athlete.update({
-          where: { athleteId: existingUser.athleteId },
-          data: { status: "ACTIVE" },
-        });
-      }
-
       return finance;
     });
 

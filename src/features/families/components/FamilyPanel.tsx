@@ -12,6 +12,7 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import { linkSiblings, unlinkSibling } from "../actions/link";
+import { FamilyPaymentDialog } from "./FamilyPaymentDialog";
 import type { Family, FamilyMember } from "../queries";
 
 /** Brothers and sisters billed together, and athletes whose guardian has the same phone. */
@@ -59,11 +60,14 @@ export default function FamilyPanel({ athleteId, family, canManage }: { athleteI
             <CardTitle className="text-base font-bold">Family</CardTitle>
           </div>
           {canManage && members.length > 1 && (
-            <Button variant="outline" size="sm" asChild>
-              <a href={`/api/athlete/${athleteId}/family-statement`} target="_blank" rel="noopener">
-                <FileDown /> Family statement
-              </a>
-            </Button>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" size="sm" asChild>
+                <a href={`/api/athlete/${athleteId}/family-statement`} target="_blank" rel="noopener">
+                  <FileDown /> Family statement
+                </a>
+              </Button>
+              <FamilyPaymentDialog athleteId={athleteId} members={members} />
+            </div>
           )}
         </div>
       </CardHeader>
