@@ -6,6 +6,7 @@ import { ThemeProvider } from "@/providers/ThemeProvider";
 import ReactQueryClientProvider from "@/providers/ReactQueryProvider";
 import { Toaster } from "sonner";
 import { getCachedAcademy } from "@/lib/academy-cache";
+import { themeAttributes } from "@/lib/brand-color";
 
 const barlow = Barlow({
   variable: "--font-barlow",
@@ -83,7 +84,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      data-theme-color={academy?.primaryColor || "fazam"}
+      {...themeAttributes(academy?.primaryColor)}
       suppressHydrationWarning
     >
       <body

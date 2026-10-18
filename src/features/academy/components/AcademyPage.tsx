@@ -1,487 +1,219 @@
 "use client";
 
-import { useMemo } from "react";
+import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { useForm } from "react-hook-form";
-import { useQueryClient } from "@tanstack/react-query";
-import z from "zod";
+import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-
-import { AcademySchema } from "@/features/academy/schemas";
-import { getAcademyQueryType } from "@/features/academy/queries";
-import { CreateAcademyUtils, EditAcademyUtils } from "@/features/academy/actions/academy";
-
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { Building2, Check, Loader2, MapPin, Palette, Receipt, Wallet } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Separator } from "@/components/ui/separator";
-import { Button } from "@/components/ui/button";
+import { FormAlert } from "@/components/form/FormAlert";
+import { FormSection } from "@/components/form/FormSection";
+import { StickyActions } from "@/components/form/StickyActions";
+import { TextField } from "@/components/form/TextField";
+import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { LocalFsUpload } from "@/components/shared/LocalFsUpload";
-import { Sweetalert } from "@/lib/alerts";
+import { COLOR_PRESETS, isCustomColor, readableOnWhite, themeAttributes } from "@/lib/brand-color";
+import { cn } from "@/lib/utils";
+import { saveAcademy } from "../actions/academy";
+import { AcademySchema, type AcademyInput } from "../schemas";
+import type { getAcademyQueryType } from "../queries";
 
-interface Props {
-  isEditting: boolean; // kept for compatibility, but not trusted
-  academy: getAcademyQueryType | null;
-}
-
-type FormValues = z.infer<typeof AcademySchema>;
-
-const AcademyPage = ({ academy }: Props) => {
-  const router = useRouter();
-  const queryClient = useQueryClient();
-  const editing = !!academy?.id;
-
-  console.log({ academy });
-
-  const initialValues: FormValues = useMemo(
-    () => ({
-      academyName: academy?.academyName || "",
-      address: academy?.address || "",
-      description: academy?.description || "",
-      email: academy?.contactEmail || "",
-      logoUrl: academy?.logoUrl || "",
-      paymentType: academy?.paymentMethodType || "",
-      paymentMethod: academy?.paymentMathod || "",
-      phone: academy?.contactPhone || "",
-      tagline: academy?.tagline || "",
-      footerNotes: academy?.receiptFooterNotes || "",
-      primaryColor: academy?.primaryColor || "fazam",
-    }),
-    [academy],
-  );
-
-  const form = useForm<FormValues>({
-    resolver: zodResolver(AcademySchema),
-    defaultValues: initialValues,
-    mode: "onSubmit",
-  });
-
-  const { isSubmitting, isDirty } = form.formState;
-
-  const toast = (ok: boolean, message: string) => {
-    Sweetalert({
-      icon: ok ? "success" : "error",
-      title: ok ? "Success!" : "An error has occurred",
-      text: message,
-    });
-  };
-
-  const normalize = (v: FormValues): FormValues => ({
-    ...v,
-    academyName: v.academyName.trim(),
-    address: v.address.trim(),
-    email: v.email.trim(),
-    phone: v.phone.trim(),
-    tagline: v.tagline.trim(),
-    paymentType: v.paymentType.trim(),
-    paymentMethod: v.paymentMethod.trim(),
-    description: v.description?.trim() || "",
-    logoUrl: v.logoUrl?.trim() || "",
-    footerNotes: v.footerNotes?.trim() || "",
-    primaryColor: v.primaryColor || "fazam",
-  });
-
-  async function handleSubmit(values: FormValues) {
-    const payload = normalize(values);
-
-    if (editing) {
-      if (!academy?.id) {
-        toast(false, "Missing academy id. Refresh the page and try again.");
-        return;
-      }
-
-      const result = await EditAcademyUtils({ id: academy.id, data: payload });
-      toast(result.success, result.message);
-      if (result.success) {
-        form.reset(payload);
-        queryClient.invalidateQueries({ queryKey: ["utils"] });
-      }
-      return;
-    }
-
-    const result = await CreateAcademyUtils({ data: payload });
-    toast(result.success, result.message);
-    if (result.success) {
-      form.reset(payload);
-      queryClient.invalidateQueries({ queryKey: ["utils"] });
-    }
-  }
-
-  return (
-    <div className="max-w-full mx-auto px-4 py-8">
-      <Card>
-        <CardHeader className="space-y-2">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <CardTitle className="text-xl font-semibold">
-                Academy settings
-              </CardTitle>
-              <CardDescription className="text-sm">
-                Configure your global academy settings.
-              </CardDescription>
-            </div>
-
-            <div className="text-xs font-medium px-2 py-1 rounded-md border">
-              {editing ? "Editing" : "New setup"}
-            </div>
-          </div>
-        </CardHeader>
-
-        <Separator />
-
-        <CardContent className="pt-6">
-          <Form {...form}>
-            <form
-              onSubmit={form.handleSubmit(handleSubmit)}
-              className="space-y-10"
-            >
-              {/* Basic Info */}
-              <section className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Basic information</h3>
-                  <p className="text-sm text-muted-foreground">
-                    These details show up across the system.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    name="academyName"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Academy name
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. Fazam Academy"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name="tagline"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Tagline
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. Building champions"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    name="address"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Address
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. Along Mombasa Road"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name="phone"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Phone
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. +2547..."
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-
-                <FormField
-                  name="email"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                        Contact email
-                      </FormLabel>
-                      <FormControl>
-                        <Input
-                          {...field}
-                          placeholder="e.g. info@academy.com"
-                          type="email"
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  name="footerNotes"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                        Receipt footer notes
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          className="min-h-28 resize-none"
-                          placeholder="Receipt footer notes..."
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  name="description"
-                  control={form.control}
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                        Description
-                      </FormLabel>
-                      <FormControl>
-                        <Textarea
-                          {...field}
-                          className="min-h-28 resize-none"
-                          placeholder="Short description about your academy..."
-                          disabled={isSubmitting}
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </section>
-
-              <Separator />
-              {/* Payments */}
-              <section className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Payments</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Configure billing defaults.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    name="paymentType"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Payment type
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. MPESA / BANK / CASH"
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name="paymentMethod"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Payment method details
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            {...field}
-                            placeholder="e.g. Paybill/Till/Account no."
-                            disabled={isSubmitting}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </section>
-              {/* Branding */}
-              <section className="space-y-4">
-                <div className="space-y-1">
-                  <h3 className="text-sm font-semibold">Branding</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Upload your logo for documents and dashboards.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <FormField
-                    name="logoUrl"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Logo
-                        </FormLabel>
-                        <FormControl className="w-full">
-                          <LocalFsUpload
-                            onChange={(url: string) => field.onChange(url)}
-                            value={field.value || ""}
-                            folder="PROFILE"
-                            maxSizeMB={2}
-                          />
-                        </FormControl>
-                        <p className="text-xs text-muted-foreground">
-                          PNG/JPG recommended.
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <FormField
-                    name="primaryColor"
-                    control={form.control}
-                    render={({ field }) => (
-                      <FormItem className="w-full">
-                        <FormLabel className="text-xs font-semibold uppercase tracking-wide">
-                          Theme Color
-                        </FormLabel>
-                        <div className="grid grid-cols-6 gap-3 pt-2">
-                          {[
-                            {
-                              name: "fazam",
-                              bg: "bg-gradient-to-br from-brand-navy from-50% to-brand-gold to-50%",
-                            },
-                            {
-                              name: "zinc",
-                              bg: "bg-foreground ",
-                            },
-                            { name: "blue", bg: "bg-info" },
-                            { name: "green", bg: "bg-success" },
-                            { name: "orange", bg: "bg-warning" },
-                            { name: "rose", bg: "bg-destructive" },
-                          ].map((theme) => (
-                            <button
-                              key={theme.name}
-                              type="button"
-                              title={theme.name}
-                              aria-label={`${theme.name} theme`}
-                              aria-pressed={field.value === theme.name}
-                              onClick={() => field.onChange(theme.name)}
-                              className={`flex flex-col items-center gap-1 group`}
-                            >
-                              <div
-                                className={`h-10 w-10 rounded-full border-2 transition-all ${theme.bg} ${
-                                  field.value === theme.name
-                                    ? "ring-2 ring-primary ring-offset-2 border-primary/50"
-                                    : "border-transparent group-hover:scale-110"
-                                }`}
-                              />
-                            </button>
-                          ))}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-2">
-                          Pick a theme that reflects your academy brand. (Saves
-                          globally).
-                        </p>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                </div>
-              </section>
-
-              <Separator />
-
-              {/* Actions */}
-              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={() => router.back()}
-                  disabled={isSubmitting}
-                  className="w-full sm:w-auto"
-                >
-                  Cancel
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => form.reset(initialValues)}
-                  disabled={isSubmitting || !isDirty}
-                  className="w-full sm:w-auto"
-                >
-                  Reset changes
-                </Button>
-
-                <Button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full sm:w-auto"
-                >
-                  {isSubmitting ? "Saving..." : "Save changes"}
-                </Button>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
-    </div>
-  );
+/** Swatches for the presets in globals.css */
+const SWATCH: Record<string, string> = {
+  fazam: "linear-gradient(135deg, var(--brand-navy) 50%, var(--brand-gold) 50%)",
+  zinc: "oklch(0.21 0.006 285.885)",
+  blue: "oklch(0.488 0.243 264.376)",
+  green: "oklch(0.528 0.161 149.327)",
+  orange: "oklch(0.646 0.222 41.116)",
+  rose: "oklch(0.511 0.262 27.681)",
 };
 
-export default AcademyPage;
+/** The academy profile: name, contacts, how parents pay, receipt footer, logo and colour. */
+export default function AcademyPage({ academy }: { academy: getAcademyQueryType | null }) {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const [error, setError] = useState<string | null>(null);
+  const [saving, start] = useTransition();
+
+  const form = useForm<AcademyInput>({
+    resolver: zodResolver(AcademySchema),
+    defaultValues: {
+      academyName: academy?.academyName ?? "",
+      tagline: academy?.tagline ?? "",
+      description: academy?.description ?? "",
+      address: academy?.address ?? "",
+      phone: academy?.contactPhone ?? "",
+      email: academy?.contactEmail ?? "",
+      paymentType: academy?.paymentMethodType ?? "",
+      paymentMethod: academy?.paymentMathod ?? "",
+      footerNotes: academy?.receiptFooterNotes ?? "",
+      logoUrl: academy?.logoUrl ?? "",
+      primaryColor: academy?.primaryColor || "fazam",
+    },
+    mode: "onTouched",
+  });
+  useLeaveWarning(form.formState.isDirty);
+  const color = useWatch({ control: form.control, name: "primaryColor" });
+
+  const submit = form.handleSubmit((v) =>
+    start(async () => {
+      setError(null);
+      const res = await saveAcademy(v);
+      if (!res.success) return setError(res.message);
+      toast.success(res.message);
+      form.reset(v);
+      queryClient.invalidateQueries({ queryKey: ["utils"] });
+      router.refresh();
+    }),
+  );
+
+  const area = (name: "description" | "footerNotes", label: string, placeholder: string) => (
+    <FormField
+      control={form.control}
+      name={name}
+      render={({ field }) => (
+        <FormItem className="@md:col-span-2">
+          <FormLabel>
+            {label} <span className="font-normal text-muted-foreground">(optional)</span>
+          </FormLabel>
+          <FormControl>
+            <Textarea {...field} rows={3} placeholder={placeholder} />
+          </FormControl>
+          <FormMessage />
+        </FormItem>
+      )}
+    />
+  );
+
+  const custom = color && isCustomColor(color) ? color : "";
+
+  return (
+    <Form {...form}>
+      <form onSubmit={submit} className="space-y-4" noValidate>
+        <FormAlert message={error} />
+
+        <FormSection title="Basic information" icon={Building2}>
+          <TextField<AcademyInput> name="academyName" label="Academy name" placeholder="e.g. Fazam Football Academy" />
+          <TextField<AcademyInput> name="tagline" label="Tagline" placeholder="e.g. Building champions" />
+          {area("description", "About the academy", "A sentence or two about the academy")}
+        </FormSection>
+
+        <FormSection title="Contacts" icon={MapPin}>
+          <TextField<AcademyInput> name="address" label="Address" className="@md:col-span-2" placeholder="e.g. Eastleigh, Nairobi" />
+          <TextField<AcademyInput> name="phone" label="Phone" type="tel" placeholder="0712 345 678" />
+          <TextField<AcademyInput> name="email" label="Email" type="email" placeholder="info@example.com" />
+        </FormSection>
+
+        <FormSection title="How parents pay" icon={Wallet} description="Printed on every invoice.">
+          <TextField<AcademyInput> name="paymentType" label="Payment method" placeholder="e.g. M-Pesa Paybill" />
+          <TextField<AcademyInput> name="paymentMethod" label="Number or account" className="[&_input]:font-mono" placeholder="e.g. 123456" />
+        </FormSection>
+
+        <FormSection title="Receipts" icon={Receipt} columns={1}>
+          {area("footerNotes", "Receipt footer", "e.g. Thank you for your payment.")}
+        </FormSection>
+
+        <FormSection title="Branding" icon={Palette}>
+          <FormField
+            control={form.control}
+            name="logoUrl"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>
+                  Logo <span className="font-normal text-muted-foreground">(optional)</span>
+                </FormLabel>
+                <FormControl>
+                  <LocalFsUpload value={field.value ?? ""} onChange={field.onChange} folder="PROFILE" maxSizeMB={2} />
+                </FormControl>
+                <FormDescription>PNG or JPG, up to 2 MB.</FormDescription>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="primaryColor"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Colour</FormLabel>
+                <div role="radiogroup" aria-label="Colour" className="grid grid-cols-3 gap-2 sm:grid-cols-4">
+                  {COLOR_PRESETS.map((p) => {
+                    const on = field.value === p.value;
+                    return (
+                      <button
+                        key={p.value}
+                        type="button"
+                        role="radio"
+                        aria-checked={on}
+                        onClick={() => field.onChange(p.value)}
+                        className={cn("flex items-center gap-2 rounded-md border px-2 py-2 text-sm transition-colors hover:bg-muted", on && "border-primary bg-primary/5")}
+                      >
+                        <span className="grid size-6 shrink-0 place-items-center rounded-full" style={{ background: SWATCH[p.value] }}>
+                          {on && <Check className="size-3.5 text-white" />}
+                        </span>
+                        {p.label}
+                      </button>
+                    );
+                  })}
+                  <label
+                    className={cn(
+                      "flex cursor-pointer items-center gap-2 rounded-md border px-2 py-2 text-sm transition-colors hover:bg-muted",
+                      custom && "border-primary bg-primary/5",
+                    )}
+                  >
+                    <span className="relative size-6 shrink-0 overflow-hidden rounded-full" style={{ background: custom || "conic-gradient(red, yellow, lime, cyan, blue, magenta, red)" }}>
+                      <input
+                        type="color"
+                        aria-label="Custom colour"
+                        value={custom || "#1d4ed8"}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        className="absolute inset-0 size-full cursor-pointer opacity-0"
+                      />
+                    </span>
+                    Custom
+                  </label>
+                </div>
+                {custom && (
+                  <FormControl>
+                    <Input value={custom} onChange={(e) => field.onChange(e.target.value)} aria-label="Colour code" className="h-11 font-mono" />
+                  </FormControl>
+                )}
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          {/* Preview in the chosen colour */}
+          <div aria-hidden {...themeAttributes(custom && !readableOnWhite(custom) ? null : color)} className="flex flex-wrap items-center gap-3 rounded-lg border border-dashed p-4 @md:col-span-2">
+            <span className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Preview</span>
+            <Button type="button" size="sm" tabIndex={-1}>
+              Button
+            </Button>
+            <Badge variant="outline" className="border-primary/40 text-primary">
+              Scheduled
+            </Badge>
+            <span className="text-sm font-medium text-primary underline-offset-4 hover:underline">A link</span>
+          </div>
+        </FormSection>
+
+        <StickyActions className="justify-end">
+          {form.formState.isDirty && (
+            <Button type="button" variant="ghost" onClick={() => form.reset()}>
+              Undo changes
+            </Button>
+          )}
+          <Button type="submit" disabled={saving || (!!academy && !form.formState.isDirty)} className="min-w-36">
+            {saving && <Loader2 className="animate-spin" />} {academy ? "Save changes" : "Set up academy"}
+          </Button>
+        </StickyActions>
+      </form>
+    </Form>
+  );
+}

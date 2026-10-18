@@ -160,7 +160,7 @@
 }
 
 /*
- * Academy colour presets (Settings → Academy). They change the content
+ * Academy colour presets (Academy profile → Branding). They change the content
  * primary only; the sidebar always stays in club colours.
  */
 [data-theme-color="zinc"] {
@@ -207,6 +207,17 @@
   --primary: oklch(0.712 0.194 13.428);
   --primary-foreground: oklch(0.141 0.005 285.823);
   --ring: oklch(0.712 0.194 13.428);
+}
+/* A custom colour (checked to keep white text readable); lightened for dark mode */
+[data-theme-color="custom"] {
+  --primary: var(--brand-custom);
+  --primary-foreground: oklch(0.985 0 0);
+  --ring: var(--brand-custom);
+}
+.dark[data-theme-color="custom"] {
+  --primary: color-mix(in oklch, var(--brand-custom) 60%, white);
+  --primary-foreground: oklch(0.141 0.005 285.823);
+  --ring: color-mix(in oklch, var(--brand-custom) 60%, white);
 }
 
 @layer base {

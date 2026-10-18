@@ -1,15 +1,16 @@
+import type { Metadata } from "next";
+import { PageHeader } from "@/components/shared/PageHeader";
 import { getCachedAcademy } from "@/lib/academy-cache";
 import AcademyPage from "@/features/academy/components/AcademyPage";
-import type { Metadata } from "next";
 
-export const metadata: Metadata = { title: "Academy Profile" };
+export const metadata: Metadata = { title: "Academy profile" };
 
-const page = async () => {
+export default async function Page() {
   const academy = await getCachedAcademy();
-
-  const isEditing = !!academy;
-
-  return <AcademyPage isEditting={isEditing} academy={academy || null} />;
-};
-
-export default page;
+  return (
+    <div className="mx-auto max-w-4xl space-y-6">
+      <PageHeader title="Academy profile" />
+      <AcademyPage academy={academy} />
+    </div>
+  );
+}
