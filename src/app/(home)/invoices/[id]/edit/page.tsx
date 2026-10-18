@@ -18,7 +18,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   if (inv.status === "CANCELED") redirect(`/invoices/${inv.invoiceNumber}`);
 
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader title={`Edit ${inv.invoiceNumber}`} description={athleteName(inv.athlete)} />
       <InvoiceForm
         invoiceNumber={inv.invoiceNumber}

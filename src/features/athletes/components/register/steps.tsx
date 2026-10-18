@@ -1,5 +1,6 @@
 "use client";
 
+import { CalendarDays, Camera, HeartPulse, MapPin, Phone, ShieldCheck, Siren, Trophy, UserRound, Users, Wallet } from "lucide-react";
 import { useEffect } from "react";
 import { useFormContext, useWatch } from "react-hook-form";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -88,8 +89,8 @@ export function StepAthlete() {
   }, [suggested, getValues, setValue]);
 
   return (
-    <div className="space-y-8">
-      <FormSection title="Name">
+    <div className="space-y-4">
+      <FormSection title="Name" icon={UserRound}>
         <TextField<RegistrationInput>
           name="firstName"
           label="First name"
@@ -109,7 +110,7 @@ export function StepAthlete() {
           className="sm:col-span-2"
         />
       </FormSection>
-      <FormSection title="Age and batch">
+      <FormSection title="Age and batch" icon={CalendarDays}>
         <TextField<RegistrationInput>
           name="dateOfBirth"
           label="Date of birth"
@@ -142,7 +143,7 @@ export function StepAthlete() {
           )}
         />
       </FormSection>
-      <FormSection title="Athlete's contacts">
+      <FormSection title="Athlete's contacts" icon={Phone}>
         <TextField<RegistrationInput>
           name="phoneNumber"
           label="Phone"
@@ -201,7 +202,7 @@ export function StepGuardian() {
   const age = useAge();
   const adult = age !== null && age >= ADULT_AGE;
   return (
-    <FormSection title="Parent or guardian">
+    <FormSection title="Parent or guardian" icon={Users}>
       <TextField<RegistrationInput>
         name="guardianName"
         label="Full name"
@@ -250,9 +251,9 @@ export function StepMedical({ lockHealth, lockContact }: StepProps) {
     ePhone === g.guardianPhone;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <fieldset disabled={lockHealth} className="disabled:opacity-70">
-        <FormSection title="Health">
+        <FormSection title="Health" icon={HeartPulse}>
           <FormField
             control={control}
             name="bloodGroup"
@@ -296,7 +297,7 @@ export function StepMedical({ lockHealth, lockContact }: StepProps) {
         </FormSection>
       </fieldset>
       <fieldset disabled={lockContact} className="disabled:opacity-70">
-        <FormSection title="Emergency contact">
+        <FormSection title="Emergency contact" icon={Siren}>
           {guardianName && (
             <label className="flex items-center justify-between gap-3 rounded-md border p-3 text-sm sm:col-span-2">
               <span>
@@ -383,8 +384,8 @@ export function StepAbout() {
     />
   );
   return (
-    <div className="space-y-8">
-      <FormSection title="Where they live">
+    <div className="space-y-4">
+      <FormSection title="Where they live" icon={MapPin}>
         <TextField<RegistrationInput>
           name="town"
           label="Town"
@@ -405,7 +406,7 @@ export function StepAbout() {
           className="sm:col-span-2"
         />
       </FormSection>
-      <FormSection title="Football">
+      <FormSection title="Football" icon={Trophy}>
         <TextField<RegistrationInput>
           name="height"
           label="Height (cm)"
@@ -505,7 +506,7 @@ export function StepConsent() {
   }, [adult, getValues, setValue]);
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-4">
       <FormSection
         title="Consent"
         description={`Version ${CONSENT_VERSION}`}
@@ -537,7 +538,7 @@ export function StepConsent() {
         <ConsentBox name="consentPhotos" {...t.photos} />
       </FormSection>
 
-      <FormSection title="Given by">
+      <FormSection title="Given by" icon={ShieldCheck}>
         <TextField<RegistrationInput>
           name="consentGivenBy"
           label="Name"
@@ -636,8 +637,8 @@ export function StepDocuments() {
     />
   );
   return (
-    <div className="space-y-8">
-      <FormSection title="Photo" columns={1}>
+    <div className="space-y-4">
+      <FormSection title="Photo" icon={Camera} columns={1}>
         {photos ? (
           <FormField
             control={control}
@@ -711,7 +712,7 @@ export function StepPlan() {
       : null;
 
   return (
-    <FormSection title="Fee plan" columns={1}>
+    <FormSection title="Fee plan" icon={Wallet} columns={1}>
       <FormField
         control={control}
         name="subscriptionPlanId"

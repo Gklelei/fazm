@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { FilePlus2, Loader2 } from "lucide-react";
+import { FilePlus2, FileText, KeyRound, Landmark, Loader2, Siren, UserRound, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -111,8 +111,8 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
     <Form {...form}>
       <form onSubmit={submit} className="space-y-6" noValidate>
         <FormAlert message={error} />
-        <div className="space-y-8 rounded-lg border bg-card p-4 sm:p-6">
-          <FormSection title="Person">
+        <div className="space-y-4">
+          <FormSection title="Person" icon={UserRound}>
             <FormField
               control={form.control}
               name="photo"
@@ -129,7 +129,7 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
             <TextField<StaffInput> name="startDate" label="Started" type="date" optional />
           </FormSection>
 
-          <FormSection title="Sign-in" columns={1}>
+          <FormSection title="Sign-in" icon={KeyRound} columns={1}>
             <FormField
               control={form.control}
               name="canSignIn"
@@ -162,7 +162,7 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
             )}
           </FormSection>
 
-          <FormSection title="Batches they coach" columns={1}>
+          <FormSection title="Batches they coach" icon={Users} columns={1}>
             <FormField
               control={form.control}
               name="batches"
@@ -176,13 +176,13 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
             />
           </FormSection>
 
-          <FormSection title="Emergency contact">
+          <FormSection title="Emergency contact" icon={Siren}>
             <TextField<StaffInput> name="emergencyName" label="Name" optional autoComplete="off" />
             <TextField<StaffInput> name="emergencyRelationship" label="Relationship" optional placeholder="e.g. Spouse" />
             <TextField<StaffInput> name="emergencyPhone" label="Phone" optional type="tel" inputMode="tel" />
           </FormSection>
 
-          <FormSection title="Pay and statutory details">
+          <FormSection title="Pay and statutory details" icon={Landmark}>
             <TextField<StaffInput> name="salary" label="Monthly salary (KES)" optional inputMode="decimal" />
             <TextField<StaffInput> name="nationalId" label="National ID" optional inputMode="numeric" autoComplete="off" />
             <TextField<StaffInput> name="kraPin" label="KRA PIN" optional autoComplete="off" className="[&_input]:uppercase" />
@@ -190,7 +190,7 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
             <TextField<StaffInput> name="shifNumber" label="SHIF number" optional autoComplete="off" />
           </FormSection>
 
-          <FormSection title="Documents" columns={1}>
+          <FormSection title="Documents" icon={FileText} columns={1}>
             <div className="flex flex-wrap gap-2">
               {STAFF_DOCUMENT_KINDS.map((k) => (
                 <AddDocument key={k.value} label={k.label} onAdd={(url) => docs.append({ kind: k.value, name: k.label, url })} />

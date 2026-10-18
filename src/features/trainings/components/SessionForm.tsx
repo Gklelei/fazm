@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { ClipboardList, Clock, Loader2, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -123,14 +123,14 @@ export function SessionForm({ id, values }: { id?: string; values?: SessionInput
     <Form {...form}>
       <form onSubmit={submit} className="space-y-6" noValidate>
         <FormAlert message={error} />
-        <div className="space-y-8 rounded-lg border bg-card p-4 sm:p-6">
-          <FormSection title="When">
+        <div className="space-y-4">
+          <FormSection title="When" icon={Clock}>
             <TextField<SessionInput> name="date" label="Date" type="date" min={id ? undefined : academyToday()} className="@md:col-span-2" />
             <TextField<SessionInput> name="start" label="Starts" type="time" />
             <TextField<SessionInput> name="end" label={`Ends${length(startTime, endTime) ? ` · ${length(startTime, endTime)}` : ""}`} type="time" />
           </FormSection>
 
-          <FormSection title="Who and where">
+          <FormSection title="Who and where" icon={MapPin}>
             {chips("batch", "Batch", batches)}
             {chips("location", "Pitch", pitches)}
             {isCoach ? (
@@ -166,7 +166,7 @@ export function SessionForm({ id, values }: { id?: string; values?: SessionInput
             )}
           </FormSection>
 
-          <FormSection title="Plan" columns={1}>
+          <FormSection title="Plan" icon={ClipboardList} columns={1}>
             <TextField<SessionInput> name="title" label="Title" autoComplete="off" />
             <FormField
               control={form.control}

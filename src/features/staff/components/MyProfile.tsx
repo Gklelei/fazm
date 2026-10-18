@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { KeyRound, Loader2, LogOut, Monitor } from "lucide-react";
+import { KeyRound, Loader2, LogOut, Monitor, Siren, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import { PageHeader } from "@/components/shared/PageHeader";
@@ -97,9 +97,9 @@ export function MyProfile({
       <div className="grid gap-6 xl:grid-cols-5">
         <div className="xl:col-span-3">
           <Form {...form}>
-            <form onSubmit={submit} className="space-y-6 rounded-lg border bg-card p-4 sm:p-6" noValidate>
+            <form onSubmit={submit} className="space-y-4" noValidate>
               <FormAlert message={error} />
-              <FormSection title="Your details">
+              <FormSection title="Your details" icon={UserRound}>
                 <FormField
                   control={form.control}
                   name="photo"
@@ -113,7 +113,7 @@ export function MyProfile({
                 {hasStaffRecord && <TextField<MyProfileInput> name="phoneNumber" label="Phone" type="tel" inputMode="tel" />}
               </FormSection>
               {hasStaffRecord && (
-                <FormSection title="Emergency contact">
+                <FormSection title="Emergency contact" icon={Siren}>
                   <TextField<MyProfileInput> name="emergencyName" label="Name" optional />
                   <TextField<MyProfileInput> name="emergencyRelationship" label="Relationship" optional />
                   <TextField<MyProfileInput> name="emergencyPhone" label="Phone" optional type="tel" inputMode="tel" />

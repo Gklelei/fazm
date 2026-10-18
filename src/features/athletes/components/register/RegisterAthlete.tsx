@@ -155,11 +155,9 @@ export function RegisterAthlete() {
         </aside>
 
         <div className="min-w-0 space-y-6">
-          <div className="rounded-lg border bg-card p-4 sm:p-6">
-            <div className="space-y-6">
-              <FormAlert message={error} />
-              <Body goTo={go} />
-            </div>
+          <div className="space-y-4">
+            <FormAlert message={error} />
+            <Body goTo={go} />
           </div>
 
           <StickyActions>

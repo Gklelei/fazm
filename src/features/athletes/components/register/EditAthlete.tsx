@@ -89,7 +89,7 @@ export function EditAthlete({
         <div className="min-w-0 space-y-6">
           <FormAlert message={error} />
           {SECTIONS.map(({ id, label, Body, medical }) => (
-            <section key={id} id={id} className="scroll-mt-20 rounded-lg border bg-card p-4 sm:p-6" aria-label={label}>
+            <section key={id} id={id} className="scroll-mt-20" aria-label={label}>
               {medical ? (
                 <Body goTo={() => {}} lockHealth={!canEditMedical} lockContact={!canEditOther} />
               ) : (

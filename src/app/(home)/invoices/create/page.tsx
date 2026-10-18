@@ -10,7 +10,7 @@ const inAWeek = () => academyDate(new Date(Date.now() + 7 * 86_400_000));
 
 export default function Page() {
   return (
-    <div className="mx-auto max-w-3xl space-y-6">
+    <div className="mx-auto max-w-6xl space-y-6">
       <PageHeader title="New invoice" />
       <InvoiceForm defaultDue={inAWeek()} />
     </div>

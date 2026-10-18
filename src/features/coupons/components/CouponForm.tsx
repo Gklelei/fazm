@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { CalendarRange, Gauge, Loader2, Target, Ticket } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Switch } from "@/components/ui/switch";
@@ -86,8 +86,8 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
     <Form {...form}>
       <form onSubmit={submit} className="space-y-6" noValidate>
         <FormAlert message={error} />
-        <div className="space-y-8 rounded-lg border bg-card p-4 sm:p-6">
-          <FormSection title="Coupon">
+        <div className="space-y-4">
+          <FormSection title="Coupon" icon={Ticket}>
             <TextField<CouponInput>
               name="name"
               label="Code"
@@ -99,7 +99,7 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
             <TextField<CouponInput> name="value" label={type === "PERCENTAGE" ? "Percent off" : "Amount off (KES)"} inputMode="decimal" />
           </FormSection>
 
-          <FormSection title="Where it's used">
+          <FormSection title="Where it's used" icon={Target}>
             {chips("interval", "Used on", USED_ON)}
             <FormField
               control={form.control}
@@ -116,12 +116,12 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
             />
           </FormSection>
 
-          <FormSection title="Valid">
+          <FormSection title="Valid" icon={CalendarRange}>
             <TextField<CouponInput> name="startDate" label="From" type="date" />
             <TextField<CouponInput> name="expiryDate" label="Until" type="date" optional />
           </FormSection>
 
-          <FormSection title="Limits">
+          <FormSection title="Limits" icon={Gauge}>
             <TextField<CouponInput>
               name="usageLimit"
               label="Total uses"

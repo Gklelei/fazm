@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useFieldArray, useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Loader2, Plus, X } from "lucide-react";
+import { CalendarClock, Loader2, Plus, ReceiptText, Users, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -25,6 +25,7 @@ import { StickyActions } from "@/components/form/StickyActions";
 import { TextField } from "@/components/form/TextField";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { formatCurrency } from "@/lib/format";
+import { academyInstant, formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { Recipients } from "./Recipients";
@@ -78,9 +79,9 @@ export function InvoiceForm({
   });
   useLeaveWarning(form.formState.isDirty && !saved);
   const lines = useFieldArray({ control: form.control, name: "lines" });
-  const [watchedLines, chosenAthletes] = useWatch({
+  const [watchedLines, chosenAthletes, dueDate] = useWatch({
     control: form.control,
-    name: ["lines", "athletes"],
+    name: ["lines", "athletes", "dueDate"],
   });
 
   const each = invoiceTotal(
@@ -127,11 +128,11 @@ export function InvoiceForm({
 
   return (
     <Form {...form}>
-      <form onSubmit={submit} className="space-y-6" noValidate>
-        <FormAlert message={error} />
-        <div className="space-y-8 rounded-lg border bg-card p-4 sm:p-6">
+      <form onSubmit={submit} className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]" noValidate>
+        <div className="min-w-0 space-y-4">
+          <FormAlert message={error} />
           {!editing && (
-            <FormSection title="Who" columns={1}>
+            <FormSection title="Who" icon={Users} columns={1}>
               <FormField
                 control={form.control}
                 name="athletes"
@@ -152,7 +153,7 @@ export function InvoiceForm({
             </FormSection>
           )}
 
-          <FormSection title="Charges" columns={1}>
+          <FormSection title="Charges" icon={ReceiptText} columns={1}>
             <FormField
               control={form.control}
               name="type"
@@ -314,7 +315,7 @@ export function InvoiceForm({
             </div>
           </FormSection>
 
-          <FormSection title="Due and notes">
+          <FormSection title="Due and notes" icon={CalendarClock}>
             <TextField<Values> name="dueDate" label="Due date" type="date" />
             <FormField
               control={form.control}
@@ -336,26 +337,55 @@ export function InvoiceForm({
             />
           </FormSection>
 
-          <div className="flex flex-wrap items-baseline justify-between gap-3 rounded-lg bg-muted/50 p-4">
-            <span className="text-sm text-muted-foreground">
-              {editing
-                ? "Total"
-                : recipients > 1
-                  ? `Each invoice · ${recipients} invoices`
-                  : "Total"}
-            </span>
-            <span className="tabular font-display text-2xl font-bold">
-              {formatCurrency(each)}
-              {!editing && recipients > 1 && (
-                <span className="ml-2 text-sm font-normal text-muted-foreground">
-                  ({formatCurrency(each * recipients)} in all)
-                </span>
-              )}
-            </span>
-          </div>
         </div>
 
-        <StickyActions>
+        {/* Summary: beside the form on a desktop, under it on a phone */}
+        <aside className="space-y-4 lg:sticky lg:top-20">
+          <section className="overflow-hidden rounded-xl bg-brand-navy text-white shadow-sm dark:ring-1 dark:ring-white/10">
+            <div className="space-y-4 p-5">
+              <p className="text-xs font-medium tracking-wide text-white/60 uppercase">
+                {editing ? `Invoice ${invoiceNumber}` : recipients > 1 ? "Each invoice" : "New invoice"}
+              </p>
+              <p className="tabular font-display text-4xl leading-none font-bold text-brand-gold">{formatCurrency(each)}</p>
+              {!editing && (
+                <p className="tabular text-sm text-white/70">
+                  {recipients === 0
+                    ? "Choose who to bill"
+                    : recipients === 1
+                      ? "1 athlete"
+                      : `${recipients} athletes · ${formatCurrency(each * recipients)} in all`}
+                </p>
+              )}
+              {(watchedLines ?? []).some((l) => l.description) && (
+                <ul className="space-y-1 border-t border-white/10 pt-3 text-sm">
+                  {(watchedLines ?? [])
+                    .filter((l) => l.description)
+                    .map((l, i) => (
+                      <li key={i} className="flex justify-between gap-3">
+                        <span className="truncate text-white/80">
+                          {Number(l.quantity) > 1 && `${l.quantity} × `}
+                          {l.description}
+                        </span>
+                        <span className="tabular shrink-0">{Number(l.unitAmount) > 0 ? formatCurrency(lineTotal(l)) : "—"}</span>
+                      </li>
+                    ))}
+                </ul>
+              )}
+              {dueDate && <p className="text-sm text-white/70">Due {formatAcademy(academyInstant(dueDate, "12:00"), { day: "numeric", month: "short", year: "numeric" })}</p>}
+            </div>
+            <div className="hidden gap-2 border-t border-white/10 bg-white/5 p-4 lg:grid">
+              <Button type="submit" disabled={saving || (editing && !form.formState.isDirty)} className="h-11 w-full bg-brand-gold text-brand-navy hover:bg-brand-gold/90">
+                {saving && <Loader2 className="animate-spin" />}
+                {editing ? "Save changes" : recipients > 1 ? `Create ${recipients} invoices` : "Create invoice"}
+              </Button>
+              <Button variant="secondary" size="sm" asChild>
+                <Link href={editing ? `/invoices/${invoiceNumber}` : "/invoices"}>Cancel</Link>
+              </Button>
+            </div>
+          </section>
+        </aside>
+
+        <StickyActions className="lg:hidden">
           <Button variant="ghost" asChild>
             <Link href={editing ? `/invoices/${invoiceNumber}` : "/invoices"}>
               Cancel
