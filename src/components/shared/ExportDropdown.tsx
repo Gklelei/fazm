@@ -16,6 +16,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { exportToCSV, exportToExcel, exportToPDF } from "@/lib/export";
+import { UseUtilsContext } from "@/providers/UtilsContext";
 
 interface ExportDropdownProps<T> {
   filename: string;
@@ -48,6 +49,7 @@ export default function ExportDropdown<T = unknown>({
   filterFn,
 }: ExportDropdownProps<T>) {
   const [loading, setLoading] = useState(false);
+  const academyName = UseUtilsContext().data?.academy?.academyName;
 
   /** Get the rows to export — either from the API or from the prop. */
   const getRows = async (): Promise<string[][]> => {
@@ -76,10 +78,10 @@ export default function ExportDropdown<T = unknown>({
   };
 
   const handleExport = async (
-    fn: (filename: string, headers: string[], rows: string[][]) => void,
+    fn: (filename: string, headers: string[], rows: string[][], academyName?: string) => void,
   ) => {
     const exportRows = await getRows();
-    fn(filename, headers, exportRows);
+    fn(filename, headers, exportRows, academyName);
   };
 
   return (

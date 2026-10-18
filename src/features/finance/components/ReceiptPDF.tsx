@@ -31,6 +31,7 @@ type AcademyConfig = {
     receiptFooterNotes: string | null;
     signatureUrl?: string | null;
     stampUrl?: string | null;
+    kraPin?: string | null;
   } | null;
 };
 
@@ -173,6 +174,7 @@ export const ReceiptPDF = ({
               <Text style={styles.companyTagline}>
                 Official Payment Receipt
               </Text>
+              {academy?.kraPin && <Text style={styles.companyTagline}>KRA PIN {academy.kraPin}</Text>}
             </View>
           </View>
 
@@ -276,6 +278,11 @@ export const ReceiptPDF = ({
             </Text>
           </View>
         </View>
+        <Text
+          fixed
+          style={{ position: "absolute", bottom: 20, left: 0, right: 0, textAlign: "center", fontSize: 7, color: "#9CA3AF" }}
+          render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`}
+        />
       </Page>
     </Document>
   );

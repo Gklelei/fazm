@@ -157,6 +157,8 @@ export async function GET(req: NextRequest) {
             status: true,
             createdAt: true,
             batches: { select: { name: true } },
+            // The phone shown on the roster: the first guardian's
+            guardians: { select: { phoneNumber: true }, take: 1 },
           },
           // Grouped by batch, then alphabetical — prints as a batch roster
           orderBy: [

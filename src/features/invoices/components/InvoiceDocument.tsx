@@ -322,6 +322,7 @@ export default function InvoiceDocument({
           This invoice is system-generated. Contact the administrator for
           discrepancies.
         </Text>
+        <Text style={[styles.footer, { bottom: 26, fontStyle: "normal" }]} fixed render={({ pageNumber, totalPages }) => `Page ${pageNumber} of ${totalPages}`} />
       </Page>
     </Document>
   );

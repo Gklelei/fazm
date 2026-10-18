@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadMore } from "@/components/shared/LoadMore";
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { UseUtilsContext } from "@/providers/UtilsContext";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
@@ -32,6 +33,7 @@ type ExportItem = {
   status: ATHLETE_ACCOUNT_STATUS;
   createdAt: string;
   batches: { name: string } | null;
+  guardians: { phoneNumber: string }[];
 };
 
 const EMPTY: RosterFilterState = { search: "", status: "", batchId: "", from: "", to: "", consent: "" };
@@ -45,6 +47,8 @@ export default function AthletesRoster({
   // ?batch=<id> opens the roster on one batch (linked from Settings)
   const linkedBatch = useSearchParams().get("batch") ?? "";
   const [form, setForm] = useState({ ...EMPTY, batchId: linkedBatch });
+  // The batch's name titles its printed list
+  const batchName = UseUtilsContext().data?.batches?.find((b) => b.id === form.batchId)?.name;
   const search = useDebounce(form.search, 400);
 
   const filters = useMemo(
@@ -82,7 +86,7 @@ export default function AthletesRoster({
         actions={
           <>
             <ExportDropdown<ExportItem>
-              filename="Athletes"
+              filename={batchName ? `${batchName} athletes` : "Athletes"}
               headers={["#", "Athlete ID", "Name", "Batch", "Phone", "Status", "Registered"]}
               rows={athletes.map((a, i) => [
                 String(i + 1),
@@ -99,7 +103,7 @@ export default function AthletesRoster({
                 a.athleteId,
                 athleteName(a),
                 a.batches?.name ?? "",
-                a.phoneNumber ?? "",
+                a.guardians[0]?.phoneNumber ?? a.phoneNumber ?? "",
                 ATHLETE_STATUS_LABEL[a.status] ?? a.status,
                 new Date(a.createdAt).toLocaleDateString("en-GB"),
               ]}
