@@ -4,7 +4,7 @@ import { useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { ArrowLeft, CheckCheck, Loader2, Search } from "lucide-react";
+import { ArrowLeft, CalendarDays, CheckCircle2, CircleDashed, Clock, Loader2, Search, Users, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -15,7 +15,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import ProfileAvatar from "@/components/shared/ProfileAvatar";
-import { PageHeader } from "@/components/shared/PageHeader";
 import { cn } from "@/lib/utils";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import type { AttendanceStatus } from "@/generated/prisma/enums";
@@ -75,12 +74,21 @@ export default function MarkAttendance({ data }: { data: TrainingAttendanceType 
     `${a.firstName} ${a.lastName} ${a.athleteId}`.toLowerCase().includes(query.trim().toLowerCase()),
   );
 
-  const markRestPresent = () =>
+  /** Everyone not marked yet gets this mark; marks already given stay. */
+  const markRest = (status: AttendanceStatus) =>
     setMarks((m) =>
       Object.fromEntries(
-        Object.entries(m).map(([id, v]) => [id, v.status ? v : { status: "PRESENT", reasonId: null }]),
+        Object.entries(m).map(([id, v]) => [id, v.status ? v : { status, reasonId: null }]),
       ),
     );
+  const when = `${formatAcademy(data.date, { weekday: "short", day: "numeric", month: "short" })}, ${academyHHmm(data.date)}–${academyHHmm(new Date(new Date(data.date).getTime() + data.duration * 60_000))}`;
+  const stats = [
+    { label: "Total", value: data.athletes.length, icon: Users, color: "text-muted-foreground", bg: "bg-muted" },
+    { label: "Present", value: counts.PRESENT, icon: CheckCircle2, color: "text-success", bg: "bg-success/10" },
+    { label: "Late", value: counts.LATE, icon: Clock, color: "text-warning-foreground dark:text-warning", bg: "bg-warning/15" },
+    { label: "Absent", value: counts.ABSENT, icon: XCircle, color: "text-destructive", bg: "bg-destructive/10" },
+    { label: "Not marked", value: counts.unmarked, icon: CircleDashed, color: "text-muted-foreground", bg: "bg-muted" },
+  ];
 
   const save = () =>
     start(async () => {
@@ -98,17 +106,41 @@ export default function MarkAttendance({ data }: { data: TrainingAttendanceType 
     });
 
   return (
-    <div className="space-y-6">
-      <Button variant="ghost" size="sm" asChild className="-ml-2 text-muted-foreground">
-        <Link href={`/sessions/view/${data.id}`}>
-          <ArrowLeft /> {data.name}
-        </Link>
-      </Button>
+    <div className="space-y-4">
+      <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-3">
+          <span className="grid size-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary" aria-hidden>
+            <CalendarDays className="size-5" />
+          </span>
+          <div className="min-w-0">
+            <h1 className="text-xl font-bold">Training attendance</h1>
+            <p className="text-sm text-muted-foreground">
+              {data.name} · {data.batch.name} · {when} · {data.location.name}
+            </p>
+          </div>
+        </div>
+        <Button variant="outline" size="sm" asChild className="self-start sm:self-auto">
+          <Link href={`/sessions/view/${data.id}`}>
+            <ArrowLeft /> Back
+          </Link>
+        </Button>
+      </div>
 
-      <PageHeader
-        title="Attendance"
-        description={`${data.batch.name} · ${formatAcademy(data.date, { weekday: "short", day: "numeric", month: "short" })}, ${academyHHmm(data.date)}–${academyHHmm(new Date(new Date(data.date).getTime() + data.duration * 60_000))} · ${data.location.name}`}
-      />
+      {data.athletes.length > 0 && (
+        <div className="grid grid-cols-4 gap-2 sm:gap-3 lg:grid-cols-5">
+          {stats.map((st) => (
+            <div key={st.label} className={cn("flex items-center justify-between rounded-xl border bg-card p-2.5 shadow-xs sm:p-3", st.label === "Total" && "max-lg:hidden")}>
+              <div>
+                <p className="text-xs font-medium text-muted-foreground">{st.label}</p>
+                <p className={cn("tabular text-lg font-bold", st.color)}>{st.value}</p>
+              </div>
+              <span className={cn("rounded-md p-1.5 max-sm:hidden", st.bg)}>
+                <st.icon className={cn("size-4", st.color)} />
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
 
       {data.athletes.length === 0 ? (
         <div className="rounded-lg border bg-card px-4 py-16 text-center">
@@ -121,22 +153,26 @@ export default function MarkAttendance({ data }: { data: TrainingAttendanceType 
           </Button>
         </div>
       ) : (
-        <section className="overflow-hidden rounded-lg border bg-card">
-          <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center">
-            <div className="relative flex-1">
-              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                type="search"
-                aria-label="Find athlete"
-                placeholder="Find athlete"
-                className="pl-9"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
+        <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
+          <div className="space-y-3 border-b p-4">
+            <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+              <div>
+                <h2 className="text-base font-semibold">Athlete roster</h2>
+                <p className="text-xs text-muted-foreground">Mark each athlete, and add a reason when they weren&apos;t there.</p>
+              </div>
+              <div className="flex flex-wrap gap-2">
+                <Button size="sm" variant="outline" onClick={() => markRest("PRESENT")} disabled={!counts.unmarked} className="border-success/30 text-success hover:bg-success/10">
+                  <CheckCircle2 /> Mark the rest present
+                </Button>
+                <Button size="sm" variant="outline" onClick={() => markRest("ABSENT")} disabled={!counts.unmarked} className="border-destructive/30 text-destructive hover:bg-destructive/10">
+                  <XCircle /> Mark the rest absent
+                </Button>
+              </div>
             </div>
-            <Button variant="outline" onClick={markRestPresent} disabled={!counts.unmarked}>
-              <CheckCheck /> Mark the rest present
-            </Button>
+            <div className="relative">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input type="search" aria-label="Find athlete" placeholder="Find athlete" className="pl-9" value={query} onChange={(e) => setQuery(e.target.value)} />
+            </div>
           </div>
 
           <ul className="divide-y">
