@@ -196,6 +196,7 @@ export default function InvoiceDocument({
                 {academy?.contactEmail || "academy@fazamfootball.org"}
               </Text>
               <Text>{academy?.contactPhone || "0714401466"}</Text>
+              {academy?.kraPin && <Text>KRA PIN {academy.kraPin}</Text>}
             </View>
           </View>
 
@@ -295,6 +296,13 @@ export default function InvoiceDocument({
             {academy?.paymentMathod || "0758080448"}
           </Text>
         </View>
+
+        {academy?.documentTerms && (
+          <View style={{ marginTop: 16 }}>
+            <Text style={styles.sectionTitle}>Terms</Text>
+            <Text style={{ color: "#555" }}>{academy.documentTerms}</Text>
+          </View>
+        )}
 
         <Text style={styles.footer}>
           This invoice is system-generated. Contact the administrator for

@@ -29,6 +29,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         paymentMethodType: a?.paymentMethodType ?? null,
         paymentMethod: a?.paymentMathod ?? null,
         footer: a?.receiptFooterNotes ?? null,
+        kraPin: a?.kraPin ?? null,
+        terms: a?.documentTerms ?? null,
       }}
     />
   );

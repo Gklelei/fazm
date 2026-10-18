@@ -165,6 +165,13 @@ model Invoice {
   @@index([status])
   @@index([dueDate])
   @@map("invoices")
+
+  /// For a late fee: the overdue invoice it was charged on
+  lateFeeForId String?   @unique @map("late_fee_for_id")
+  lateFeeFor   Invoice?  @relation("LateFee", fields: [lateFeeForId], references: [id], onDelete: SetNull)
+  lateFee      Invoice?  @relation("LateFee")
+  /// Last overdue reminder emailed to the guardian
+  remindedAt   DateTime? @map("reminded_at")
 }
 
 // Payment records

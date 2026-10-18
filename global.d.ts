@@ -26,6 +26,14 @@ declare global {
       heroImageUrl: string | null;
       primaryColor: string | null;
       receiptFooterNotes: string | null;
+      // Settings the browser uses (mail server fields are never sent)
+      invoicePrefix?: string;
+      receiptPrefix?: string;
+      invoiceDueDays?: number;
+      defaultPlanId?: string | null;
+      sessionMinutes?: number;
+      requiredDocuments?: string[];
+      attendanceEditDays?: number | null;
     } | null;
 
     plans: {

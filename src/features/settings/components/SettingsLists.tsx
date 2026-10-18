@@ -17,9 +17,9 @@ import {
 } from "../actions/lists";
 import { ItemDialog, REASON_STATUSES, type ItemValues } from "./ItemDialog";
 import { RowMenu } from "./RowMenu";
-import type { SettingsTab } from "../lib/tabs";
+import type { ListTab } from "../lib/tabs";
 
-type Kind = SettingsTab;
+type Kind = ListTab;
 
 /** Per tab: the words used and the server calls behind them. */
 const KINDS = {

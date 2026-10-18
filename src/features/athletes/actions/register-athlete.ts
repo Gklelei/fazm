@@ -9,7 +9,8 @@ import { academyInstant } from "@/lib/academy-time";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
-import { ageOn, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
+import { ageOn, missingDocuments, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
+import { getSettings } from "@/lib/settings";
 
 /**
  * Monthly is unified to the 30th of next month (see src/lib/billing.ts).
@@ -43,6 +44,9 @@ function nextBillingByInterval(now: Date, interval: string) {
 export async function registerAthlete(input: RegistrationInput) {
   return asRole("admin", async (user) => {
     const v = registrationSchema.parse(input);
+    const settings = await getSettings();
+    const missing = missingDocuments(v as never, settings.requiredDocuments);
+    if (missing.length) throw new ActionError(missing[0].message);
 
     const created = await db.$transaction(async (ctx) => {
       const now = new Date();

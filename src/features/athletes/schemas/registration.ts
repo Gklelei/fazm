@@ -138,6 +138,29 @@ export function registrationRules(v: Partial<Input>): { path: keyof Input; messa
   return out;
 }
 
+/** Documents the academy can require at registration (Settings → Registration). */
+export const REGISTRATION_DOCUMENTS = [
+  { value: "BIRTH_CERTIFICATE", label: "Birth certificate", fields: ["birthCertificate"] },
+  { value: "NATIONAL_ID", label: "National ID (both sides)", fields: ["idFront", "idBack"] },
+  { value: "PASSPORT", label: "Passport (cover and photo page)", fields: ["passportCover", "passportPage"] },
+] as const;
+
+const DOCUMENT_FIELD_LABEL: Record<string, string> = {
+  birthCertificate: "the birth certificate",
+  idFront: "the front of the ID",
+  idBack: "the back of the ID",
+  passportCover: "the passport cover",
+  passportPage: "the passport photo page",
+};
+
+/** The required documents not yet uploaded. */
+export function missingDocuments(v: Partial<Input>, required: readonly string[]) {
+  return REGISTRATION_DOCUMENTS.filter((d) => required.includes(d.value))
+    .flatMap((d) => d.fields)
+    .filter((f) => !v[f])
+    .map((f) => ({ path: f as keyof Input, message: `Upload ${DOCUMENT_FIELD_LABEL[f]}` }));
+}
+
 export const registrationSchema = athleteFields.superRefine((v, ctx) => {
   for (const r of registrationRules(v as unknown as Input)) ctx.addIssue({ code: "custom", path: [r.path], message: r.message });
 });

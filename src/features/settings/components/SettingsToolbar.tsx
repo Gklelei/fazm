@@ -1,90 +1,73 @@
 "use client";
 
 import Link from "next/link";
-import { useTransition } from "react";
+import { useEffect, useRef, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
-import { SETTINGS_TABS, type SettingsTab } from "../lib/tabs";
+import { SETTINGS_TABS, type ListTab, type SettingsTab } from "../lib/tabs";
 
-/** Tabs and the archived switch, both kept in the URL so a view can be linked or reloaded. */
-export function SettingsToolbar({
-  tab,
-  counts,
-  showArchived,
-  archivedCount,
-}: {
-  tab: SettingsTab;
-  counts: Record<SettingsTab, number>;
-  showArchived: boolean;
-  archivedCount: number;
-}) {
+const GROUPS = [...new Set(SETTINGS_TABS.map((t) => t.group))];
+
+/** Settings sections, kept in the URL so a view can be linked or reloaded. A side menu on wide screens, a scrolling row on phones. */
+export function SettingsNav({ tab, counts }: { tab: SettingsTab; counts: Record<ListTab, number> }) {
+  const nav = useRef<HTMLElement>(null);
+  // Phones: keep the open section in view in the scrolling row
+  useEffect(() => {
+    nav.current?.querySelector("[aria-current=page]")?.scrollIntoView({ inline: "center", block: "nearest" });
+  }, [tab]);
+  return (
+    <nav ref={nav} aria-label="Settings sections" className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 lg:sticky lg:top-20 lg:self-start lg:overflow-visible">
+      <div className="inline-flex gap-1 rounded-lg bg-muted p-1 lg:flex lg:flex-col lg:gap-4 lg:bg-transparent lg:p-0">
+        {GROUPS.map((g) => (
+          <div key={g} className="contents lg:block lg:space-y-0.5">
+            <p className="hidden px-3 pb-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase lg:block">{g}</p>
+            {SETTINGS_TABS.filter((t) => t.group === g).map((t) => (
+              <Link
+                key={t.key}
+                href={`/settings?tab=${t.key}`}
+                scroll={false}
+                aria-current={tab === t.key ? "page" : undefined}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground lg:py-2 lg:hover:bg-muted",
+                  tab === t.key && "bg-background text-foreground shadow-sm lg:bg-primary/10 lg:text-primary lg:shadow-none lg:hover:bg-primary/10",
+                )}
+              >
+                {t.label}
+                {t.list && <span className="tabular text-xs text-muted-foreground">{counts[t.key]}</span>}
+              </Link>
+            ))}
+          </div>
+        ))}
+      </div>
+    </nav>
+  );
+}
+
+/** "Show archived" for the list sections, in the URL like the section. */
+export function ArchivedSwitch({ showArchived, archivedCount }: { showArchived: boolean; archivedCount: number }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
   const [pending, start] = useTransition();
 
-  const href = (patch: Record<string, string | null>) => {
-    const next = new URLSearchParams(params);
-    for (const [k, v] of Object.entries(patch)) {
-      if (v) next.set(k, v);
-      else next.delete(k);
-    }
-    return `${pathname}?${next}`;
-  };
-
   return (
-    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-      <nav
-        className="-mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0"
-        aria-label="Settings sections"
-      >
-        <div className="inline-flex rounded-lg bg-muted p-1">
-          {SETTINGS_TABS.map((t) => (
-            <Link
-              key={t.key}
-              href={href({ tab: t.key })}
-              scroll={false}
-              aria-current={tab === t.key ? "page" : undefined}
-              className={cn(
-                "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm font-medium whitespace-nowrap text-muted-foreground transition-colors hover:text-foreground",
-                tab === t.key && "bg-background text-foreground shadow-sm",
-              )}
-            >
-              {t.key === "reasons" ? (
-                <>
-                  <span className="sm:hidden">Reasons</span>
-                  <span className="hidden sm:inline">{t.label}</span>
-                </>
-              ) : (
-                t.label
-              )}
-              <span className="tabular text-xs text-muted-foreground">
-                {counts[t.key]}
-              </span>
-            </Link>
-          ))}
-        </div>
-      </nav>
-
-      <label className="flex items-center gap-2 self-end text-sm text-muted-foreground sm:self-auto">
-        {pending && <Loader2 className="size-3.5 animate-spin" />}
-        Show archived
-        {archivedCount > 0 && (
-          <span className="tabular">({archivedCount})</span>
-        )}
-        <Switch
-          checked={showArchived}
-          onCheckedChange={(on) =>
-            start(() =>
-              router.replace(href({ archived: on ? "1" : null }), {
-                scroll: false,
-              }),
-            )
-          }
-        />
-      </label>
-    </div>
+    <label className="flex items-center justify-end gap-2 text-sm text-muted-foreground">
+      {pending && <Loader2 className="size-3.5 animate-spin" />}
+      Show archived
+      {archivedCount > 0 && <span className="tabular">({archivedCount})</span>}
+      <Switch
+        checked={showArchived}
+        onCheckedChange={(on) =>
+          start(() => {
+            const next = new URLSearchParams(params);
+            if (on) next.set("archived", "1");
+            else next.delete("archived");
+            router.replace(`${pathname}?${next}`, { scroll: false });
+          })
+        }
+      />
+    </label>
   );
 }

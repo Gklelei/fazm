@@ -62,6 +62,8 @@ export type InvoiceLetterhead = {
   paymentMethodType: string | null;
   paymentMethod: string | null;
   footer: string | null;
+  kraPin: string | null;
+  terms: string | null;
 };
 
 /** A titled card on the side rail; empty ones say so in one quiet line. */
@@ -187,6 +189,7 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
                   {lh.address && <p>{lh.address}</p>}
                   {lh.contactPhone && <p>{lh.contactPhone}</p>}
                   {lh.contactEmail && <p>{lh.contactEmail}</p>}
+                  {lh.kraPin && <p>KRA PIN {lh.kraPin}</p>}
                 </div>
               </div>
               <div className="sm:text-right">
@@ -282,6 +285,13 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
                   {lh.paymentMethodType}
                   {lh.paymentMethod && <span className="ml-2 font-mono font-bold">{lh.paymentMethod}</span>}
                 </p>
+              </div>
+            )}
+
+            {lh.terms && (
+              <div className="text-sm">
+                <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Terms</p>
+                <p className="mt-1 whitespace-pre-line text-muted-foreground">{lh.terms}</p>
               </div>
             )}
 

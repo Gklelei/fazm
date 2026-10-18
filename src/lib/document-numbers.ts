@@ -1,10 +1,12 @@
 import { academyDate } from "@/lib/academy-time";
+import { getSettings } from "@/lib/settings";
 import type { Prisma } from "@/generated/prisma/client";
 
 type Kind = "INV" | "FEES";
 
 /**
- * Next invoice / receipt numbers for a day, e.g. INV-20261013-007.
+ * Next invoice / receipt numbers for a day, e.g. INV-20261013-007. The
+ * letters come from Settings (invoice and receipt prefixes).
  *
  * Must run inside an interactive `$transaction`: a transaction-scoped
  * advisory lock per kind+day makes concurrent creators queue instead of
@@ -18,8 +20,10 @@ export async function nextDocumentNumbers(
   count = 1,
   at = new Date(),
 ): Promise<string[]> {
+  const settings = await getSettings();
+  const letters = kind === "INV" ? settings.invoicePrefix : settings.receiptPrefix;
   // The day is the academy's (Nairobi), not the server's
-  const prefix = `${kind}-${academyDate(at).replaceAll("-", "")}-`;
+  const prefix = `${letters}-${academyDate(at).replaceAll("-", "")}-`;
   await tx.$queryRaw`SELECT pg_advisory_xact_lock(hashtext(${prefix}))::text`;
 
   const issued =

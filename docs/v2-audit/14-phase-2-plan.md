@@ -431,6 +431,21 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
 - **Progress report PDF** for parents, from the athlete's Assessments tab.
 - **Deploy:** `yarn db:deploy` adds `assessment_measures`.
 
+**Settings (Stage 1, item 8): decisions (developer, 2026-10-18).**
+- Sections built now: academy profile, branding, documents, fees, batches/pitches/drills/
+  reasons (existing), attendance and sessions, registration, emails, users and roles (the
+  staff page), security and data.
+- **Branding applies to the whole app**, documents and the sign-in page. A custom colour that's
+  hard to read is refused; the tuned presets stay available.
+- **Emails, each switchable:** weekly finance report (choose recipients), invoice to the guardian
+  (PDF attached), receipt to the guardian, overdue reminders (at most weekly). Sent through the
+  academy's own mail server (SMTP, password encrypted at rest, "Send test email"); the current
+  Mailtrap sending stays as the fallback until SMTP is set.
+- **Security and data:** session timeout (idle minutes), activity log retention (2 years, as
+  decided; deleting old entries waits for the backup archive). "Last backup" shows only once the
+  server's backup job writes its time where the app can read it (a server change, to confirm).
+- **Every setting starts at today's behaviour**, so nothing changes until someone edits it.
+
 ## Stage 2: documents and exports
 
 - **One document design** for invoices, receipts, statements and payslips:

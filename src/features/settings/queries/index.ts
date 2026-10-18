@@ -13,7 +13,7 @@ const WEEK = 7 * 24 * 3_600_000;
  */
 export async function getSettingsData() {
   const now = new Date();
-  const [batches, upcoming, pitches, drills, reasons, coaches] = await Promise.all([
+  const [batches, upcoming, pitches, drills, reasons, coaches, plans] = await Promise.all([
     db.batches.findMany({
       orderBy: { name: "asc" },
       select: {
@@ -57,6 +57,7 @@ export async function getSettingsData() {
       orderBy: { fullNames: "asc" },
       select: { staffId: true, fullNames: true },
     }),
+    db.subscriptionPlan.findMany({ where: { isArchived: false }, orderBy: { name: "asc" }, select: { id: true, name: true } }),
   ]);
 
   const next = new Map(upcoming.map((u) => [u.batchesId, u]));
@@ -81,6 +82,7 @@ export async function getSettingsData() {
     drills: drills.map((d) => ({ id: d.id, name: d.name, description: d.description, archived: d.voided === 1, used: d._count.trainings })),
     reasons: reasons.map((r) => ({ id: r.id, status: r.status, label: r.label ?? "", archived: r.isArchived, used: r._count.attendances })),
     coaches,
+    plans,
   };
 }
 

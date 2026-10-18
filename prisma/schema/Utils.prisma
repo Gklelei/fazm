@@ -12,6 +12,52 @@ model academy {
   heroImageUrl       String?  @map("hero_image_url")
   receiptFooterNotes String?  @map("receipt_notes")
   primaryColor       String?  @map("primary_color")
+
+  // Documents (invoices, receipts)
+  invoicePrefix  String  @default("INV") @map("invoice_prefix")
+  receiptPrefix  String  @default("FEES") @map("receipt_prefix")
+  invoiceDueDays Int     @default(7) @map("invoice_due_days")
+  documentTerms  String? @map("document_terms")
+  bankDetails    String? @map("bank_details")
+  kraPin         String? @map("kra_pin")
+  signatureUrl   String? @map("signature_url")
+
+  // Fees
+  defaultPlanId       String?  @map("default_plan_id")
+  /// First invoice charges only the rest of the month
+  prorateFirstInvoice Boolean  @default(false) @map("prorate_first_invoice")
+  /// Empty: no late fees
+  lateFeeAmount       Decimal? @map("late_fee_amount") @db.Decimal(10, 2)
+  lateFeeGraceDays    Int      @default(7) @map("late_fee_grace_days")
+
+  // Attendance and sessions
+  inactiveWeeks      Int  @default(13) @map("inactive_weeks")
+  /// Days after a session its attendance can be changed; empty: always
+  attendanceEditDays Int? @map("attendance_edit_days")
+  sessionMinutes     Int  @default(90) @map("session_minutes")
+
+  // Registration
+  requiredDocuments String[] @default([]) @map("required_documents")
+
+  // Email
+  senderName     String?  @map("sender_name")
+  senderEmail    String?  @map("sender_email")
+  replyTo        String?  @map("reply_to")
+  smtpHost       String?  @map("smtp_host")
+  smtpPort       Int?     @map("smtp_port")
+  smtpUser       String?  @map("smtp_user")
+  /// Encrypted (AES-256-GCM); never sent to the browser
+  smtpPassword   String?  @map("smtp_password")
+  smtpSecure     Boolean  @default(true) @map("smtp_secure")
+  financeReportTo String[] @default([]) @map("finance_report_to")
+  emailInvoices  Boolean  @default(false) @map("email_invoices")
+  emailReceipts  Boolean  @default(false) @map("email_receipts")
+  emailOverdue   Boolean  @default(false) @map("email_overdue")
+
+  // Security and data
+  sessionTimeoutMinutes Int @default(30) @map("session_timeout_minutes")
+  logRetentionMonths    Int @default(24) @map("log_retention_months")
+
   createdAt          DateTime @default(now()) @map("created_at")
   updatedAt          DateTime @updatedAt @map("updated_at")
 }

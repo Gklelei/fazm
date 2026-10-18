@@ -1,5 +1,6 @@
 import { startOfDay, subDays, startOfMonth, format } from "date-fns";
 import { db } from "@/lib/prisma";
+import { getSettings } from "@/lib/settings";
 import { SendMail } from "@/lib/mailtrap";
 import { invoiceBalance } from "@/features/invoices/lib/status";
 import { formatCurrency } from "@/lib/format";
@@ -105,7 +106,7 @@ export async function updateAges({ now = new Date() }: JobOptions = {}): Promise
  * Pending athletes are never touched. dryRun lists who would change.
  */
 export async function deactivateInactive({ now = new Date(), dryRun = false }: JobOptions = {}): Promise<JobResult> {
-  const since = subDays(now, 90);
+  const since = subDays(now, (await getSettings()).inactiveWeeks * 7);
   const idle = await db.athlete.findMany({
     where: {
       isArchived: false,

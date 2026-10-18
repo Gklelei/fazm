@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { UseUtilsContext } from "@/providers/UtilsContext";
 import { useForm, type FieldPath } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
@@ -17,6 +18,7 @@ import { academyToday } from "@/lib/academy-time";
 import { registerAthlete } from "../../actions/register-athlete";
 import {
   REGISTRATION_STEPS,
+  missingDocuments,
   registrationRules,
   registrationSchema,
   type Registration,
@@ -80,9 +82,11 @@ export function RegisterAthlete() {
   const [saving, start] = useTransition();
   const [saved, setSaved] = useState(false);
 
+  const academy = UseUtilsContext().data?.academy;
+  const requiredDocuments = academy?.requiredDocuments ?? [];
   const form = useForm<RegistrationInput, unknown, Registration>({
     resolver: zodResolver(registrationSchema),
-    defaultValues: EMPTY,
+    defaultValues: { ...EMPTY, subscriptionPlanId: academy?.defaultPlanId ?? "" },
     mode: "onTouched",
   });
   useLeaveWarning(form.formState.isDirty && !saved);
@@ -95,7 +99,9 @@ export function RegisterAthlete() {
   const checkStep = async () => {
     const fields = current.fields as readonly FieldPath<RegistrationInput>[];
     const fieldsOk = await form.trigger([...fields]);
-    const crossIssues = registrationRules(form.getValues()).filter((r) => (fields as readonly string[]).includes(r.path));
+    const crossIssues = [...registrationRules(form.getValues()), ...missingDocuments(form.getValues(), requiredDocuments)].filter((r) =>
+      (fields as readonly string[]).includes(r.path),
+    );
     for (const r of crossIssues) form.setError(r.path, { type: "custom", message: r.message });
     return fieldsOk && crossIssues.length === 0;
   };

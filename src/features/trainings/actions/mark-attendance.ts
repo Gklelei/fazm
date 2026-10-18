@@ -6,6 +6,7 @@ import { AttendanceStatus } from "@/generated/prisma/enums";
 import { checkRole, AUTHZ_ACTION_MESSAGES } from "@/lib/authz";
 import { createAuditLog } from "@/lib/audit";
 import { db } from "@/lib/prisma";
+import { getSettings } from "@/lib/settings";
 import { FORBIDDEN_MESSAGE, ROLE_GROUPS } from "@/lib/roles";
 
 const AttendanceInput = z
@@ -42,6 +43,7 @@ export async function saveAttendance(
     where: { id: trainingId },
     select: {
       name: true,
+      date: true,
       staffId: true,
       isArchived: true,
       coach: { select: { userId: true } },
@@ -53,6 +55,12 @@ export async function saveAttendance(
   }
   if (user.role === "COACH" && training.coach.userId !== user.id) {
     return { success: false, message: FORBIDDEN_MESSAGE };
+  }
+
+  // Coaches can change attendance only for a set number of days after the session; admins always can
+  const { attendanceEditDays } = await getSettings();
+  if (user.role === "COACH" && attendanceEditDays != null && Date.now() > training.date.getTime() + attendanceEditDays * 86_400_000) {
+    return { success: false, message: "This session's attendance is closed. Ask an admin to change it." };
   }
 
   const squad = new Set(training.athletes.map((a) => a.athleteId));

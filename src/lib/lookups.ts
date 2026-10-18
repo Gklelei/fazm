@@ -1,6 +1,7 @@
 import { unstable_cache, updateTag } from "next/cache";
 import { db } from "@/lib/prisma";
 import { ROLE_GROUPS } from "@/lib/roles";
+import { withoutSecrets } from "@/lib/settings";
 import { getCachedAcademy } from "@/lib/academy-cache";
 import { byBatchOrder } from "@/lib/batch-order";
 
@@ -100,7 +101,8 @@ export async function getUtils(): Promise<UtilsResponse> {
       attendance,
       expense,
       plans,
-      academy,
+      // Sent to every browser: never the mail server login
+      academy: withoutSecrets(academy),
     }),
   );
 }

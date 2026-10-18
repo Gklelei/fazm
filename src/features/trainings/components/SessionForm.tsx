@@ -24,6 +24,11 @@ import { createSession, updateSession } from "../actions/save-session";
 import { sessionSchema, type SessionInput } from "../schemas";
 import { SortableDrillList } from "./SortableDrillList";
 
+/** "16:00" + 90 → "17:30", stopping at 23:59. */
+const plusMinutes = (hhmm: string, m: number) => {
+  const t = Math.min(Number(hhmm.slice(0, 2)) * 60 + Number(hhmm.slice(3)) + m, 23 * 60 + 59);
+  return `${String(Math.floor(t / 60)).padStart(2, "0")}:${String(t % 60).padStart(2, "0")}`;
+};
 const length = (start: string, end: string) => {
   const m = /^\d{2}:\d{2}$/.test(start) && /^\d{2}:\d{2}$/.test(end) ? minutesBetween(start, end) : 0;
   if (m <= 0) return null;
@@ -50,7 +55,7 @@ export function SessionForm({ id, values }: { id?: string; values?: SessionInput
     defaultValues: values ?? {
       date: academyToday(),
       start: "16:00",
-      end: "17:30",
+      end: plusMinutes("16:00", utils?.academy?.sessionMinutes ?? 90),
       batch: "",
       location: pitches.length === 1 ? pitches[0].id : "",
       coach: isCoach ? (me?.staffId ?? "") : "",
