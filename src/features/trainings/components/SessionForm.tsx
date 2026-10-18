@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useTransition } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm, useWatch } from "react-hook-form";
@@ -35,9 +35,9 @@ export function SessionForm({ id, values }: { id?: string; values?: SessionInput
   const router = useRouter();
   const { user } = useAuthSession();
   const utils = UseUtilsContext().data;
-  const batches = (utils?.batches ?? []).filter((b) => !/unassigned/i.test(b.name));
+  const batches = useMemo(() => (utils?.batches ?? []).filter((b) => !/unassigned/i.test(b.name)), [utils?.batches]);
   const pitches = utils?.locations ?? [];
-  const coaches = utils?.coaches ?? [];
+  const coaches = useMemo(() => utils?.coaches ?? [], [utils?.coaches]);
   const isCoach = user.role === "COACH";
   const me = coaches.find((c) => c.userId === user.id);
 
