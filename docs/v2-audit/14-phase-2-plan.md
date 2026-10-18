@@ -477,7 +477,7 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   get page numbers; the receipt shows the KRA PIN.
 - **Batch list:** already printable from the roster (pick a batch, then Export → PDF). The file is
   now named after the batch and shows the guardian's phone.
-- **Exports in words:** statuses and roles read as words ("Overdue", "In progress", "Head coach").
+- **Exports in words:** statuses and roles read as words ("Overdue", "In progress", "Super admin").
 
 ## Stage 3: finance
 
