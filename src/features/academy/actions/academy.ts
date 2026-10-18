@@ -26,6 +26,8 @@ export async function saveAcademy(input: AcademyInput) {
       bankBranch: v.bankBranch || null,
       receiptFooterNotes: v.footerNotes || null,
       logoUrl: v.logoUrl || null,
+      signatureUrl: v.signatureUrl || null,
+      stampUrl: v.stampUrl || null,
       primaryColor: v.primaryColor,
       theme: v.theme,
     };

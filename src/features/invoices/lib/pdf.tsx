@@ -16,7 +16,15 @@ export async function invoicePdf(where: { id: string } | { invoiceNumber: string
   });
   if (!invoice) return null;
   const cached = await getCachedAcademy();
-  const academy = cached ? { ...cached, logoUrl: await embeddableLogo(cached.logoUrl) } : cached;
+  // Uploaded images are private files; embed them for the renderer
+  const academy = cached
+    ? {
+        ...cached,
+        logoUrl: await embeddableLogo(cached.logoUrl),
+        signatureUrl: await embeddableLogo(cached.signatureUrl),
+        stampUrl: await embeddableLogo(cached.stampUrl),
+      }
+    : cached;
   const pdf = await renderToBuffer(<InvoiceDocument invoice={invoice} logoUrl={`${baseUrl}/Fazam Logo Half.jpg`} academy={academy} />);
   return { invoice, pdf };
 }

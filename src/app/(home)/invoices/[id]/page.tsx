@@ -31,6 +31,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
         footer: a?.receiptFooterNotes ?? null,
         kraPin: a?.kraPin ?? null,
         terms: a?.documentTerms ?? null,
+        signatureUrl: a?.signatureUrl ?? null,
+        stampUrl: a?.stampUrl ?? null,
       }}
     />
   );

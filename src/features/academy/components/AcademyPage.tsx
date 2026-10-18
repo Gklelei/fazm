@@ -6,7 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { Building2, Check, Landmark, Loader2, MapPin, Palette, Receipt, Wallet } from "lucide-react";
+import { Building2, Check, Landmark, Loader2, MapPin, Palette, Receipt, Stamp, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
@@ -83,6 +83,8 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
       bankBranch: academy?.bankBranch ?? "",
       footerNotes: academy?.receiptFooterNotes ?? "",
       logoUrl: academy?.logoUrl ?? "",
+      signatureUrl: academy?.signatureUrl ?? "",
+      stampUrl: academy?.stampUrl ?? "",
       primaryColor: academy?.primaryColor || "fazam",
       theme: academy?.theme || "fazam",
     },
@@ -176,6 +178,28 @@ export default function AcademyPage({ academy }: { academy: getAcademyQueryType 
 
         <FormSection title="Receipts" icon={Receipt} columns={1}>
           {area("footerNotes", "Receipt footer", "e.g. Thank you for your payment.")}
+        </FormSection>
+
+        <FormSection title="Signature and stamp" icon={Stamp} description="Printed on invoices and receipts.">
+          {(["signatureUrl", "stampUrl"] as const).map((name) => (
+            <FormField
+              key={name}
+              control={form.control}
+              name={name}
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>
+                    {name === "signatureUrl" ? "Signature" : "Stamp"} <span className="font-normal text-muted-foreground">(optional)</span>
+                  </FormLabel>
+                  <FormControl>
+                    <LocalFsUpload value={field.value ?? ""} onChange={field.onChange} folder="PROFILE" maxSizeMB={2} />
+                  </FormControl>
+                  <FormDescription>A PNG with a clear background looks best.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+          ))}
         </FormSection>
 
         <FormSection title="Branding" icon={Palette}>

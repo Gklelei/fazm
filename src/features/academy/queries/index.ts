@@ -11,6 +11,8 @@ export const getAcademyQuery = {
     heroImageUrl: true,
     id: true,
     logoUrl: true,
+    signatureUrl: true,
+    stampUrl: true,
     paymentMathod: true,
     paymentMethodType: true,
     paymentReference: true,

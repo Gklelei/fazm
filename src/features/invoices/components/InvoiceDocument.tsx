@@ -306,6 +306,18 @@ export default function InvoiceDocument({
           </View>
         )}
 
+        {(academy?.signatureUrl || academy?.stampUrl) && (
+          <View style={{ marginTop: 24, flexDirection: "row", justifyContent: "space-between", alignItems: "flex-end" }}>
+            <View style={{ width: "40%", alignItems: "center" }}>
+              {academy.signatureUrl && <Image src={academy.signatureUrl} style={{ height: 40, objectFit: "contain", marginBottom: 4 }} />}
+              <Text style={{ borderTopWidth: 1, borderTopColor: "#cbd5e1", paddingTop: 4, width: "100%", textAlign: "center", fontSize: 8, color: "#64748b" }}>
+                Authorised signature
+              </Text>
+            </View>
+            {academy.stampUrl && <Image src={academy.stampUrl} style={{ height: 70, width: 70, objectFit: "contain" }} />}
+          </View>
+        )}
+
         <Text style={styles.footer}>
           This invoice is system-generated. Contact the administrator for
           discrepancies.

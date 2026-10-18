@@ -16,6 +16,9 @@ model academy {
   contactPhone       String?  @map("contact_phone")
   address            String?  @map("address")
   logoUrl            String?  @map("logo_url")
+  /// Printed on invoices and receipts
+  signatureUrl       String?  @map("signature_url")
+  stampUrl           String?  @map("stamp_url")
   heroImageUrl       String?  @map("hero_image_url")
   receiptFooterNotes String?  @map("receipt_notes")
   primaryColor       String?  @map("primary_color")

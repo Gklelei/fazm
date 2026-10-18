@@ -22,6 +22,8 @@ export const AcademySchema = z
   bankBranch: optional(80),
   footerNotes: optional(300),
   logoUrl: optional(300),
+  signatureUrl: optional(300),
+  stampUrl: optional(300),
   theme: z.enum(APP_THEMES.map((t) => t.value) as [string, ...string[]], { error: "Pick a theme" }),
   primaryColor: z
     .string()

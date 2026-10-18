@@ -29,8 +29,13 @@ type AcademyConfig = {
     heroImageUrl: string | null;
     primaryColor: string | null;
     receiptFooterNotes: string | null;
+    signatureUrl?: string | null;
+    stampUrl?: string | null;
   } | null;
 };
+
+/** react-pdf in the browser needs a full address for /uploads images */
+const absolute = (url: string) => (url.startsWith("/") && typeof window !== "undefined" ? `${window.location.origin}${url}` : url);
 
 const styles = StyleSheet.create({
   page: {
@@ -112,11 +117,14 @@ const styles = StyleSheet.create({
   signatureArea: {
     flexDirection: "row",
     justifyContent: "space-between",
-    marginTop: 40,
-    marginBottom: 40,
+    alignItems: "flex-end",
+    marginTop: 24,
+    // Clear of the footer, which sits at the bottom of the page
+    marginBottom: 80,
   },
+  sigImage: { width: "40%", alignItems: "center", justifyContent: "flex-end" },
   sigBlock: {
-    width: "40%",
+    width: "100%",
     borderTopWidth: 1,
     borderTopColor: "#000000",
     paddingTop: 5,
@@ -244,11 +252,17 @@ export const ReceiptPDF = ({
           </View>
 
           <View style={styles.signatureArea}>
-            <View style={styles.sigBlock}>
-              <Text style={styles.label}>Authorized Signature</Text>
+            <View style={styles.sigImage}>
+              {academy?.signatureUrl && <Image src={absolute(academy.signatureUrl)} style={{ height: 40, objectFit: "contain" }} />}
+              <View style={styles.sigBlock}>
+                <Text style={styles.label}>Authorized Signature</Text>
+              </View>
             </View>
-            <View style={styles.sigBlock}>
-              <Text style={styles.label}>Official Stamp</Text>
+            <View style={styles.sigImage}>
+              {academy?.stampUrl && <Image src={absolute(academy.stampUrl)} style={{ height: 60, objectFit: "contain" }} />}
+              <View style={styles.sigBlock}>
+                <Text style={styles.label}>Official Stamp</Text>
+              </View>
             </View>
           </View>
 

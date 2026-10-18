@@ -64,6 +64,8 @@ export type InvoiceLetterhead = {
   footer: string | null;
   kraPin: string | null;
   terms: string | null;
+  signatureUrl: string | null;
+  stampUrl: string | null;
 };
 
 /** A titled card on the side rail; empty ones say so in one quiet line. */
@@ -296,6 +298,18 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
               <div className="text-sm">
                 <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">Terms</p>
                 <p className="mt-1 whitespace-pre-line text-muted-foreground">{lh.terms}</p>
+              </div>
+            )}
+
+            {(lh.signatureUrl || lh.stampUrl) && (
+              <div className="flex items-end justify-between gap-6">
+                <div className="w-48 text-center">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- private /uploads file, served as is */}
+                  {lh.signatureUrl && <img src={lh.signatureUrl} alt="Signature" className="mx-auto mb-1 h-12 object-contain" />}
+                  <p className="border-t pt-1 text-xs text-muted-foreground">Authorised signature</p>
+                </div>
+                {/* eslint-disable-next-line @next/next/no-img-element -- private /uploads file, served as is */}
+                {lh.stampUrl && <img src={lh.stampUrl} alt="Stamp" className="size-20 object-contain" />}
               </div>
             )}
 
