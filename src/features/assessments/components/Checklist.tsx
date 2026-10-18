@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { PageHeader } from "@/components/shared/PageHeader";
 import { moveSection, setSectionArchived } from "../actions/checklist";
 import type { SectionInput } from "../schemas";
+import { ExportTemplateButton } from "./ExportTemplateButton";
 import { SectionSheet } from "./SectionSheet";
 
 export type ChecklistSection = {
@@ -45,11 +46,14 @@ export function Checklist({ sections, canEdit }: { sections: ChecklistSection[];
         title="Assessments"
         description="The skills athletes are assessed on after a session."
         actions={
-          canEdit && (
-            <Button onClick={() => setAdding(true)}>
-              <Plus /> New section
-            </Button>
-          )
+          <>
+            {sections.length > 0 && <ExportTemplateButton sections={sections} />}
+            {canEdit && (
+              <Button onClick={() => setAdding(true)}>
+                <Plus /> New section
+              </Button>
+            )}
+          </>
         }
       />
 

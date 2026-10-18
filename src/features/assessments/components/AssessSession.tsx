@@ -18,6 +18,7 @@ import { saveAssessment } from "../actions/create-assessment";
 import { GRADES } from "../lib/grades";
 import type { AssessmentInput } from "../schemas";
 import type { ChecklistSection } from "./Checklist";
+import PrintCompletedAssessment from "./PrintCompletedAssessment";
 
 type Draft = Pick<AssessmentInput, "grades" | "values" | "notes" | "comment">;
 const EMPTY: Draft = { grades: {}, values: {}, notes: {}, comment: "" };
@@ -118,10 +119,37 @@ export function AssessSession({
 
       <div className="flex items-center gap-3 rounded-lg border bg-card p-3">
         <ProfileAvatar name={person.name} url={person.photo} size={44} />
-        <div className="grid leading-tight">
-          <span className="font-medium">{person.name}</span>
+        <div className="grid min-w-0 flex-1 leading-tight">
+          <span className="truncate font-medium">{person.name}</span>
           <span className="font-mono text-xs text-muted-foreground">{person.athleteId}</span>
         </div>
+        {saved[current] && (
+          <PrintCompletedAssessment
+            athleteName={person.name}
+            athleteId={person.athleteId}
+            trainingName={training.name}
+            trainingDate={training.when}
+            coachName={training.coach}
+            comment={
+              [
+                ...sections.flatMap((sec) => (saved[current].notes[sec.id] ? [`${sec.name}: ${saved[current].notes[sec.id]}`] : [])),
+                saved[current].comment,
+              ]
+                .filter(Boolean)
+                .join("\n") || null
+            }
+            sections={sections}
+            scores={Object.fromEntries(
+              sections.flatMap((sec) =>
+                sec.metrics.flatMap((m) => {
+                  const d = saved[current];
+                  if (m.kind === "GRADE") return d.grades[m.id] ? [[m.id, d.grades[m.id]]] : [];
+                  return d.values[m.id] ? [[m.id, `${d.values[m.id]} ${m.unit ?? ""}`.trim()]] : [];
+                }),
+              ),
+            )}
+          />
+        )}
       </div>
 
       <FormAlert message={error} />
