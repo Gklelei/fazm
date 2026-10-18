@@ -33,6 +33,8 @@ export type NavItem = {
   url: string;
   icon: LucideIcon;
   roles: AppRole[];
+  /** Not in the sidebar; only decides who may open the page (e.g. a sub-page with tighter access) */
+  hidden?: boolean;
 };
 
 export type NavSection = { label: string; items: NavItem[] };
@@ -59,8 +61,11 @@ export const NAV: NavSection[] = [
         title: "Athletes",
         url: "/players",
         icon: Shirt,
-        roles: [...ROLE_GROUPS.athletes],
+        // Finance opens profiles for money only (the profile hides the rest)
+        roles: [...ROLE_GROUPS.athletes, "FINANCE"],
       },
+      { title: "Register athlete", url: "/players/create", icon: Shirt, roles: ADMINS, hidden: true },
+      { title: "Edit athlete", url: "/players/edit", icon: Shirt, roles: [...ROLE_GROUPS.athletes], hidden: true },
       {
         title: "Guardians",
         url: "/guardians",
@@ -106,7 +111,7 @@ export const NAV: NavSection[] = [
   {
     label: "Club",
     items: [
-      { title: "Reports", url: "/stats", icon: BarChart3, roles: ADMINS },
+      { title: "Reports", url: "/stats", icon: BarChart3, roles: FINANCE },
       {
         title: "Academy profile",
         url: "/academy",
@@ -127,7 +132,7 @@ export const NAV: NavSection[] = [
 export function navForRole(role: AppRole | null | undefined): NavSection[] {
   return NAV.map((s) => ({
     ...s,
-    items: s.items.filter((i) => role && i.roles.includes(role)),
+    items: s.items.filter((i) => !i.hidden && role && i.roles.includes(role)),
   })).filter((s) => s.items.length > 0);
 }
 

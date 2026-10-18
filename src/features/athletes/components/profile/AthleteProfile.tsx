@@ -60,6 +60,9 @@ function Details({ data }: { data: GetAthleteByIdQueryType }) {
   );
 }
 
+/** What a finance officer sees on a profile */
+const MONEY_SECTIONS = new Set(["guardian", "family", "statement", "invoice", "fees", "plan"]);
+
 export default function AthleteProfile({
   data,
   coupons,
@@ -67,6 +70,7 @@ export default function AthleteProfile({
   canManageConsent,
   canSendStatement,
   family,
+  moneyOnly = false,
   progress,
 }: {
   data: GetAthleteByIdQueryType;
@@ -75,6 +79,8 @@ export default function AthleteProfile({
   canManageConsent: boolean;
   canSendStatement: boolean;
   family: Family | null;
+  /** Finance officers: only the money sections, no medical or personal details */
+  moneyOnly?: boolean;
   progress: AthleteProgress;
 }) {
   const name = athleteName(data);
@@ -107,6 +113,7 @@ export default function AthleteProfile({
     { key: "documents", label: "Documents", description: "Birth certificate, ID and passport.", content: <AthleteDocuments data={data} /> },
     { key: "consent", label: "Consent", content: <ConsentPanel athlete={consentAthlete} consents={consents} canManage={canManageConsent} /> },
   ];
+  const shown = moneyOnly ? sections.filter((s) => MONEY_SECTIONS.has(s.key)) : sections;
 
   return (
     <div className="space-y-6">
@@ -128,7 +135,7 @@ export default function AthleteProfile({
               {data.batches && <span className="font-medium text-foreground">{data.batches.name}</span>}
               {data.age != null && <span>{data.age} years</span>}
               <StatusBadge status={data.status}>{ATHLETE_STATUS_LABEL[data.status]}</StatusBadge>
-              {!consents.length && <StatusBadge tone="warning">Consent missing</StatusBadge>}
+              {!consents.length && !moneyOnly && <StatusBadge tone="warning">Consent missing</StatusBadge>}
             </p>
             {guardian && (
               <p className="text-sm">
@@ -147,12 +154,16 @@ export default function AthleteProfile({
           {!consents.length && canManageConsent && (
             <ConsentDialog athlete={consentAthlete} trigger={<Button variant="outline">Record consent</Button>} />
           )}
-          <AthleteExportButton data={data} />
-          <Button variant="outline" asChild>
-            <Link href={`/players/edit/${data.athleteId}`}>
-              <Pencil /> Edit
-            </Link>
-          </Button>
+          {!moneyOnly && (
+            <>
+              <AthleteExportButton data={data} />
+              <Button variant="outline" asChild>
+                <Link href={`/players/edit/${data.athleteId}`}>
+                  <Pencil /> Edit
+                </Link>
+              </Button>
+            </>
+          )}
           <RecordPaymentDialog
             athlete={{ athleteId: data.athleteId, name }}
             trigger={
@@ -180,7 +191,7 @@ export default function AthleteProfile({
         <StatCard label="Assessments" value={data.assessments.length} />
       </div>
 
-      <ResponsiveSections sections={sections} defaultKey="details" />
+      <ResponsiveSections sections={shown} defaultKey={moneyOnly ? "statement" : "details"} />
     </div>
   );
 }

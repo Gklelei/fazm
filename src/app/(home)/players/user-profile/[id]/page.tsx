@@ -63,11 +63,29 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     voided: c.voided,
   }));
 
+  const [session, family] = await Promise.all([auth.api.getSession({ headers: await headers() }), familyOf(athlete.athleteId)]);
+  // Finance officers see the money only: nothing medical or personal reaches their browser
+  const moneyOnly = !hasRole(session?.user.role, "athletes");
+  const shared = moneyOnly
+    ? {
+        ...athlete,
+        medical: null,
+        emergencyContacts: [],
+        address: null,
+        consents: [],
+        assessments: [],
+        birthCertificate: null,
+        nationalIdFront: null,
+        nationalIdBack: null,
+        passportCover: null,
+        passportBioData: null,
+        profilePIcture: null,
+      }
+    : athlete;
   // Prisma Decimals can't cross into client components; JSON turns them
   // into strings, which the profile's money helpers already Number().
-  const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
+  const plain = JSON.parse(JSON.stringify(shared)) as typeof athlete;
 
-  const [session, family] = await Promise.all([auth.api.getSession({ headers: await headers() }), familyOf(athlete.athleteId)]);
   return (
     <AthleteProfile
       data={plain}
@@ -76,7 +94,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       canManageConsent={hasRole(session?.user.role, "admin")}
       canSendStatement={hasRole(session?.user.role, "finance")}
       family={family}
-      progress={progress}
+      moneyOnly={moneyOnly}
+      progress={moneyOnly ? { ...progress, sections: [], assessments: [] } : progress}
     />
   );
 }

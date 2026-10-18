@@ -10,6 +10,8 @@ import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadMore } from "@/components/shared/LoadMore";
 import ExportDropdown from "@/components/shared/ExportDropdown";
 import { UseUtilsContext } from "@/providers/UtilsContext";
+import { useAuthSession } from "@/providers/SessionProvider";
+import { hasRole } from "@/lib/roles";
 import { useDebounce } from "@/hooks/use-debounce";
 import { useIsMobile } from "@/hooks/use-mobile";
 import type { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
@@ -47,6 +49,8 @@ export default function AthletesRoster({
   // ?batch=<id> opens the roster on one batch (linked from Settings)
   const linkedBatch = useSearchParams().get("batch") ?? "";
   const [form, setForm] = useState({ ...EMPTY, batchId: linkedBatch });
+  // Registering is for admins
+  const canRegister = hasRole(useAuthSession().user.role, "admin");
   // The batch's name titles its printed list
   const batchName = UseUtilsContext().data?.batches?.find((b) => b.id === form.batchId)?.name;
   const search = useDebounce(form.search, 400);
@@ -108,11 +112,13 @@ export default function AthletesRoster({
                 new Date(a.createdAt).toLocaleDateString("en-GB"),
               ]}
             />
-            <Button asChild>
-              <Link href="/players/create">
-                <UserPlus /> Register athlete
-              </Link>
-            </Button>
+            {canRegister && (
+              <Button asChild>
+                <Link href="/players/create">
+                  <UserPlus /> Register athlete
+                </Link>
+              </Button>
+            )}
           </>
         }
       />
@@ -155,11 +161,13 @@ export default function AthletesRoster({
                 <p className="text-sm text-muted-foreground">
                   Register your first athlete to start tracking attendance and fees.
                 </p>
-                <Button asChild>
-                  <Link href="/players/create">
-                    <UserPlus /> Register athlete
-                  </Link>
-                </Button>
+                {canRegister && (
+                  <Button asChild>
+                    <Link href="/players/create">
+                      <UserPlus /> Register athlete
+                    </Link>
+                  </Button>
+                )}
               </>
             )}
           </div>

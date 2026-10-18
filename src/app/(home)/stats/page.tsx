@@ -13,7 +13,7 @@ export default async function Page({
 }: {
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const authz = await checkRole([...ROLE_GROUPS.admin]);
+  const authz = await checkRole([...ROLE_GROUPS.finance]);
   if (!authz.ok) redirect("/");
 
   const range = parseRange(await searchParams);
