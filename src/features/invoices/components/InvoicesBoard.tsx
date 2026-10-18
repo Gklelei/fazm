@@ -227,10 +227,10 @@ export default function InvoicesBoard({
                 <li key={i.id} className="flex items-start justify-between gap-3 px-4 py-3">
                   <Link href={`/invoices/${i.invoiceNumber}`} className="min-w-0 space-y-1">
                     <p className="truncate font-medium">{athleteName(i.athlete)}</p>
-                    <p className="font-mono text-xs text-muted-foreground">
-                      {i.invoiceNumber} · due {format(new Date(i.dueDate), "d MMM")}
-                    </p>
-                    <StatusBadge status={i.status} />
+                    <p className="font-mono text-xs text-muted-foreground">{i.invoiceNumber}</p>
+                    <div className="flex items-center gap-2 text-xs whitespace-nowrap text-muted-foreground">
+                      <StatusBadge status={i.status} /> Due {format(new Date(i.dueDate), "d MMM")}
+                    </div>
                   </Link>
                   <div className="flex items-start gap-1">
                     <p className="tabular font-mono text-sm font-semibold">
