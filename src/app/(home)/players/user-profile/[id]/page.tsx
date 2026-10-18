@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { db } from "@/lib/prisma";
+import { familyOf } from "@/features/families/queries";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
 import { hasRole } from "@/lib/roles";
@@ -66,6 +67,16 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   // into strings, which the profile's money helpers already Number().
   const plain = JSON.parse(JSON.stringify(athlete)) as typeof athlete;
 
-  const session = await auth.api.getSession({ headers: await headers() });
-  return <AthleteProfile data={plain} coupons={options} summary={summary} canManageConsent={hasRole(session?.user.role, "admin")} canSendStatement={hasRole(session?.user.role, "finance")} progress={progress} />;
+  const [session, family] = await Promise.all([auth.api.getSession({ headers: await headers() }), familyOf(athlete.athleteId)]);
+  return (
+    <AthleteProfile
+      data={plain}
+      coupons={options}
+      summary={summary}
+      canManageConsent={hasRole(session?.user.role, "admin")}
+      canSendStatement={hasRole(session?.user.role, "finance")}
+      family={family}
+      progress={progress}
+    />
+  );
 }

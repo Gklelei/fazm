@@ -39,8 +39,21 @@ model Athlete {
   athleteSubscriptions AthleteSubscription[]
   auditLogs            AuditLog[]
   consents             AthleteConsent[]
+  /// Siblings confirmed by staff share a family (statement, split payments, sibling discount)
+  familyId             String?                     @map("family_id")
+  family               Family?                     @relation(fields: [familyId], references: [id], onDelete: SetNull)
 
+  @@index([familyId])
   @@map("athlete")
+}
+
+/// Brothers and sisters billed together. Staff link them; the guardian's phone only suggests.
+model Family {
+  id        String    @id @default(cuid())
+  athletes  Athlete[]
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  @@map("families")
 }
 
 model AthleteSequence {

@@ -21,6 +21,8 @@ import MedicalEmergencyInformation from "./MedicalEmergencyInformation";
 import EmergencyContacts from "./EmergencyContacts";
 import FinancialRecords from "./FinancialRecords";
 import AthleteStatement from "./AthleteStatement";
+import FamilyPanel from "@/features/families/components/FamilyPanel";
+import type { Family } from "@/features/families/queries";
 import AthleteInvoices from "./AthleteInvoices";
 import AthleteAssessments from "./AthleteAssessments";
 import type { AthleteProgress } from "@/features/assessments/queries/progress";
@@ -64,6 +66,7 @@ export default function AthleteProfile({
   summary,
   canManageConsent,
   canSendStatement,
+  family,
   progress,
 }: {
   data: GetAthleteByIdQueryType;
@@ -71,6 +74,7 @@ export default function AthleteProfile({
   summary: AthleteSummary;
   canManageConsent: boolean;
   canSendStatement: boolean;
+  family: Family | null;
   progress: AthleteProgress;
 }) {
   const name = athleteName(data);
@@ -89,6 +93,9 @@ export default function AthleteProfile({
   const sections: Section[] = [
     { key: "details", label: "Details", description: "Personal and physical details.", content: <Details data={data} /> },
     { key: "guardian", label: "Guardians", description: "Parents and guardians to contact.", content: <GuardianInfo data={data} /> },
+    ...(family
+      ? [{ key: "family", label: "Family", description: "Brothers and sisters billed together.", content: <FamilyPanel athleteId={data.athleteId} family={family} canManage={canSendStatement} /> }]
+      : []),
     { key: "statement", label: "Statement", description: "Charges, payments and running balance.", content: <AthleteStatement data={data} canSend={canSendStatement} /> },
     { key: "invoice", label: "Invoices", description: "What has been billed and what is still due.", content: <AthleteInvoices data={data} /> },
     { key: "fees", label: "Payments", description: "Payments received, with receipts.", content: <FinancialRecords data={data} /> },
