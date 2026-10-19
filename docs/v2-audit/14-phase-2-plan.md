@@ -644,6 +644,18 @@ least a third. Advance recoveries count toward that cap.
 - Month on month and against last year.
 - Every chart shows where its numbers come from, and clicking a bar opens the records behind it.
 
+**Stage 6: done 2026-10-19.**
+- **Money in** is fees plus shop: payments on fee invoices, shop sales paid at the counter, and
+  payments on shop (on-account) invoices. It's compared with the previous period and the same
+  days last year.
+- **Income by source:** fees and shop side by side per day or month, with last year's income as
+  a dashed line. "Other income" isn't shown: the app records no income besides fees and the shop.
+- **Spending by category** includes salaries once a payroll month is approved.
+- **Every bar and every row opens the records behind it** in a side panel (payments, sales,
+  expenses), with a total that matches the chart, links to each record, and an export.
+- Each panel says where its numbers come from.
+- Month on month: the 12-month and year views are by month.
+
 ## Answers from the developer (2026-10-16)
 
 1. **Academy settings customisation:**

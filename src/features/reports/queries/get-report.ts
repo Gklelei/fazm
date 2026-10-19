@@ -1,4 +1,4 @@
-import { differenceInCalendarDays, startOfDay } from "date-fns";
+import { addYears, differenceInCalendarDays, startOfDay, subYears } from "date-fns";
 import { db } from "@/lib/prisma";
 import { invoiceBalance } from "@/features/invoices/lib/status";
 import { METHOD_LABEL } from "@/features/finance/lib/methods";
@@ -28,8 +28,10 @@ const sorted = <K,>(m: Map<K, { count: number; amount: number }>) =>
  */
 export async function getReport(r: ReportRange, now = new Date()) {
   const inRange = { gte: r.from, lte: r.to };
+  const lastYear = { gte: subYears(r.from, 1), lte: subYears(r.to, 1) };
+  const previousRange = { gte: r.prevFrom, lte: r.prevTo };
 
-  const [payments, prevCollected, expenses, billed, open, sessions, attendance, joined, squad] =
+  const [payments, sales, lastYearPayments, lastYearSales, prevIncome, expenses, billed, open, sessions, attendance, joined, squad] =
     await Promise.all([
       db.finance.findMany({
         where: { isArchived: false, paymentDate: inRange },
@@ -37,13 +39,18 @@ export async function getReport(r: ReportRange, now = new Date()) {
           amountPaid: true,
           paymentDate: true,
           paymentType: true,
+          invoice: { select: { type: true } },
           athlete: { select: { batches: { select: { name: true } } } },
         },
       }),
-      db.finance.aggregate({
-        where: { isArchived: false, paymentDate: { gte: r.prevFrom, lte: r.prevTo } },
-        _sum: { amountPaid: true },
-      }),
+      // Shop sales paid on the spot; those charged to an account count when the invoice is paid
+      db.sale.findMany({ where: { status: "PAID", createdAt: inRange }, select: { total: true, createdAt: true } }),
+      db.finance.findMany({ where: { isArchived: false, paymentDate: lastYear }, select: { amountPaid: true, paymentDate: true } }),
+      db.sale.findMany({ where: { status: "PAID", createdAt: lastYear }, select: { total: true, createdAt: true } }),
+      Promise.all([
+        db.finance.aggregate({ where: { isArchived: false, paymentDate: previousRange }, _sum: { amountPaid: true } }),
+        db.sale.aggregate({ where: { status: "PAID", createdAt: previousRange }, _sum: { total: true } }),
+      ]),
       db.expenses.findMany({
         where: { isArchived: false, date: inRange },
         select: { amount: true, date: true, category: { select: { name: true } } },
@@ -90,17 +97,45 @@ export async function getReport(r: ReportRange, now = new Date()) {
 
   // ---- Money in and out
   const keys = bucketKeys(r);
-  const trend = new Map(keys.map((k) => [k.key, { ...k, collected: 0, spent: 0 }]));
+  const trend = new Map(keys.map((k) => [k.key, { ...k, fees: 0, shop: 0, collected: 0, spent: 0, lastYear: 0 }]));
   const byBatch = new Map<string, { count: number; amount: number }>();
   const byMethod = new Map<string, { count: number; amount: number }>();
-  let collected = 0;
+  const bySource = new Map<string, { count: number; amount: number }>([
+    ["Fees", { count: 0, amount: 0 }],
+    ["Shop", { count: 0, amount: 0 }],
+  ]);
+  let fees = 0;
+  let shop = 0;
   for (const p of payments) {
-    collected += p.amountPaid;
     const t = trend.get(bucketOf(p.paymentDate, r));
-    if (t) t.collected += p.amountPaid;
+    if (p.invoice?.type === "ITEM_PURCHASE") {
+      shop += p.amountPaid;
+      if (t) t.shop += p.amountPaid;
+      tally(bySource, "Shop", p.amountPaid);
+      continue;
+    }
+    fees += p.amountPaid;
+    if (t) t.fees += p.amountPaid;
     tally(byBatch, p.athlete.batches?.name ?? NO_BATCH, p.amountPaid);
     tally(byMethod, METHOD_LABEL[p.paymentType], p.amountPaid);
+    tally(bySource, "Fees", p.amountPaid);
   }
+  for (const x of sales) {
+    const amount = Number(x.total);
+    shop += amount;
+    const t = trend.get(bucketOf(x.createdAt, r));
+    if (t) t.shop += amount;
+    tally(bySource, "Shop", amount);
+  }
+  // The same days a year earlier, on this range's buckets
+  let lastYearIncome = 0;
+  for (const [date, amount] of [...lastYearPayments.map((p) => [p.paymentDate, p.amountPaid] as const), ...lastYearSales.map((x) => [x.createdAt, Number(x.total)] as const)]) {
+    lastYearIncome += amount;
+    const t = trend.get(bucketOf(addYears(date, 1), r));
+    if (t) t.lastYear += amount;
+  }
+  for (const t of trend.values()) t.collected = t.fees + t.shop;
+  const collected = fees + shop;
 
   const byCategory = new Map<string, { count: number; amount: number }>();
   let spent = 0;
@@ -111,7 +146,7 @@ export async function getReport(r: ReportRange, now = new Date()) {
     tally(byCategory, e.category.name, e.amount);
   }
 
-  const previous = prevCollected._sum.amountPaid ?? 0;
+  const previous = (prevIncome[0]._sum.amountPaid ?? 0) + Number(prevIncome[1]._sum.total ?? 0);
 
   // ---- Unpaid fees, by how late they are
   const AGES = [
@@ -184,9 +219,14 @@ export async function getReport(r: ReportRange, now = new Date()) {
   return {
     money: {
       collected,
+      fees,
+      shop,
       payments: payments.length,
+      sales: sales.length,
       previous,
       change: previous ? (collected - previous) / previous : null,
+      lastYear: lastYearIncome,
+      changeYear: lastYearIncome ? (collected - lastYearIncome) / lastYearIncome : null,
       spent,
       net: collected - spent,
       billed: Number(billed._sum.amountDue ?? 0) - Number(billed._sum.discount ?? 0),
@@ -195,6 +235,7 @@ export async function getReport(r: ReportRange, now = new Date()) {
       byBatch: sorted(byBatch),
       byMethod: sorted(byMethod),
       byCategory: sorted(byCategory),
+      bySource: [...bySource.entries()].map(([name, t]) => ({ name, ...t })),
     },
     unpaid: {
       total: owedTotal,
