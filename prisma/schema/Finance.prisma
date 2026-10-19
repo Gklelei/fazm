@@ -109,6 +109,8 @@ model AthleteSubscription {
 
 // Invoice (connects athlete to subscription plan/instance)
 model Invoice {
+  /// The shop sale charged to the athlete's account
+  sale Sale?
   id            String @id @default(uuid())
   invoiceNumber String @unique
 

@@ -14,6 +14,7 @@ export const SETTING_DEFAULTS = {
   lateFeeGraceDays: 7,
   siblingDiscountType: null as "PERCENTAGE" | "FIXED_AMOUNT" | null,
   siblingDiscountValue: null as number | null,
+  lowStockLevel: 5,
   inactiveWeeks: 13,
   attendanceEditDays: null as number | null,
   sessionMinutes: 90,

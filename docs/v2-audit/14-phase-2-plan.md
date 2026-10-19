@@ -616,6 +616,27 @@ least a third. Advance recoveries count toward that cap.
   - sales and stock reports.
   - Whether parents order online is Q7.
 
+**Stage 5: done 2026-10-19.**
+- **Shop** under Money (finance roles): Catalogue, Sales and Stock tabs.
+- **Products:** photo, name, type (jersey, shirt, shorts, socks, other), price, and sizes (adult
+  XS–XXL and kids 6–15 in one tap, plus a colour if needed). New sizes can start with stock.
+  A size with history is hidden when removed, never deleted; a product can be taken off sale.
+- **Stock:** every change is a movement (received, sold, back from a cancelled sale, corrected
+  with a reason). The database refuses stock below zero, and two sales of the last item can't
+  both go through. Low stock (Settings → Shop, 5 unless changed) shows on the catalogue and the
+  Stock tab.
+- **Sales:** "New sale" works like a cart: tap a size, then the athlete (or a name), and M-Pesa,
+  cash, or the athlete's account. Numbered SO-2026-0001 per year. Prices always come from the
+  catalogue. A receipt PDF in the statement design.
+- **On account:** the sale becomes an ITEM_PURCHASE invoice on the athlete, so it shows on their
+  invoices and statement until paid, through the usual payments. "Sell kit" on the profile
+  starts a sale for that athlete.
+- **Cancelling** puts the items back in stock and cancels the invoice, while nothing has been
+  paid on it. Cash refunds are handled outside the app.
+- **Reports:** this month's sales, items, on-account total and best seller; stock value at
+  selling price; sales and movements export.
+- **Deploy:** `yarn db:deploy` (adds `20261019140000_shop`).
+
 ## Stage 6: charts
 
 - **Income by source, side by side:** fees, shop and other income.

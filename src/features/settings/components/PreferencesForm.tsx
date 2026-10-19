@@ -6,7 +6,7 @@ import { useForm, useWatch, type FieldValues } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import { AtSign, CalendarClock, Clock, Hourglass, Hash, IdCard, Loader2, Receipt, Send, Server, UserMinus, UsersRound, Wallet } from "lucide-react";
+import { AtSign, CalendarClock, Clock, Hourglass, Hash, IdCard, Loader2, Package, Receipt, Send, Server, UserMinus, UsersRound, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -192,6 +192,12 @@ export function PreferencesForm<S extends PreferenceSection>({
               inputMode="decimal"
               hint="Leave empty for no sibling discount."
             />
+          </FormSection>
+        )}
+
+        {section === "shop" && (
+          <FormSection title="Stock" icon={Package}>
+            <TextField name="lowStockLevel" label="Low stock at (items per size)" inputMode="numeric" hint="Sizes at or below this show as low." />
           </FormSection>
         )}
 

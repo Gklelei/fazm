@@ -105,6 +105,9 @@ export const PREFERENCE_SCHEMAS = {
       emailOverdue: z.boolean(),
     })
     .refine((v) => !v.smtpHost || v.senderEmail, { path: ["senderEmail"], message: "Enter the address emails come from" }),
+  shop: z.object({
+    lowStockLevel: whole(0, 1000, "Enter 0 to 1000"),
+  }),
   security: z.object({
     sessionTimeoutMinutes: wholeOrEmpty(5, 720, "Enter 5 to 720 minutes, or leave it empty"),
   }),

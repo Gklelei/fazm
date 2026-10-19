@@ -15,6 +15,7 @@ const LABEL: Record<PreferenceSection, string> = {
   emails: "email",
   registration: "registration",
   security: "security",
+  shop: "shop",
 };
 
 /** Saves one Settings section. Only that section's fields change. */

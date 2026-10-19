@@ -40,6 +40,8 @@ model academy {
   /// Off every fees invoice for each child after a family's first: PERCENTAGE or FIXED_AMOUNT; empty: none
   siblingDiscountType  String?  @map("sibling_discount_type")
   siblingDiscountValue Decimal? @map("sibling_discount_value") @db.Decimal(10, 2)
+  /// Shop: a size counts as low at or below this
+  lowStockLevel Int @default(5) @map("low_stock_level")
 
   // Attendance and sessions
   inactiveWeeks      Int  @default(13) @map("inactive_weeks")

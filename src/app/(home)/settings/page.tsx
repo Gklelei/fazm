@@ -91,6 +91,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
             />
           )}
           {academy && tab === "registration" && <PreferencesForm section="registration" values={{ requiredDocuments: s.requiredDocuments }} />}
+          {academy && tab === "shop" && <PreferencesForm section="shop" values={{ lowStockLevel: String(s.lowStockLevel) }} />}
           {academy && tab === "security" && <PreferencesForm section="security" values={{ sessionTimeoutMinutes: text(s.sessionTimeoutMinutes) }} />}
           {academy && tab === "emails" && (
             <PreferencesForm

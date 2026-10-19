@@ -1,0 +1,102 @@
+/// Kit the academy sells: jersey, shirt, shorts, socks…
+model Product {
+  id          String           @id @default(cuid())
+  name        String
+  /// JERSEY, SHIRT, SHORTS, SOCKS or OTHER
+  category    String
+  description String?
+  photo       String?
+  price       Decimal          @db.Decimal(10, 2)
+  isArchived  Boolean          @default(false) @map("is_archived")
+  variants    ProductVariant[]
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+
+  @@map("products")
+}
+
+/// One size (and colour) of a product, with its own stock count.
+model ProductVariant {
+  id         String          @id @default(cuid())
+  productId  String          @map("product_id")
+  product    Product         @relation(fields: [productId], references: [id], onDelete: Cascade)
+  size       String          @default("")
+  colour     String          @default("")
+  /// Kept in step with the movements; never edited directly
+  stock      Int             @default(0)
+  position   Int             @default(0)
+  isArchived Boolean         @default(false) @map("is_archived")
+  movements  StockMovement[]
+  saleLines  SaleLine[]
+
+  @@unique([productId, size, colour])
+  @@map("product_variants")
+}
+
+/// Every change to stock: RECEIVED, SOLD, RETURNED (a sale cancelled) or ADJUSTED.
+model StockMovement {
+  id        String         @id @default(cuid())
+  variantId String         @map("variant_id")
+  variant   ProductVariant @relation(fields: [variantId], references: [id], onDelete: Cascade)
+  kind      String
+  /// Plus for stock in, minus for stock out
+  quantity  Int
+  /// Stock count after this movement
+  balance   Int
+  note      String?
+  saleId    String?        @map("sale_id")
+  userId    String?        @map("user_id")
+  createdAt DateTime       @default(now()) @map("created_at")
+
+  @@index([variantId])
+  @@index([createdAt])
+  @@map("stock_movements")
+}
+
+enum SALE_STATUS {
+  PAID
+  ON_ACCOUNT
+  CANCELLED
+}
+
+/// A shop sale, numbered SO-2026-0001. Paid on the spot, or charged to an athlete as an invoice.
+model Sale {
+  id           String      @id @default(cuid())
+  saleNumber   String      @unique @map("sale_number")
+  athleteId    String?     @map("athlete_id")
+  athlete      Athlete?    @relation(fields: [athleteId], references: [id], onDelete: SetNull)
+  customerName String?     @map("customer_name")
+  status       SALE_STATUS
+  /// MPESA or CASH when paid
+  paymentType  String?     @map("payment_type")
+  reference    String?
+  total        Decimal     @db.Decimal(10, 2)
+  /// The athlete's invoice when charged to their account
+  invoiceId    String?     @unique @map("invoice_id")
+  invoice      Invoice?    @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  notes        String?
+  soldById     String?     @map("sold_by_id")
+  soldBy       String?     @map("sold_by")
+  cancelledAt  DateTime?   @map("cancelled_at")
+  lines        SaleLine[]
+  createdAt    DateTime    @default(now()) @map("created_at")
+
+  @@index([createdAt])
+  @@index([athleteId])
+  @@map("sales")
+}
+
+model SaleLine {
+  id          String         @id @default(cuid())
+  saleId      String         @map("sale_id")
+  sale        Sale           @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  variantId   String         @map("variant_id")
+  variant     ProductVariant @relation(fields: [variantId], references: [id], onDelete: Restrict)
+  description String
+  quantity    Int
+  unitPrice   Decimal        @map("unit_price") @db.Decimal(10, 2)
+  amount      Decimal        @db.Decimal(10, 2)
+
+  @@index([saleId])
+  @@map("sale_lines")
+}

@@ -1,4 +1,6 @@
 model Athlete {
+  /// Shop sales to them
+  sales Sale[]
   id                   String                      @id @default(uuid())
   athleteId            String                      @unique @map("athlete_id")
   firstName            String                      @map("first_name")

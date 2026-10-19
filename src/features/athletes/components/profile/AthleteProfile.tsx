@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { format } from "date-fns";
-import { ArrowLeft, Banknote, Pencil, Phone } from "lucide-react";
+import { ArrowLeft, Banknote, Pencil, Phone, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ProfileAvatar from "@/components/shared/ProfileAvatar";
 import { StatCard } from "@/components/shared/StatCard";
@@ -163,6 +163,13 @@ export default function AthleteProfile({
                 </Link>
               </Button>
             </>
+          )}
+          {canSendStatement && (
+            <Button variant="outline" asChild>
+              <Link href={`/shop/new?athlete=${data.athleteId}`}>
+                <ShoppingBag /> Sell kit
+              </Link>
+            </Button>
           )}
           <RecordPaymentDialog
             athlete={{ athleteId: data.athleteId, name }}
