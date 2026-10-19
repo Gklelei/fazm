@@ -62,8 +62,8 @@ function Row({ line, minus }: { line: { name: string; amount: number; detail?: s
 /**
  * A month's payslip: employee details, then one table read top to bottom in
  * the order pay is worked out (earnings, gross, statutory deductions, PAYE,
- * other deductions, net). Deductions carry a minus sign. Employer
- * contributions are listed apart, since they don't come off pay.
+ * other deductions, net). Deductions carry a minus sign. The academy's
+ * own contributions don't come off pay, so they aren't on the payslip.
  */
 export function PayslipDocument({ academy, logoUrl, slip }: { academy: getAcademyQueryType | null; logoUrl: string; slip: PayslipData }) {
   const label = new Date(`${slip.month}-15T12:00:00Z`).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
@@ -73,8 +73,6 @@ export function PayslipDocument({ academy, logoUrl, slip }: { academy: getAcadem
     .filter((l) => OFF.has(l.kind))
     .map((l) => (l.kind === "ADVANCE" && slip.advanceLeft > 0 ? { ...l, detail: `${amount(slip.advanceLeft)} still to pay back` } : l))
     .sort((a, b) => ORDER[a.kind] - ORDER[b.kind]);
-  const employer = slip.lines.filter((l) => l.kind === "EMPLOYER");
-  const employerTotal = employer.reduce((n, l) => n + l.amount, 0);
 
   return (
     <Document title={`Payslip ${p.staffId} ${slip.month}`}>
@@ -131,19 +129,6 @@ export function PayslipDocument({ academy, logoUrl, slip }: { academy: getAcadem
             <Text style={t.value}>{amount(slip.net)}</Text>
           </View>
         </View>
-
-        {employer.length > 0 && (
-          <View style={[t.table, { marginTop: 14 }]} wrap={false}>
-            <Text style={[t.section, { borderTopWidth: 0 }]}>Paid by the academy on top of your pay</Text>
-            {employer.map((l, i) => (
-              <Row key={`c${i}`} line={{ ...l, name: l.name.replace(" (employer)", "") }} />
-            ))}
-            <View style={t.subtotal}>
-              <Text style={t.label}>Total cost to the academy</Text>
-              <Text style={t.value}>{amount(slip.gross + employerTotal)}</Text>
-            </View>
-          </View>
-        )}
 
         {slip.provisional && <Text style={[doc.muted, { marginTop: 14 }]}>Provisional, subject to change by the admin.</Text>}
         <Text style={doc.footer} fixed render={({ pageNumber, totalPages }) => `Payslip · ${p.fullNames} · ${label} · Page ${pageNumber} of ${totalPages}`} />
