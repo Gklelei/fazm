@@ -28,12 +28,13 @@ export default function ResponsiveSections({
   className?: string;
 }) {
   const isMobile = useIsMobile();
-  const firstKey = defaultKey ?? sections[0]?.key;
+  // One choice for both layouts, so swapping layout after load keeps the open section
+  const [open, setOpen] = React.useState(defaultKey ?? sections[0]?.key ?? "");
 
   if (isMobile) {
     return (
       <div className={cn("space-y-3", className)}>
-        <Accordion type="single" collapsible defaultValue={firstKey}>
+        <Accordion type="single" collapsible value={open} onValueChange={setOpen}>
           {sections.map((s) => (
             <AccordionItem key={s.key} value={s.key}>
               <AccordionTrigger className="text-left">
@@ -55,7 +56,7 @@ export default function ResponsiveSections({
   }
 
   return (
-    <Tabs defaultValue={firstKey} className={cn("w-full", className)}>
+    <Tabs value={open || sections[0]?.key} onValueChange={setOpen} className={cn("w-full", className)}>
       <div className="w-full overflow-x-auto">
         <TabsList className="inline-flex w-max gap-1">
           {sections.map((s) => (
