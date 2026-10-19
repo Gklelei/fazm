@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ChevronRight, LogOut, PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import { ChevronRight, ChevronsUpDown, LogOut, PanelLeftClose, PanelLeftOpen, UserRound } from "lucide-react";
 import { useState } from "react";
 import {
   Sidebar,
@@ -19,12 +19,30 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { useAuthSession } from "@/providers/SessionProvider";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { ROLE_LABEL } from "@/lib/roles";
 import { findNavItem, isActivePath, NAV_GROUPS_COOKIE, navForRole, type AppRole, type NavItem } from "./nav-config";
+
+function UserAvatar({ user }: { user: { name: string; image?: string | null } }) {
+  return (
+    <Avatar className="size-8 shrink-0 rounded-lg ring-1 ring-sidebar-primary/40">
+      <AvatarImage src={user.image ?? ""} alt="" />
+      <AvatarFallback className="rounded-lg bg-sidebar-primary font-display font-bold text-sidebar-primary-foreground">{user.name.charAt(0).toUpperCase()}</AvatarFallback>
+    </Avatar>
+  );
+}
 
 /**
  * The footer's top border is the halfway line; the centre circle sits on it.
@@ -212,34 +230,55 @@ export function AppSidebar({
             </SidebarMenuItem>
           </SidebarMenu>
         )}
-        <div className="relative flex items-center gap-2.5 p-1 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:p-0">
-          <Avatar className="size-8 shrink-0 ring-1 ring-sidebar-primary/40">
-            <AvatarImage src={user.image ?? ""} alt="" />
-            <AvatarFallback className="bg-sidebar-primary font-display font-bold text-sidebar-primary-foreground">
-              {user.name.charAt(0).toUpperCase()}
-            </AvatarFallback>
-          </Avatar>
-          <div className="grid min-w-0 flex-1 leading-tight group-data-[collapsible=icon]:hidden">
-            <span className="truncate text-sm font-semibold text-sidebar-accent-foreground">
-              {user.name}
-            </span>
-            <span className="truncate text-xs text-sidebar-primary">
-              {role ? ROLE_LABEL[role] : "No role assigned"}
-            </span>
-          </div>
-          <button
-            type="button"
-            onClick={async () => {
-              await authClient.signOut();
-              router.push("/sign-in");
-            }}
-            className="grid size-8 shrink-0 place-items-center rounded-md text-sidebar-foreground/70 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus-visible:ring-2 focus-visible:ring-sidebar-ring focus-visible:outline-none group-data-[collapsible=icon]:hidden"
-            aria-label="Sign out"
-            title="Sign out"
-          >
-            <LogOut className="size-4" />
-          </button>
-        </div>
+        <SidebarMenu className="relative">
+          <SidebarMenuItem>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <SidebarMenuButton
+                  size="lg"
+                  tooltip={collapsed ? user.name : undefined}
+                  className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
+                >
+                  <UserAvatar user={user} />
+                  <span className="grid min-w-0 flex-1 text-left leading-tight">
+                    <span className="truncate text-sm font-semibold text-sidebar-accent-foreground">{user.name}</span>
+                    <span className="truncate text-xs text-sidebar-primary">{role ? ROLE_LABEL[role] : "No role assigned"}</span>
+                  </span>
+                  <ChevronsUpDown className="ml-auto size-4" />
+                </SidebarMenuButton>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg" side={isMobile ? "bottom" : "right"} align="end" sideOffset={4}>
+                <DropdownMenuLabel className="p-0 font-normal">
+                  <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
+                    <UserAvatar user={user} />
+                    <div className="grid min-w-0 flex-1 leading-tight">
+                      <span className="truncate font-semibold">{user.name}</span>
+                      <span className="truncate text-xs text-muted-foreground">{user.email}</span>
+                    </div>
+                  </div>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem asChild>
+                    <Link href="/staff/profile" onClick={() => setOpenMobile(false)}>
+                      <UserRound /> My profile
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuGroup>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  onSelect={async () => {
+                    await authClient.signOut();
+                    router.push("/sign-in");
+                  }}
+                >
+                  <LogOut /> Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </SidebarMenuItem>
+        </SidebarMenu>
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
