@@ -24,7 +24,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const [upcoming, recent, history, activity, byStatus, minutes, advances, payslips] = await Promise.all([
     db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { gte: now } }, select: SESSION, orderBy: { date: "asc" }, take: 5 }),
     db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { lt: now } }, select: SESSION, orderBy: { date: "desc" }, take: 5 }),
-    // ponytail: last 20 changes; the activity log has the rest
+    // Last 20 changes; the activity log has the rest
     db.auditLog.findMany({
       where: { recordId: staff.staffId, action: { notIn: ["VIEW", "EXPORT", "EXPORT_PDF"] } },
       select: LOG,

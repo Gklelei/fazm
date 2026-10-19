@@ -29,7 +29,7 @@ export const INVOICE_PAGE_INCLUDE = {
   auditLogs: {
     where: { action: { notIn: ["VIEW", "EXPORT", "EXPORT_PDF"] } },
     orderBy: { createdAt: "desc" },
-    // ponytail: one invoice gathers a handful of entries; page it if that ever grows
+    // One invoice gathers a handful of entries; page it if that ever grows
     take: 30,
     select: { id: true, details: true, changes: true, createdAt: true, user: { select: { name: true } } },
   },

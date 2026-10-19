@@ -1,7 +1,7 @@
 /**
  * The academy runs on Nairobi time. Kenya has no daylight saving, so it is
  * UTC+3 all year and a fixed offset is exact.
- * ponytail: fixed offset; switch to Intl time zones if the academy ever
+ * Fixed offset; switch to Intl time zones if the academy ever
  * operates in a zone with daylight saving.
  */
 export const ACADEMY_TIME_ZONE = "Africa/Nairobi";

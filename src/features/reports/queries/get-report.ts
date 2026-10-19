@@ -23,7 +23,7 @@ const sorted = <K,>(m: Map<K, { count: number; amount: number }>) =>
  * Everything on the Reports page for one date range. Payments and expenses
  * are fetched as rows and grouped here, which keeps time zones and
  * empty buckets simple.
- * ponytail: row fetch is ~3k payments a year; move grouping into SQL if a
+ * Row fetch is ~3k payments a year; move grouping into SQL if a
  * multi-year range ever gets slow.
  */
 export async function getReport(r: ReportRange, now = new Date()) {

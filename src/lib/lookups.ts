@@ -11,7 +11,7 @@ import { byBatchOrder } from "@/lib/batch-order";
  * each list is cached with no expiry under its own tag and only cleared by
  * `lookupsChanged(tag)` in the action that changed it.
  *
- * ponytail: unstable_cache (still supported in Next 16); move to "use cache"
+ * unstable_cache (still supported in Next 16); move to "use cache"
  * + cacheTag when the app opts into Cache Components. Data edited straight in
  * the database stays cached until the next deploy (new .next) or a save in the app.
  */
