@@ -8,6 +8,7 @@ export const SETTINGS_TABS = [
   { key: "fees", label: "Fees", group: "Preferences", list: false },
   { key: "attendance", label: "Attendance and sessions", group: "Preferences", list: false },
   { key: "registration", label: "Registration", group: "Preferences", list: false },
+  { key: "payroll", label: "Payroll deductions", group: "Preferences", list: false },
   { key: "emails", label: "Emails", group: "Preferences", list: false },
   { key: "security", label: "Security", group: "Preferences", list: false },
 ] as const;

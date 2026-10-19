@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
-import { Activity, IdCard, Loader2, LogOut, Mail, Monitor, Siren, UserRound } from "lucide-react";
+import { Activity, HandCoins, IdCard, Loader2, LogOut, Mail, Monitor, Siren, UserRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Form, FormField, FormItem } from "@/components/ui/form";
 import ProfileAvatar from "@/components/shared/ProfileAvatar";
@@ -19,6 +19,7 @@ import { ROLE_LABEL } from "@/lib/roles";
 import type { ROLES } from "@/generated/prisma/enums";
 import { updateMyProfile } from "../actions/edit-staff";
 import { ChangePasswordDialog } from "./ChangePasswordDialog";
+import { PayPanel } from "@/features/payroll/components/PayPanel";
 import { myProfileSchema, type MyProfileInput } from "../schemas/profile";
 
 type Device = { id: string; device: string; ip: string | null; lastActive: string; current: boolean; count: number };
@@ -47,6 +48,7 @@ export function MyProfile({
   work,
   devices,
   activity,
+  pay,
 }: {
   values: MyProfileInput;
   hasStaffRecord: boolean;
@@ -55,6 +57,8 @@ export function MyProfile({
   work: { staffId: string; jobTitle: string | null; batches: string } | null;
   devices: Device[];
   activity: LogEntry[];
+  /** Their payslips and advances, when they're on the payroll */
+  pay: Omit<React.ComponentProps<typeof PayPanel>, "staffId"> | null;
 }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
@@ -115,6 +119,18 @@ export function MyProfile({
               </div>
             </form>
           </Form>
+
+          {pay && (
+            <section className="mt-4 overflow-hidden rounded-xl border bg-card shadow-xs">
+              <h2 className="flex items-center gap-3 border-b px-4 py-3 text-base font-semibold sm:px-5">
+                <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary" aria-hidden>
+                  <HandCoins className="size-4" />
+                </span>
+                My pay
+              </h2>
+              <PayPanel {...pay} />
+            </section>
+          )}
 
           <section className="mt-4 overflow-hidden rounded-xl border bg-card shadow-xs">
             <h2 className="flex items-center gap-3 border-b px-4 py-3 text-base font-semibold sm:px-5">

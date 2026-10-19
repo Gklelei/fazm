@@ -577,6 +577,27 @@ least a third. Advance recoveries count toward that cap.
   "My finances" in their account.
 - **Expenses:** an approved run posts salary costs to expenses, so the charts and reports include them.
 
+**Stage 4: done 2026-10-19.**
+- **Pay profile** on the staff form: not on payroll, monthly salary, or per session (completed
+  sessions they coached that month × the rate); paid by M-Pesa or bank, with the number. The
+  migration puts everyone who already had a salary on monthly pay.
+- **Deductions** (Settings → Payroll deductions): % of gross, % of basic, fixed, or tax bands with
+  relief; at least / at most; before tax; an employer share; everyone or chosen staff. NSSF, SHIF,
+  Housing Levy and PAYE come filled in with the 2026 rates and show "Not set up" until an admin
+  saves and turns them on.
+- **Payroll page** (finance roles): a month's payslips with totals, export, and each payslip's
+  allowances, one-off deductions and advance. "Work out payslips" any time; the `payroll` job does
+  it on the last day of the month (crontab: daily 20:00 on the 28th–31st, the job skips other
+  days). Admins approve the month: it's worked out once more, locked, and gross + employer
+  contributions go to expenses under "Salaries". Then "Mark as paid".
+- **Advances:** recorded by finance, approved by an admin, taken back over 1–24 payslips, oldest
+  first, never more than the pay. Over two-thirds of gross, the payslip warns and offers to move
+  the rest of the advance to next month.
+- **Payslip PDF** in the statement design, with a PROVISIONAL watermark until approved, and the
+  advance still owed. Staff see their own under "My pay" on their profile.
+- **Deploy:** `yarn db:deploy` (adds `20261019120000_payroll`), and reinstall the crontab.
+- **Check before go-live:** the statutory rates against KRA, NSSF and SHA.
+
 ## Stage 5: shop
 
 - **Products:**

@@ -6,6 +6,8 @@ import { db } from "@/lib/prisma";
 import { logView } from "@/lib/audit-view";
 import { findStaff } from "@/features/staff/queries/detail";
 import { StaffDetails } from "@/features/staff/components/StaffDetails";
+import { advanceBalances } from "@/features/payroll/lib/run";
+import { payslipsOf } from "@/features/payroll/queries";
 
 export const metadata: Metadata = { title: "Staff" };
 
@@ -19,7 +21,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   const session = await auth.api.getSession({ headers: await headers() });
   const now = new Date();
   const coached = { staffId: staff.staffId, isArchived: false };
-  const [upcoming, recent, history, activity, byStatus, minutes] = await Promise.all([
+  const [upcoming, recent, history, activity, byStatus, minutes, advances, payslips] = await Promise.all([
     db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { gte: now } }, select: SESSION, orderBy: { date: "asc" }, take: 5 }),
     db.training.findMany({ where: { staffId: staff.staffId, isArchived: false, date: { lt: now } }, select: SESSION, orderBy: { date: "desc" }, take: 5 }),
     // ponytail: last 20 changes; the activity log has the rest
@@ -34,6 +36,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       : null,
     db.training.groupBy({ by: ["status"], where: coached, _count: { _all: true } }),
     db.training.aggregate({ where: coached, _sum: { duration: true }, _avg: { duration: true } }),
+    advanceBalances(staff.id),
+    payslipsOf(staff.id),
   ]);
   const count = (st: string) => byStatus.find((b) => b.status === st)?._count._all ?? 0;
   const totalSessions = byStatus.reduce((n, b) => n + b._count._all, 0);
@@ -46,6 +50,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   };
   await logView({ resource: "Staff", recordId: staff.staffId, details: `Opened ${staff.fullNames}'s profile (${staff.staffId})` });
   return (
-    <StaffDetails staff={staff} stats={stats} upcoming={upcoming} recent={recent} history={history} activity={activity} self={staff.userId === session?.user.id} />
+    <StaffDetails staff={staff} stats={stats} upcoming={upcoming} recent={recent} history={history} activity={activity} pay={{ advances, payslips }} self={staff.userId === session?.user.id} />
   );
 }

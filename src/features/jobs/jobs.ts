@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/format";
 import { ageFromDob } from "./age";
 import { overdueReminders } from "@/features/invoices/lib/emails";
 import { lateFees } from "@/features/invoices/lib/late-fees";
+import { payrollJob } from "@/features/payroll/lib/run";
 
 /**
  * Scheduled jobs. Each returns a small summary that is logged and stored in
@@ -196,6 +197,7 @@ export const JOBS = {
   "finance-report": financeReport,
   "overdue-reminders": overdueReminders,
   "late-fees": lateFees,
+  payroll: payrollJob,
 } as const;
 
 export type JobName = keyof typeof JOBS;

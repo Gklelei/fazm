@@ -37,6 +37,10 @@ const STATUS_TONE: Record<string, Tone> = {
   IN_PROGRESS: "warning",
   COMPLETED: "success",
   CANCELLED: "neutral",
+  // payroll and advances
+  PROVISIONAL: "warning",
+  APPROVED: "info",
+  REJECTED: "neutral",
 };
 
 /** "IN_PROGRESS" → "In progress", as badges and exports show it. */

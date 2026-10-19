@@ -1,4 +1,5 @@
 import {
+  HandCoins,
   BarChart3,
   Building2,
   ClipboardCheck,
@@ -100,6 +101,7 @@ export const NAV: NavSection[] = [
       { title: "Fee plans", url: "/fees", icon: WalletCards, roles: FINANCE },
       { title: "Coupons", url: "/coupons", icon: Tag, roles: FINANCE },
       { title: "Expenses", url: "/expenses", icon: Wallet, roles: FINANCE },
+      { title: "Payroll", url: "/payroll", icon: HandCoins, roles: FINANCE },
       {
         title: "Expense categories",
         url: "/expenses-categories",

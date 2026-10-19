@@ -11,6 +11,16 @@ export const STAFF_ROLES = [
   { value: "SUPER_ADMIN", label: "Super admin" },
 ] as const;
 
+export const PAY_BASES = [
+  { value: "", label: "Not on payroll" },
+  { value: "MONTHLY", label: "Monthly salary" },
+  { value: "PER_SESSION", label: "Per session" },
+] as const;
+export const PAY_METHODS = [
+  { value: "MPESA", label: "M-Pesa" },
+  { value: "BANK", label: "Bank" },
+] as const;
+
 export const STAFF_DOCUMENT_KINDS = [
   { value: "ID_COPY", label: "ID copy" },
   { value: "CONTRACT", label: "Contract" },
@@ -31,6 +41,10 @@ const email = z
   .trim()
   .toLowerCase()
   .refine((v) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v), "Enter a valid email address");
+const amount = z
+  .string()
+  .trim()
+  .refine((v) => !v || (Number(v) > 0 && Number(v) <= 10_000_000 && Math.round(Number(v) * 100) === Number(v) * 100), "Enter an amount, or leave it empty");
 const ymd = z.string().refine((v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v), "Pick a date");
 
 export const staffSchema = z
@@ -50,10 +64,11 @@ export const staffSchema = z
       .refine((v) => !v || /^[A-Z]\d{9}[A-Z]$/.test(v), "A KRA PIN looks like A123456789B"),
     nssfNumber: text(20),
     shifNumber: text(20),
-    salary: z
-      .string()
-      .trim()
-      .refine((v) => !v || (Number(v) > 0 && Number(v) <= 10_000_000 && Math.round(Number(v) * 100) === Number(v) * 100), "Enter an amount, or leave it empty"),
+    salary: amount,
+    payBasis: z.enum(["", "MONTHLY", "PER_SESSION"]).default(""),
+    sessionRate: amount.default(""),
+    payMethod: z.enum(["", "MPESA", "BANK"]).default(""),
+    payAccount: text(60).default(""),
 
     emergencyName: text(100),
     emergencyPhone: phone("the emergency phone"),
@@ -75,6 +90,9 @@ export const staffSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.canSignIn && !v.email) ctx.addIssue({ code: "custom", path: ["email"], message: "Enter the email they'll sign in with" });
+    if (v.payBasis === "MONTHLY" && !v.salary) ctx.addIssue({ code: "custom", path: ["salary"], message: "Enter the monthly salary" });
+    if (v.payBasis === "PER_SESSION" && !v.sessionRate) ctx.addIssue({ code: "custom", path: ["sessionRate"], message: "Enter the pay for each session" });
+    if (v.payMethod && !v.payAccount) ctx.addIssue({ code: "custom", path: ["payAccount"], message: v.payMethod === "BANK" ? "Enter the bank and account number" : "Enter the M-Pesa number" });
     if (v.emergencyName && !v.emergencyPhone) ctx.addIssue({ code: "custom", path: ["emergencyPhone"], message: "Enter the emergency phone" });
   });
 

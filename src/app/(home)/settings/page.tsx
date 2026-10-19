@@ -7,6 +7,8 @@ import { BatchCard } from "@/features/settings/components/BatchCard";
 import { AddItemButton, DrillList, PitchList, ReasonList } from "@/features/settings/components/SettingsLists";
 import { PreferencesForm } from "@/features/settings/components/PreferencesForm";
 import { ArchivedSwitch, SettingsNav } from "@/features/settings/components/SettingsToolbar";
+import { DeductionsSettings } from "@/features/payroll/components/DeductionsSettings";
+import { deductionSettings } from "@/features/payroll/queries";
 import { SETTINGS_TABS, isListTab, type ListTab, type SettingsTab } from "@/features/settings/lib/tabs";
 
 export const metadata: Metadata = { title: "Settings" };
@@ -18,7 +20,7 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
   const sp = await searchParams;
   const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab)?.key ?? "batches") as SettingsTab;
   const showArchived = sp.archived === "1";
-  const [data, s, academy] = await Promise.all([getSettingsData(), getSettings(), getCachedAcademy().catch(() => null)]);
+  const [data, s, academy, deductions] = await Promise.all([getSettingsData(), getSettings(), getCachedAcademy().catch(() => null), tab === "payroll" ? deductionSettings() : null]);
 
   const lists = { batches: data.batches, pitches: data.pitches, drills: data.drills, reasons: data.reasons };
   const visible = <T extends { archived: boolean }>(rows: T[]) => (showArchived ? rows : rows.filter((r) => !r.archived));
@@ -51,7 +53,8 @@ export default async function Page({ searchParams }: { searchParams: Promise<{ t
           {tab === "drills" && <DrillList rows={visible(data.drills)} />}
           {tab === "reasons" && <ReasonList rows={visible(data.reasons)} />}
 
-          {!isListTab(tab) && !academy && (
+          {deductions && <DeductionsSettings rows={deductions.rows} staff={deductions.staff} />}
+          {!isListTab(tab) && tab !== "payroll" && !academy && (
             <p className="rounded-lg border border-dashed px-4 py-12 text-center text-sm text-muted-foreground">
               Set up the <a href="/academy" className="font-medium text-primary hover:underline">academy profile</a> first.
             </p>

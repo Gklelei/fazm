@@ -11,6 +11,8 @@ J=/home/gklelei/apps/fazm-cron/run-job.sh
 10 0 * * *    $J overdue-invoices
 # Late fee on invoices overdue past the grace days, when a late fee is set
 15 0 * * *    $J late-fees
+# Provisional payslips on the last day of the month (the job skips other days)
+0 20 28-31 * * $J payroll
 # Recompute ages from date of birth
 20 0 * * *    $J update-ages
 # Active athletes with no attendance and no payment for a while (Settings,

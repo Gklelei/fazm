@@ -1,14 +1,14 @@
 model staff {
-  id          String          @id @default(cuid())
-  staffId     String          @unique
+  id          String    @id @default(cuid())
+  staffId     String    @unique
   /// Set when they can sign in to the app; staff without a login have none
-  userId      String?         @unique
+  userId      String?   @unique
   fullNames   String
-  phoneNumber String          @map("phone_number")
+  phoneNumber String    @map("phone_number")
   email       String?
   photo       String?
-  jobTitle    String?         @map("job_title")
-  startDate   DateTime?       @map("start_date") @db.Date
+  jobTitle    String?   @map("job_title")
+  startDate   DateTime? @map("start_date") @db.Date
 
   // Optional: kept for pay and statutory returns
   nationalId String?  @map("national_id")
@@ -16,6 +16,14 @@ model staff {
   nssfNumber String?  @map("nssf_number")
   shifNumber String?  @map("shif_number")
   salary     Decimal? @db.Decimal(10, 2)
+
+  // Pay profile: set payBasis to include them in payroll
+  payBasis    PAY_BASIS? @map("pay_basis")
+  sessionRate Decimal?   @map("session_rate") @db.Decimal(10, 2)
+  /// MPESA or BANK
+  payMethod   String?    @map("pay_method")
+  /// M-Pesa number or bank name and account
+  payAccount  String?    @map("pay_account")
 
   emergencyName         String? @map("emergency_name")
   emergencyPhone        String? @map("emergency_phone")
@@ -33,6 +41,8 @@ model staff {
   schedules   BatchSchedule[]
   attendances attendance[]
   assessments Assessment[]
+  advances    SalaryAdvance[]
+  payslips    Payslip[]
 
   @@map("staff")
 }

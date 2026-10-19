@@ -26,7 +26,7 @@ const SELECT = {
   finances: true,
 } as const;
 
-async function letterhead() {
+export async function letterhead() {
   const cached = await getCachedAcademy();
   return cached ? { ...cached, logoUrl: await embeddableLogo(cached.logoUrl) } : null;
 }

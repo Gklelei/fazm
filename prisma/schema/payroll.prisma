@@ -1,0 +1,129 @@
+enum PAY_BASIS {
+  MONTHLY
+  PER_SESSION
+}
+
+/// A deduction the academy sets up (PAYE, NSSF, SHIF, Housing Levy, or its own).
+model PayrollDeduction {
+  id              String   @id @default(cuid())
+  name            String
+  /// PERCENT_GROSS, PERCENT_BASIC, FIXED or BANDED
+  kind            String
+  /// Percent or KES, by kind (not used when BANDED)
+  value           Decimal  @default(0) @db.Decimal(10, 2)
+  /// BANDED: [{ upTo: number | null, rate: number }], monthly KES and percent
+  bands           Json?
+  /// Taken off the tax (BANDED only), e.g. PAYE personal relief
+  relief          Decimal  @default(0) @db.Decimal(10, 2)
+  minimum         Decimal? @db.Decimal(10, 2)
+  maximum         Decimal? @db.Decimal(10, 2)
+  /// Comes off before tax is worked out
+  beforeTax       Boolean  @default(false) @map("before_tax")
+  /// Employer pays this percent of the employee's share on top (100 = matches it)
+  employerPercent Decimal  @default(0) @map("employer_percent") @db.Decimal(6, 2)
+  /// PAYE, NSSF, SHIF or HOUSING_LEVY for the Kenyan presets
+  statutory       String?  @unique
+  enabled         Boolean  @default(false)
+  /// Empty = everyone with a pay profile
+  staffIds        String[] @default([]) @map("staff_ids")
+  position        Int      @default(0)
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("payroll_deductions")
+}
+
+enum ADVANCE_STATUS {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model SalaryAdvance {
+  id           String            @id @default(cuid())
+  staffId      String            @map("staff_id")
+  staff        staff             @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  date         DateTime          @db.Date
+  amount       Decimal           @db.Decimal(10, 2)
+  /// MPESA, CASH or BANK
+  method       String
+  reference    String?
+  reason       String?
+  /// Recovered over this many payrolls (1 = in full at the next one)
+  months       Int               @default(1)
+  status       ADVANCE_STATUS    @default(PENDING)
+  recordedById String?           @map("recorded_by_id")
+  decidedById  String?           @map("decided_by_id")
+  decidedAt    DateTime?         @map("decided_at")
+  recoveries   AdvanceRecovery[]
+  createdAt    DateTime          @default(now()) @map("created_at")
+
+  @@index([staffId])
+  @@map("salary_advances")
+}
+
+enum PAYROLL_STATUS {
+  PROVISIONAL
+  APPROVED
+  PAID
+}
+
+/// One month's payroll; its payslips are locked once approved.
+model PayrollRun {
+  id           String         @id @default(cuid())
+  /// yyyy-MM
+  month        String         @unique
+  status       PAYROLL_STATUS @default(PROVISIONAL)
+  approvedById String?        @map("approved_by_id")
+  approvedAt   DateTime?      @map("approved_at")
+  paidAt       DateTime?      @map("paid_at")
+  expenseId    String?        @map("expense_id")
+  payslips     Payslip[]
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+
+  @@map("payroll_runs")
+}
+
+model Payslip {
+  id          String            @id @default(cuid())
+  runId       String            @map("run_id")
+  run         PayrollRun        @relation(fields: [runId], references: [id], onDelete: Cascade)
+  staffId     String            @map("staff_id")
+  staff       staff             @relation(fields: [staffId], references: [id], onDelete: Restrict)
+  basis       PAY_BASIS
+  /// Sessions coached that month (per-session pay)
+  sessions    Int?
+  basic       Decimal           @db.Decimal(12, 2)
+  gross       Decimal           @db.Decimal(12, 2)
+  deductions  Decimal           @db.Decimal(12, 2)
+  net         Decimal           @db.Decimal(12, 2)
+  /// Employer contributions on top of gross
+  employer    Decimal           @default(0) @db.Decimal(12, 2)
+  /// Worked-out lines: [{ kind, name, amount }]
+  lines       Json
+  /// The admin's edits: { allowances, oneOffs: [{ name, amount }], advance: number | null }
+  adjustments Json              @default("{}")
+  /// Deductions are over two-thirds of gross
+  overCap     Boolean           @default(false) @map("over_cap")
+  recoveries  AdvanceRecovery[]
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+
+  @@unique([runId, staffId])
+  @@index([staffId])
+  @@map("payslips")
+}
+
+/// Part of an advance taken back on a payslip.
+model AdvanceRecovery {
+  id        String        @id @default(cuid())
+  advanceId String        @map("advance_id")
+  advance   SalaryAdvance @relation(fields: [advanceId], references: [id], onDelete: Cascade)
+  payslipId String        @map("payslip_id")
+  payslip   Payslip       @relation(fields: [payslipId], references: [id], onDelete: Cascade)
+  amount    Decimal       @db.Decimal(10, 2)
+
+  @@index([advanceId])
+  @@map("advance_recoveries")
+}

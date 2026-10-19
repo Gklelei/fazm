@@ -6,6 +6,8 @@ import { db } from "@/lib/prisma";
 import { deviceOf } from "@/lib/device";
 import { formatPhone } from "@/lib/phone";
 import { MyProfile } from "@/features/staff/components/MyProfile";
+import { advanceBalances } from "@/features/payroll/lib/run";
+import { payslipsOf } from "@/features/payroll/queries";
 
 export const metadata: Metadata = { title: "My profile" };
 
@@ -46,6 +48,8 @@ export default async function Page() {
     }),
   ]);
   const s = me.staff;
+  const [advances, payslips] = s ? await Promise.all([advanceBalances(s.id), payslipsOf(s.id)]) : [[], []];
+  const pay = s?.payBasis || payslips.length || advances.length ? { advances, payslips } : null;
   return (
     <MyProfile
       values={{
@@ -61,6 +65,7 @@ export default async function Page() {
       role={me.role}
       work={s ? { staffId: s.staffId, jobTitle: s.jobTitle, batches: s.batches.map((b) => b.name).join(", ") } : null}
       devices={devicesOf(sessions, session.session.id)}
+      pay={pay}
       activity={activity.map((a) => ({ ...a, createdAt: a.createdAt.toISOString() }))}
     />
   );

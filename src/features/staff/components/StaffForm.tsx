@@ -23,7 +23,7 @@ import { useUpload } from "@/components/form/use-upload";
 import { useAuthSession } from "@/providers/SessionProvider";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { createStaff, updateStaff } from "../actions/save-staff";
-import { STAFF_DOCUMENT_KINDS, STAFF_ROLES, staffSchema, type StaffInput, type StaffValues } from "../schemas";
+import { PAY_BASES, PAY_METHODS, STAFF_DOCUMENT_KINDS, STAFF_ROLES, staffSchema, type StaffInput, type StaffValues } from "../schemas";
 import { TempPasswordDialog } from "./TempPasswordDialog";
 
 const EMPTY: StaffInput = {
@@ -38,6 +38,10 @@ const EMPTY: StaffInput = {
   nssfNumber: "",
   shifNumber: "",
   salary: "",
+  payBasis: "",
+  sessionRate: "",
+  payMethod: "",
+  payAccount: "",
   emergencyName: "",
   emergencyPhone: "",
   emergencyRelationship: "",
@@ -46,6 +50,9 @@ const EMPTY: StaffInput = {
   canSignIn: false,
   role: "COACH",
 };
+
+// Chips can't select an empty value
+const BASIS_CHIPS = PAY_BASES.map((o) => ({ ...o, value: o.value || "NONE" }));
 
 /** A small "Add contract" button that uploads one file. */
 function AddDocument({ label, onAdd }: { label: string; onAdd: (url: string) => void }) {
@@ -89,7 +96,7 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
   });
   useLeaveWarning(form.formState.isDirty && !saved);
   const docs = useFieldArray({ control: form.control, name: "documents" });
-  const [canSignIn, fullNames, email, watchedDocs] = useWatch({ control: form.control, name: ["canSignIn", "fullNames", "email", "documents"] });
+  const [canSignIn, fullNames, email, watchedDocs, payBasis, payMethod] = useWatch({ control: form.control, name: ["canSignIn", "fullNames", "email", "documents", "payBasis", "payMethod"] });
   const roles = STAFF_ROLES.filter((r) => r.value !== "SUPER_ADMIN" || user.role === "SUPER_ADMIN" || values?.role === "SUPER_ADMIN");
 
   const submit = form.handleSubmit((v) =>
@@ -183,7 +190,35 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
           </FormSection>
 
           <FormSection title="Pay and statutory details" icon={Landmark}>
-            <TextField<StaffInput> name="salary" label="Monthly salary (KES)" optional inputMode="decimal" />
+            <FormField
+              control={form.control}
+              name="payBasis"
+              render={({ field }) => (
+                <FormItem className="sm:col-span-2">
+                  <FormLabel>Paid</FormLabel>
+                  <ChoiceChips label="Paid" options={BASIS_CHIPS} value={field.value || "NONE"} onChange={(v) => field.onChange(v === "NONE" ? "" : v)} />
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            {payBasis !== "PER_SESSION" && <TextField<StaffInput> name="salary" label="Monthly salary (KES)" optional={payBasis !== "MONTHLY"} inputMode="decimal" />}
+            {payBasis === "PER_SESSION" && <TextField<StaffInput> name="sessionRate" label="Pay per session (KES)" inputMode="decimal" />}
+            {payBasis && (
+              <>
+                <FormField
+                  control={form.control}
+                  name="payMethod"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Pay by</FormLabel>
+                      <ChoiceChips label="Pay by" options={PAY_METHODS} value={field.value || undefined} onChange={(v) => field.onChange(v === field.value ? "" : v)} />
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                {payMethod && <TextField<StaffInput> name="payAccount" label={payMethod === "BANK" ? "Bank and account number" : "M-Pesa number"} autoComplete="off" />}
+              </>
+            )}
             <TextField<StaffInput> name="nationalId" label="National ID" optional inputMode="numeric" autoComplete="off" />
             <TextField<StaffInput> name="kraPin" label="KRA PIN" optional autoComplete="off" className="[&_input]:uppercase" />
             <TextField<StaffInput> name="nssfNumber" label="NSSF number" optional autoComplete="off" />

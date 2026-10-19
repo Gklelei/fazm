@@ -33,6 +33,10 @@ function recordOf(v: StaffValues) {
     nssfNumber: v.nssfNumber || null,
     shifNumber: v.shifNumber || null,
     salary: v.salary ? new Prisma.Decimal(v.salary) : null,
+    payBasis: v.payBasis || null,
+    sessionRate: v.sessionRate ? new Prisma.Decimal(v.sessionRate) : null,
+    payMethod: v.payMethod || null,
+    payAccount: v.payAccount || null,
     emergencyName: v.emergencyName || null,
     emergencyPhone: v.emergencyPhone || null,
     emergencyRelationship: v.emergencyRelationship || null,
@@ -224,6 +228,10 @@ function beforeValues(s: Prisma.staffGetPayload<object>): Partial<StaffValues> {
     nssfNumber: s.nssfNumber ?? "",
     shifNumber: s.shifNumber ?? "",
     salary: s.salary ? String(Number(s.salary)) : "",
+    payBasis: s.payBasis ?? "",
+    sessionRate: s.sessionRate ? String(Number(s.sessionRate)) : "",
+    payMethod: (s.payMethod ?? "") as StaffValues["payMethod"],
+    payAccount: s.payAccount ?? "",
     emergencyName: s.emergencyName ?? "",
     emergencyPhone: s.emergencyPhone ?? "",
     emergencyRelationship: s.emergencyRelationship ?? "",
@@ -235,6 +243,7 @@ const plain = (r: ReturnType<typeof recordOf>) => ({
   ...r,
   startDate: r.startDate ? r.startDate.toISOString().slice(0, 10) : null,
   salary: r.salary ? Number(r.salary) : null,
+  sessionRate: r.sessionRate ? Number(r.sessionRate) : null,
 });
 
 async function findForAccess(staffId: string, me: Me) {

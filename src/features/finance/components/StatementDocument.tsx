@@ -14,7 +14,7 @@ import { howToPay } from "@/features/academy/lib/how-to-pay";
 import type { Statement } from "../lib/statement";
 
 /** The statement PDF, in the invoice PDF's style: letterhead, period, ledger, closing balance. */
-const s = StyleSheet.create({
+export const s = StyleSheet.create({
   page: {
     padding: 40,
     paddingBottom: 56,
@@ -133,7 +133,7 @@ const periodOf = (from?: string, to?: string) =>
     ? `${from ? day(from) : "Start"} – ${to ? day(to) : "today"}`
     : "All time";
 
-function Letterhead({
+export function Letterhead({
   academy,
   logoUrl,
   title,
