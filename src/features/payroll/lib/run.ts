@@ -47,7 +47,7 @@ export async function refreshPayroll(month: string, tx: Prisma.TransactionClient
       },
     }),
     tx.payrollDeduction.findMany({ where: { enabled: true }, orderBy: [{ position: "asc" }, { createdAt: "asc" }] }),
-    tx.payslip.findMany({ where: { runId: run.id }, select: { id: true, staffId: true, adjustments: true } }),
+    tx.payslip.findMany({ where: { runId: run.id }, select: { id: true, staffId: true, adjustments: true, status: true } }),
   ]);
   const sessions = await tx.training.groupBy({
     by: ["staffId"],
@@ -57,6 +57,8 @@ export async function refreshPayroll(month: string, tx: Prisma.TransactionClient
 
   const keptBy = new Map(kept.map((k) => [k.staffId, k]));
   for (const p of people) {
+    // Approved on its own: locked
+    if (keptBy.get(p.id)?.status === "APPROVED") continue;
     const adj = (keptBy.get(p.id)?.adjustments ?? {}) as Adjustments;
     const count = sessions.find((s) => s.staffId === p.staffId)?._count._all ?? 0;
     const perSession = p.payBasis === "PER_SESSION";
@@ -109,7 +111,7 @@ export async function refreshPayroll(month: string, tx: Prisma.TransactionClient
     if (slip.recoveries.length) await tx.advanceRecovery.createMany({ data: slip.recoveries.map((r) => ({ payslipId: saved.id, advanceId: r.advanceId, amount: r.amount })) });
   }
   // Left, or no pay profile any more
-  const gone = kept.filter((k) => !people.some((p) => p.id === k.staffId)).map((k) => k.id);
+  const gone = kept.filter((k) => k.status === "PROVISIONAL" && !people.some((p) => p.id === k.staffId)).map((k) => k.id);
   if (gone.length) await tx.payslip.deleteMany({ where: { id: { in: gone } } });
 
   return { run, payslips: people.length, locked: false };
@@ -120,10 +122,10 @@ export async function advanceBalances(staffId: string) {
   const advances = await db.salaryAdvance.findMany({
     where: { staffId },
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
-    include: { recoveries: { select: { amount: true, payslip: { select: { run: { select: { month: true, status: true } } } } } } },
+    include: { recoveries: { select: { amount: true, payslip: { select: { status: true, run: { select: { month: true } } } } } } },
   });
   return advances.map((a) => {
-    const taken = a.recoveries.filter((r) => r.payslip.run.status !== "PROVISIONAL");
+    const taken = a.recoveries.filter((r) => r.payslip.status !== "PROVISIONAL");
     const recovered = taken.reduce((s, r) => s + Number(r.amount), 0);
     return {
       id: a.id,

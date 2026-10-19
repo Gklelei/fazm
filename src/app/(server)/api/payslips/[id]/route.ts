@@ -31,7 +31,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   const pdf = await payslipPdf(
     {
       month: slip.run.month,
-      provisional: slip.run.status === "PROVISIONAL",
+      provisional: slip.status === "PROVISIONAL",
       staff: slip.staff,
       gross: Number(slip.gross),
       deductions: Number(slip.deductions),

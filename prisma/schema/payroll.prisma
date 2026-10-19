@@ -106,6 +106,10 @@ model Payslip {
   adjustments Json              @default("{}")
   /// Deductions are over two-thirds of gross
   overCap     Boolean           @default(false) @map("over_cap")
+  /// Approved on its own, or with the month; an approved payslip never changes
+  status       PAYROLL_STATUS @default(PROVISIONAL)
+  approvedById String?        @map("approved_by_id")
+  approvedAt   DateTime?      @map("approved_at")
   recoveries  AdvanceRecovery[]
   createdAt   DateTime          @default(now()) @map("created_at")
   updatedAt   DateTime          @updatedAt @map("updated_at")

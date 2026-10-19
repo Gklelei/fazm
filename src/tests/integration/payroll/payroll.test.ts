@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
 import { makeBatch, makeLocation, resetDb, signedIn } from "@/tests/support/db";
-import { adjustPayslip, approveMonth, decideAdvance, recordAdvance, refreshMonth } from "@/features/payroll/actions/payroll";
+import { adjustPayslip, approveMonth, approvePayslip, decideAdvance, recordAdvance, refreshMonth, reopenPayslip } from "@/features/payroll/actions/payroll";
 import { advanceBalances, payrollJob } from "@/features/payroll/lib/run";
 
 let n = 0;
@@ -86,5 +86,47 @@ describe("payroll", () => {
     await makeStaff({ salary: 1000 });
     expect(await payrollJob({ now: new Date("2026-10-30T10:00:00Z") })).toMatchObject({ skipped: true });
     expect(await payrollJob({ now: new Date("2026-10-31T17:00:00Z") })).toMatchObject({ month: "2026-10", payslips: 1 });
+  });
+
+  it("approves payslips one at a time, locks each, and the last one approves the month", async () => {
+    const a = await makeStaff({ salary: 20000 });
+    const b = await makeStaff({ salary: 10000 });
+    await signedIn("FINANCE");
+    await refreshMonth("2026-10");
+    expect((await approvePayslip((await slipOf(a.id)).id)).success).toBe(false); // admins only
+
+    await signedIn("ADMIN");
+    expect((await approvePayslip((await slipOf(a.id)).id)).success).toBe(true);
+    expect((await slipOf(a.id)).status).toBe("APPROVED");
+    expect((await db.payrollRun.findFirstOrThrow()).status).toBe("PROVISIONAL");
+
+    // Locked: no edits, and a salary change doesn't reach it
+    expect((await adjustPayslip((await slipOf(a.id)).id, { allowances: [{ name: "Bonus", amount: 500 }] })).success).toBe(false);
+    await db.staff.update({ where: { id: a.id }, data: { salary: 25000 } });
+    await refreshMonth("2026-10");
+    expect(Number((await slipOf(a.id)).gross)).toBe(20000);
+
+    // Reopened, it follows the new salary again
+    expect((await reopenPayslip((await slipOf(a.id)).id)).success).toBe(true);
+    expect(Number((await slipOf(a.id)).gross)).toBe(25000);
+
+    await approvePayslip((await slipOf(a.id)).id);
+    expect(await db.expenses.count()).toBe(0);
+    const last = await approvePayslip((await slipOf(b.id)).id);
+    expect(last.message).toContain("October 2026 is approved");
+    expect((await db.payrollRun.findFirstOrThrow()).status).toBe("APPROVED");
+    expect((await db.expenses.findFirstOrThrow()).amount).toBe(35000);
+  });
+
+  it("counts an advance taken on an approved payslip before the month closes", async () => {
+    const s = await makeStaff({ salary: 30000 });
+    await makeStaff({ salary: 10000 });
+    await signedIn("ADMIN");
+    await recordAdvance({ staffId: s.id, date: "2026-10-05", amount: 4000, method: "CASH", months: 2 });
+    await decideAdvance((await db.salaryAdvance.findFirstOrThrow()).id, true);
+    await refreshMonth("2026-10");
+    expect((await advanceBalances(s.id))[0].outstanding).toBe(4000);
+    await approvePayslip((await slipOf(s.id)).id);
+    expect((await advanceBalances(s.id))[0].outstanding).toBe(2000);
   });
 });

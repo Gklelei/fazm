@@ -3,14 +3,14 @@
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, Loader2, Plus, Trash2 } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Loader2, LockOpen, Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
-import { adjustPayslip } from "../actions/payroll";
+import { adjustPayslip, approvePayslip, reopenPayslip } from "../actions/payroll";
 import type { PayslipRow } from "../queries";
 
 type Row = { name: string; amount: string };
@@ -39,7 +39,20 @@ function Items({ label, add, items, onChange }: { label: string; add: string; it
 }
 
 /** One payslip: what it's made of, and the allowances, one-off deductions and advance for this month. */
-export function PayslipDialog({ slip, locked, open, onOpenChange }: { slip: PayslipRow; locked: boolean; open: boolean; onOpenChange: (v: boolean) => void }) {
+export function PayslipDialog({
+  slip,
+  monthLocked,
+  canApprove,
+  open,
+  onOpenChange,
+}: {
+  slip: PayslipRow;
+  monthLocked: boolean;
+  canApprove: boolean;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const locked = monthLocked || slip.status !== "PROVISIONAL";
   const router = useRouter();
   const [saving, start] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -48,14 +61,25 @@ export function PayslipDialog({ slip, locked, open, onOpenChange }: { slip: Pays
   const [advance, setAdvance] = useState(slip.adjustments.advance == null ? "" : String(slip.adjustments.advance));
   const maxAdvance = Math.max(0, Math.floor((slip.gross * 2) / 3) - (slip.deductions - slip.advance));
 
+  const clean = (r: Row[]) => r.filter((x) => x.name.trim() || x.amount.trim()).map((x) => ({ name: x.name, amount: x.amount }));
+  const saveEdits = () => adjustPayslip(slip.id, { allowances: clean(allowances), oneOffs: clean(oneOffs), advance: advance.trim() === "" ? null : advance });
   const save = () => {
     setError(null);
     start(async () => {
-      const clean = (r: Row[]) => r.filter((x) => x.name.trim() || x.amount.trim()).map((x) => ({ name: x.name, amount: x.amount }));
-      const res = await adjustPayslip(slip.id, { allowances: clean(allowances), oneOffs: clean(oneOffs), advance: advance.trim() === "" ? null : advance });
+      const res = await saveEdits();
       if (!res.success) return setError(res.message);
       toast.success(res.message);
       onOpenChange(false);
+      router.refresh();
+    });
+  };
+
+  const act = (fn: () => Promise<{ success: boolean; message: string }>) => {
+    setError(null);
+    start(async () => {
+      const res = await fn();
+      if (!res.success) return setError(res.message);
+      toast.success(res.message);
       router.refresh();
     });
   };
@@ -69,7 +93,9 @@ export function PayslipDialog({ slip, locked, open, onOpenChange }: { slip: Pays
       <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
           <DialogTitle>{slip.staff.fullNames}</DialogTitle>
-          <DialogDescription>{locked ? "Approved. Put corrections on next month's payslip." : "Add this month's extras, then save."}</DialogDescription>
+          <DialogDescription>
+            {monthLocked ? "Approved. Put corrections on next month's payslip." : locked ? "Approved. Reopen it to change it." : "Add this month's extras, then save or approve."}
+          </DialogDescription>
         </DialogHeader>
 
         <dl className="divide-y rounded-md border text-sm">
@@ -120,15 +146,35 @@ export function PayslipDialog({ slip, locked, open, onOpenChange }: { slip: Pays
           </div>
         )}
 
+        {locked && error && <p className="text-sm text-destructive">{error}</p>}
         <DialogFooter>
+          {canApprove && !monthLocked && locked && (
+            <Button variant="outline" disabled={saving} onClick={() => act(() => reopenPayslip(slip.id))}>
+              <LockOpen /> Reopen
+            </Button>
+          )}
           <Button variant="outline" asChild>
             <a href={`/api/payslips/${slip.id}`} target="_blank" rel="noopener">
               Payslip PDF
             </a>
           </Button>
           {!locked && (
-            <Button onClick={save} disabled={saving}>
+            <Button variant={canApprove ? "outline" : "default"} onClick={save} disabled={saving}>
               {saving && <Loader2 className="animate-spin" />} Save
+            </Button>
+          )}
+          {!locked && canApprove && (
+            <Button
+              disabled={saving}
+              onClick={() =>
+                act(async () => {
+                  // Whatever is typed here is saved first
+                  const saved = await saveEdits();
+                  return saved.success ? approvePayslip(slip.id) : saved;
+                })
+              }
+            >
+              <BadgeCheck /> Approve
             </Button>
           )}
         </DialogFooter>

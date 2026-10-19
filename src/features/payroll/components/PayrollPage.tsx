@@ -4,13 +4,13 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { AlertTriangle, BadgeCheck, Banknote, Check, Eye, FileDown, Loader2, MoreHorizontal, RefreshCcw, X } from "lucide-react";
+import { AlertTriangle, BadgeCheck, Banknote, Check, Eye, FileDown, Loader2, LockOpen, MoreHorizontal, RefreshCcw, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableFooter, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { StatCard } from "@/components/shared/StatCard";
@@ -22,7 +22,7 @@ import { formatCurrency } from "@/lib/format";
 import { hasRole } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { useAuthSession } from "@/providers/SessionProvider";
-import { approveMonth, decideAdvance, markPaid, refreshMonth } from "../actions/payroll";
+import { approveMonth, approvePayslip, decideAdvance, markPaid, refreshMonth, reopenPayslip } from "../actions/payroll";
 import type { AdvanceRow, PayrollMonth, PayslipRow } from "../queries";
 import { ADVANCE_METHODS } from "../schemas";
 import { AdvanceDialog } from "./AdvanceDialog";
@@ -60,7 +60,10 @@ function useRun() {
   return { pending, run };
 }
 
-function SlipMenu({ slip, onOpen }: { slip: PayslipRow; onOpen: () => void }) {
+export const SlipStatus = ({ slip }: { slip: PayslipRow }) =>
+  slip.status === "PROVISIONAL" ? <StatusBadge status="PROVISIONAL">Provisional</StatusBadge> : <StatusBadge status="APPROVED">Approved</StatusBadge>;
+
+function SlipMenu({ slip, onOpen, canApprove, monthOpen, run }: { slip: PayslipRow; onOpen: () => void; canApprove: boolean; monthOpen: boolean; run: ReturnType<typeof useRun>["run"] }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -82,6 +85,20 @@ function SlipMenu({ slip, onOpen }: { slip: PayslipRow; onOpen: () => void }) {
             <Eye /> Staff page
           </Link>
         </DropdownMenuItem>
+        {canApprove && monthOpen && (
+          <>
+            <DropdownMenuSeparator />
+            {slip.status === "PROVISIONAL" ? (
+              <DropdownMenuItem onSelect={() => run(() => approvePayslip(slip.id))}>
+                <BadgeCheck /> Approve payslip
+              </DropdownMenuItem>
+            ) : (
+              <DropdownMenuItem onSelect={() => run(() => reopenPayslip(slip.id))}>
+                <LockOpen /> Reopen payslip
+              </DropdownMenuItem>
+            )}
+          </>
+        )}
       </DropdownMenuContent>
     </DropdownMenu>
   );
@@ -94,7 +111,9 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
   const slips = data?.payslips ?? [];
   const locked = !!data && data.status !== "PROVISIONAL";
   const sum = (k: "gross" | "deductions" | "net" | "employer" | "advance") => slips.reduce((s, p) => s + p[k], 0);
-  const overCap = slips.filter((p) => p.overCap).length;
+  const overCap = slips.filter((p) => p.overCap && p.status === "PROVISIONAL").length;
+  const approved = slips.filter((p) => p.status !== "PROVISIONAL").length;
+  const menu = (p: PayslipRow) => <SlipMenu slip={p} onOpen={() => setOpenId(p.id)} canApprove={isAdmin} monthOpen={!locked} run={run} />;
   const open = slips.find((p) => p.id === openId);
 
   return (
@@ -110,6 +129,11 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
         <div className="flex flex-wrap items-center gap-3 border-b p-4">
           <div className="flex flex-wrap items-center gap-2 text-sm">
             <StatusBadge status={data?.status ?? "PROVISIONAL"}>{data ? RUN_LABEL[data.status] : "Not worked out"}</StatusBadge>
+            {data?.status === "PROVISIONAL" && slips.length > 0 && (
+              <span className="text-muted-foreground">
+                {approved} of {slips.length} payslips approved
+              </span>
+            )}
             {data?.approvedAt && <span className="text-muted-foreground">Approved {day(data.approvedAt)}</span>}
             {data?.paidAt && <span className="text-muted-foreground">· Paid {day(data.paidAt)}</span>}
           </div>
@@ -128,14 +152,14 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button disabled={pending}>
-                    <BadgeCheck /> Approve {label(month)}
+                    <BadgeCheck /> {approved ? `Approve the other ${slips.length - approved}` : `Approve ${label(month)}`}
                   </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>
                     <AlertDialogTitle>Approve {label(month)}?</AlertDialogTitle>
                     <AlertDialogDescription>
-                      The payslips are worked out once more, then locked. {formatCurrency(sum("gross") + sum("employer"))} goes to expenses under Salaries.
+                      {approved ? `The ${slips.length - approved} payslips still provisional are` : "The payslips are"} worked out once more, then locked. {formatCurrency(sum("gross") + sum("employer"))} goes to expenses under Salaries.
                     </AlertDialogDescription>
                   </AlertDialogHeader>
                   <AlertDialogFooter>
@@ -181,10 +205,11 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
                   </span>
                   <span className="flex items-center gap-2">
                     <span className="tabular font-bold">{formatCurrency(p.net)}</span>
-                    {p.overCap && <StatusBadge tone="warning">Over two-thirds</StatusBadge>}
+                    {!locked && <SlipStatus slip={p} />}
+                    {p.overCap && p.status === "PROVISIONAL" && <StatusBadge tone="warning">Over two-thirds</StatusBadge>}
                   </span>
                 </button>
-                <SlipMenu slip={p} onOpen={() => setOpenId(p.id)} />
+                {menu(p)}
               </div>
             ))}
           </div>
@@ -199,6 +224,7 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
                 <TableHead className="text-right">Advance</TableHead>
                 <TableHead className="text-right">Net pay</TableHead>
                 <TableHead>Pay by</TableHead>
+                {!locked && <TableHead>Status</TableHead>}
                 <TableHead className="w-12 pr-4">
                   <span className="sr-only">Actions</span>
                 </TableHead>
@@ -229,8 +255,13 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
                       <span className="text-muted-foreground">—</span>
                     )}
                   </TableCell>
+                  {!locked && (
+                    <TableCell>
+                      <SlipStatus slip={p} />
+                    </TableCell>
+                  )}
                   <TableCell className="pr-4 text-right" onClick={(e) => e.stopPropagation()}>
-                    <SlipMenu slip={p} onOpen={() => setOpenId(p.id)} />
+                    {menu(p)}
                   </TableCell>
                 </TableRow>
               ))}
@@ -244,13 +275,22 @@ function Payslips({ month, data, isAdmin }: { month: string; data: PayrollMonth 
                 <TableCell className="tabular text-right font-semibold">{formatCurrency(sum("deductions") - sum("advance"))}</TableCell>
                 <TableCell className="tabular text-right font-semibold">{formatCurrency(sum("advance"))}</TableCell>
                 <TableCell className="tabular text-right font-bold">{formatCurrency(sum("net"))}</TableCell>
-                <TableCell colSpan={2} />
+                <TableCell colSpan={locked ? 2 : 3} />
               </TableRow>
             </TableFooter>
           </Table>
         )}
       </section>
-      {open && <PayslipDialog key={open.id + JSON.stringify(open.adjustments)} slip={open} locked={locked} open onOpenChange={(v) => !v && setOpenId(null)} />}
+      {open && (
+        <PayslipDialog
+          key={open.id + open.status + JSON.stringify(open.adjustments)}
+          slip={open}
+          monthLocked={locked}
+          canApprove={isAdmin}
+          open
+          onOpenChange={(v) => !v && setOpenId(null)}
+        />
+      )}
     </div>
   );
 }

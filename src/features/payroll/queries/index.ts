@@ -38,6 +38,7 @@ export async function payrollMonth(month: string) {
       lines: p.lines as Line[],
       adjustments: p.adjustments as Adjustments,
       overCap: p.overCap,
+      status: p.status,
     })),
   };
 }
@@ -53,7 +54,7 @@ export async function advancesBoard() {
     orderBy: [{ date: "desc" }, { createdAt: "desc" }],
     include: {
       staff: { select: { id: true, staffId: true, fullNames: true } },
-      recoveries: { where: { payslip: { run: { status: { not: "PROVISIONAL" } } } }, select: { amount: true } },
+      recoveries: { where: { payslip: { status: { not: "PROVISIONAL" } } }, select: { amount: true } },
     },
     take: 300,
   });
@@ -87,11 +88,11 @@ export const payslipsOf = async (staffId: string) =>
   (
     await db.payslip.findMany({
       where: { staffId },
-      select: { id: true, net: true, gross: true, run: { select: { month: true, status: true } } },
+      select: { id: true, net: true, gross: true, status: true, run: { select: { month: true, status: true } } },
       orderBy: { run: { month: "desc" } },
       take: 24,
     })
-  ).map((p) => ({ id: p.id, month: p.run.month, status: p.run.status, gross: n(p.gross), net: n(p.net) }));
+  ).map((p) => ({ id: p.id, month: p.run.month, status: p.run.status === "PAID" ? p.run.status : p.status, gross: n(p.gross), net: n(p.net) }));
 export type PayslipSummary = Awaited<ReturnType<typeof payslipsOf>>[number];
 
 export async function deductionSettings() {
