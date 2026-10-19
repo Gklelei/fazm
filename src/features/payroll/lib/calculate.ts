@@ -21,7 +21,8 @@ export type DeductionRule = {
 export type Item = { name: string; amount: number };
 export type AdvanceDue = { id: string; outstanding: number; installment: number };
 export type LineKind = "BASIC" | "ALLOWANCE" | "DEDUCTION" | "TAX" | "ONE_OFF" | "ADVANCE" | "EMPLOYER";
-export type Line = { kind: LineKind; name: string; amount: number };
+/** `detail` explains a line on the payslip, e.g. how PAYE was worked out */
+export type Line = { kind: LineKind; name: string; amount: number; detail?: string };
 
 export type PayslipInput = {
   basic: number;
@@ -36,6 +37,7 @@ export type PayslipInput = {
 
 const c = (kes: number) => Math.round(kes * 100);
 const kes = (cents: number) => cents / 100;
+const shown = (cents: number) => kes(cents).toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 /** Tax on `base` (cents) through the bands, before relief. */
 export function bandedTax(baseCents: number, bands: Band[]): number {
@@ -68,10 +70,10 @@ export function calculatePayslip(input: PayslipInput) {
   let taken = 0;
   let employer = 0;
   const employerLines: Line[] = [];
-  const take = (kind: LineKind, name: string, cents: number) => {
+  const take = (kind: LineKind, name: string, cents: number, detail?: string) => {
     if (cents <= 0) return;
     taken += cents;
-    lines.push({ kind, name, amount: kes(cents) });
+    lines.push({ kind, name, amount: kes(cents), ...(detail && { detail }) });
   };
   const flat = (d: DeductionRule) => {
     const a = amountOf(d, gross, basic);
@@ -85,7 +87,10 @@ export function calculatePayslip(input: PayslipInput) {
 
   rules.filter((d) => d.kind !== "BANDED" && d.beforeTax).forEach(flat);
   for (const d of rules.filter((d) => d.kind === "BANDED")) {
-    take("TAX", d.name, Math.max(0, bandedTax(gross - taken, d.bands ?? []) - c(d.relief ?? 0)));
+    const taxable = gross - taken;
+    const tax = bandedTax(taxable, d.bands ?? []);
+    const relief = c(d.relief ?? 0);
+    take("TAX", d.name, Math.max(0, tax - relief), `Taxable pay ${shown(taxable)} · tax ${shown(tax)}${relief ? ` less relief ${shown(relief)}` : ""}`);
   }
   rules.filter((d) => d.kind !== "BANDED" && !d.beforeTax).forEach(flat);
   for (const o of input.oneOffs ?? []) take("ONE_OFF", o.name, c(o.amount));

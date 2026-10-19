@@ -29,6 +29,7 @@ describe("calculatePayslip", () => {
     expect(amount(p, "Housing Levy")).toBe(750);
     // taxable 44,875: 2,400 + 2,083.25 + 3,762.60 − 2,400 relief
     expect(amount(p, "PAYE")).toBe(5845.85);
+    expect(p.lines.find((l) => l.name === "PAYE")?.detail).toBe("Taxable pay 44,875.00 · tax 8,245.85 less relief 2,400.00");
     expect(p.net).toBe(39029.15);
     expect(p.employer).toBe(3750);
   });

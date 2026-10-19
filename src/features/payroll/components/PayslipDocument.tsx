@@ -1,7 +1,6 @@
-import { Document, Page, Text, View } from "@react-pdf/renderer";
-import { formatCurrency } from "@/lib/format";
+import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 import type { getAcademyQueryType } from "@/features/academy/queries";
-import { Letterhead, s } from "@/features/finance/components/StatementDocument";
+import { Letterhead, s as doc } from "@/features/finance/components/StatementDocument";
 import type { Line } from "../lib/calculate";
 
 export type PayslipData = {
@@ -17,87 +16,137 @@ export type PayslipData = {
 };
 
 const OFF = new Set(["DEDUCTION", "TAX", "ONE_OFF", "ADVANCE"]);
-const half = { width: "48%" } as const;
+// Statutory first, in the order they're worked out, then PAYE, then the rest
+const ORDER: Record<string, number> = { DEDUCTION: 0, TAX: 1, ONE_OFF: 2, ADVANCE: 3 };
 
-function Rows({ title, lines, total, totalLabel }: { title: string; lines: Line[]; total: number; totalLabel: string }) {
+/** 3,000.00 or -3,000.00 (ASCII minus: the PDF font has no Unicode minus sign) */
+const amount = (n: number, minus = false) => `${minus && n ? "-" : ""}${n.toLocaleString("en-KE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+const t = StyleSheet.create({
+  details: { flexDirection: "row", flexWrap: "wrap", borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 4, marginBottom: 14 },
+  detail: { width: "33.33%", paddingVertical: 6, paddingHorizontal: 8 },
+  detailLabel: { fontSize: 7, color: "#64748b", textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 2 },
+  table: { borderWidth: 1, borderColor: "#e2e8f0", borderRadius: 4 },
+  head: { flexDirection: "row", backgroundColor: "#0f172a", color: "#ffffff", paddingVertical: 6, paddingHorizontal: 8, fontWeight: "bold", fontSize: 8, textTransform: "uppercase", letterSpacing: 0.5 },
+  section: { backgroundColor: "#f1f5f9", paddingVertical: 4, paddingHorizontal: 8, fontSize: 7.5, fontWeight: "bold", color: "#475569", textTransform: "uppercase", letterSpacing: 0.5, borderTopWidth: 1, borderTopColor: "#e2e8f0" },
+  row: { flexDirection: "row", paddingVertical: 5, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: "#f1f5f9" },
+  subtotal: { flexDirection: "row", paddingVertical: 6, paddingHorizontal: 8, borderTopWidth: 1, borderTopColor: "#cbd5e1", fontWeight: "bold" },
+  net: { flexDirection: "row", paddingVertical: 9, paddingHorizontal: 8, backgroundColor: "#0f172a", color: "#ffffff", fontWeight: "bold", fontSize: 12 },
+  label: { flex: 1, paddingRight: 8 },
+  value: { width: 110, textAlign: "right" },
+  minus: { width: 110, textAlign: "right", color: "#b91c1c" },
+  note: { fontSize: 7.5, color: "#64748b", marginTop: 1 },
+});
+
+function Detail({ label, value }: { label: string; value: string | null | undefined }) {
   return (
-    <View style={half}>
-      <Text style={s.sectionTitle}>{title}</Text>
-      <View style={[s.table, { marginTop: 0 }]}>
-        {lines.map((l, i) => (
-          <View key={i} style={s.row}>
-            <Text style={{ width: "62%" }}>{l.name}</Text>
-            <Text style={{ width: "38%", textAlign: "right" }}>{formatCurrency(l.amount)}</Text>
-          </View>
-        ))}
-        {!lines.length && (
-          <View style={s.row}>
-            <Text style={s.muted}>None</Text>
-          </View>
-        )}
-        <View style={s.head}>
-          <Text style={{ width: "62%" }}>{totalLabel}</Text>
-          <Text style={{ width: "38%", textAlign: "right" }}>{formatCurrency(total)}</Text>
-        </View>
-      </View>
+    <View style={t.detail}>
+      <Text style={t.detailLabel}>{label}</Text>
+      <Text>{value || "—"}</Text>
     </View>
   );
 }
 
-/** A month's payslip in the statement's design; provisional ones carry a watermark. */
+function Row({ line, minus }: { line: { name: string; amount: number; detail?: string }; minus?: boolean }) {
+  return (
+    <View style={t.row} wrap={false}>
+      <View style={t.label}>
+        <Text>{line.name}</Text>
+        {line.detail && <Text style={t.note}>{line.detail}</Text>}
+      </View>
+      <Text style={minus ? t.minus : t.value}>{amount(line.amount, minus)}</Text>
+    </View>
+  );
+}
+
+/**
+ * A month's payslip: employee details, then one table read top to bottom in
+ * the order pay is worked out (earnings, gross, statutory deductions, PAYE,
+ * other deductions, net). Deductions carry a minus sign. Employer
+ * contributions are listed apart, since they don't come off pay.
+ */
 export function PayslipDocument({ academy, logoUrl, slip }: { academy: getAcademyQueryType | null; logoUrl: string; slip: PayslipData }) {
   const label = new Date(`${slip.month}-15T12:00:00Z`).toLocaleDateString("en-GB", { month: "long", year: "numeric", timeZone: "UTC" });
   const p = slip.staff;
+  const earnings = slip.lines.filter((l) => l.kind === "BASIC" || l.kind === "ALLOWANCE");
+  const deductions = slip.lines
+    .filter((l) => OFF.has(l.kind))
+    .map((l) => (l.kind === "ADVANCE" && slip.advanceLeft > 0 ? { ...l, detail: `${amount(slip.advanceLeft)} still to pay back` } : l))
+    .sort((a, b) => ORDER[a.kind] - ORDER[b.kind]);
   const employer = slip.lines.filter((l) => l.kind === "EMPLOYER");
+  const employerTotal = employer.reduce((n, l) => n + l.amount, 0);
+
   return (
     <Document title={`Payslip ${p.staffId} ${slip.month}`}>
-      <Page size="A4" style={s.page}>
+      <Page size="A4" style={doc.page}>
         {slip.provisional && (
           <Text fixed style={{ position: "absolute", top: 380, left: 60, fontSize: 72, color: "#f1f5f9", transform: "rotate(-30deg)", fontWeight: "bold" }}>
             PROVISIONAL
           </Text>
         )}
         <Letterhead academy={academy} logoUrl={logoUrl} title="Payslip" period={label} />
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <View>
-            <Text style={s.sectionTitle}>Employee</Text>
-            <Text style={{ fontSize: 11, fontWeight: "bold" }}>{p.fullNames}</Text>
-            <Text style={s.muted}>
-              {p.staffId}
-              {p.jobTitle ? ` · ${p.jobTitle}` : ""}
-            </Text>
-          </View>
-          <View style={[s.muted, { textAlign: "right" }]}>
-            {p.kraPin && <Text>KRA PIN {p.kraPin}</Text>}
-            {p.nssfNumber && <Text>NSSF {p.nssfNumber}</Text>}
-            {p.shifNumber && <Text>SHIF {p.shifNumber}</Text>}
-          </View>
+
+        <View style={t.details}>
+          <Detail label="Employee" value={p.fullNames} />
+          <Detail label="Staff ID" value={p.staffId} />
+          <Detail label="Job title" value={p.jobTitle} />
+          <Detail label="KRA PIN" value={p.kraPin} />
+          <Detail label="NSSF number" value={p.nssfNumber} />
+          <Detail label="SHIF number" value={p.shifNumber} />
+          <Detail label="Pay period" value={label} />
+          <Detail label="Paid by" value={p.payMethod === "BANK" ? "Bank" : p.payMethod === "MPESA" ? "M-Pesa" : null} />
+          <Detail label={p.payMethod === "BANK" ? "Account" : "M-Pesa number"} value={p.payAccount} />
         </View>
-        <View style={s.separator} />
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-          <Rows title="Earnings" lines={slip.lines.filter((l) => l.kind === "BASIC" || l.kind === "ALLOWANCE")} total={slip.gross} totalLabel="Gross pay" />
-          <Rows title="Deductions" lines={slip.lines.filter((l) => OFF.has(l.kind))} total={slip.deductions} totalLabel="Total deductions" />
-        </View>
-        <View style={s.totals}>
-          <View style={[s.totalRow, s.closing, { width: 260 }]}>
-            <Text>Net pay</Text>
-            <Text>{formatCurrency(slip.net)}</Text>
+
+        <View style={t.table}>
+          <View style={t.head} fixed>
+            <Text style={t.label}>Description</Text>
+            <Text style={t.value}>Amount (KES)</Text>
           </View>
-          {p.payMethod && (
-            <Text style={[s.muted, { marginTop: 4 }]}>
-              Paid by {p.payMethod === "BANK" ? "bank" : "M-Pesa"}
-              {p.payAccount ? ` · ${p.payAccount}` : ""}
-            </Text>
+
+          <Text style={t.section}>Earnings</Text>
+          {earnings.map((l, i) => (
+            <Row key={`e${i}`} line={l} />
+          ))}
+          <View style={t.subtotal} wrap={false}>
+            <Text style={t.label}>Gross pay</Text>
+            <Text style={t.value}>{amount(slip.gross)}</Text>
+          </View>
+
+          <Text style={t.section}>Deductions</Text>
+          {deductions.length ? (
+            deductions.map((l, i) => <Row key={`d${i}`} line={l} minus />)
+          ) : (
+            <View style={t.row}>
+              <Text style={[t.label, { color: "#64748b" }]}>None</Text>
+            </View>
           )}
+          <View style={t.subtotal} wrap={false}>
+            <Text style={t.label}>Total deductions</Text>
+            <Text style={t.minus}>{amount(slip.deductions, true)}</Text>
+          </View>
+
+          <View style={t.net} wrap={false}>
+            <Text style={t.label}>Net pay</Text>
+            <Text style={t.value}>{amount(slip.net)}</Text>
+          </View>
         </View>
-        {(slip.advanceLeft > 0 || employer.length > 0) && (
-          <View style={s.payBox} wrap={false}>
-            {slip.advanceLeft > 0 && <Text>Advance still to pay back: {formatCurrency(slip.advanceLeft)}</Text>}
-            {employer.length > 0 && <Text style={s.muted}>Paid by the academy on top: {employer.map((l) => `${l.name.replace(" (employer)", "")} ${formatCurrency(l.amount)}`).join(" · ")}</Text>}
+
+        {employer.length > 0 && (
+          <View style={[t.table, { marginTop: 14 }]} wrap={false}>
+            <Text style={[t.section, { borderTopWidth: 0 }]}>Paid by the academy on top of your pay</Text>
+            {employer.map((l, i) => (
+              <Row key={`c${i}`} line={{ ...l, name: l.name.replace(" (employer)", "") }} />
+            ))}
+            <View style={t.subtotal}>
+              <Text style={t.label}>Total cost to the academy</Text>
+              <Text style={t.value}>{amount(slip.gross + employerTotal)}</Text>
+            </View>
           </View>
         )}
-        {slip.provisional && <Text style={[s.muted, { marginTop: 18 }]}>Provisional, subject to change by the admin.</Text>}
-        <Text style={s.footer} fixed render={({ pageNumber, totalPages }) => `Payslip · ${label} · Page ${pageNumber} of ${totalPages}`} />
+
+        {slip.provisional && <Text style={[doc.muted, { marginTop: 14 }]}>Provisional, subject to change by the admin.</Text>}
+        <Text style={doc.footer} fixed render={({ pageNumber, totalPages }) => `Payslip · ${p.fullNames} · ${label} · Page ${pageNumber} of ${totalPages}`} />
       </Page>
     </Document>
   );
