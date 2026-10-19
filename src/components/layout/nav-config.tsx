@@ -75,6 +75,8 @@ export const NAV: NavSection[] = [
         roles: ADMINS,
       },
       { title: "Staff", url: "/staff", icon: UserCog, roles: ADMINS },
+      // Everyone's own page, under /staff but open to every role
+      { title: "My profile", url: "/staff/profile", icon: UserCog, roles: ALL_ROLES, hidden: true },
     ],
   },
   {
