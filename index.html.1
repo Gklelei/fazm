@@ -1,0 +1,1080 @@
+	<!doctype html>
+	<!--[if !IE]>
+	<html class="no-js non-ie" lang="en-US"> <![endif]-->
+	<!--[if IE 7 ]>
+	<html class="no-js ie7" lang="en-US"> <![endif]-->
+	<!--[if IE 8 ]>
+	<html class="no-js ie8" lang="en-US"> <![endif]-->
+	<!--[if IE 9 ]>
+	<html class="no-js ie9" lang="en-US"> <![endif]-->
+	<!--[if gt IE 9]><!-->
+<html class="no-js" lang="en-US"> <!--<![endif]-->
+	<head>
+
+		<meta charset="UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+		<title>DBeaver Community &#124; Free Open-Source Database Management Tool</title>
+
+		<link rel="profile" href="http://gmpg.org/xfn/11"/>
+		<link rel="pingback" href="https://dbeaver.io/wp/xmlrpc.php"/>
+
+		<style type='text/css'>Default CSS Comment</style><meta name='robots' content='max-image-preview:large' />
+<link rel="alternate" type="application/rss+xml" title="DBeaver Community &raquo; Feed" href="https://dbeaver.io/feed/" />
+<link rel="alternate" type="application/rss+xml" title="DBeaver Community &raquo; Comments Feed" href="https://dbeaver.io/comments/feed/" />
+<link rel="alternate" title="oEmbed (JSON)" type="application/json+oembed" href="https://dbeaver.io/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fdbeaver.io%2F" />
+<link rel="alternate" title="oEmbed (XML)" type="text/xml+oembed" href="https://dbeaver.io/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fdbeaver.io%2F&#038;format=xml" />
+<style id="wp-img-auto-sizes-contain-inline-css">
+img:is([sizes=auto i],[sizes^="auto," i]){contain-intrinsic-size:3000px 1500px}
+/*# sourceURL=wp-img-auto-sizes-contain-inline-css */
+</style>
+<link rel='stylesheet' id='srp-layout-stylesheet-css' href='https://dbeaver.io/wp-content/plugins/special-recent-posts/css/layout.css?ver=7.1.2' media='all' />
+<style id="wp-emoji-styles-inline-css">
+
+	img.wp-smiley, img.emoji {
+		display: inline !important;
+		border: none !important;
+		box-shadow: none !important;
+		height: 1em !important;
+		width: 1em !important;
+		margin: 0 0.07em !important;
+		vertical-align: -0.1em !important;
+		background: none !important;
+		padding: 0 !important;
+	}
+/*# sourceURL=wp-emoji-styles-inline-css */
+</style>
+<style id="wp-block-library-inline-css">
+:root{--wp-block-synced-color:#7a00df;--wp-block-synced-color--rgb:122,0,223;--wp-bound-block-color:var(--wp-block-synced-color);--wp-editor-canvas-background:#ddd;--wp-admin-theme-color:#007cba;--wp-admin-theme-color--rgb:0,124,186;--wp-admin-theme-color-darker-10:#006ba1;--wp-admin-theme-color-darker-10--rgb:0,107,160.5;--wp-admin-theme-color-darker-20:#005a87;--wp-admin-theme-color-darker-20--rgb:0,90,135;--wp-admin-border-width-focus:2px}@media (min-resolution:192dpi){:root{--wp-admin-border-width-focus:1.5px}}.wp-element-button{cursor:pointer}:root .has-very-light-gray-background-color{background-color:#eee}:root .has-very-dark-gray-background-color{background-color:#313131}:root .has-very-light-gray-color{color:#eee}:root .has-very-dark-gray-color{color:#313131}:root .has-vivid-green-cyan-to-vivid-cyan-blue-gradient-background{background:linear-gradient(135deg,#00d084,#0693e3)}:root .has-purple-crush-gradient-background{background:linear-gradient(135deg,#34e2e4,#4721fb 50%,#ab1dfe)}:root .has-hazy-dawn-gradient-background{background:linear-gradient(135deg,#faaca8,#dad0ec)}:root .has-subdued-olive-gradient-background{background:linear-gradient(135deg,#fafae1,#67a671)}:root .has-atomic-cream-gradient-background{background:linear-gradient(135deg,#fdd79a,#004a59)}:root .has-nightshade-gradient-background{background:linear-gradient(135deg,#330968,#31cdcf)}:root .has-midnight-gradient-background{background:linear-gradient(135deg,#020381,#2874fc)}:root{--wp--preset--font-size--normal:16px;--wp--preset--font-size--huge:42px}.has-regular-font-size{font-size:1em}.has-larger-font-size{font-size:2.625em}.has-normal-font-size{font-size:var(--wp--preset--font-size--normal)}.has-huge-font-size{font-size:var(--wp--preset--font-size--huge)}:root .has-text-align-center{text-align:center}:root .has-text-align-left{text-align:left}:root .has-text-align-right{text-align:right}.has-fit-text{white-space:nowrap!important}#end-resizable-editor-section{display:none}.aligncenter{clear:both}.items-justified-left{justify-content:flex-start}.items-justified-center{justify-content:center}.items-justified-right{justify-content:flex-end}.items-justified-space-between{justify-content:space-between}.screen-reader-text{word-wrap:normal!important;border:0;clip-path:inset(50%);height:1px;margin:-1px;overflow:hidden;padding:0;position:absolute;width:1px;word-break:normal!important}.screen-reader-text:focus{background-color:#ddd;clip-path:none;color:#444;display:block;font-size:1em;height:auto;left:5px;line-height:normal;padding:15px 23px 14px;text-decoration:none;top:5px;width:auto;z-index:100000}html :where(.has-border-color){border-style:solid}html :where([style^=border-color],[style*=";border-color"],[style*="; border-color"]){border-style:solid}html :where([style^=border-top-color],[style*=";border-top-color"],[style*="; border-top-color"]){border-top-style:solid}html :where([style^=border-right-color],[style*=";border-right-color"],[style*="; border-right-color"]){border-right-style:solid}html :where([style^=border-bottom-color],[style*=";border-bottom-color"],[style*="; border-bottom-color"]){border-bottom-style:solid}html :where([style^=border-left-color],[style*=";border-left-color"],[style*="; border-left-color"]){border-left-style:solid}html :where([style^=border-width],[style*=";border-width"],[style*="; border-width"]){border-style:solid}html :where([style^=border-top-width],[style*=";border-top-width"],[style*="; border-top-width"]){border-top-style:solid}html :where([style^=border-right-width],[style*=";border-right-width"],[style*="; border-right-width"]){border-right-style:solid}html :where([style^=border-bottom-width],[style*=";border-bottom-width"],[style*="; border-bottom-width"]){border-bottom-style:solid}html :where([style^=border-left-width],[style*=";border-left-width"],[style*="; border-left-width"]){border-left-style:solid}html :where(img[class*=wp-image-]){height:auto;max-width:100%}:where(figure){margin:0 0 1em}html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:var(--wp-admin--admin-bar--height,0px)}@media screen and (max-width:600px){html :where(.is-position-sticky){--wp-admin--admin-bar--position-offset:0px}}
+
+/*# sourceURL=/wp-includes/css/dist/block-library/common.min.css */
+</style>
+<style id="classic-theme-styles-inline-css">
+/*! This file is auto-generated */
+.wp-block-button__link{color:#fff;background-color:#32373c;border-radius:9999px;box-shadow:none;text-decoration:none;padding:calc(.667em + 2px) calc(1.333em + 2px);font-size:1.125em}.wp-block-file__button{background:#32373c;color:#fff;text-decoration:none}
+/*# sourceURL=/wp-includes/css/classic-themes.min.css */
+</style>
+
+<link rel='stylesheet' id='metaslider-blocks-editor-css-css' href='https://dbeaver.io/wp-content/plugins/ml-slider/admin/assets/dist/css/editor-block.css?ver=3.110.0' media='all' property='stylesheet' />
+<style id="global-styles-inline-css">
+:root{--wp--preset--aspect-ratio--square: 1;--wp--preset--aspect-ratio--4-3: 4/3;--wp--preset--aspect-ratio--3-4: 3/4;--wp--preset--aspect-ratio--3-2: 3/2;--wp--preset--aspect-ratio--2-3: 2/3;--wp--preset--aspect-ratio--16-9: 16/9;--wp--preset--aspect-ratio--9-16: 9/16;--wp--preset--color--black: #000000;--wp--preset--color--cyan-bluish-gray: #abb8c3;--wp--preset--color--white: #ffffff;--wp--preset--color--pale-pink: #f78da7;--wp--preset--color--vivid-red: #cf2e2e;--wp--preset--color--luminous-vivid-orange: #ff6900;--wp--preset--color--luminous-vivid-amber: #fcb900;--wp--preset--color--light-green-cyan: #7bdcb5;--wp--preset--color--vivid-green-cyan: #00d084;--wp--preset--color--pale-cyan-blue: #8ed1fc;--wp--preset--color--vivid-cyan-blue: #0693e3;--wp--preset--color--vivid-purple: #9b51e0;--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple: linear-gradient(135deg,rgb(6,147,227) 0%,rgb(155,81,224) 100%);--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan: linear-gradient(135deg,rgb(122,220,180) 0%,rgb(0,208,130) 100%);--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange: linear-gradient(135deg,rgb(252,185,0) 0%,rgb(255,105,0) 100%);--wp--preset--gradient--luminous-vivid-orange-to-vivid-red: linear-gradient(135deg,rgb(255,105,0) 0%,rgb(207,46,46) 100%);--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray: linear-gradient(135deg,rgb(238,238,238) 0%,rgb(169,184,195) 100%);--wp--preset--gradient--cool-to-warm-spectrum: linear-gradient(135deg,rgb(74,234,220) 0%,rgb(151,120,209) 20%,rgb(207,42,186) 40%,rgb(238,44,130) 60%,rgb(251,105,98) 80%,rgb(254,248,76) 100%);--wp--preset--gradient--blush-light-purple: linear-gradient(135deg,rgb(255,206,236) 0%,rgb(152,150,240) 100%);--wp--preset--gradient--blush-bordeaux: linear-gradient(135deg,rgb(254,205,165) 0%,rgb(254,45,45) 50%,rgb(107,0,62) 100%);--wp--preset--gradient--luminous-dusk: linear-gradient(135deg,rgb(255,203,112) 0%,rgb(199,81,192) 50%,rgb(65,88,208) 100%);--wp--preset--gradient--pale-ocean: linear-gradient(135deg,rgb(255,245,203) 0%,rgb(182,227,212) 50%,rgb(51,167,181) 100%);--wp--preset--gradient--electric-grass: linear-gradient(135deg,rgb(202,248,128) 0%,rgb(113,206,126) 100%);--wp--preset--gradient--midnight: linear-gradient(135deg,rgb(2,3,129) 0%,rgb(40,116,252) 100%);--wp--preset--font-size--small: 13px;--wp--preset--font-size--medium: 20px;--wp--preset--font-size--large: 36px;--wp--preset--font-size--x-large: 42px;--wp--preset--spacing--20: 0.44rem;--wp--preset--spacing--30: 0.67rem;--wp--preset--spacing--40: 1rem;--wp--preset--spacing--50: 1.5rem;--wp--preset--spacing--60: 2.25rem;--wp--preset--spacing--70: 3.38rem;--wp--preset--spacing--80: 5.06rem;--wp--preset--shadow--natural: 6px 6px 9px rgba(0, 0, 0, 0.2);--wp--preset--shadow--deep: 12px 12px 50px rgba(0, 0, 0, 0.4);--wp--preset--shadow--sharp: 6px 6px 0px rgba(0, 0, 0, 0.2);--wp--preset--shadow--outlined: 6px 6px 0px -3px rgb(255, 255, 255), 6px 6px rgb(0, 0, 0);--wp--preset--shadow--crisp: 6px 6px 0px rgb(0, 0, 0);}.wp-block-button{--wp--preset--dimension--25: 25%;--wp--preset--dimension--50: 50%;--wp--preset--dimension--75: 75%;--wp--preset--dimension--100: 100%;}:where(body) { margin: 0; }:where(.is-layout-flex){gap: 0.5em;}:where(.is-layout-grid){gap: 0.5em;}body .is-layout-flex{display: flex;}.is-layout-flex{flex-wrap: wrap;align-items: center;}.is-layout-flex > :is(*, div){margin: 0;}body .is-layout-grid{display: grid;}.is-layout-grid > :is(*, div){margin: 0;}body{padding-top: 0px;padding-right: 0px;padding-bottom: 0px;padding-left: 0px;}:root :where(.wp-element-button, .wp-block-button__link){background-color: #32373c;border-width: 0;color: #fff;font-family: inherit;font-size: inherit;font-style: inherit;font-weight: inherit;letter-spacing: inherit;line-height: inherit;padding-top: calc(0.667em + 2px);padding-right: calc(1.333em + 2px);padding-bottom: calc(0.667em + 2px);padding-left: calc(1.333em + 2px);text-decoration: none;text-transform: inherit;}.has-black-color{color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-color{color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-color{color: var(--wp--preset--color--white) !important;}.has-pale-pink-color{color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-color{color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-color{color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-color{color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-color{color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-color{color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-color{color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-color{color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-color{color: var(--wp--preset--color--vivid-purple) !important;}.has-black-background-color{background-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-background-color{background-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-background-color{background-color: var(--wp--preset--color--white) !important;}.has-pale-pink-background-color{background-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-background-color{background-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-background-color{background-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-background-color{background-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-background-color{background-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-background-color{background-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-background-color{background-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-background-color{background-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-background-color{background-color: var(--wp--preset--color--vivid-purple) !important;}.has-black-border-color{border-color: var(--wp--preset--color--black) !important;}.has-cyan-bluish-gray-border-color{border-color: var(--wp--preset--color--cyan-bluish-gray) !important;}.has-white-border-color{border-color: var(--wp--preset--color--white) !important;}.has-pale-pink-border-color{border-color: var(--wp--preset--color--pale-pink) !important;}.has-vivid-red-border-color{border-color: var(--wp--preset--color--vivid-red) !important;}.has-luminous-vivid-orange-border-color{border-color: var(--wp--preset--color--luminous-vivid-orange) !important;}.has-luminous-vivid-amber-border-color{border-color: var(--wp--preset--color--luminous-vivid-amber) !important;}.has-light-green-cyan-border-color{border-color: var(--wp--preset--color--light-green-cyan) !important;}.has-vivid-green-cyan-border-color{border-color: var(--wp--preset--color--vivid-green-cyan) !important;}.has-pale-cyan-blue-border-color{border-color: var(--wp--preset--color--pale-cyan-blue) !important;}.has-vivid-cyan-blue-border-color{border-color: var(--wp--preset--color--vivid-cyan-blue) !important;}.has-vivid-purple-border-color{border-color: var(--wp--preset--color--vivid-purple) !important;}.has-vivid-cyan-blue-to-vivid-purple-gradient-background{background: var(--wp--preset--gradient--vivid-cyan-blue-to-vivid-purple) !important;}.has-light-green-cyan-to-vivid-green-cyan-gradient-background{background: var(--wp--preset--gradient--light-green-cyan-to-vivid-green-cyan) !important;}.has-luminous-vivid-amber-to-luminous-vivid-orange-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-amber-to-luminous-vivid-orange) !important;}.has-luminous-vivid-orange-to-vivid-red-gradient-background{background: var(--wp--preset--gradient--luminous-vivid-orange-to-vivid-red) !important;}.has-very-light-gray-to-cyan-bluish-gray-gradient-background{background: var(--wp--preset--gradient--very-light-gray-to-cyan-bluish-gray) !important;}.has-cool-to-warm-spectrum-gradient-background{background: var(--wp--preset--gradient--cool-to-warm-spectrum) !important;}.has-blush-light-purple-gradient-background{background: var(--wp--preset--gradient--blush-light-purple) !important;}.has-blush-bordeaux-gradient-background{background: var(--wp--preset--gradient--blush-bordeaux) !important;}.has-luminous-dusk-gradient-background{background: var(--wp--preset--gradient--luminous-dusk) !important;}.has-pale-ocean-gradient-background{background: var(--wp--preset--gradient--pale-ocean) !important;}.has-electric-grass-gradient-background{background: var(--wp--preset--gradient--electric-grass) !important;}.has-midnight-gradient-background{background: var(--wp--preset--gradient--midnight) !important;}.has-small-font-size{font-size: var(--wp--preset--font-size--small) !important;}.has-medium-font-size{font-size: var(--wp--preset--font-size--medium) !important;}.has-large-font-size{font-size: var(--wp--preset--font-size--large) !important;}.has-x-large-font-size{font-size: var(--wp--preset--font-size--x-large) !important;}
+/*# sourceURL=global-styles-inline-css */
+</style>
+
+<link rel='stylesheet' id='cookie-law-info-css' href='https://dbeaver.io/wp-content/plugins/cookie-law-info/legacy/public/css/cookie-law-info-public.css?ver=3.3.9.1' media='all' />
+<link rel='stylesheet' id='cookie-law-info-gdpr-css' href='https://dbeaver.io/wp-content/plugins/cookie-law-info/legacy/public/css/cookie-law-info-gdpr.css?ver=3.3.9.1' media='all' />
+<link rel='stylesheet' id='s3_bucket_listing-css' href='https://dbeaver.io/wp-content/plugins/s3-bucket-listing/theme/theme.css?ver=2.0' media='screen' />
+<link rel='stylesheet' id='responsive-style-css' href='https://dbeaver.io/wp-content/themes/responsive/core/css/style.css?ver=1.9.7.7' media='all' />
+<link rel='stylesheet' id='responsive-media-queries-css' href='https://dbeaver.io/wp-content/themes/responsive/core/css/responsive.css?ver=1.9.7.7' media='all' />
+<script id="jquery-core-js" src="https://dbeaver.io/wp/wp-includes/js/jquery/jquery.min.js?ver=3.7.1"></script>
+<script id="jquery-migrate-js" src="https://dbeaver.io/wp/wp-includes/js/jquery/jquery-migrate.min.js?ver=3.4.1"></script>
+<script id="cookie-law-info-js-extra">
+var Cli_Data = {"nn_cookie_ids":[],"cookielist":[],"non_necessary_cookies":[],"ccpaEnabled":"","ccpaRegionBased":"","ccpaBarEnabled":"","strictlyEnabled":["necessary","obligatoire"],"ccpaType":"gdpr","js_blocking":"","custom_integration":"","triggerDomRefresh":"","secure_cookies":""};
+var cli_cookiebar_settings = {"animate_speed_hide":"500","animate_speed_show":"500","background":"#1e73be","border":"#444","border_on":"","button_1_button_colour":"#000","button_1_button_hover":"#000000","button_1_link_colour":"#fff","button_1_as_button":"1","button_1_new_win":"","button_2_button_colour":"#333","button_2_button_hover":"#292929","button_2_link_colour":"#444","button_2_as_button":"","button_2_hidebar":"","button_3_button_colour":"#000","button_3_button_hover":"#000000","button_3_link_colour":"#fff","button_3_as_button":"1","button_3_new_win":"","button_4_button_colour":"#dedfe0","button_4_button_hover":"#b2b2b3","button_4_link_colour":"#333333","button_4_as_button":"1","button_7_button_colour":"#61a229","button_7_button_hover":"#4e8221","button_7_link_colour":"#fff","button_7_as_button":"1","button_7_new_win":"","font_family":"inherit","header_fix":"","notify_animate_hide":"1","notify_animate_show":"","notify_div_id":"#cookie-law-info-bar","notify_position_horizontal":"right","notify_position_vertical":"bottom","scroll_close":"","scroll_close_reload":"","accept_close_reload":"","reject_close_reload":"","showagain_tab":"","showagain_background":"#fff","showagain_border":"#000","showagain_div_id":"#cookie-law-info-again","showagain_x_position":"100px","text":"#000","show_once_yn":"","show_once":"10000","logging_on":"","as_popup":"","popup_overlay":"1","bar_heading_text":"","cookie_bar_as":"banner","popup_showagain_position":"bottom-right","widget_position":"left"};
+var log_object = {"ajax_url":"https://dbeaver.io/wp/wp-admin/admin-ajax.php"};
+//# sourceURL=cookie-law-info-js-extra
+</script>
+<script id="cookie-law-info-js" src="https://dbeaver.io/wp-content/plugins/cookie-law-info/legacy/public/js/cookie-law-info-public.js?ver=3.3.9.1"></script>
+<script id="modernizr-js" src="https://dbeaver.io/wp-content/themes/responsive/core/js/responsive-modernizr.min.js?ver=2.6.1"></script>
+<link rel="https://api.w.org/" href="https://dbeaver.io/wp-json/" /><link rel="alternate" title="JSON" type="application/json" href="https://dbeaver.io/wp-json/wp/v2/pages/1199" /><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://dbeaver.io/wp/xmlrpc.php?rsd" />
+<meta name="generator" content="WordPress 7.1.2" />
+<link rel="canonical" href="https://dbeaver.io/" />
+<link rel='shortlink' href='https://dbeaver.io/' />
+<!-- We need this for debugging -->
+<!-- Responsive 1.9.7.7 -->
+<style id="custom-background-css">
+body.custom-background { background-color: #6e98bf; }
+</style>
+<link rel="icon" href="https://dbeaver.io/wp-content/uploads/2016/07/beaver_icon_32x32.png" sizes="32x32" />
+<link rel="icon" href="https://dbeaver.io/wp-content/uploads/2016/07/beaver_icon_32x32.png" sizes="192x192" />
+<link rel="apple-touch-icon" href="https://dbeaver.io/wp-content/uploads/2016/07/beaver_icon_32x32.png" />
+<meta name="msapplication-TileImage" content="https://dbeaver.io/wp-content/uploads/2016/07/beaver_icon_32x32.png" />
+<!-- Custom CSS Styles -->
+<style type="text/css" media="screen">
+.featured-title {
+display:none;
+}
+#featured-image {
+ margin: 0;
+}
+.site-description {
+ color: #555;
+}
+#featured {
+padding-bottom: 0px;
+}
+.widget-wrapper {
+margin: 0px;
+}
+
+.metaslider a {
+    outline: none;
+    font-family: dashicons;
+    font-size: 24px;
+}
+ .metaslider .flexslider .flex-direction-nav .flex-next:focus, .metaslider .flexslider .flex-direction-nav .flex-prev:focus{
+outline:none;
+}
+</style>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PQ59L9P');</script>
+<!-- End Google Tag Manager -->
+		<meta name="facebook-domain-verification" content="z7udwr3is10uxft7qdq7z3h5mv2m48" />
+	<link rel='stylesheet' id='metaslider-flex-slider-css' href='https://dbeaver.io/wp-content/plugins/ml-slider/assets/sliders/flexslider/flexslider.css?ver=3.110.0' media='all' property='stylesheet' />
+<link rel='stylesheet' id='metaslider-public-css' href='https://dbeaver.io/wp-content/plugins/ml-slider/assets/metaslider/public.css?ver=3.110.0' media='all' property='stylesheet' />
+<style id="metaslider-public-inline-css">
+@media only screen and (max-width: 767px) { .hide-arrows-smartphone .flex-direction-nav, .hide-navigation-smartphone .flex-control-paging, .hide-navigation-smartphone .flex-control-nav, .hide-navigation-smartphone .filmstrip, .hide-caption-smartphone .caption-wrap, .hide-slideshow-smartphone, .metaslider-hidden-content.hide-smartphone{ display: none!important; }}@media only screen and (min-width : 768px) and (max-width: 1023px) { .hide-arrows-tablet .flex-direction-nav, .hide-navigation-tablet .flex-control-paging, .hide-navigation-tablet .flex-control-nav, .hide-navigation-tablet .filmstrip, .hide-caption-tablet .caption-wrap, .hide-slideshow-tablet, .metaslider-hidden-content.hide-tablet{ display: none!important; }}@media only screen and (min-width : 1024px) and (max-width: 1439px) { .hide-arrows-laptop .flex-direction-nav, .hide-navigation-laptop .flex-control-paging, .hide-navigation-laptop .flex-control-nav, .hide-navigation-laptop .filmstrip, .hide-caption-laptop .caption-wrap, .hide-slideshow-laptop, .metaslider-hidden-content.hide-laptop{ display: none!important; }}@media only screen and (min-width : 1440px) { .hide-arrows-desktop .flex-direction-nav, .hide-navigation-desktop .flex-control-paging, .hide-navigation-desktop .flex-control-nav, .hide-navigation-desktop .filmstrip, .hide-caption-desktop .caption-wrap, .hide-slideshow-desktop, .metaslider-hidden-content.hide-desktop{ display: none!important; }}
+/*# sourceURL=metaslider-public-inline-css */
+</style>
+
+</head>
+
+<body class="home wp-singular page-template-default page page-id-1199 custom-background wp-theme-responsive metaslider-plugin front-page">
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-PQ59L9P"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div id="container" class="hfeed">
+
+	<div class="skip-container cf">
+		<a class="skip-link screen-reader-text focusable" href="#content">&darr; Skip to Main Content</a>
+	</div><!-- .skip-container -->
+	<div id="header">
+
+		
+		
+		
+		
+		
+<img src="/wp-content/uploads/2015/09/beaver-head.png" style="float:left; margin-right: 30px; margin-bottom: 10px;"/>
+			<div id="logo">
+				<span class="site-name"><a href="https://dbeaver.io/" title="DBeaver Community" rel="home">DBeaver Community</a></span>
+				<span class="site-description">Free Open-Source Database Management Tool</span>
+			</div><!-- end of #logo -->
+
+		
+			<div id="top-widget" class="top-widget">
+		
+		
+			<div id="custom_html-5" class="widget_text widget_custom_html"><div class="textwidget custom-html-widget"><div class="dbeaver-social-links">
+  <a class="social-button github" href="https://github.com/dbeaver/dbeaver" target="_blank" rel="noopener noreferrer">
+    <!-- GitHub SVG -->
+    <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+      <path fill="currentColor" d="M8 0C3.58 0 0 3.64 0 8.13c0 3.59 2.29 6.64 5.47 7.72.4.08.55-.18.55-.39 0-.19-.01-.83-.01-1.5-2.01.38-2.53-.5-2.69-.96-.09-.23-.48-.96-.82-1.15-.28-.15-.68-.53-.01-.54.63-.01 1.08.59 1.23.83.72 1.23 1.87.88 2.33.67.07-.53.28-.88.51-1.08-1.78-.21-3.64-.91-3.64-4.02 0-.89.31-1.62.82-2.19-.08-.21-.36-1.04.08-2.16 0 0 .67-.22 2.2.84A7.45 7.45 0 0 1 8 3.94c.68 0 1.36.09 2 .27 1.53-1.06 2.2-.84 2.2-.84.44 1.12.16 1.95.08 2.16.51.57.82 1.3.82 2.19 0 3.12-1.87 3.81-3.65 4.02.29.25.54.74.54 1.51 0 1.09-.01 1.96-.01 2.23 0 .22.15.47.55.39A8.15 8.15 0 0 0 16 8.13C16 3.64 12.42 0 8 0Z"></path>
+    </svg>
+    <span>Star</span>
+    <span id="github-stars" class="social-count" hidden=""></span>
+  </a>
+
+  <a class="social-button facebook" href="https://www.facebook.com/DBeaverCorporation/" target="_blank" rel="noopener noreferrer" aria-label="Follow DBeaver on Facebook">
+    <svg viewBox="0 0 20 20" width="20" height="20" aria-hidden="true">
+      <circle cx="10" cy="10" r="10" fill="#1877f2"></circle>
+      <path fill="#fff" d="M13.9 10.6h-2.5v7.2H8.3v-7.2H6.8V8h1.5V6.4c0-2.1.9-3.4 3.5-3.4h2v2.6h-1.3c-1 0-1.1.4-1.1 1.1V8h2.5l-.3 2.6Z"></path>
+    </svg>
+  </a>
+
+  <a class="social-button x" href="https://x.com/dbeaver_news" target="_blank" rel="noopener noreferrer">
+    <strong>X</strong>&nbsp; Follow @dbeaver_news
+  </a>
+</div>
+
+<script>
+(function () {
+  var count = document.getElementById('github-stars');
+  if (!count) return;
+
+  fetch('https://api.github.com/repos/dbeaver/dbeaver', {
+    headers: { Accept: 'application/vnd.github+json' }
+  })
+    .then(function (response) {
+      if (!response.ok) throw new Error('GitHub request failed');
+      return response.json();
+    })
+    .then(function (repository) {
+      if (typeof repository.stargazers_count !== 'number') return;
+      count.textContent = repository.stargazers_count.toLocaleString();
+      count.hidden = false;
+    })
+    .catch(function () {
+      // Keep the GitHub link usable without displaying a count.
+    });
+})();
+</script>
+<style>
+.dbeaver-social-links {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin: 0 0 10px;
+}
+
+.dbeaver-social-links .social-button {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  margin: 0;
+  font: 600 11px/18px Arial, Helvetica, sans-serif;
+  text-decoration: none;
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.dbeaver-social-links .social-button:hover,
+.dbeaver-social-links .social-button:focus {
+  text-decoration: none;
+}
+
+/* GitHub button */
+.dbeaver-social-links .github {
+  overflow: hidden;
+  padding: 0 6px;
+  border: 1px solid #b1b4b8;
+  border-radius: 3px;
+  color: #24292f;
+  background: linear-gradient(#fff, #e9ebed);
+  box-shadow: 0 1px 0 rgb(27 31 36 / 4%);
+}
+
+.dbeaver-social-links .github:hover,
+.dbeaver-social-links .github:focus {
+  color: #24292f;
+  background: #e9ebed;
+}
+
+.dbeaver-social-links .github svg {
+  flex: 0 0 auto;
+  margin-right: 4px;
+}
+
+/* GitHub count segment */
+.dbeaver-social-links .social-count {
+  align-self: stretch;
+  margin: -1px -6px -1px 6px;
+  padding: 0 6px;
+  border-left: 1px solid #b1b4b8;
+  color: #24292f;
+  background: #fff;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.dbeaver-social-links .social-count[hidden] {
+  display: none;
+}
+
+/* Facebook icon */
+.dbeaver-social-links .facebook {
+  flex: 0 0 20px;
+  width: 20px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+}
+
+.dbeaver-social-links .facebook svg {
+  display: block;
+}
+
+.dbeaver-social-links .facebook:hover {
+  filter: brightness(0.92);
+}
+
+/* X follow button */
+.dbeaver-social-links .x {
+  padding: 0 14px;
+  border: 1px solid #000;
+  border-radius: 10px;
+  color: #fff;
+  background: #000;
+}
+
+.dbeaver-social-links .x:hover,
+.dbeaver-social-links .x:focus {
+  color: #fff;
+  background: #272c30;
+}
+
+.dbeaver-social-links .x strong {
+  margin-right: 2px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* Keyboard focus */
+.dbeaver-social-links .social-button:focus-visible {
+  outline: 2px solid #24292f;
+  outline-offset: 2px;
+}
+
+/* Mobile alignment */
+@media screen and (max-width: 650px) {
+  .dbeaver-social-links {
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+}
+</style></div></div><div id="search-7" class="widget_search"><form method="get" id="searchform" action="https://dbeaver.io/">
+	<label class="screen-reader-text" for="s">Search for:</label>
+	<input type="text" class="field" name="s" id="s" placeholder="search here &hellip;" />
+	<input type="submit" class="submit" name="submit" id="searchsubmit" value="Go" />
+</form></div>
+		
+			</div><!-- end of #top-widget -->
+		<div class="main-nav"><ul id="menu-main-menu" class="menu"><li id="menu-item-3278" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-1199 current_page_item menu-item-3278"><a href="https://dbeaver.io/" aria-current="page">Home</a></li>
+<li id="menu-item-3279" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3279"><a href="https://dbeaver.io/about/">About</a></li>
+<li id="menu-item-3280" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3280"><a href="https://dbeaver.io/download/">Download</a></li>
+<li id="menu-item-3291" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3291"><a href="https://github.com/dbeaver/dbeaver/issues">Support</a></li>
+<li id="menu-item-3290" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3290"><a href="https://github.com/dbeaver/dbeaver/wiki">Documentation</a></li>
+<li id="menu-item-3292" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3292"><a href="https://dbeaver.com">DBeaver PRO</a></li>
+<li id="menu-item-3284" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3284"><a href="https://dbeaver.io/dbvr/">dbvr</a></li>
+<li id="menu-item-3285" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-3285"><a href="https://github.com/dbeaver/cloudbeaver/">CloudBeaver</a></li>
+<li id="menu-item-3288" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3288"><a href="https://www.redbubble.com/people/DBeaverCorp/shop">DBeaver merch</a></li>
+<li id="menu-item-3302" class="menu-item menu-item-type-custom menu-item-object-custom menu-item-3302"><a href="https://dbeaver.com/join-the-dbeaver-team/">Join our team</a></li>
+</ul></div>
+		
+		
+	</div><!-- end of #header -->
+
+	<div id="wrapper" class="clearfix">
+
+<div id="featured" class="grid col-940">
+
+	<div id="featured-content" class="grid col-460">
+
+		<h1 class="featured-title">
+			DBeaver		</h1>
+
+		<h2 class="featured-subtitle">
+			Universal Database Tool		</h2>
+
+		<p>DBeaver Community is a free, open-source database management tool recommended for personal projects. Manage and explore SQL databases like MySQL, MariaDB, PostgreSQL, SQLite, Apache Family, and more.</p>
+
+
+		
+	</div><!-- end of .col-460 -->
+
+	<div id="featured-image" class="grid col-460 fit">
+
+		
+		<p><div id="metaslider-id-3217" style="max-width: 450px;" class="ml-slider-3-110-0 metaslider metaslider-flex metaslider-3217 ml-slider has-dots-nav ms-theme-default" role="region" aria-label="New Slideshow" data-height="278" data-width="450">
+    <div id="metaslider_container_3217">
+        <div id="metaslider_3217">
+            <ul class='slides'>
+                <li style="display: block; width: 100%;" class="slide-3325 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:21:20" data-filename="metadata_new_new_light-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/metadata_new_new_light-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3325 msDefaultImage" title="metadata_new_new_light" /></li>
+                <li style="display: none; width: 100%;" class="slide-3329 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:29:54" data-filename="AI_chat_light_-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/AI_chat_light_-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3329 msDefaultImage" title="AI_chat_light_" /></li>
+                <li style="display: none; width: 100%;" class="slide-3326 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:21:37" data-filename="erd_dark-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/erd_dark-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3326 msDefaultImage" title="erd_dark" /></li>
+                <li style="display: none; width: 100%;" class="slide-3327 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:29:22" data-filename="data_editor_light-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/data_editor_light-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3327 msDefaultImage" title="data_editor_light" /></li>
+                <li style="display: none; width: 100%;" class="slide-3328 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:29:26" data-filename="sql_editor_dark-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/sql_editor_dark-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3328 msDefaultImage" title="sql_editor_dark" /></li>
+                <li style="display: none; width: 100%;" class="slide-3332 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:37:49" data-filename="export_new_new_new_NEW-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/export_new_new_new_NEW-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3332 msDefaultImage" title="export_new_new_new_NEW" /></li>
+                <li style="display: none; width: 100%;" class="slide-3337 ms-image " aria-roledescription="slide" data-date="2026-07-07 16:13:38" data-filename="value_dark_-450x278.jpg" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/value_dark_-450x278.jpg" height="278" width="450" alt="" class="slider-3217 slide-3337 msDefaultImage" title="value_dark_" /></li>
+                <li style="display: none; width: 100%;" class="slide-3335 ms-image " aria-roledescription="slide" data-date="2026-07-07 14:50:51" data-filename="AI_chat_light_-450x278.png" data-slide-type="image"><img src="https://dbeaver.io/wp-content/uploads/2026/07/AI_chat_light_-450x278.png" height="278" width="450" alt="" class="slider-3217 slide-3335 msDefaultImage" title="AI_chat_light_" /></li>
+            </ul>
+        </div>
+        
+    </div>
+</div></p>
+
+	</div><!-- end of #featured-image -->
+
+</div><!-- end of #featured -->        <div id="middle_widget" class="grid col-940">
+                
+                
+                        <div id="block-2" class="widget_block"><div class="widget-wrapper"><!--
+<div class="cta">
+	<h2>10 ways to use AI with your databases</h2>
+	<p>Catch the webinar recording from Aug 4th on YouTube</p>
+	<div>
+		<a class="blue button" style="padding: 5px 30px 5px 30px" href="https://www.youtube.com/watch?v=X_sun0I0kXQ" target="_blank">Watch now</a>
+	</div>
+</div>
+-->
+<div class="product-cards">
+
+	<div class="product-card">
+		<div class="product-card-content">
+			<div class="product-card-header">
+				<h3 class="product-card-title">DBeaver Community</h3>
+				<em class="product-card-subtitle">
+					Open-source version
+				</em>
+			</div>
+
+			<ul>
+				<li>Basic support for relational databases: <br>MySQL, SQL Server, Postgres and <a href="/about/">others</a>
+				</li>
+				<li>Data Editor</li>
+				<li>SQL Editor</li>
+				<li>Task management</li>
+				<li>Database maintenance tools</li>
+<li>AI Chat &amp; @ai command</li>
+			</ul>
+		</div>
+		<div class="sbmt-btn">
+			<a class="blue button" href="/download/">Download</a>
+		</div>
+	</div>
+	<div class="product-card">
+		<div class="product-card-content">
+			<div class="product-card-header">
+				<h3 class="product-card-title">DBeaver PRO</h3>
+				<em class="product-card-subtitle">
+					Commercial version
+				</em>
+			</div>
+
+			<ul>
+				<li>All DBeaver Community features</li>
+				<li>Advanced security</li>
+<li>AI Chat &amp; advanced AI features</li>
+				<li>Advanced support for relational databases</li>
+				<li>Connection through ODBC drivers</li>
+				<li>NoSQL databases support: <br>MongoDB, Cassandra, Redis, CouchDB and <a href="https://dbeaver.com/databases/">others</a>
+				</li>
+				<li>Cloud databases support: <br>Redshift, Google BigQuery, Oracle Cloud and <a href="https://dbeaver.com/databases/">others</a>
+				</li>
+				<li>Native support for AWS, Google Cloud, and Azure</li>
+				<li>Cloud storage support</li>
+				<li>Database development tools</li>
+				<li>Database performance visual tools</li>
+				<li>Multi-component task management</li>
+				<li>Task Scheduler</li>
+				<li>Visual Query Builder</li>
+				<li>Ongoing technical support</li>
+			</ul>
+		</div>
+		<div class="sbmt-btn">
+			<a class="blue button" href="https://dbeaver.com/switch-to-dbeaver-pro/">Learn more</a>
+		</div>
+
+	</div>
+	<div class="product-card">
+		<div class="product-card-content">
+			<div class="product-card-header">
+				<h3 class="product-card-title">dbvr Community</h3>
+				<em class="product-card-subtitle">
+					Open-source version
+				</em>
+			</div>
+			<ul>
+				<li>Basic support for relational databases:<br>
+					MySQL, SQL Server, Postgres and <a href="https://dbeaver.com/databases/">others</a></li>
+				<li>Username + password auth support</li>
+				<li>SSH tunnels support</li>
+				<li>Query result export to the local disk</li>
+				<li>Metadata management</li>
+			</ul>
+		</div>
+		<div class="sbmt-btn">
+			<a class="blue button" href="/dbvr/">Download</a>
+		</div>
+	</div>
+	<div class="product-card">
+		<div class="product-card-content">
+			<div class="product-card-header">
+				<h3 class="product-card-title">dbvr</h3>
+				<em class="product-card-subtitle">
+					Commercial version
+				</em>
+			</div>
+			<ul>
+				<li>Advanced security:<br>master password and strong credentials encryption</li>
+				<li>Enterprise-level authentication methods:<br>SSO, SSL, and Kerberos. SSO authentication cloud services such as GCP, AWS, and Azure</li>
+				<li>Secret management: AWS, Vault, CyberArk</li>
+				<li>Advanced SQL databases support:<br> MySQL, PostgreSQL, SQL Server, Oracle and <a href="https://dbeaver.com/databases/">others</a></li>
+				<li>NoSQL databases support:<br>MongoDB, Cassandra, Redis, CouchDB and others <a href="https://dbeaver.com/databases/">others</a></li>
+				<li>Cloud databases support:<br>Redshift, Google BigQuery, Oracle Cloud and others</li>				
+				<li>Amazon S3, Azure Blob Storage and GCP cloud storages support</li>
+				<li>Query result export to the cloud storages</li>
+				<li>MCP configuration to expose a database connection as an MCP server</li>
+				<li>Ongoing technical support</li>
+			</ul>
+		</div>
+		<div class="sbmt-btn">
+			<a class="blue button" href="https://dbeaver.com/dbvr/">Learn more</a>
+		</div>
+	</div>
+
+</div>
+<style>
+	.cta {
+		border: 1px solid #ddd;
+		background-color: #ebf6ff;
+		border-radius: 0.5rem;
+		padding: 1.5rem 1.5rem;
+		margin: 2rem 0;
+		width: auto;
+		display: flex;
+		flex-direction: column;
+		gap: 1rem;
+		align-items: center;
+	}
+
+	.cta h2,
+	.cta h3,
+	.cta h4,
+	.cta h5,
+	.cta h6 {
+		font-size: 1rem;
+		font-weight: bold;
+		line-height: 1;
+		padding: 0;
+		margin: 0;
+	}
+
+	.cta p {
+		line-height: 1;
+		padding: 0;
+		margin: 0;
+	}
+
+	.product-cards {
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		width: 100%;
+		row-gap: 2rem;
+		column-gap: 2rem;
+	}
+
+	.product-card {
+		border: 1px solid #ddd;
+		border-radius: 0.5rem;
+		padding: 2.5rem 1.5rem;
+		flex: 1 0;
+		min-width: max(250px, calc(50% - 1rem));
+		display: flex;
+		gap: 1.5rem;
+		align-items: stretch;
+		font-weight: normal;
+		font-size: 15px;
+		flex-direction: column;
+		justify-content: space-between;
+		box-sizing: border-box;
+	}
+
+	.product-card-header {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		line-height: 1;
+		margin: 0;
+		padding: 0;
+	}
+
+	.product-card-title {
+		line-height: 1;
+		margin: 0;
+		padding: 0;
+		font-weight: bold;
+		font-size: 1.6rem;
+	}
+
+	.product-card-subtitle {
+		font-weight: bold;
+		font-size: 1rem;
+		margin: 0;
+		padding: 0;
+	}
+
+	.product-card-content {
+		display: flex;
+		gap: 1.5rem;
+		font-weight: normel;
+		font-size: 15px;
+		flex-direction: column;
+		align-items: stretch;
+		justify-content: space-between;
+	}
+
+	.sbmt-btn {
+		display: flex;
+		justify-content: center;
+	}
+
+	.button {
+		padding: 5px 30px 5px 30px;
+	}
+
+	.widget_specialrecentpostsFree {
+		margin-top: 20px;
+	}
+</style></div></div><div id="wdg_specialrecentpostsfree-3" class="widget_specialrecentpostsFree"><div class="widget-wrapper"><p><!-- BEGIN Special Recent Posts FREE Edition v2.0.4 --></p>
+<div class="srp-widget-container">
+<div id="wdg_specialrecentpostsfree-3-srp-singlepost-1" class="srp-widget-singlepost">
+<div class="srp-post-content-container">
+<div class="srp-content-box">
+<h4 class="srp-post-title"><a class="srp-post-title-link" href="https://dbeaver.io/2026/10/18/dbeaver-26-2-3/" title="DBeaver 26.2.3">DBeaver 26.2.3</a></h4>
+<p class="srp-post-date">October 18th, 2026</p>
+<div class="srp-post-content">
+<ul>
+<li>AI Assistant:
+<ul>
+<li>Added drag-and-drop support for Navigator objects and files in AI Chat
+<li>Added support for attaching images to AI Chat from files, drag-and-drop, and the clipboard
+<li>Fixed an issue where closing multiple SQL Editor tabs cleared the selected AI Chat connection and conversation
+<li>Fixed SQL block Execute, Copy, and Open in editor actions on Linux (thanks to @Josephur)
+<li>Fixed small font sizes and unnecessary truncation for profile and model names in AI Chat
+<li>ChatGPT subscription errors are now displayed as readable messages instead of raw JSON
+	</ul>
+<li>SQL Editor:
+<ul>
+<li>Added the ability to execute SQL script files without opening them in the SQL Editor
+<li>Added a notification for refreshing affected metadata after successful DDL execution
+<li>Fixed an issue where new SQL templates used Vertica instead of abstract SQL as the default context
+<li>Fixed SQL Editor corruption when deleting an auto-inserted closing bracket in Eclipse installations with TM4E (thanks to @RoiSoleil)
+	</ul>
+<li>Metadata Editor:
+<ul>
+<li>Fixed checkbox backgrounds in the table column dialog on macOS in dark mode
+	</ul>
+<li>Data Editor:
+<ul>
+<li>Fixed Adaptive Ordering for large numeric values
+<li>Fixed row order when dragging multiple selected result-set rows into the SQL Editor (thanks to @Abdulrahman295)
+	</ul>
+<li>Data transfer:
+<ul>
+<li>Redesigned the extraction settings page
+<li>Redesigned the export target page with in-wizard source management
+	</ul>
+<li>Connectivity:
+<ul>
+<li>Improved error messages for invalid SSH known-hosts files with the affected file path and corrective guidance
+<li>Fixed empty credential dialogs for integrated authentication methods
+<li>Fixed an issue where connection settings could be cut off and could not be scrolled after changing authentication options
+	</ul>
+<li>Security:
+<ul>
+<li>Fixed a command execution vulnerability by requiring confirmation before running shell commands used to retrieve connection passwords (CWE-78, CWE-306)
+<li>Fixed high, medium, and low vulnerabilities in the lz4-java library used by the ClickHouse and Databricks drivers (CVE-2026-106451, CVE-2026-106450, and CVE-2026-106449). The library was updated to version 1.11.4.
+	</ul>
+<li>Product configuration:
+<ul>
+<li>Git integration is now enabled by default when existing Git projects are detected
+<li>The SQLite sample database is now enabled by default
+	</ul>
+<li>New drivers:
+<ul>
+<li>Added support for YashanDB (thanks to @YoungQinger9)
+	</ul>
+<li>Databases:
+<ul>
+<li>Clickhouse: Added the ability to rename tables from the Navigator tree.
+<li>CUBRID: Fixed extra quoting around hexadecimal default values in generated DDL (thanks to @longhaseng52)
+<li>MySQL: Restored bold highlighting for catalogs and tables with granted privileges
+<li>Oracle: User profiles now show their assigned users
+<li>PostgreSQL:
+<ul>
+<li>Fixed bulk imports that mishandled literal backslashes or custom CSV escape characters
+<li>Fixed SQL formatting for the @? operator (thanks to @SemTiOne)
+		</ul>
+<li>SQL Server:
+<ul>
+<li>Fixed missing quotes around datetimeoffset values when copying multiple cells or rows as SQL
+<li>Non-online databases are now marked in Navigator, and their status is shown in the Databases tab (thanks to @michalpsyk)
+		</ul>
+<li>Localization:
+<ul>
+<li>Added Traditional Chinese (Taiwan) localization
+	</ul>
+</ul>
+</div>
+</div>
+</div>
+</div>
+<div id="wdg_specialrecentpostsfree-3-srp-singlepost-2" class="srp-widget-singlepost">
+<div class="srp-post-content-container">
+<div class="srp-content-box">
+<h4 class="srp-post-title"><a class="srp-post-title-link" href="https://dbeaver.io/2026/10/05/dbeaver-26-2-2/" title="DBeaver 26.2.2">DBeaver 26.2.2</a></h4>
+<p class="srp-post-date">October 5th, 2026</p>
+<div class="srp-post-content">
+<ul>
+<li>AI Assistant:
+<ul>
+<li>Redesigned the AI engine selector with a native drop-down, engine icons, and improved keyboard accessibility</li>
+<li>Fixed model discovery for self-hosted OpenAI-compatible endpoints with non-OpenAI model names</li>
+<li>Improved error messages for HTTP redirects from custom OpenAI-compatible endpoints by showing the redirect target and configuration guidance</li>
+<li>Fixed model listing and chat requests for self-hosted OpenAI-compatible endpoints when the base URL has no trailing slash (thanks to @Ashfaqbs)</li>
+<li>Improved guidance and validation when the custom AI scope contains no database object</li>
+<li>Fixed an issue on macOS where opening the AI profile or model picker could immediately select an item</li>
+</ul>
+</li>
+<li> SQL Editor:
+<ul>
+<li>Added a setting to choose whether Enter, Tab, both, or neither accepts autocomplete suggestions</li>
+<li>Added a preference to disable the large-script result-fetch warning (thanks to @akmalsyrf)</li>
+<li>Fixed SQL Editor toolbar background colors for color-coded connections in the dark theme<br />
+-=</li>
+</ul>
+</li>
+<li>Metadata Editor:
+<ul>
+<li>Fixed invalid table DDL generation when column comments contain double hyphens (thanks to @MicBun)</li>
+<li>Data Editor:</li>
+<li>Made the issue-reporting link clickable when the calendar editor encounters an unsupported date/time value</li>
+<li>Fixed spacing and background inconsistencies in the virtual structure editor</li>
+</ul>
+</li>
+<li>Connectivity:
+<ul>
+<li>The connection wizard now prompts users to choose a connector when the selected database has multiple options</li>
+<li>Improved navigation between project and global network profile settings</li>
+<li>Improved the confirmation dialog for removing a network handler</li>
+</ul>
+</li>
+<li>Navigator:
+<ul>
+<li>Restored context menus for breadcrumbs in object editors and the status bar</li>
+<li>Fixed a startup freeze when Database Navigator was in a detached window</li>
+</ul>
+</li>
+<li>Miscellaneous:
+<ul>
+<li>Fixed a Linux startup crash when the Product Configuration wizard opened</li>
+<li>Redesigned and reorganized the General preferences page</li>
+<li>Improved Preferences search by adding keywords to preference pages</li>
+<li>Fixed inaccurate progress reporting during native tool file transformations (thanks to @cuishuang)</li>
+<li>Fixed overly bright hover highlighting for view minimize and maximize buttons on Windows in the dark theme</li>
+<li>Improved editor tab visibility by adding separators between unselected tabs</li>
+<li>Fixed excessive accumulation of temporary files and improved cleanup of abandoned files</li>
+<li>Fixed diagnostic archive collection to include all rotated log files</li>
+<li>Fixed version-update controls to prevent duplicate downloads and keep the update button correctly positioned</li>
+<li>Improved drop-down list sizing, scrolling, and theme colors</li>
+<li>Improved UI color updates after changing the application theme without restarting DBeaver</li>
+<li>Improved the contrast of inactive editor tabs for color-coded connections in the dark theme</li>
+<li>Added theme selection with live preview to the User Interface preferences</li>
+</ul>
+</li>
+<li>Databases:
+<ul>
+<li>Apache Doris: Fixed CSV import into schemas and post-import table refresh</li>
+<li>GBase 8s:</li>
+<li>Fixed JSON value handling in the &#8220;Copy As SQL&#8221; command (thanks to @Downstream1998)</li>
+<li>Fixed the Columns tab failing to load when the read_defaultstr routine is unavailable (thanks to @sakshichitnis27)</li>
+<li>PostgreSQL: Added support for viewing and managing the PUBLIC pseudo-role in Permissions tabs (thanks to @NikRom5531)</li>
+<li>TiDB Cloud Lake: Added the TiDB logo to the connection page (thanks to @akshar27)</li>
+<li>Timeplus: Fixed incorrect numeric values and intermittent hangs during CSV import (thanks to @EastLord)</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+</div>
+</div>
+<p><!-- END Special Recent Posts FREE Edition v2.0.4 --></p>
+</div></div>
+                
+                        </div><!-- end of #middle-widget -->
+
+	<div id="widgets" class="home-widgets">
+
+		<div id="home_widget_1" class="grid col-300">
+			
+			
+		<div id="recent-posts-11" class="widget-wrapper widget_recent_entries">
+		<div id="widget-title-one" class="widget-title-home"><h3>Recent News</h3></div>
+		<ul>
+											<li>
+					<a href="https://dbeaver.io/2026/10/18/dbeaver-26-2-3/">DBeaver 26.2.3</a>
+											<span class="post-date">2026-10-18</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/10/05/dbeaver-26-2-2/">DBeaver 26.2.2</a>
+											<span class="post-date">2026-10-05</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/09/21/dbeaver-26-2-1/">DBeaver 26.2.1</a>
+											<span class="post-date">2026-09-21</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/08/30/dbeaver-26-2/">DBeaver 26.2</a>
+											<span class="post-date">2026-08-30</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/08/16/beaver-26-1-5/">DBeaver 26.1.5</a>
+											<span class="post-date">2026-08-16</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/08/02/dbeaver-26-1-4/">DBeaver 26.1.4</a>
+											<span class="post-date">2026-08-02</span>
+									</li>
+											<li>
+					<a href="https://dbeaver.io/2026/07/19/dbeaver-26-1-3/">DBeaver 26.1.3</a>
+											<span class="post-date">2026-07-19</span>
+									</li>
+					</ul>
+
+		</div>
+					</div><!-- end of .col-300 -->
+
+		<div id="home_widget_2" class="grid col-300">
+			
+			<div id="block-4" class="widget-wrapper widget_block"><div class="widget-title-home"><h3>Keep up with DBeaver</h3></div>
+Subscribe to our news and get the list of the most useful shortcuts in DBeaver.<br /><br />
+
+<div align="center">
+<script>
+var mac = /(Mac|iPhone|iPod|iPad)/i.test(navigator.platform);
+  if (mac)
+		document.writeln('<a class="blue button" style="padding: 5px 30px 5px 30px" href="https://dbeaver.com/dbeaver-shortcuts-for-macos/">Join</a>');
+	else
+		document.writeln('<a class="blue button" style="padding: 5px 30px 5px 30px" href="https://dbeaver.com/dbeaver-shortcuts-list/">Join</a>');
+</script>
+</div>
+
+<hr />
+
+Explore the DBeaver blog for practical tips and product news.<br /><br />
+<div align="center"><a class="blue button" style="padding: 5px 30px 5px 30px" href="https://dbeaver.com/blog/">Read the blog</a></div></div>
+					</div><!-- end of .col-300 -->
+
+		<div id="home_widget_3" class="grid col-300 fit">
+			
+			<div id="text-4" class="widget-wrapper widget_text"><div id="widget-title-three" class="widget-title-home"><h3>License</h3></div>			<div class="textwidget">DBeaver Community Edition is free and open source (<a href="/product/dbeaver_license.txt">ASL</a>) product.
+<div>Just download and start using it.</div>
+
+<div style="float:right"><a href="mailto:support@dbeaver.com">Feedback</a></div></div>
+		</div>
+					</div><!-- end of .col-300 fit -->
+	</div><!-- end of #widgets -->
+</div><!-- end of #wrapper -->
+</div><!-- end of #container -->
+
+<div id="footer" class="clearfix">
+	
+	<div id="footer-wrapper">
+
+		
+		<div class="grid col-940">
+
+			<!--div class="grid col-540">
+							</div--><!-- end of col-540 -->
+
+			<!--div class="grid col-380 fit">
+				<ul class="social-icons"></ul><!-- .social-icons -->			</div--><!-- end of col-380 fit -->
+
+		</div><!-- end of col-940 -->
+		
+		<!--div class="grid col-300 copyright">
+			&copy; 2026<a href="https://dbeaver.io/" title="DBeaver Community">
+				DBeaver Community			</a>
+		</div--><!-- end of .copyright -->
+
+		<!--div class="grid col-300 scroll-top"><a href="#scroll-top" title="scroll to top">&uarr;</a></div-->
+
+		<!--div class="grid col-300 fit powered">
+			<a href="http://cyberchimps.com/responsive-theme/" title="Responsive Theme">
+				Responsive Theme</a>
+			powered by <a href="http://wordpress.org/" title="WordPress">
+				WordPress</a>
+		</div--><!-- end .powered -->
+
+	</div><!-- end #footer-wrapper -->
+
+	</div><!-- end #footer -->
+
+<script type="speculationrules">
+{"prefetch":[{"source":"document","where":{"and":[{"href_matches":"/*"},{"not":{"href_matches":["/wp/wp-*.php","/wp/wp-admin/*","/wp-content/uploads/*","/wp-content/*","/wp-content/plugins/*","/wp-content/themes/responsive/*","/*\\?(.+)"]}},{"not":{"selector_matches":"a[rel~=\"nofollow\"]"}},{"not":{"selector_matches":".no-prefetch, .no-prefetch a"}}]},"eagerness":"conservative"}]}
+</script>
+<!--googleoff: all--><div id="cookie-law-info-bar" data-nosnippet="true"><span>This website uses cookies to improve your experience. We'll assume you're ok with this, but you can opt-out if you wish.<a role="button" tabindex="0" data-cli_action="accept" id="cookie_action_close_header" class="medium cli-plugin-button cli-plugin-main-button cookie_action_close_header cli_action_button wt-cli-accept-btn" style="display:inline-block">Accept</a> <a href="https://dbeaver.io/cookie-policy/" id="CONSTANT_OPEN_URL" class="cli-plugin-main-link" style="display:inline-block">Read more</a></span></div><div id="cookie-law-info-again" style="display:none" data-nosnippet="true"><span id="cookie_hdr_showagain">Privacy &amp; Cookies Policy</span></div><div class="cli-modal" data-nosnippet="true" id="cliSettingsPopup" tabindex="-1" role="dialog" aria-labelledby="cliSettingsPopup" aria-hidden="true">
+  <div class="cli-modal-dialog" role="document">
+	<div class="cli-modal-content cli-bar-popup">
+		  <button type="button" class="cli-modal-close" id="cliModalClose">
+			<svg class="" viewBox="0 0 24 24"><path d="M19 6.41l-1.41-1.41-5.59 5.59-5.59-5.59-1.41 1.41 5.59 5.59-5.59 5.59 1.41 1.41 5.59-5.59 5.59 5.59 1.41-1.41-5.59-5.59z"></path><path d="M0 0h24v24h-24z" fill="none"></path></svg>
+			<span class="wt-cli-sr-only">Close</span>
+		  </button>
+		  <div class="cli-modal-body">
+			<div class="cli-container-fluid cli-tab-container">
+	<div class="cli-row">
+		<div class="cli-col-12 cli-align-items-stretch cli-px-0">
+			<div class="cli-privacy-overview">
+				<h4>Privacy Overview</h4>				<div class="cli-privacy-content">
+					<div class="cli-privacy-content-text">This website uses cookies to improve your experience while you navigate through the website. Out of these, the cookies that are categorized as necessary are stored on your browser as they are essential for the working of basic functionalities of the website. We also use third-party cookies that help us analyze and understand how you use this website. These cookies will be stored in your browser only with your consent. You also have the option to opt-out of these cookies. But opting out of some of these cookies may affect your browsing experience.</div>
+				</div>
+				<a class="cli-privacy-readmore" aria-label="Show more" tabindex="0" role="button" data-readmore-text="Show more" data-readless-text="Show less"></a>			</div>
+		</div>
+		<div class="cli-col-12 cli-align-items-stretch cli-px-0 cli-tab-section-container">
+												<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="necessary" data-toggle="cli-toggle-tab">
+								Necessary							</a>
+															<div class="wt-cli-necessary-checkbox">
+									<input type="checkbox" class="cli-user-preference-checkbox"  id="wt-cli-checkbox-necessary" data-id="checkbox-necessary" checked="checked"  />
+									<label class="form-check-label" for="wt-cli-checkbox-necessary">Necessary</label>
+								</div>
+								<span class="cli-necessary-caption">Always Enabled</span>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="necessary">
+								<div class="wt-cli-cookie-description">
+									Necessary cookies are absolutely essential for the website to function properly. This category only includes cookies that ensures basic functionalities and security features of the website. These cookies do not store any personal information.								</div>
+							</div>
+						</div>
+					</div>
+																	<div class="cli-tab-section">
+						<div class="cli-tab-header">
+							<a role="button" tabindex="0" class="cli-nav-link cli-settings-mobile" data-target="non-necessary" data-toggle="cli-toggle-tab">
+								Non-necessary							</a>
+															<div class="cli-switch">
+									<input type="checkbox" id="wt-cli-checkbox-non-necessary" class="cli-user-preference-checkbox"  data-id="checkbox-non-necessary" checked='checked' />
+									<label for="wt-cli-checkbox-non-necessary" class="cli-slider" data-cli-enable="Enabled" data-cli-disable="Disabled"><span class="wt-cli-sr-only">Non-necessary</span></label>
+								</div>
+													</div>
+						<div class="cli-tab-content">
+							<div class="cli-tab-pane cli-fade" data-id="non-necessary">
+								<div class="wt-cli-cookie-description">
+									Any cookies that may not be particularly necessary for the website to function and is used specifically to collect user personal data via analytics, ads, other embedded contents are termed as non-necessary cookies. It is mandatory to procure user consent prior to running these cookies on your website.								</div>
+							</div>
+						</div>
+					</div>
+										</div>
+	</div>
+</div>
+		  </div>
+		  <div class="cli-modal-footer">
+			<div class="wt-cli-element cli-container-fluid cli-tab-container">
+				<div class="cli-row">
+					<div class="cli-col-12 cli-align-items-stretch cli-px-0">
+						<div class="cli-tab-footer wt-cli-privacy-overview-actions">
+						
+															<a id="wt-cli-privacy-save-btn" role="button" tabindex="0" data-cli-action="accept" class="wt-cli-privacy-btn cli_setting_save_button wt-cli-privacy-accept-btn cli-btn">SAVE &amp; ACCEPT</a>
+													</div>
+						
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+  </div>
+</div>
+<div class="cli-modal-backdrop cli-fade cli-settings-overlay"></div>
+<div class="cli-modal-backdrop cli-fade cli-popupbar-overlay"></div>
+<!--googleon: all--><script id="responsive-scripts-js" src="https://dbeaver.io/wp-content/themes/responsive/core/js/responsive-scripts.min.js?ver=1.2.6"></script>
+<script id="jquery-placeholder-js" src="https://dbeaver.io/wp-content/themes/responsive/core/js/jquery.placeholder.min.js?ver=2.0.7"></script>
+<script id="page-links-to-js" src="https://dbeaver.io/wp-content/plugins/page-links-to/dist/new-tab.js?ver=3.3.7"></script>
+<script id="metaslider-flex-slider-js" src="https://dbeaver.io/wp-content/plugins/ml-slider/assets/sliders/flexslider/jquery.flexslider.min.js?ver=3.110.0"></script>
+<script id="metaslider-flex-slider-js-after">
+var metaslider_3217 = function($) {$('#metaslider_3217').addClass('flexslider');
+            $('#metaslider_3217').flexslider({ 
+                slideshowSpeed:10000,
+                animation:"fade",
+                controlNav:true,
+                directionNav:true,
+                pauseOnHover:true,
+                direction:"horizontal",
+                reverse:false,
+                keyboard:true,
+                touch:true,
+                animationSpeed:600,
+                prevText:"Previous",
+                nextText:"Next",
+                smoothHeight:false,
+                fadeFirstSlide:false,
+                slideshow:true,
+                pausePlay:false,
+                showPlayText:false,
+                playText:false,
+                pauseText:false,
+                start: function(slider) {
+                slider.find('.flex-prev').attr('aria-label', 'Previous');
+                    slider.find('.flex-next').attr('aria-label', 'Next');
+                
+                // Function to disable focusable elements in aria-hidden slides
+                function disableAriaHiddenFocusableElements() {
+                    var slider_ = $('#metaslider_3217');
+                    
+                    // Disable focusable elements in slides with aria-hidden='true'
+                    slider_.find('.slides li[aria-hidden="true"] a, .slides li[aria-hidden="true"] button, .slides li[aria-hidden="true"] input, .slides li[aria-hidden="true"] select, .slides li[aria-hidden="true"] textarea, .slides li[aria-hidden="true"] [tabindex]:not([tabindex="-1"])').attr('tabindex', '-1');
+                    
+                    // Disable focusable elements in cloned slides (these should never be focusable)
+                    slider_.find('.slides li.clone a, .slides li.clone button, .slides li.clone input, .slides li.clone select, .slides li.clone textarea, .slides li.clone [tabindex]:not([tabindex="-1"])').attr('tabindex', '-1');
+                }
+                
+                // Initial setup
+                disableAriaHiddenFocusableElements();
+                
+                // Observer for aria-hidden and clone changes
+                if (typeof MutationObserver !== 'undefined') {
+                    var ariaObserver = new MutationObserver(function(mutations) {
+                        var shouldUpdate = false;
+                        mutations.forEach(function(mutation) {
+                            if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                                shouldUpdate = true;
+                            }
+                            if (mutation.type === 'childList') {
+                                // Check if cloned slides were added/removed
+                                for (var i = 0; i < mutation.addedNodes.length; i++) {
+                                    if (mutation.addedNodes[i].nodeType === 1 && 
+                                        (mutation.addedNodes[i].classList.contains('clone') || 
+                                         mutation.addedNodes[i].querySelector && mutation.addedNodes[i].querySelector('.clone'))) {
+                                        shouldUpdate = true;
+                                        break;
+                                    }
+                                }
+                            }
+                        });
+                        if (shouldUpdate) {
+                            setTimeout(disableAriaHiddenFocusableElements, 10);
+                        }
+                    });
+                    
+                    var targetNode = $('#metaslider_3217')[0];
+                    if (targetNode) {
+                        ariaObserver.observe(targetNode, { 
+                            attributes: true, 
+                            attributeFilter: ['aria-hidden'],
+                            childList: true,
+                            subtree: true
+                        });
+                    }
+                }
+                
+                },
+                after: function(slider) {
+                
+                // Re-disable focusable elements after slide transitions
+                var slider_ = $('#metaslider_3217');
+                
+                // Disable focusable elements in slides with aria-hidden='true'
+                slider_.find('.slides li[aria-hidden="true"] a, .slides li[aria-hidden="true"] button, .slides li[aria-hidden="true"] input, .slides li[aria-hidden="true"] select, .slides li[aria-hidden="true"] textarea, .slides li[aria-hidden="true"] [tabindex]:not([tabindex="-1"])').attr('tabindex', '-1');
+                
+                // Disable focusable elements in cloned slides
+                slider_.find('.slides li.clone a, .slides li.clone button, .slides li.clone input, .slides li.clone select, .slides li.clone textarea, .slides li.clone [tabindex]:not([tabindex="-1"])').attr('tabindex', '-1');
+                
+                }
+            });
+            $(document).trigger('metaslider/initialized', '#metaslider_3217');
+        };
+        var timer_metaslider_3217 = function() {
+            var slider = !window.jQuery ? window.setTimeout(timer_metaslider_3217, 100) : !jQuery.isReady ? window.setTimeout(timer_metaslider_3217, 1) : metaslider_3217(window.jQuery);
+        };
+        timer_metaslider_3217();
+//# sourceURL=metaslider-flex-slider-js-after
+</script>
+<script id="metaslider-script-js-extra">
+var wpData = {"baseUrl":"https://dbeaver.io"};
+//# sourceURL=metaslider-script-js-extra
+</script>
+<script id="metaslider-script-js" src="https://dbeaver.io/wp-content/plugins/ml-slider/assets/metaslider/script.min.js?ver=3.110.0"></script>
+<script id="wp-emoji-settings" type="application/json">
+{"baseUrl":"https://s.w.org/images/core/emoji/17.0.2/72x72/","ext":".png","svgUrl":"https://s.w.org/images/core/emoji/17.0.2/svg/","svgExt":".svg","source":{"concatemoji":"https://dbeaver.io/wp/wp-includes/js/wp-emoji-release.min.js?ver=7.1.2"}}
+</script>
+<script type="module">
+/*! This file is auto-generated */
+var e="script#wp-emoji-settings",t=document.querySelector(e);if(!(t instanceof HTMLScriptElement))throw new Error("Element missing: "+e);const r=JSON.parse(t.text),s=(window._wpemojiSettings=r,"wpEmojiSettingsSupports"),o=["flag","emoji"];function i(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(s,JSON.stringify(t))}catch(e){}}function c(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0);const r=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data);return t.every((e,t)=>e===r[t])}function p(e,t){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var n=e.getImageData(16,16,1,1);for(let e=0;e<n.data.length;e++)if(0!==n.data[e])return!1;return!0}function u(e,t,n,r){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\udde8\ud83c\uddf6","\ud83c\udde8\u200b\ud83c\uddf6")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!r(e,"\ud83e\u1fac8")}return!1}function f(e,t,n,r){let a;const s=(a="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):document.createElement("canvas")).getContext("2d",{willReadFrequently:!0}),o=(s.textBaseline="top",s.font="600 32px Arial",{});return e.forEach(e=>{o[e]=t(s,e,n,r)}),o}function a(e){var t=document.createElement("script");t.src=e,t.defer=!0,document.head.appendChild(t)}r.supports={everything:!0,everythingExceptFlag:!0},new Promise(t=>{let n=function(){try{var e=JSON.parse(sessionStorage.getItem(s));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(o),u.toString(),c.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"});const a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=e=>{i(n=e.data),a.terminate(),t(n)})}catch(e){}i(n=f(o,u,c,p))}t(n)}).then(e=>{for(const n in e)r.supports[n]=e[n],r.supports.everything=r.supports.everything&&r.supports[n],"flag"!==n&&(r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&r.supports[n]);var t;r.supports.everythingExceptFlag=r.supports.everythingExceptFlag&&!r.supports.flag,r.supports.everything||((t=r.source||{}).concatemoji?a(t.concatemoji):t.wpemoji&&t.twemoji&&(a(t.twemoji),a(t.wpemoji)))});
+//# sourceURL=https://dbeaver.io/wp/wp-includes/js/wp-emoji-loader.min.js
+</script>
+
+</body>
+</html>
