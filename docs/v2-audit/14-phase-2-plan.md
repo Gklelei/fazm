@@ -451,9 +451,8 @@ It follows the feature-folder conventions. The page uses the v2 components (`Pag
   days, charged by the `late-fees` job), attendance and sessions, registration (documents to
   collect), emails (mail server, test email, finance report recipients, guardian emails for
   invoices, receipts and the `overdue-reminders` job), security (idle sign-out).
-- **Open:** a prorated first invoice needs a rule first: registration already bills from today to
-  the 30th of next month, so "the rest of the month" can mean more than one thing. Company
-  signature on documents also waits.
+- **Decided (2026-10-19):** no prorating; a mid-month joiner's first invoice is the full month, as
+  today. The signature and stamp were added to the academy profile (2026-10-18).
 
 ## Stage 2: documents and exports
 
