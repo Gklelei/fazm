@@ -129,7 +129,8 @@ export const NAV: NavSection[] = [
         title: "Activity log",
         url: "/settings/audit-logs",
         icon: ScrollText,
-        roles: ADMINS,
+        // The developer only
+        roles: [...ROLE_GROUPS.developer],
       },
     ],
   },

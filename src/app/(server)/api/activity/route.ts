@@ -5,7 +5,7 @@ import { activityFiltersFromParams, listActivity } from "@/features/audit-logs/q
 
 /** GET /api/activity?kind&person&area&from&to&q&cursor: the activity log, one page at a time. */
 export async function GET(req: NextRequest) {
-  const authz = await checkRole([...ROLE_GROUPS.admin]);
+  const authz = await checkRole([...ROLE_GROUPS.developer]);
   if (!authz.ok) return NextResponse.json({ error: "Not allowed" }, { status: AUTHZ_HTTP_STATUS[authz.reason] });
   const sp = req.nextUrl.searchParams;
   return NextResponse.json(await listActivity(activityFiltersFromParams((k) => sp.get(k)), sp.get("cursor")));

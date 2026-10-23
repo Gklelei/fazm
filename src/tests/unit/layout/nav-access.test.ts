@@ -10,3 +10,10 @@ describe("page access", () => {
     expect(getAllowedRolesForPath("/staff/STAFF-FFA-1001")).not.toContain("COACH");
   });
 });
+
+describe("activity log", () => {
+  it("is for the developer (super admin) only", () => {
+    expect(getAllowedRolesForPath("/settings/audit-logs")).toEqual(["SUPER_ADMIN"]);
+    expect(getAllowedRolesForPath("/settings")).toContain("ADMIN");
+  });
+});

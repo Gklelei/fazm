@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { logView } from "@/lib/audit-view";
+import { hasRole } from "@/lib/roles";
 import { findStaff } from "@/features/staff/queries/detail";
 import { StaffDetails } from "@/features/staff/components/StaffDetails";
 import { advanceBalances } from "@/features/payroll/lib/run";
@@ -31,7 +32,8 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       orderBy: { createdAt: "desc" },
       take: 20,
     }),
-    staff.userId
+    // Their trail in the activity log: the developer (super admin) only
+    staff.userId && hasRole(session?.user.role, "developer")
       ? db.auditLog.findMany({ where: { userId: staff.userId, action: { not: "VIEW" } }, select: LOG, orderBy: { createdAt: "desc" }, take: 10 })
       : null,
     db.training.groupBy({ by: ["status"], where: coached, _count: { _all: true } }),

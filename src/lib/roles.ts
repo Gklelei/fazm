@@ -15,6 +15,8 @@ export const ROLE_GROUPS = {
   athletes: ["SUPER_ADMIN", "ADMIN", "COACH", "DOCTOR"],
   /** Changing medical details */
   medical: ["SUPER_ADMIN", "ADMIN", "DOCTOR"],
+  /** The developer: the activity log */
+  developer: ["SUPER_ADMIN"],
 } as const satisfies Record<string, readonly ROLES[]>;
 
 export type RoleGroup = keyof typeof ROLE_GROUPS;

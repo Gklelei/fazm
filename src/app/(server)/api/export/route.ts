@@ -32,7 +32,7 @@ const EXPORT_ACCESS: Record<string, RoleGroup> = {
   finance: "finance",
   sessions: "coaching",
   athletes: "coaching",
-  activity: "admin",
+  activity: "developer",
 };
 
 /** Maximum rows returned from any export to prevent OOM / timeout */

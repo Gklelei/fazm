@@ -12,7 +12,7 @@ import {
 
 export const metadata: Metadata = { title: "Activity log" };
 
-// Admin-only: the proxy limits /settings to the admin roles (nav-config).
+// The developer (super admin) only: the proxy limits this page through nav-config.
 export default async function Page({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
   const sp = await searchParams;
   const filters = activityFiltersFromParams((k) => sp[k]);
