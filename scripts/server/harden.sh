@@ -4,7 +4,7 @@
 #   5. firewall: only SSH, HTTP and HTTPS reach the server
 #   4. automatic security updates (dnf-automatic, security patches only)
 #   3. nginx 1.14 -> 1.24 (AlmaLinux module stream), config kept, rolled back if it fails
-#   2. fail2ban: bans addresses that keep failing SSH logins or hammering nginx
+#   2. fail2ban: bans addresses that keep failing SSH logins or probing for scanner routes
 #   1. SSH: keys only, no passwords, no root login (done last)
 #
 # Run one step with:  sudo bash harden.sh 3
@@ -98,9 +98,10 @@ ignoreip = 127.0.0.1/8 ::1
 enabled = true
 backend = systemd
 
-# Addresses that keep hitting the per-IP rate limit
+# Addresses that keep hitting the per-IP rate limit. Off: offices and mobile
+# data share one address, so this banned real users (see nginx-limits.sh)
 [nginx-limit-req]
-enabled  = true
+enabled  = false
 logpath  = /var/log/nginx/error.log
 maxretry = 20
 
