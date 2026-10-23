@@ -86,6 +86,8 @@ export const staffSchema = z
       .max(30, "Up to 30 documents"),
 
     canSignIn: z.boolean(),
+    /** Runs payroll: one account at most, set by the super admin */
+    payrollAccess: z.boolean().default(false),
     role: z.enum(["COACH", "ADMIN", "FINANCE", "DOCTOR", "SUPER_ADMIN"]),
   })
   .superRefine((v, ctx) => {

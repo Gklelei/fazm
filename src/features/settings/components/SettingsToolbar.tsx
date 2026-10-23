@@ -11,7 +11,7 @@ import { SETTINGS_TABS, type ListTab, type SettingsTab } from "../lib/tabs";
 const GROUPS = [...new Set(SETTINGS_TABS.map((t) => t.group))];
 
 /** Settings sections, kept in the URL so a view can be linked or reloaded. A side menu on wide screens, a scrolling row on phones. */
-export function SettingsNav({ tab, counts }: { tab: SettingsTab; counts: Record<ListTab, number> }) {
+export function SettingsNav({ tab, counts, hide = [] }: { tab: SettingsTab; counts: Record<ListTab, number>; hide?: SettingsTab[] }) {
   const nav = useRef<HTMLElement>(null);
   // Phones: keep the open section in view in the scrolling row
   useEffect(() => {
@@ -23,7 +23,7 @@ export function SettingsNav({ tab, counts }: { tab: SettingsTab; counts: Record<
         {GROUPS.map((g) => (
           <div key={g} className="contents lg:block lg:space-y-0.5">
             <p className="hidden px-3 pb-1 text-xs font-semibold tracking-wider text-muted-foreground uppercase lg:block">{g}</p>
-            {SETTINGS_TABS.filter((t) => t.group === g).map((t) => (
+            {SETTINGS_TABS.filter((t) => t.group === g && !hide.includes(t.key)).map((t) => (
               <Link
                 key={t.key}
                 href={`/settings?tab=${t.key}`}

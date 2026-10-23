@@ -3,7 +3,7 @@ import { headers } from "next/headers";
 import { ZodError } from "zod";
 import { Prisma } from "@/generated/prisma/client";
 import { auth } from "@/lib/auth";
-import { FORBIDDEN_MESSAGE, hasRole, type RoleGroup } from "@/lib/roles";
+import { canRunPayroll, FORBIDDEN_MESSAGE, hasRole, type RoleGroup } from "@/lib/roles";
 
 /** A problem worth telling the user about; its message is shown as is. */
 export class ActionError extends Error {}
@@ -27,7 +27,7 @@ export function actionErrorMessage(error: unknown): string {
   return GENERIC;
 }
 
-type User = { id: string; name: string; email: string; role?: string | null };
+type User = { id: string; name: string; email: string; role?: string | null; payrollAccess?: boolean | null };
 
 /**
  * Runs a server action body for a signed-in user in `group`. Thrown
@@ -38,9 +38,18 @@ export async function asRole<T extends ActionResult>(
   group: RoleGroup,
   run: (user: User) => Promise<T>,
 ): Promise<T | ActionResult> {
+  return asAllowed((u) => hasRole(u.role, group), run);
+}
+
+/** Like asRole, for the payroll person (see canRunPayroll). */
+export async function asPayroll<T extends ActionResult>(run: (user: User) => Promise<T>): Promise<T | ActionResult> {
+  return asAllowed(canRunPayroll, run);
+}
+
+async function asAllowed<T extends ActionResult>(allowed: (user: User) => boolean, run: (user: User) => Promise<T>): Promise<T | ActionResult> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return { success: false, message: "Your session has ended. Sign in again." };
-  if (!hasRole(session.user.role, group)) return { success: false, message: FORBIDDEN_MESSAGE };
+  if (!allowed(session.user)) return { success: false, message: FORBIDDEN_MESSAGE };
   try {
     return await run(session.user);
   } catch (error) {

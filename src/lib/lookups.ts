@@ -48,6 +48,8 @@ const getCoaches = cached(LOOKUP.coaches, () =>
   db.staff.findMany({
     // Anyone allowed to run a session (ROLE_GROUPS.coaching) who has a staff record
     where: { isArchived: false, user: { role: { in: [...ROLE_GROUPS.coaching] }, isArchived: false } },
+    // Sent to every signed-in page: names only, never pay, ID or contact details
+    select: { id: true, staffId: true, fullNames: true, userId: true },
     orderBy: { fullNames: "asc" },
   }),
 );

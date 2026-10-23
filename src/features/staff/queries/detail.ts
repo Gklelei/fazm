@@ -5,7 +5,7 @@ import { formatPhone } from "@/lib/phone";
 import type { StaffInput } from "../schemas";
 
 export const STAFF_PAGE_INCLUDE = {
-  user: { select: { id: true, email: true, role: true, isArchived: true, mustChangePassword: true } },
+  user: { select: { id: true, email: true, role: true, isArchived: true, mustChangePassword: true, payrollAccess: true } },
   batches: { select: { id: true, name: true } },
   documents: { orderBy: { createdAt: "asc" } },
   _count: { select: { trainings: { where: { isArchived: false } }, attendances: true, assessments: true } },
@@ -15,8 +15,8 @@ export type StaffRecord = Prisma.staffGetPayload<{ include: typeof STAFF_PAGE_IN
 
 export const findStaff = (staffId: string) => db.staff.findUnique({ where: { staffId }, include: STAFF_PAGE_INCLUDE });
 
-/** The saved record as the form's values. */
-export function staffFormValues(s: StaffRecord): StaffInput {
+/** The saved record as the form's values. Pay details only for the payroll person (`withPay`). */
+export function staffFormValues(s: StaffRecord, withPay: boolean): StaffInput {
   const signsIn = !!s.user && !s.user.isArchived;
   return {
     fullNames: s.fullNames,
@@ -29,17 +29,18 @@ export function staffFormValues(s: StaffRecord): StaffInput {
     kraPin: s.kraPin ?? "",
     nssfNumber: s.nssfNumber ?? "",
     shifNumber: s.shifNumber ?? "",
-    salary: s.salary ? String(Number(s.salary)) : "",
-    payBasis: s.payBasis ?? "",
-    sessionRate: s.sessionRate ? String(Number(s.sessionRate)) : "",
-    payMethod: (s.payMethod ?? "") as StaffInput["payMethod"],
-    payAccount: s.payAccount ?? "",
+    salary: withPay && s.salary ? String(Number(s.salary)) : "",
+    payBasis: withPay ? (s.payBasis ?? "") : "",
+    sessionRate: withPay && s.sessionRate ? String(Number(s.sessionRate)) : "",
+    payMethod: (withPay ? (s.payMethod ?? "") : "") as StaffInput["payMethod"],
+    payAccount: withPay ? (s.payAccount ?? "") : "",
     emergencyName: s.emergencyName ?? "",
     emergencyPhone: formatPhone(s.emergencyPhone),
     emergencyRelationship: s.emergencyRelationship ?? "",
     batches: s.batches.map((b) => b.id),
     documents: s.documents.map((d) => ({ kind: d.kind as StaffInput["documents"][number]["kind"], name: d.name, url: d.url })),
     canSignIn: signsIn,
+    payrollAccess: signsIn && !!s.user?.payrollAccess,
     role: s.user?.role ?? "COACH",
   };
 }

@@ -32,7 +32,7 @@ import { cn } from "@/lib/utils";
 import { authClient } from "@/lib/auth-client";
 import { useAuthSession } from "@/providers/SessionProvider";
 import { UseUtilsContext } from "@/providers/UtilsContext";
-import { ROLE_LABEL } from "@/lib/roles";
+import { canRunPayroll, ROLE_LABEL } from "@/lib/roles";
 import { findNavItem, isActivePath, NAV_GROUPS_COOKIE, navForRole, type AppRole, type NavItem } from "./nav-config";
 
 function UserAvatar({ user }: { user: { name: string; image?: string | null } }) {
@@ -103,7 +103,7 @@ export function AppSidebar({
   const { user } = useAuthSession();
   const { data: utils } = UseUtilsContext();
   const role = (user.role as AppRole | undefined) ?? null;
-  const sections = navForRole(role);
+  const sections = navForRole(role, canRunPayroll(user));
   const academyName = utils?.academy?.academyName || "Fazam Football Academy";
 
   // Groups fold so only what you're working in is expanded. The group of the

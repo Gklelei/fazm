@@ -45,10 +45,12 @@ let n = 0;
 const next = () => ++n;
 
 /** A user with a role, signed in. Coaches also get a staff record. */
-export async function signedIn(role: ROLES = "SUPER_ADMIN") {
+export async function signedIn(role: ROLES = "SUPER_ADMIN", { payrollAccess = false } = {}) {
   const i = next();
+  // One payroll person at a time (enforced by the database)
+  if (payrollAccess) await db.user.updateMany({ where: { payrollAccess: true }, data: { payrollAccess: false } });
   const user = await db.user.create({
-    data: { name: `Test ${role} ${i}`, email: `${role.toLowerCase()}${i}@example.test`, role },
+    data: { name: `Test ${role} ${i}`, email: `${role.toLowerCase()}${i}@example.test`, role, payrollAccess },
   });
   const staff =
     role === "COACH"
@@ -56,7 +58,7 @@ export async function signedIn(role: ROLES = "SUPER_ADMIN") {
           data: { staffId: `STF-${i}`, userId: user.id, fullNames: user.name, phoneNumber: "+254700000000" },
         })
       : null;
-  signInAs({ id: user.id, name: user.name, email: user.email, role });
+  signInAs({ id: user.id, name: user.name, email: user.email, role, payrollAccess });
   return { user, staff };
 }
 

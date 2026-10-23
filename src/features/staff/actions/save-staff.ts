@@ -8,13 +8,13 @@ import { db } from "@/lib/prisma";
 import { createAuditLog, diffFields } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { LOOKUP, lookupsChanged } from "@/lib/lookups";
-import { ROLE_LABEL } from "@/lib/roles";
+import { canRunPayroll, ROLE_LABEL } from "@/lib/roles";
 import { nextStaffId, STAFF_ID_PREFIX } from "@/features/staff/lib/staff-id";
 import { tempPassword } from "@/features/staff/lib/temp-password";
 import { staffSchema, type StaffInput, type StaffValues } from "@/features/staff/schemas";
 
 type Tx = Prisma.TransactionClient;
-type Me = { id: string; role?: string | null };
+type Me = { id: string; role?: string | null; payrollAccess?: boolean | null };
 
 const SUPER_ONLY = "Only a super admin can give, change or remove super admin access.";
 const SELF = "You can't change your own role or sign-in here. Ask another admin.";
@@ -41,6 +41,27 @@ function recordOf(v: StaffValues) {
     emergencyPhone: v.emergencyPhone || null,
     emergencyRelationship: v.emergencyRelationship || null,
   };
+}
+
+const PAY_FIELDS = new Set(["salary", "payBasis", "sessionRate", "payMethod", "payAccount"]);
+
+/** The record to save: pay details only change when the payroll person saves. */
+type PayKey = "salary" | "payBasis" | "sessionRate" | "payMethod" | "payAccount";
+type StaffRecordData = ReturnType<typeof recordOf>;
+function recordFor(v: StaffValues, me: Me): Omit<StaffRecordData, PayKey> & Partial<Pick<StaffRecordData, PayKey>> {
+  const r = recordOf(v);
+  return canRunPayroll(me) ? r : (Object.fromEntries(Object.entries(r).filter(([k]) => !PAY_FIELDS.has(k))) as Omit<StaffRecordData, PayKey>);
+}
+
+/** Gives or takes payroll access. One holder at a time (the database refuses a second too). */
+async function setPayrollAccess(tx: Tx, userId: string, on: boolean) {
+  if (on) {
+    const other = await tx.user.findFirst({ where: { payrollAccess: true, id: { not: userId } }, select: { name: true } });
+    if (other) throw new ActionError(`${other.name} has payroll access. Turn it off on their staff page first.`);
+  }
+  await tx.user.update({ where: { id: userId }, data: { payrollAccess: on } });
+  // Takes effect now, not when their sign-in next refreshes
+  await tx.session.deleteMany({ where: { userId } });
 }
 
 async function checkBatches(tx: Tx, ids: string[]) {
@@ -93,9 +114,10 @@ export async function createStaff(input: StaffInput) {
       const taken = await tx.staff.findMany({ where: { staffId: { startsWith: STAFF_ID_PREFIX } }, select: { staffId: true } });
       const staffId = nextStaffId(taken.map((t) => t.staffId));
       const login = v.canSignIn ? await createLogin(tx, v) : null;
+      if (login && v.payrollAccess && me.role === "SUPER_ADMIN") await setPayrollAccess(tx, login.userId, true);
       await tx.staff.create({
         data: {
-          ...recordOf(v),
+          ...recordFor(v, me),
           staffId,
           userId: login?.userId,
           batches: { connect: v.batches.map((id) => ({ id })) },
@@ -111,7 +133,7 @@ export async function createStaff(input: StaffInput) {
       resource: "Staff",
       details: `Added ${v.fullNames} (${created.staffId})${v.jobTitle ? `, ${v.jobTitle}` : ""}; ${
         v.canSignIn ? `signs in as ${v.email} (${ROLE_LABEL[v.role]})` : "no sign-in"
-      }`,
+      }${v.canSignIn && v.payrollAccess && me.role === "SUPER_ADMIN" ? "; payroll access" : ""}`,
       userId: me.id,
       recordId: created.staffId,
     });
@@ -166,22 +188,36 @@ export async function updateStaff(staffId: string, input: StaffInput) {
         await tx.session.deleteMany({ where: { userId: before.user!.id } });
       }
 
+      // Payroll access: the super admin decides; no sign-in means no access
+      const accessBefore = hadAccess && !!before.user?.payrollAccess;
+      const accessAfter = me.role === "SUPER_ADMIN" ? v.canSignIn && v.payrollAccess : v.canSignIn && accessBefore;
+      if (userId && accessAfter !== !!before.user?.payrollAccess) await setPayrollAccess(tx, userId, accessAfter);
+
       const keep = new Set(v.documents.map((d) => d.url));
       const have = new Set(before.documents.map((d) => d.url));
       await tx.staffDocument.deleteMany({ where: { staffId: before.id, url: { notIn: [...keep] } } });
       await tx.staff.update({
         where: { id: before.id },
         data: {
-          ...recordOf(v),
+          ...recordFor(v, me),
           userId,
           batches: { set: v.batches.map((id) => ({ id })) },
           documents: { create: documentRows(v, me.id).filter((d) => !have.has(d.url)) },
         },
       });
-      return { before, roleBefore, roleAfter, password };
+      return { before, roleBefore, roleAfter, password, payroll: accessAfter === accessBefore ? null : accessAfter };
     });
 
     const { before, roleBefore, roleAfter } = result;
+    if (result.payroll !== null) {
+      await createAuditLog({
+        action: "PAYROLL_ACCESS",
+        resource: "User",
+        details: `${result.payroll ? "Gave" : "Took"} payroll access ${result.payroll ? "to" : "from"} ${v.fullNames} (${staffId})`,
+        userId: me.id,
+        recordId: staffId,
+      });
+    }
     const batchNames = await db.batches.findMany({ where: { id: { in: v.batches } }, select: { name: true }, orderBy: { name: "asc" } });
     touched();
     revalidatePath(`/staff/${staffId}`);
@@ -198,7 +234,7 @@ export async function updateStaff(staffId: string, input: StaffInput) {
         recordId: staffId,
       });
     }
-    const was = recordOf({ ...v, ...beforeValues(before) });
+    const was = recordFor({ ...v, ...beforeValues(before) }, me);
     await createAuditLog({
       action: "UPDATE_STAFF",
       resource: "Staff",
@@ -207,7 +243,7 @@ export async function updateStaff(staffId: string, input: StaffInput) {
       recordId: staffId,
       changes: diffFields(
         { ...plain(was), batches: before.batches.map((b) => b.name).sort(), documents: before.documents.map((d) => d.name).sort() },
-        { ...plain(recordOf(v)), batches: batchNames.map((b) => b.name), documents: v.documents.map((d) => d.name || d.kind).sort() },
+        { ...plain(recordFor(v, me)), batches: batchNames.map((b) => b.name), documents: v.documents.map((d) => d.name || d.kind).sort() },
       ),
     });
     return { success: true as const, message: "Changes saved.", staffId, tempPassword: result.password };
@@ -239,11 +275,11 @@ function beforeValues(s: Prisma.staffGetPayload<object>): Partial<StaffValues> {
 }
 
 /** Dates and money as plain values for the log. */
-const plain = (r: ReturnType<typeof recordOf>) => ({
+const plain = (r: Partial<ReturnType<typeof recordOf>>) => ({
   ...r,
   startDate: r.startDate ? r.startDate.toISOString().slice(0, 10) : null,
-  salary: r.salary ? Number(r.salary) : null,
-  sessionRate: r.sessionRate ? Number(r.sessionRate) : null,
+  ...("salary" in r && { salary: r.salary ? Number(r.salary) : null }),
+  ...("sessionRate" in r && { sessionRate: r.sessionRate ? Number(r.sessionRate) : null }),
 });
 
 async function findForAccess(staffId: string, me: Me) {
@@ -280,7 +316,7 @@ export async function setStaffArchived(staffId: string, archived: boolean) {
       await tx.staff.update({ where: { id: s.id }, data: { isArchived: archived } });
       // Restoring leaves sign-in off; turning it back on gives a new password
       if (archived && s.userId) {
-        await tx.user.update({ where: { id: s.userId }, data: { isArchived: true } });
+        await tx.user.update({ where: { id: s.userId }, data: { isArchived: true, payrollAccess: false } });
         await tx.session.deleteMany({ where: { userId: s.userId } });
       }
     });

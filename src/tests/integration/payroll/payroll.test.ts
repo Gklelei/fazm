@@ -8,13 +8,16 @@ let n = 0;
 const makeStaff = (data: { salary?: number; payBasis?: "MONTHLY" | "PER_SESSION"; sessionRate?: number } = {}) =>
   db.staff.create({ data: { staffId: `STF-T${++n}`, fullNames: `Test Coach ${n}`, phoneNumber: "+254700000000", payBasis: "MONTHLY", ...data } });
 
+/** The one admin with payroll access */
+const payrollPerson = () => signedIn("ADMIN", { payrollAccess: true });
+
 const slipOf = async (staffId: string, month = "2026-10") => db.payslip.findFirstOrThrow({ where: { staffId, run: { month } } });
 
 describe("payroll", () => {
   beforeEach(resetDb);
 
   it("works out payslips once per person, and again without duplicates", async () => {
-    await signedIn("FINANCE");
+    await payrollPerson();
     const a = await makeStaff({ salary: 40000 });
     await makeStaff(); // no salary: a payslip of 0
     await db.staff.create({ data: { staffId: "STF-NOPAY", fullNames: "No Profile", phoneNumber: "+254700000001" } });
@@ -28,15 +31,15 @@ describe("payroll", () => {
 
   it("takes an approved advance back over its months, and only after approval", async () => {
     const s = await makeStaff({ salary: 30000 });
-    await signedIn("FINANCE");
+    await signedIn("ADMIN");
+    expect((await recordAdvance({ staffId: s.id, date: "2026-10-05", amount: 9000, method: "MPESA", months: 3 })).success).toBe(false); // no payroll access
+    await payrollPerson();
     await recordAdvance({ staffId: s.id, date: "2026-10-05", amount: 9000, method: "MPESA", months: 3 });
     const adv = await db.salaryAdvance.findFirstOrThrow();
-    expect((await decideAdvance(adv.id, true)).success).toBe(false); // finance can't approve
 
     await refreshMonth("2026-10");
-    expect(Number((await slipOf(s.id)).net)).toBe(30000);
+    expect(Number((await slipOf(s.id)).net)).toBe(30000); // not approved yet
 
-    await signedIn("ADMIN");
     await decideAdvance(adv.id, true);
     await approveMonth("2026-10");
     expect(Number((await slipOf(s.id)).net)).toBe(27000);
@@ -47,7 +50,7 @@ describe("payroll", () => {
   });
 
   it("locks an approved month and posts it to expenses", async () => {
-    await signedIn("ADMIN");
+    await payrollPerson();
     const s = await makeStaff({ salary: 20000 });
     await db.payrollDeduction.create({ data: { name: "Housing Levy", kind: "PERCENT_GROSS", value: 1.5, employerPercent: 100, beforeTax: true, enabled: true } });
     expect((await approveMonth("2026-10")).success).toBe(true);
@@ -61,7 +64,7 @@ describe("payroll", () => {
   });
 
   it("pays per completed session in the month", async () => {
-    await signedIn("FINANCE");
+    await payrollPerson();
     const s = await makeStaff({ payBasis: "PER_SESSION", sessionRate: 1500 });
     const [batch, location] = await Promise.all([makeBatch(), makeLocation()]);
     const session = (date: string, status: "COMPLETED" | "SCHEDULED") =>
@@ -74,7 +77,7 @@ describe("payroll", () => {
   });
 
   it("keeps the admin's edits when the month is worked out again", async () => {
-    await signedIn("FINANCE");
+    await payrollPerson();
     const s = await makeStaff({ salary: 10000 });
     await refreshMonth("2026-10");
     await adjustPayslip((await slipOf(s.id)).id, { allowances: [{ name: "Transport", amount: 2000 }], oneOffs: [{ name: "Lost kit", amount: 500 }] });
@@ -91,11 +94,12 @@ describe("payroll", () => {
   it("approves payslips one at a time, locks each, and the last one approves the month", async () => {
     const a = await makeStaff({ salary: 20000 });
     const b = await makeStaff({ salary: 10000 });
-    await signedIn("FINANCE");
+    await payrollPerson();
     await refreshMonth("2026-10");
-    expect((await approvePayslip((await slipOf(a.id)).id)).success).toBe(false); // admins only
-
     await signedIn("ADMIN");
+    expect((await approvePayslip((await slipOf(a.id)).id)).success).toBe(false); // no payroll access
+
+    await payrollPerson();
     expect((await approvePayslip((await slipOf(a.id)).id)).success).toBe(true);
     expect((await slipOf(a.id)).status).toBe("APPROVED");
     expect((await db.payrollRun.findFirstOrThrow()).status).toBe("PROVISIONAL");
@@ -121,7 +125,7 @@ describe("payroll", () => {
   it("counts an advance taken on an approved payslip before the month closes", async () => {
     const s = await makeStaff({ salary: 30000 });
     await makeStaff({ salary: 10000 });
-    await signedIn("ADMIN");
+    await payrollPerson();
     await recordAdvance({ staffId: s.id, date: "2026-10-05", amount: 4000, method: "CASH", months: 2 });
     await decideAdvance((await db.salaryAdvance.findFirstOrThrow()).id, true);
     await refreshMonth("2026-10");

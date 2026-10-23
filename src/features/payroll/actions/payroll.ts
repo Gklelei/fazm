@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
-import { ActionError, asRole } from "@/lib/action";
+import { ActionError, asPayroll } from "@/lib/action";
 import { createAuditLog } from "@/lib/audit";
 import { formatCurrency } from "@/lib/format";
 import { LOOKUP, lookupsChanged } from "@/lib/lookups";
@@ -20,7 +20,7 @@ const done = (message: string) => {
 
 /** Creates or updates a month's provisional payslips. */
 export async function refreshMonth(input: string) {
-  return asRole("finance", async (user) => {
+  return asPayroll(async (user) => {
     const m = month.parse(input);
     const res = await db.$transaction((tx) => refreshPayroll(m, tx), { timeout: 30_000 });
     if (res.locked) throw new ActionError(`${monthLabel(m)} is approved, so its payslips can't change.`);
@@ -31,7 +31,7 @@ export async function refreshMonth(input: string) {
 
 /** The admin's allowances, one-off deductions and advance for one payslip. */
 export async function adjustPayslip(payslipId: string, input: AdjustmentsInput) {
-  return asRole("finance", async (user) => {
+  return asPayroll(async (user) => {
     const adjustments = adjustmentsSchema.parse(input);
     const slip = await db.payslip.findUnique({ where: { id: payslipId }, select: { status: true, run: { select: { month: true, status: true } }, staff: { select: { fullNames: true, staffId: true } } } });
     if (!slip) throw new ActionError("That payslip no longer exists. Refresh the page.");
@@ -80,7 +80,7 @@ const closed = (cost: number) => {
 
 /** Approves every payslip still provisional, then locks the month. */
 export async function approveMonth(input: string) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const m = month.parse(input);
     const total = await db.$transaction(
       async (tx) => {
@@ -100,7 +100,7 @@ export async function approveMonth(input: string) {
 
 /** Approves one payslip: worked out once more, then locked. The last one approves the month. */
 export async function approvePayslip(payslipId: string) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const slip = await db.payslip.findUnique({ where: { id: payslipId }, select: { status: true, runId: true, run: { select: { month: true, status: true } }, staff: { select: { fullNames: true, staffId: true } } } });
     if (!slip) throw new ActionError("That payslip no longer exists. Refresh the page.");
     if (slip.run.status !== "PROVISIONAL" || slip.status !== "PROVISIONAL") throw new ActionError("That payslip is already approved.");
@@ -126,7 +126,7 @@ export async function approvePayslip(payslipId: string) {
 
 /** Unlocks an approved payslip while its month is still open, so it can be changed. */
 export async function reopenPayslip(payslipId: string) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const slip = await db.payslip.findUnique({ where: { id: payslipId }, select: { status: true, run: { select: { month: true, status: true } }, staff: { select: { fullNames: true, staffId: true } } } });
     if (!slip) throw new ActionError("That payslip no longer exists. Refresh the page.");
     if (slip.run.status !== "PROVISIONAL") throw new ActionError("This month is approved, so its payslips can't change. Put corrections on next month's.");
@@ -144,7 +144,7 @@ export async function reopenPayslip(payslipId: string) {
 }
 
 export async function markPaid(input: string) {
-  return asRole("finance", async (user) => {
+  return asPayroll(async (user) => {
     const m = month.parse(input);
     const { count } = await db.payrollRun.updateMany({ where: { month: m, status: "APPROVED" }, data: { status: "PAID", paidAt: new Date() } });
     if (!count) throw new ActionError("Approve the month before marking it paid.");
@@ -155,7 +155,7 @@ export async function markPaid(input: string) {
 
 /** An advance waits for an admin before it's taken back from pay. */
 export async function recordAdvance(input: AdvanceInput) {
-  return asRole("finance", async (user) => {
+  return asPayroll(async (user) => {
     const v = advanceSchema.parse(input);
     const staff = await db.staff.findFirst({ where: { id: v.staffId, isArchived: false }, select: { id: true, staffId: true, fullNames: true, payBasis: true } });
     if (!staff) throw new ActionError("Pick someone who still works here.");
@@ -175,7 +175,7 @@ export async function recordAdvance(input: AdvanceInput) {
 }
 
 export async function decideAdvance(id: string, approve: boolean) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const a = await db.salaryAdvance.findUnique({ where: { id }, select: { status: true, amount: true, staff: { select: { staffId: true, fullNames: true } } } });
     if (!a) throw new ActionError("That advance no longer exists. Refresh the page.");
     if (a.status !== "PENDING") throw new ActionError("That advance has already been decided.");
@@ -192,7 +192,7 @@ export async function decideAdvance(id: string, approve: boolean) {
 }
 
 export async function saveDeduction(input: DeductionInput) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const { id, ...v } = deductionSchema.parse(input);
     const data = { ...v, bands: v.kind === "BANDED" ? v.bands : undefined };
     if (id) await db.payrollDeduction.update({ where: { id }, data });
@@ -204,7 +204,7 @@ export async function saveDeduction(input: DeductionInput) {
 }
 
 export async function deleteDeduction(id: string) {
-  return asRole("admin", async (user) => {
+  return asPayroll(async (user) => {
     const d = await db.payrollDeduction.findUnique({ where: { id }, select: { name: true, statutory: true } });
     if (!d) throw new ActionError("That deduction no longer exists. Refresh the page.");
     if (d.statutory) throw new ActionError(`${d.name} can be turned off but not removed.`);

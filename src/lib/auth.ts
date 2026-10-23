@@ -52,6 +52,13 @@ export const auth = betterAuth({
         required: false,
         defaultValue: false,
       },
+      payrollAccess: {
+        type: "boolean",
+        // Set only by a super admin through the staff form
+        input: false,
+        required: false,
+        defaultValue: false,
+      },
       role: {
         type: "string",
         // Never accept `role` from client-supplied request bodies (sign-up /

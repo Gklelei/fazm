@@ -37,6 +37,8 @@ export type NavItem = {
   roles: AppRole[];
   /** Not in the sidebar; only decides who may open the page (e.g. a sub-page with tighter access) */
   hidden?: boolean;
+  /** Only the payroll person (canRunPayroll), whatever their role */
+  payroll?: boolean;
 };
 
 export type NavSection = { label: string; items: NavItem[] };
@@ -104,7 +106,7 @@ export const NAV: NavSection[] = [
       { title: "Fee plans", url: "/fees", icon: WalletCards, roles: FINANCE },
       { title: "Coupons", url: "/coupons", icon: Tag, roles: FINANCE },
       { title: "Expenses", url: "/expenses", icon: Wallet, roles: FINANCE },
-      { title: "Payroll", url: "/payroll", icon: HandCoins, roles: FINANCE },
+      { title: "Payroll", url: "/payroll", icon: HandCoins, roles: ALL_ROLES, payroll: true },
       { title: "Shop", url: "/shop", icon: ShoppingBag, roles: FINANCE },
       {
         title: "Expense categories",
@@ -136,10 +138,10 @@ export const NAV: NavSection[] = [
   },
 ];
 
-export function navForRole(role: AppRole | null | undefined): NavSection[] {
+export function navForRole(role: AppRole | null | undefined, payroll = false): NavSection[] {
   return NAV.map((s) => ({
     ...s,
-    items: s.items.filter((i) => !i.hidden && role && i.roles.includes(role)),
+    items: s.items.filter((i) => !i.hidden && (!i.payroll || payroll) && role && i.roles.includes(role)),
   })).filter((s) => s.items.length > 0);
 }
 

@@ -83,7 +83,8 @@ export function StaffDetails({
   recent: Session[];
   history: LogEntry[];
   activity: LogEntry[] | null;
-  pay: Omit<React.ComponentProps<typeof PayPanel>, "staffId">;
+  /** Pay details, payslips and advances: only for the payroll person (null for everyone else) */
+  pay: Omit<React.ComponentProps<typeof PayPanel>, "staffId"> | null;
   self: boolean;
 }) {
   const signsIn = !!s.user && !s.user.isArchived;
@@ -93,7 +94,7 @@ export function StaffDetails({
   const pastSessions = stats.sessions - stats.upcoming;
   const completion = pastSessions > 0 ? Math.round((stats.completed / pastSessions) * 100) : null;
   const hasEmergency = s.emergencyName || s.emergencyPhone;
-  const hasPay = s.payBasis || s.salary || s.nationalId || s.kraPin || s.nssfNumber || s.shifNumber;
+  const hasPay = (pay && (s.payBasis || s.salary)) || s.nationalId || s.kraPin || s.nssfNumber || s.shifNumber;
 
   return (
     <div className="space-y-4">
@@ -288,17 +289,21 @@ export function StaffDetails({
               </div>
               <div className="space-y-3">
                 <p className="flex items-center gap-2 text-sm font-semibold">
-                  <Landmark className="size-4 text-muted-foreground" /> Pay and statutory
+                  <Landmark className="size-4 text-muted-foreground" /> {pay ? "Pay and statutory" : "Statutory"}
                 </p>
                 {hasPay ? (
                   <dl className="grid grid-cols-2 gap-3">
-                    <Item label="Paid">{s.payBasis === "PER_SESSION" ? "Per session" : s.payBasis === "MONTHLY" ? "Monthly" : "Not on payroll"}</Item>
-                    {s.payBasis === "PER_SESSION" ? (
-                      <Item label="Per session">{s.sessionRate ? formatCurrency(Number(s.sessionRate)) : null}</Item>
-                    ) : (
-                      <Item label="Monthly salary">{s.salary ? formatCurrency(Number(s.salary)) : null}</Item>
+                    {pay && (
+                      <>
+                        <Item label="Paid">{s.payBasis === "PER_SESSION" ? "Per session" : s.payBasis === "MONTHLY" ? "Monthly" : "Not on payroll"}</Item>
+                        {s.payBasis === "PER_SESSION" ? (
+                          <Item label="Per session">{s.sessionRate ? formatCurrency(Number(s.sessionRate)) : null}</Item>
+                        ) : (
+                          <Item label="Monthly salary">{s.salary ? formatCurrency(Number(s.salary)) : null}</Item>
+                        )}
+                        {s.payMethod && <Item label={s.payMethod === "BANK" ? "Bank" : "M-Pesa"}>{s.payAccount}</Item>}
+                      </>
                     )}
-                    {s.payMethod && <Item label={s.payMethod === "BANK" ? "Bank" : "M-Pesa"}>{s.payAccount}</Item>}
                     <Item label="National ID">{s.nationalId}</Item>
                     <Item label="KRA PIN">{s.kraPin}</Item>
                     <Item label="NSSF">{s.nssfNumber}</Item>
@@ -311,7 +316,7 @@ export function StaffDetails({
             </div>
           </section>
 
-          {(s.payBasis || pay.payslips.length > 0 || pay.advances.length > 0) && (
+          {pay && (s.payBasis || pay.payslips.length > 0 || pay.advances.length > 0) && (
             <section className="overflow-hidden rounded-xl border bg-card shadow-xs">
               <h2 className="flex items-center gap-2 border-b px-4 py-3 text-base font-semibold">
                 <span className="grid size-8 place-items-center rounded-lg bg-primary/10 text-primary" aria-hidden>

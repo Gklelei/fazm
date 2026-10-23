@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { canRunPayroll } from "@/lib/roles";
 import { logView } from "@/lib/audit-view";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { findStaff, staffFormValues } from "@/features/staff/queries/detail";
@@ -19,7 +20,13 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <PageHeader title={`Edit ${staff.fullNames}`} description={staff.staffId} />
-      <StaffForm staffId={staff.staffId} values={staffFormValues(staff)} self={staff.userId === session?.user.id} />
+      <StaffForm
+        staffId={staff.staffId}
+        values={staffFormValues(staff, canRunPayroll(session?.user))}
+        self={staff.userId === session?.user.id}
+        canEditPay={canRunPayroll(session?.user)}
+        canGrantPayroll={session?.user.role === "SUPER_ADMIN"}
+      />
     </div>
   );
 }

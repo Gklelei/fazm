@@ -2,6 +2,9 @@ import type { Metadata } from "next";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { getCachedAcademy } from "@/lib/academy-cache";
 import { getSettings } from "@/lib/settings";
+import { headers } from "next/headers";
+import { auth } from "@/lib/auth";
+import { canRunPayroll } from "@/lib/roles";
 import { getSettingsData } from "@/features/settings/queries";
 import { BatchCard } from "@/features/settings/components/BatchCard";
 import {
@@ -35,7 +38,9 @@ export default async function Page({
   searchParams: Promise<{ tab?: string; archived?: string }>;
 }) {
   const sp = await searchParams;
-  const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab)?.key ??
+  // Payroll deductions: the payroll person only
+  const payroll = canRunPayroll((await auth.api.getSession({ headers: await headers() }))?.user);
+  const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab && (payroll || t.key !== "payroll"))?.key ??
     "batches") as SettingsTab;
   const showArchived = sp.archived === "1";
   const [data, s, academy, deductions] = await Promise.all([
@@ -76,7 +81,7 @@ export default async function Page({
         actions={isListTab(tab) && <AddItemButton kind={tab} />}
       />
       <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
-        <SettingsNav tab={tab} counts={counts} />
+        <SettingsNav tab={tab} counts={counts} hide={payroll ? [] : ["payroll"]} />
 
         <div className="min-w-0 space-y-4">
           {isListTab(tab) && (

@@ -1,6 +1,7 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { auth } from "@/lib/auth";
-import { getAllowedRolesForPath } from "@/components/layout/nav-config";
+import { findNavItem, getAllowedRolesForPath } from "@/components/layout/nav-config";
+import { canRunPayroll } from "@/lib/roles";
 import { ROLES } from "./generated/prisma/enums";
 
 // Proxy files always run on the Node.js runtime (unlike the old
@@ -73,6 +74,10 @@ export async function proxy(request: NextRequest) {
   }
   if (pathname === "/change-password" || isApi) return withAuthCookies(NextResponse.next());
 
+  // The payroll pages: the payroll person only, whatever their role
+  if (findNavItem(pathname)?.item.payroll && !canRunPayroll(session.user)) {
+    return withAuthCookies(NextResponse.redirect(new URL("/", request.url)));
+  }
   const allowedRoles = getAllowedRolesForPath(pathname);
   if (
     allowedRoles &&

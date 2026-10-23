@@ -48,6 +48,7 @@ const EMPTY: StaffInput = {
   batches: [],
   documents: [],
   canSignIn: false,
+  payrollAccess: false,
   role: "COACH",
 };
 
@@ -80,7 +81,21 @@ function AddDocument({ label, onAdd }: { label: string; onAdd: (url: string) => 
 }
 
 /** Add or edit a staff member: who they are, sign-in, batches, contacts, pay details and documents. */
-export function StaffForm({ staffId, values, self }: { staffId?: string; values?: StaffInput; self?: boolean }) {
+export function StaffForm({
+  staffId,
+  values,
+  self,
+  canEditPay = false,
+  canGrantPayroll = false,
+}: {
+  staffId?: string;
+  values?: StaffInput;
+  self?: boolean;
+  /** The payroll person sees and changes pay details */
+  canEditPay?: boolean;
+  /** The super admin decides who runs payroll */
+  canGrantPayroll?: boolean;
+}) {
   const router = useRouter();
   const { user } = useAuthSession();
   const batches = UseUtilsContext().data?.batches ?? [];
@@ -167,6 +182,23 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
                 )}
               />
             )}
+            {canSignIn && canGrantPayroll && (
+              <FormField
+                control={form.control}
+                name="payrollAccess"
+                render={({ field }) => (
+                  <FormItem className="flex items-center justify-between gap-4 rounded-md border p-3">
+                    <FormLabel className="grid gap-0.5">
+                      <span>Payroll access</span>
+                      <span className="font-normal text-muted-foreground">Salaries, advances and payslips. One person at a time.</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Switch checked={field.value} onCheckedChange={field.onChange} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+            )}
           </FormSection>
 
           <FormSection title="Batches they coach" icon={Users} columns={1}>
@@ -189,34 +221,38 @@ export function StaffForm({ staffId, values, self }: { staffId?: string; values?
             <TextField<StaffInput> name="emergencyPhone" label="Phone" optional type="tel" inputMode="tel" />
           </FormSection>
 
-          <FormSection title="Pay and statutory details" icon={Landmark}>
-            <FormField
-              control={form.control}
-              name="payBasis"
-              render={({ field }) => (
-                <FormItem className="sm:col-span-2">
-                  <FormLabel>Paid</FormLabel>
-                  <ChoiceChips label="Paid" options={BASIS_CHIPS} value={field.value || "NONE"} onChange={(v) => field.onChange(v === "NONE" ? "" : v)} />
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            {payBasis !== "PER_SESSION" && <TextField<StaffInput> name="salary" label="Monthly salary (KES)" optional={payBasis !== "MONTHLY"} inputMode="decimal" />}
-            {payBasis === "PER_SESSION" && <TextField<StaffInput> name="sessionRate" label="Pay per session (KES)" inputMode="decimal" />}
-            {payBasis && (
+          <FormSection title={canEditPay ? "Pay and statutory details" : "Statutory details"} icon={Landmark}>
+            {canEditPay && (
               <>
                 <FormField
                   control={form.control}
-                  name="payMethod"
+                  name="payBasis"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Pay by</FormLabel>
-                      <ChoiceChips label="Pay by" options={PAY_METHODS} value={field.value || undefined} onChange={(v) => field.onChange(v === field.value ? "" : v)} />
+                    <FormItem className="sm:col-span-2">
+                      <FormLabel>Paid</FormLabel>
+                      <ChoiceChips label="Paid" options={BASIS_CHIPS} value={field.value || "NONE"} onChange={(v) => field.onChange(v === "NONE" ? "" : v)} />
                       <FormMessage />
                     </FormItem>
                   )}
                 />
-                {payMethod && <TextField<StaffInput> name="payAccount" label={payMethod === "BANK" ? "Bank and account number" : "M-Pesa number"} autoComplete="off" />}
+                {payBasis !== "PER_SESSION" && <TextField<StaffInput> name="salary" label="Monthly salary (KES)" optional={payBasis !== "MONTHLY"} inputMode="decimal" />}
+                {payBasis === "PER_SESSION" && <TextField<StaffInput> name="sessionRate" label="Pay per session (KES)" inputMode="decimal" />}
+                {payBasis && (
+                  <>
+                    <FormField
+                      control={form.control}
+                      name="payMethod"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Pay by</FormLabel>
+                          <ChoiceChips label="Pay by" options={PAY_METHODS} value={field.value || undefined} onChange={(v) => field.onChange(v === field.value ? "" : v)} />
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {payMethod && <TextField<StaffInput> name="payAccount" label={payMethod === "BANK" ? "Bank and account number" : "M-Pesa number"} autoComplete="off" />}
+                  </>
+                )}
               </>
             )}
             <TextField<StaffInput> name="nationalId" label="National ID" optional inputMode="numeric" autoComplete="off" />

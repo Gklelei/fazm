@@ -1,5 +1,5 @@
 // Who the fake `auth.api.getSession` says is signed in (see setup-int.ts).
-type TestUser = { id: string; name: string; email: string; role: string };
+type TestUser = { id: string; name: string; email: string; role: string; payrollAccess?: boolean };
 
 let user: TestUser | null = null;
 

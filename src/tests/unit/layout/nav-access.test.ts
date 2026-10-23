@@ -17,3 +17,15 @@ describe("activity log", () => {
     expect(getAllowedRolesForPath("/settings")).toContain("ADMIN");
   });
 });
+
+describe("payroll", () => {
+  it("opens for the payroll person and the super admin only", async () => {
+    const { canRunPayroll } = await import("@/lib/roles");
+    const { findNavItem } = await import("@/components/layout/nav-config");
+    expect(findNavItem("/payroll")?.item.payroll).toBe(true);
+    expect(canRunPayroll({ role: "ADMIN", payrollAccess: true })).toBe(true);
+    expect(canRunPayroll({ role: "SUPER_ADMIN" })).toBe(true);
+    expect(canRunPayroll({ role: "ADMIN" })).toBe(false);
+    expect(canRunPayroll({ role: "FINANCE" })).toBe(false);
+  });
+});

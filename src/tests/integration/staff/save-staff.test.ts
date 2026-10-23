@@ -41,7 +41,8 @@ describe("adding staff", () => {
     );
     expect(res).toMatchObject({ success: true, staffId: "STAFF-FFA-1001", tempPassword: null });
     const s = await db.staff.findUniqueOrThrow({ where: { staffId: "STAFF-FFA-1001" }, include: { batches: true, documents: true } });
-    expect([s.userId, s.phoneNumber, s.kraPin, Number(s.salary), s.batches.length, s.documents.length]).toEqual([null, "0712345678", "A123456789B", 25000, 1, 1]);
+    // A salary only saves when the payroll person sends it
+    expect([s.userId, s.phoneNumber, s.kraPin, s.salary, s.batches.length, s.documents.length]).toEqual([null, "0712345678", "A123456789B", null, 1, 1]);
     expect(await db.auditLog.count({ where: { action: "CREATE_STAFF", recordId: "STAFF-FFA-1001" } })).toBe(1);
   });
 
@@ -103,6 +104,7 @@ describe("sign-in, role and archiving", () => {
 
   it("logs what changed", async () => {
     const { staffId } = await coach();
+    await signedIn("ADMIN", { payrollAccess: true });
     await updateStaff(staffId, base({ email: "coach@example.test", canSignIn: true, jobTitle: "Head coach", salary: "30000" }));
     const log = await db.auditLog.findFirstOrThrow({ where: { action: "UPDATE_STAFF" } });
     expect(log.changes).toMatchObject({ before: { jobTitle: "Groundsman", salary: null }, after: { jobTitle: "Head coach", salary: 30000 } });
@@ -132,5 +134,51 @@ describe("sign-in, role and archiving", () => {
     await setStaffArchived(staffId, false);
     expect((await db.staff.findUniqueOrThrow({ where: { staffId } })).isArchived).toBe(false);
     expect((await db.user.findUniqueOrThrow({ where: { id: userId } })).isArchived).toBe(true);
+  });
+});
+
+describe("payroll access", () => {
+  beforeEach(resetDb);
+
+  const withLogin = (email: string, over: Partial<StaffInput> = {}) => base({ fullNames: email.split("@")[0], email, canSignIn: true, role: "ADMIN", ...over });
+
+  it("only the super admin gives it, and only to one person", async () => {
+    await signedIn("ADMIN");
+    const a = await createStaff(withLogin("head@example.test", { payrollAccess: true }));
+    if (!a.success || !("staffId" in a)) throw new Error(a.message);
+    expect((await loginOf(a.staffId))?.payrollAccess).toBe(false); // an admin can't give it
+
+    await signedIn("SUPER_ADMIN");
+    expect((await updateStaff(a.staffId, withLogin("head@example.test", { payrollAccess: true }))).success).toBe(true);
+    expect((await loginOf(a.staffId))?.payrollAccess).toBe(true);
+
+    const b = await createStaff(withLogin("second@example.test", { payrollAccess: true }));
+    expect(b).toMatchObject({ success: false, message: expect.stringMatching(/has payroll access/) });
+
+    // Handing over: off for the first, then on for the second
+    await updateStaff(a.staffId, withLogin("head@example.test", { payrollAccess: false }));
+    const c = await createStaff(withLogin("second@example.test", { payrollAccess: true }));
+    if (!c.success || !("staffId" in c)) throw new Error(c.message);
+    expect((await loginOf(c.staffId))?.payrollAccess).toBe(true);
+    expect(await db.user.count({ where: { payrollAccess: true } })).toBe(1);
+  });
+
+  it("keeps pay details when another admin edits the record", async () => {
+    await signedIn("ADMIN", { payrollAccess: true });
+    const r = await createStaff(base({ salary: "40000", payBasis: "MONTHLY" }));
+    if (!r.success || !("staffId" in r)) throw new Error(r.message);
+
+    await signedIn("ADMIN");
+    await updateStaff(r.staffId, base({ jobTitle: "Kit manager" }));
+    const s = await db.staff.findUniqueOrThrow({ where: { staffId: r.staffId } });
+    expect([s.jobTitle, Number(s.salary), s.payBasis]).toEqual(["Kit manager", 40000, "MONTHLY"]);
+  });
+
+  it("goes when the person is archived", async () => {
+    await signedIn("SUPER_ADMIN");
+    const r = await createStaff(withLogin("head@example.test", { payrollAccess: true }));
+    if (!r.success || !("staffId" in r)) throw new Error(r.message);
+    await setStaffArchived(r.staffId, true);
+    expect((await loginOf(r.staffId))?.payrollAccess).toBe(false);
   });
 });

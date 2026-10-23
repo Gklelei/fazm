@@ -28,6 +28,14 @@ export function hasRole(
   return !!role && (ROLE_GROUPS[group] as readonly string[]).includes(role);
 }
 
+/**
+ * Payroll (salaries, pay details, advances, payslips): the one payroll
+ * person, plus the super admin (the developer) for support.
+ */
+export function canRunPayroll(user: { role?: string | null; payrollAccess?: boolean | null } | null | undefined): boolean {
+  return !!user && (user.role === "SUPER_ADMIN" || user.payrollAccess === true);
+}
+
 export const FORBIDDEN_MESSAGE = "You don't have permission to do this.";
 
 /** How each role reads on screen. */

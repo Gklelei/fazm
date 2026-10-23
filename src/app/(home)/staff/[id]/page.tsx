@@ -4,7 +4,7 @@ import { notFound } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { logView } from "@/lib/audit-view";
-import { hasRole } from "@/lib/roles";
+import { canRunPayroll, hasRole } from "@/lib/roles";
 import { findStaff } from "@/features/staff/queries/detail";
 import { StaffDetails } from "@/features/staff/components/StaffDetails";
 import { advanceBalances } from "@/features/payroll/lib/run";
@@ -38,8 +38,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       : null,
     db.training.groupBy({ by: ["status"], where: coached, _count: { _all: true } }),
     db.training.aggregate({ where: coached, _sum: { duration: true }, _avg: { duration: true } }),
-    advanceBalances(staff.id),
-    payslipsOf(staff.id),
+    // Pay: the payroll person only
+    canRunPayroll(session?.user) ? advanceBalances(staff.id) : null,
+    canRunPayroll(session?.user) ? payslipsOf(staff.id) : null,
   ]);
   const count = (st: string) => byStatus.find((b) => b.status === st)?._count._all ?? 0;
   const totalSessions = byStatus.reduce((n, b) => n + b._count._all, 0);
@@ -52,6 +53,6 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
   };
   await logView({ resource: "Staff", recordId: staff.staffId, details: `Opened ${staff.fullNames}'s profile (${staff.staffId})` });
   return (
-    <StaffDetails staff={staff} stats={stats} upcoming={upcoming} recent={recent} history={history} activity={activity} pay={{ advances, payslips }} self={staff.userId === session?.user.id} />
+    <StaffDetails staff={staff} stats={stats} upcoming={upcoming} recent={recent} history={history} activity={activity} pay={advances && payslips ? { advances, payslips } : null} self={staff.userId === session?.user.id} />
   );
 }

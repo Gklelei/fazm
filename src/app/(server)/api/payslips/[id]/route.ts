@@ -1,12 +1,12 @@
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
-import { hasRole } from "@/lib/roles";
+import { canRunPayroll } from "@/lib/roles";
 import { createAuditLog } from "@/lib/audit";
 import { payslipPdf } from "@/features/payroll/lib/payslip-pdf";
 import type { Line } from "@/features/payroll/lib/calculate";
 
-/** GET /api/payslips/:id: the payslip PDF, for finance and for the person it belongs to. */
+/** GET /api/payslips/:id: the payslip PDF, for the payroll person and the person it belongs to. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
@@ -18,7 +18,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
       staff: { select: { id: true, userId: true, fullNames: true, staffId: true, jobTitle: true, kraPin: true, nssfNumber: true, shifNumber: true, payMethod: true, payAccount: true } },
     },
   });
-  if (!slip || (!hasRole(session.user.role, "finance") && slip.staff.userId !== session.user.id)) return new Response("Not found", { status: 404 });
+  if (!slip || (!canRunPayroll(session.user) && slip.staff.userId !== session.user.id)) return new Response("Not found", { status: 404 });
 
   // Owed after this month: approved advances less every recovery up to and including this payslip
   const advances = await db.salaryAdvance.findMany({
