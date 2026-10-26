@@ -16,8 +16,8 @@ async function setup(discountType: "PERCENTAGE" | "FIXED_AMOUNT", value: number)
   const second = await makeAthlete();
   await linkSiblings(first.athleteId, second.athleteId);
   await fees([first.athleteId, second.athleteId]);
-  const of = async (athleteId: string) => db.invoice.findFirstOrThrow({ where: { athleteId } });
-  return { first: await of(first.athleteId), second: await of(second.athleteId) };
+  const of = async (athleteId: string) => db.invoice.findFirstOrThrow({ where: { athleteId }, include: { discounts: true } });
+  return { first: await of(first.athleteId), second: await of(second.athleteId), of };
 }
 
 describe("sibling discount", () => {
@@ -25,18 +25,22 @@ describe("sibling discount", () => {
 
   it("goes on fees invoices for every child after the first registered", async () => {
     const { first, second } = await setup("PERCENTAGE", 10);
-    expect([Number(first.discount), first.siblingDiscount]).toEqual([0, false]);
-    expect([Number(second.discount), second.siblingDiscount, second.couponId]).toEqual([300, true, null]);
+    expect([Number(first.discount), first.discounts.length]).toEqual([0, 0]);
+    expect([Number(second.discount), second.discounts.map((d) => [d.kind, d.label])]).toEqual([300, [["SIBLING", "Sibling discount"]]]);
   });
 
-  it("keeps the bigger discount when a coupon is applied", async () => {
-    const { second } = await setup("FIXED_AMOUNT", 500);
-    await createCoupon({ name: "SMALL", discountType: "PERCENTAGE", value: 5, interval: "ONCE", startDate: "2026-01-01", expiryDate: "", usageLimit: "", oncePerAthlete: false, plans: [] });
-    await createCoupon({ name: "BIG", discountType: "PERCENTAGE", value: 50, interval: "ONCE", startDate: "2026-01-01", expiryDate: "", usageLimit: "", oncePerAthlete: false, plans: [] });
-
-    expect((await applyCouponToInvoice(second.invoiceNumber, "SMALL")).message).toMatch(/^The sibling discount \(Ksh.500\) is bigger, so it stays\.$/);
-    expect((await applyCouponToInvoice(second.invoiceNumber, "BIG")).success).toBe(true);
-    const after = await db.invoice.findUniqueOrThrow({ where: { id: second.id } });
-    expect([Number(after.discount), after.siblingDiscount]).toEqual([1500, false]);
+  // Was: the sibling discount and a coupon competed for one slot, so siblings lost their coupon
+  it("adds up with a coupon, each its own line", async () => {
+    const { second, of } = await setup("FIXED_AMOUNT", 500);
+    await createCoupon({ name: "SMALL", discountType: "PERCENTAGE", value: 5, duration: "ONCE", durationCount: "", startDate: "2026-01-01", expiryDate: "", usageLimit: "", oncePerAthlete: false, plans: [] });
+    expect((await applyCouponToInvoice(second.invoiceNumber, "SMALL")).success).toBe(true);
+    const after = await of(second.athleteId);
+    expect([Number(after.discount), after.discounts.map((d) => [d.kind, Number(d.amount)]).sort()]).toEqual([
+      650,
+      [
+        ["COUPON", 150],
+        ["SIBLING", 500],
+      ],
+    ]);
   });
 });

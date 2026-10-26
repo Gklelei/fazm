@@ -25,13 +25,14 @@ const TYPES = [
   { value: "PERCENTAGE", label: "Percentage" },
   { value: "FIXED_AMOUNT", label: "Fixed amount" },
 ];
-const USED_ON = [
+const DURATIONS = [
   { value: "ONCE", label: "One invoice" },
-  { value: "REPEATING", label: "Fee plan, every fees invoice" },
+  { value: "INVOICES", label: "A number of fees invoices" },
+  { value: "ALWAYS", label: "Every fees invoice" },
 ];
 
 /** Create or edit a coupon. */
-export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?: CouponInput; timesUsed?: number }) {
+export function CouponForm({ id, values, uses = 0 }: { id?: string; values?: CouponInput; uses?: number }) {
   const router = useRouter();
   const plans = UseUtilsContext().data?.plans ?? [];
   const [error, setError] = useState<string | null>(null);
@@ -44,7 +45,8 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
       name: "",
       discountType: "PERCENTAGE",
       value: "" as unknown as number,
-      interval: "ONCE",
+      duration: "ONCE",
+      durationCount: "",
       startDate: academyToday(),
       expiryDate: "",
       usageLimit: "",
@@ -55,6 +57,7 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
   });
   useLeaveWarning(form.formState.isDirty && !saved);
   const type = useWatch({ control: form.control, name: "discountType" });
+  const duration = useWatch({ control: form.control, name: "duration" });
 
   const submit = form.handleSubmit((v) =>
     start(async () => {
@@ -68,7 +71,7 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
     }),
   );
 
-  const chips = (name: "discountType" | "interval", label: string, options: { value: string; label: string }[]) => (
+  const chips = (name: "discountType" | "duration", label: string, options: { value: string; label: string }[]) => (
     <FormField
       control={form.control}
       name={name}
@@ -100,7 +103,11 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
           </FormSection>
 
           <FormSection title="Where it's used" icon={Target}>
-            {chips("interval", "Used on", USED_ON)}
+            {chips("duration", "Lasts", DURATIONS)}
+            {duration === "INVOICES" && <TextField<CouponInput> name="durationCount" label="How many fees invoices" inputMode="numeric" />}
+            <p className="text-xs text-muted-foreground @md:col-span-2">
+              One invoice: put on an invoice, or given to an athlete for their next fees invoice. Longer: given to an athlete, it discounts their next fees invoices.
+            </p>
             <FormField
               control={form.control}
               name="plans"
@@ -127,7 +134,7 @@ export function CouponForm({ id, values, timesUsed = 0 }: { id?: string; values?
               label="Total uses"
               optional
               inputMode="numeric"
-              hint={timesUsed ? `Used ${timesUsed} times so far.` : undefined}
+              hint={uses ? `Used ${uses} times so far.` : undefined}
             />
             <FormField
               control={form.control}

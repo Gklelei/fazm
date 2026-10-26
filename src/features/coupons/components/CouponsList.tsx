@@ -19,7 +19,7 @@ import { formatAcademy } from "@/lib/academy-time";
 import { formatCurrency } from "@/lib/format";
 import { cn } from "@/lib/utils";
 import type { CouponRow, CouponsPage } from "../queries/list";
-import { COUPON_STATE_LABEL, couponState, discountLabel, type CouponState } from "../lib/state";
+import { COUPON_STATE_LABEL, couponState, discountLabel, type CouponState, durationLabel } from "../lib/state";
 import { CouponActionsMenu, CouponStateBadge } from "./CouponRowActions";
 import { CouponCode } from "./CouponCode";
 
@@ -28,9 +28,9 @@ const STATES: CouponState[] = ["ON", "OFF", "NOT_STARTED", "EXPIRED", "USED_UP"]
 
 const day = (d: string) => formatAcademy(d, { day: "numeric", month: "short", year: "numeric" });
 export const validity = (c: { startDate: string; expiryDate: string | null }) => (c.expiryDate ? `${day(c.startDate)} – ${day(c.expiryDate)}` : `From ${day(c.startDate)}`);
-export const appliesTo = (c: { interval: string; plans: { name: string }[] }) =>
-  `${c.interval === "REPEATING" ? "Each fees invoice" : "One invoice"}${c.plans.length ? ` · ${c.plans.map((p) => p.name).join(", ")}` : ""}`;
-const usage = (c: CouponRow) => (c.usageLimit != null ? `${c.timesUsed} of ${c.usageLimit}` : String(c.timesUsed));
+export const appliesTo = (c: { duration: string; durationCount: number | null; plans: { name: string }[] }) =>
+  `${durationLabel(c)}${c.plans.length ? ` · ${c.plans.map((p) => p.name).join(", ")}` : ""}`;
+const usage = (c: CouponRow) => (c.usageLimit != null ? `${c.uses} of ${c.usageLimit}` : String(c.uses));
 
 const exportRow = (c: CouponRow, i: number) => [
   String(i + 1),
@@ -221,11 +221,11 @@ export function CouponsList({ initial }: { initial: CouponsPage }) {
                       </TableCell>
                       <TableCell>
                         <span className="tabular block font-bold text-primary">{c.discountType === "PERCENTAGE" ? `${c.value}% off` : `−${formatCurrency(c.value)}`}</span>
-                        <span className="text-xs text-muted-foreground">{c.interval === "REPEATING" ? "Each fees invoice" : "One invoice"}</span>
+                        <span className="text-xs text-muted-foreground">{durationLabel(c)}</span>
                       </TableCell>
                       <TableCell className="text-sm">{c.plans.length ? c.plans.map((p) => p.name).join(", ") : <span className="text-muted-foreground">Any charge</span>}</TableCell>
                       <TableCell className="tabular text-right text-sm">
-                        <span className="font-medium">{c.timesUsed}</span>
+                        <span className="font-medium">{c.uses}</span>
                         <span className="mx-1 text-muted-foreground">/</span>
                         <span className="text-muted-foreground">{c.usageLimit ?? "∞"}</span>
                       </TableCell>

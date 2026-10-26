@@ -11,8 +11,7 @@ import { academyDate, academyInstant } from "@/lib/academy-time";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { formatCurrency } from "@/lib/format";
 import { invoiceStatusFor, payableOf } from "@/features/invoices/lib/status";
-import { discountFor, feePlanCoupon } from "@/features/coupons/lib/redeem";
-import { siblingDiscountFor } from "@/features/families/lib/sibling-discount";
+import { discountNewFeesInvoice, rediscount } from "@/features/coupons/lib/engine";
 import {
   createInvoiceSchema,
   editInvoiceSchema,
@@ -64,11 +63,7 @@ export async function createInvoices(input: CreateInvoiceInput) {
     const numbers = await db.$transaction(async (tx) => {
       const issued = await nextDocumentNumbers(tx, "INV", athletes.length, new Date());
       for (const [i, a] of athletes.entries()) {
-        // New fees invoices get the fee plan's repeating coupon or the sibling discount, whichever is bigger
-        const coupon = v.type === "SUBSCRIPTION" ? await feePlanCoupon(tx, a.athleteId, rows) : null;
-        const sibling = v.type === "SUBSCRIPTION" ? await siblingDiscountFor(tx, a.athleteId, rows) : 0;
-        const auto = sibling > (coupon?.amount ?? 0) ? { coupon: null, amount: sibling } : coupon;
-        await tx.invoice.create({
+        const created = await tx.invoice.create({
           data: {
             invoiceNumber: issued[i],
             athleteId: a.athleteId,
@@ -80,14 +75,15 @@ export async function createInvoices(input: CreateInvoiceInput) {
             quantity: 1,
             amountDue: total,
             amountPaid: new Prisma.Decimal(0),
-            ...(auto && { couponId: auto.coupon?.id ?? null, siblingDiscount: !auto.coupon, discount: new Prisma.Decimal(auto.amount) }),
-            status: invoiceStatusFor(0, Number(total) - (auto?.amount ?? 0), dueDate),
+            status: invoiceStatusFor(0, Number(total), dueDate),
             dueDate,
             subscriptionPlanId,
             isRecurring: false,
             issuedBy: user.email || "system",
           },
         });
+        // A fees invoice gets the sibling discount and the coupons given to the athlete
+        await discountNewFeesInvoice(tx, created.id);
       }
       return issued;
     });
@@ -126,14 +122,12 @@ export async function updateInvoice(invoiceNumber: string, input: EditInvoiceInp
       const inv = await tx.invoice.findUnique({ where: { invoiceNumber }, include: { lines: { orderBy: { position: "asc" } } } });
       if (!inv) throw new ActionError("That invoice no longer exists.");
       if (inv.status === "CANCELED") throw new ActionError("Restore the invoice before editing it.");
-      // A coupon's discount follows the new lines (a percentage, or only some fee plans' charges)
-      const coupon = inv.couponId ? await tx.coupon.findUnique({ where: { id: inv.couponId }, select: { discountType: true, value: true, plans: { select: { id: true } } } }) : null;
-      const discount = coupon ? discountFor(coupon, rows) : Number(inv.discount ?? 0);
-      if (discount > Number(total)) throw new ActionError(`The invoice has a ${formatCurrency(discount)} discount, so the total can't be less than that.`);
+      // Each discount is worked out again on the new lines, from its own terms
+      const re = await rediscount(tx, inv.id, rows, Number(total), Number(inv.amountPaid));
+      if ("problem" in re) throw new ActionError(re.problem!);
+      await re.save();
+      const discount = re.discount;
       const payable = payableOf({ amountDue: total, discount });
-      if (Number(inv.amountPaid) > payable) {
-        throw new ActionError(`Payments already total ${formatCurrency(Number(inv.amountPaid))}, so the invoice can't be less than that.`);
-      }
       await tx.invoiceLine.deleteMany({ where: { invoiceId: inv.id } });
       await tx.invoice.update({
         where: { id: inv.id },

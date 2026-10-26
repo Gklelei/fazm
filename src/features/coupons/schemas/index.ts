@@ -12,7 +12,12 @@ export const couponSchema = z
       .regex(/^[A-Z0-9_]{2,20}$/, "Use 2 to 20 letters, numbers or _"),
     discountType: z.enum(["PERCENTAGE", "FIXED_AMOUNT"]),
     value: z.coerce.number({ error: "Enter the discount" }).positive("Enter the discount").max(10_000_000, "That's too large"),
-    interval: z.enum(["ONCE", "REPEATING"]),
+    /** How long it discounts once given: one invoice, the next N fees invoices, or every one */
+    duration: z.enum(["ONCE", "INVOICES", "ALWAYS"]),
+    durationCount: z
+      .string()
+      .trim()
+      .refine((v) => !v || (/^\d+$/.test(v) && Number(v) >= 1 && Number(v) <= 120), "A whole number from 1 to 120"),
     startDate: ymd,
     expiryDate: z.string().refine((v) => !v || /^\d{4}-\d{2}-\d{2}$/.test(v), "Pick a date"),
     usageLimit: z
@@ -25,6 +30,7 @@ export const couponSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.discountType === "PERCENTAGE" && v.value > 100) ctx.addIssue({ code: "custom", path: ["value"], message: "Up to 100%" });
+    if (v.duration === "INVOICES" && !v.durationCount) ctx.addIssue({ code: "custom", path: ["durationCount"], message: "How many fees invoices?" });
     if (v.expiryDate && v.expiryDate < v.startDate) ctx.addIssue({ code: "custom", path: ["expiryDate"], message: "Pick a date after it starts" });
   });
 

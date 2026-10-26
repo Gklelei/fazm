@@ -11,6 +11,7 @@ import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { payableOf } from "../lib/status";
 import { INVOICE_TYPES } from "../schemas";
 import { InvoiceActions } from "./InvoiceActions";
+import { RemoveDiscount } from "./RemoveDiscount";
 
 export const INVOICE_PAGE_INCLUDE = {
   athlete: {
@@ -25,7 +26,7 @@ export const INVOICE_PAGE_INCLUDE = {
   },
   lines: { orderBy: { position: "asc" } },
   finances: { where: { isArchived: false }, orderBy: { paymentDate: "desc" } },
-  coupon: { select: { name: true } },
+  discounts: { orderBy: { createdAt: "asc" }, select: { id: true, label: true, amount: true, kind: true } },
   auditLogs: {
     where: { action: { notIn: ["VIEW", "EXPORT", "EXPORT_PDF"] } },
     orderBy: { createdAt: "desc" },
@@ -138,7 +139,6 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
                 status={data.status}
                 balance={balance}
                 athlete={{ athleteId: data.athlete.athleteId, name }}
-                coupon={data.coupon?.name ?? null}
               />
             </div>
           </section>
@@ -228,7 +228,11 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
               <div className="space-y-1 text-sm sm:text-right">
                 <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase">For</p>
                 <p className="font-medium">{type}</p>
-                {data.coupon && <p className="text-muted-foreground">Coupon {data.coupon.name}</p>}
+                {data.discounts.some((d) => d.kind === "COUPON") && (
+                  <p className="text-muted-foreground">
+                    Coupon {data.discounts.filter((d) => d.kind === "COUPON").map((d) => d.label).join(", ")}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -259,12 +263,22 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
                   <dt className="text-muted-foreground">Subtotal</dt>
                   <dd>{formatCurrency(total)}</dd>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between">
-                    <dt className="text-muted-foreground">{data.coupon ? `Discount (${data.coupon.name})` : data.siblingDiscount ? "Sibling discount" : "Discount"}</dt>
-                    <dd>−{formatCurrency(discount)}</dd>
-                  </div>
-                )}
+                {data.discounts.length > 0
+                  ? data.discounts.map((d) => (
+                      <div key={d.id} className="flex items-center justify-between gap-2">
+                        <dt className="flex min-w-0 items-center gap-1 text-muted-foreground">
+                          <span className="truncate">{d.label}</span>
+                          {data.status !== "CANCELED" && <RemoveDiscount invoiceNumber={data.invoiceNumber} discountId={d.id} label={d.label} />}
+                        </dt>
+                        <dd>−{formatCurrency(Number(d.amount))}</dd>
+                      </div>
+                    ))
+                  : discount > 0 && (
+                      <div className="flex justify-between">
+                        <dt className="text-muted-foreground">Discount</dt>
+                        <dd>−{formatCurrency(discount)}</dd>
+                      </div>
+                    )}
                 {paid > 0 && (
                   <div className="flex justify-between">
                     <dt className="text-muted-foreground">Paid</dt>

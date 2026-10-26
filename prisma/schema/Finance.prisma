@@ -98,8 +98,6 @@ model AthleteSubscription {
   updatedAt DateTime  @updatedAt
   updatedBy String? // Track who updated this subscription
   finances  Finance[]
-  coupon    Coupon?   @relation(fields: [couponId], references: [id])
-  couponId  String?
 
   @@index([athleteId, status])
   @@index([currentPeriodEnd])
@@ -157,8 +155,10 @@ model Invoice {
   finances  Finance[]
   /// What the invoice is for; amountDue is always the sum of the lines
   lines     InvoiceLine[]
-  coupon    Coupon?    @relation(fields: [couponId], references: [id])
-  couponId  String?
+  /// Each discount on the invoice (coupons, the sibling discount); `discount` is their sum
+  discounts   InvoiceDiscount[]
+  /// Coupons given for this invoice alone
+  redemptions CouponRedemption[]
   auditLogs AuditLog[]
 
   @@index([athleteId])
@@ -172,8 +172,6 @@ model Invoice {
   lateFeeForId String?   @unique @map("late_fee_for_id")
   lateFeeFor   Invoice?  @relation("LateFee", fields: [lateFeeForId], references: [id], onDelete: SetNull)
   lateFee      Invoice?  @relation("LateFee")
-  /// The discount is the family's sibling discount (no coupon)
-  siblingDiscount Boolean @default(false) @map("sibling_discount")
   /// Last overdue reminder emailed to the guardian
   remindedAt   DateTime? @map("reminded_at")
 }
@@ -216,9 +214,29 @@ enum DiscountType {
   FIXED_AMOUNT
 }
 
-enum CouponInterval {
+/// How long a coupon given to an athlete keeps discounting their fees invoices
+enum CouponDuration {
+  /// One invoice
   ONCE
-  REPEATING
+  /// The next `durationCount` fees invoices
+  INVOICES
+  /// Every fees invoice until it's removed
+  ALWAYS
+}
+
+enum RedemptionStatus {
+  ACTIVE
+  /// It has discounted as many invoices as it lasts
+  ENDED
+  /// Taken off (it no longer counts as a use)
+  REMOVED
+}
+
+enum InvoiceDiscountKind {
+  COUPON
+  SIBLING
+  /// A discount from before discounts had their own lines
+  OTHER
 }
 
 model Coupon {
@@ -228,13 +246,15 @@ model Coupon {
   discountType DiscountType @default(PERCENTAGE) @map("discount_type")
   value        Decimal      @db.Decimal(10, 2)
 
-  interval CouponInterval @default(ONCE)
+  duration      CouponDuration @default(ONCE)
+  /// For INVOICES: how many fees invoices
+  durationCount Int?           @map("duration_count")
 
   startDate  DateTime  @default(now()) @map("start_date")
   expiryDate DateTime? @map("expiry_date")
 
+  /// The most times it can be given (each redemption is one use; removed ones don't count)
   usageLimit Int? @map("usage_limit")
-  timesUsed  Int  @default(0) @map("times_used")
   /// An athlete can get it only once
   oncePerAthlete Boolean @default(false) @map("once_per_athlete")
   /// Only these fee plans' charges; none = any charge
@@ -244,10 +264,58 @@ model Coupon {
 
   createdAt     DateTime              @default(now()) @map("created_at")
   updatedAt     DateTime              @default(now()) @updatedAt @map("updated_at")
-  subscriptions AthleteSubscription[]
-  invoices      Invoice[]
+  redemptions   CouponRedemption[]
 
   @@map("coupons")
+}
+
+/// A coupon given to an athlete (it discounts their next fees invoices) or to one invoice. Uses
+/// are counted from these rows, never kept in a counter.
+model CouponRedemption {
+  id           String            @id @default(cuid())
+  couponId     String            @map("coupon_id")
+  coupon       Coupon            @relation(fields: [couponId], references: [id])
+  athleteId    String            @map("athlete_id")
+  athlete      Athlete           @relation(fields: [athleteId], references: [athleteId])
+  /// Given for this invoice alone (null: given to the athlete)
+  invoiceId    String?           @map("invoice_id")
+  invoice      Invoice?          @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  /// Fees invoices it still discounts (null: no end)
+  invoicesLeft Int?              @map("invoices_left")
+  status       RedemptionStatus  @default(ACTIVE)
+  givenById    String?           @map("given_by_id")
+  createdAt    DateTime          @default(now()) @map("created_at")
+  endedAt      DateTime?         @map("ended_at")
+  removedAt    DateTime?         @map("removed_at")
+  removedById  String?           @map("removed_by_id")
+  discounts    InvoiceDiscount[]
+
+  @@index([athleteId, status])
+  @@index([couponId, status])
+  @@map("coupon_redemptions")
+}
+
+/// One discount on an invoice, with the terms it was worked out from, so it can be worked out
+/// again the same way when the invoice's lines change (a coupon edited later never changes it).
+model InvoiceDiscount {
+  id           String              @id @default(cuid())
+  invoiceId    String              @map("invoice_id")
+  invoice      Invoice             @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  kind         InvoiceDiscountKind
+  redemptionId String?             @map("redemption_id")
+  redemption   CouponRedemption?   @relation(fields: [redemptionId], references: [id])
+  /// As shown on the invoice and statement: "SUMMER10 (10%)", "Sibling discount"
+  label        String
+  amount       Decimal             @db.Decimal(10, 2)
+  discountType DiscountType        @map("discount_type")
+  value        Decimal             @db.Decimal(10, 2)
+  /// Only these fee plans' charges; empty: the whole invoice
+  planIds      String[]            @map("plan_ids")
+  createdAt    DateTime            @default(now()) @map("created_at")
+
+  @@index([invoiceId])
+  @@index([redemptionId])
+  @@map("invoice_discounts")
 }
 
 model Expenses {

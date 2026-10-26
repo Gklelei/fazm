@@ -12,7 +12,8 @@ const fields = (v: CouponValues) => ({
   name: v.name,
   discountType: v.discountType,
   value: new Prisma.Decimal(v.value),
-  interval: v.interval,
+  duration: v.duration,
+  durationCount: v.duration === "INVOICES" ? Number(v.durationCount) : null,
   startDate: academyInstant(v.startDate, "00:00"),
   // Valid to the end of that day in Nairobi
   expiryDate: v.expiryDate ? academyInstant(v.expiryDate, "23:59") : null,
@@ -62,12 +63,13 @@ export async function updateCoupon(id: string, input: CouponInput) {
     const before = await db.coupon.findUnique({ where: { id }, include: { plans: { select: { id: true } } } });
     if (!before) throw new ActionError("That coupon no longer exists.");
     if (before.voided) throw new ActionError("Restore the coupon before editing it.");
-    if (v.usageLimit && Number(v.usageLimit) < before.timesUsed) {
-      throw new ActionError(`It's been used ${before.timesUsed} times, so the limit can't be lower than that.`);
+    const uses = await db.couponRedemption.count({ where: { couponId: id, status: { not: "REMOVED" } } });
+    if (v.usageLimit && Number(v.usageLimit) < uses) {
+      throw new ActionError(`It's been used ${uses} times, so the limit can't be lower than that.`);
     }
     await nameFree(v.name, id);
     await checkPlans(v.plans);
-    // Discounts already given stay as they are; changes apply from now on
+    // Discounts already given stay as they are; changes apply to invoices from now on
     await db.coupon.update({ where: { id }, data: { ...fields(v), plans: { set: v.plans.map((p) => ({ id: p })) } } });
     touched(id);
     await createAuditLog({

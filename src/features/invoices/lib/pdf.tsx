@@ -12,6 +12,7 @@ export async function invoicePdf(where: { id: string } | { invoiceNumber: string
     include: {
       athlete: { select: { firstName: true, middleName: true, lastName: true, email: true, phoneNumber: true } },
       lines: { orderBy: { position: "asc" } },
+      discounts: { orderBy: { createdAt: "asc" }, select: { id: true, label: true, amount: true } },
     },
   });
   if (!invoice) return null;

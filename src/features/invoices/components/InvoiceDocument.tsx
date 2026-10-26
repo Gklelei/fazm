@@ -141,6 +141,7 @@ export type InvoicePdfData = Prisma.InvoiceGetPayload<{
   include: {
     athlete: { select: { firstName: true; middleName: true; lastName: true; email: true; phoneNumber: true } };
     lines: true;
+    discounts: { select: { id: true; label: true; amount: true } };
   };
 }>;
 
@@ -269,10 +270,19 @@ export default function InvoiceDocument({
                 <Text>Subtotal</Text>
                 <Text>{moneyKES(amountDue)}</Text>
               </View>
-              <View style={styles.totalRow}>
-                <Text>{invoice.siblingDiscount ? "Sibling discount" : "Discount"}</Text>
-                <Text>- {moneyKES(discount)}</Text>
-              </View>
+              {invoice.discounts.length > 0 ? (
+                invoice.discounts.map((d) => (
+                  <View key={d.id} style={styles.totalRow}>
+                    <Text>{d.label}</Text>
+                    <Text>- {moneyKES(asNumber(d.amount))}</Text>
+                  </View>
+                ))
+              ) : (
+                <View style={styles.totalRow}>
+                  <Text>Discount</Text>
+                  <Text>- {moneyKES(discount)}</Text>
+                </View>
+              )}
             </>
           )}
           <View style={styles.totalRow}>

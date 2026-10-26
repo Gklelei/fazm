@@ -6,6 +6,7 @@ import { createAuditLog } from "@/lib/audit";
 import { db } from "@/lib/prisma";
 import { ROLE_GROUPS } from "@/lib/roles";
 import { invoiceStatusFor, payableOf } from "../lib/status";
+import { discountNewFeesInvoice, releaseDiscounts } from "@/features/coupons/lib/engine";
 
 /**
  * Cancel an invoice, or restore a cancelled one. The status is never set
@@ -25,14 +26,18 @@ export async function setInvoiceCancelled(
       if (cancelled && inv.status === "PAID") {
         throw new UserError("A paid invoice can't be cancelled. Remove its payments first.");
       }
-      return tx.invoice.update({
+      if (cancelled === (inv.status === "CANCELED")) return inv;
+      // Cancelled: its discounts come off (coupons are released); restored: a fees invoice is
+      // discounted again as a new one would be
+      if (cancelled) await releaseDiscounts(tx, inv.id, authz.session.user.id);
+      const updated = await tx.invoice.update({
         where: { invoiceNumber },
         data: {
-          status: cancelled
-            ? "CANCELED"
-            : invoiceStatusFor(Number(inv.amountPaid), payableOf(inv), inv.dueDate),
+          status: cancelled ? "CANCELED" : invoiceStatusFor(Number(inv.amountPaid), payableOf({ amountDue: inv.amountDue, discount: 0 }), inv.dueDate),
         },
       });
+      if (!cancelled) await discountNewFeesInvoice(tx, inv.id);
+      return updated;
     });
 
     await createAuditLog({

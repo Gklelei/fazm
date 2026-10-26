@@ -39,6 +39,7 @@ model Athlete {
   isArchived           Boolean                     @default(false) @map("is_archived")
   ArchiveDate          DateTime?
   athleteSubscriptions AthleteSubscription[]
+  couponRedemptions    CouponRedemption[]
   auditLogs            AuditLog[]
   consents             AthleteConsent[]
   /// Siblings confirmed by staff share a family (statement, split payments, sibling discount)

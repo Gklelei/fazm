@@ -9,6 +9,7 @@ import { academyInstant } from "@/lib/academy-time";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
+import { discountNewFeesInvoice } from "@/features/coupons/lib/engine";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 import { ageOn, missingDocuments, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
 import { getSettings } from "@/lib/settings";
@@ -163,7 +164,7 @@ export async function registerAthlete(input: RegistrationInput) {
       });
 
       // ---------- First invoice: the full plan amount ----------
-      await ctx.invoice.create({
+      const firstInvoice = await ctx.invoice.create({
         data: {
           athleteId: athlete.athleteId,
           athleteSubscriptionId: subscription.id,
@@ -187,6 +188,8 @@ export async function registerAthlete(input: RegistrationInput) {
           issuedBy: user.email || "system",
         },
       });
+      // Discounted like every fees invoice (the sibling discount, when it applies)
+      await discountNewFeesInvoice(ctx, firstInvoice.id);
 
       return { id: athlete.id, athleteId, invoiceNumber };
     });

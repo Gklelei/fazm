@@ -21,24 +21,17 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     db.athlete.findUnique(GetAthleteByIdQuery(id)),
     getAthleteSummary(id),
     athleteProgress(id),
-    // Repeating coupons that can still go on this athlete's fee plan
+    // Coupons that can be given now (Check says whether one fits this athlete, and why not)
     db.coupon.findMany({
       where: {
-        interval: "REPEATING",
-        startDate: { lte: new Date() },
         voided: 0,
         status: 1,
+        startDate: { lte: new Date() },
         OR: [{ expiryDate: null }, { expiryDate: { gt: new Date() } }],
-        AND: [
-          {
-            OR: [
-              { usageLimit: null },
-              { timesUsed: { lt: db.coupon.fields.usageLimit } },
-            ],
-          },
-        ],
       },
+      select: { id: true, name: true, discountType: true, value: true, duration: true, durationCount: true, plans: { select: { name: true } } },
       orderBy: { createdAt: "desc" },
+      take: 30,
     }),
   ]);
   if (!athlete || athlete.isArchived) notFound();
@@ -54,13 +47,9 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
     name: c.name,
     discountType: c.discountType,
     value: Number(c.value),
-    interval: c.interval,
-    startDate: c.startDate,
-    expiryDate: c.expiryDate,
-    usageLimit: c.usageLimit,
-    timesUsed: c.timesUsed,
-    status: c.status,
-    voided: c.voided,
+    duration: c.duration,
+    durationCount: c.durationCount,
+    plans: c.plans.map((p) => p.name),
   }));
 
   const [session, family] = await Promise.all([auth.api.getSession({ headers: await headers() }), familyOf(athlete.athleteId)]);

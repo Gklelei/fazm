@@ -18,13 +18,14 @@ import { formatAcademy } from "@/lib/academy-time";
 import { formatCurrency } from "@/lib/format";
 import { athleteName } from "@/features/athletes/lib/names";
 import { setCouponArchived } from "../actions/coupons";
-import { couponState, discountLabel } from "../lib/state";
+import { couponState, discountLabel, durationLabel } from "../lib/state";
 import type { CouponRow } from "../queries/list";
 import type { CouponInvoicesPage } from "../queries/usage";
 import { CouponActionsMenu, CouponStateBadge } from "./CouponRowActions";
 import { appliesTo } from "./CouponsList";
 
-type FeePlan = { id: string; athleteId: string; name: string; plan: string };
+/** An athlete the coupon was given to */
+type Given = { id: string; athleteId: string; name: string; status: "ACTIVE" | "ENDED" | "REMOVED"; invoicesLeft: number | null; createdAt: string };
 type LogEntry = { id: string; details: string | null; createdAt: string; user: string | null };
 
 const when = (d: string) => formatAcademy(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -63,13 +64,13 @@ export function CouponDetails({
   coupon: c,
   invoices: initial,
   given,
-  feePlans,
+  athletes,
   history,
 }: {
   coupon: CouponRow;
   invoices: CouponInvoicesPage;
   given: number;
-  feePlans: FeePlan[];
+  athletes: Given[];
   history: LogEntry[];
 }) {
   const router = useRouter();
@@ -84,7 +85,8 @@ export function CouponDetails({
   });
   const invoices = data.pages.flatMap((p) => p.items);
   const day = (d: string) => formatAcademy(d, { day: "numeric", month: "short", year: "numeric" });
-  const share = c.usageLimit ? Math.min(100, Math.round((c.timesUsed / c.usageLimit) * 100)) : null;
+  const share = c.usageLimit ? Math.min(100, Math.round((c.uses / c.usageLimit) * 100)) : null;
+  const active = athletes.filter((a) => a.status === "ACTIVE");
 
   return (
     <div className="mx-auto max-w-7xl space-y-6">
@@ -148,7 +150,7 @@ export function CouponDetails({
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-x-6 gap-y-4 text-sm">
             <Detail label="Discount">{discountLabel(c, formatCurrency)}</Detail>
-            <Detail label="Used on">{c.interval === "REPEATING" ? "Fee plan, every fees invoice" : "One invoice"}</Detail>
+            <Detail label="Lasts">{durationLabel(c)}</Detail>
             <Detail label="Valid from">{day(c.startDate)}</Detail>
             <Detail label="Valid until">{c.expiryDate ? day(c.expiryDate) : "No end date"}</Detail>
             <Detail label="Fee plans">{c.plans.map((p) => p.name).join(", ") || "Any charge"}</Detail>
@@ -164,7 +166,7 @@ export function CouponDetails({
           </CardHeader>
           <CardContent className="space-y-3 text-sm">
             <p className="tabular text-3xl font-bold">
-              {c.timesUsed}
+              {c.uses}
               <span className="text-lg font-normal text-muted-foreground"> / {c.usageLimit ?? "∞"}</span>
             </p>
             {share != null && (
@@ -172,17 +174,17 @@ export function CouponDetails({
                 <div className={cn("h-full rounded-full", share >= 100 ? "bg-warning" : "bg-primary")} style={{ width: `${share}%` }} />
               </div>
             )}
-            <p className="text-muted-foreground">{c.usageLimit ? `${Math.max(c.usageLimit - c.timesUsed, 0)} left to use` : "No limit on uses"}</p>
+            <p className="text-muted-foreground">{c.usageLimit ? `${Math.max(c.usageLimit - c.uses, 0)} left to use` : "No limit on uses"}</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4">
-        <Stat label="Times used" value={c.timesUsed} />
+        <Stat label="Times used" value={c.uses} />
         <Stat label="Discount given" value={formatCurrency(given)} />
         <Stat label="Invoices" value={data.pages[0]?.total ?? invoices.length} />
-        <Stat label="On fee plans" value={c.interval === "REPEATING" ? feePlans.length : "—"} />
+        <Stat label="Still discounting" value={active.length} note="athletes" />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3">
@@ -241,29 +243,38 @@ export function CouponDetails({
         </div>
 
         <div className="space-y-6">
-          {c.interval === "REPEATING" && (
-            <div className="space-y-3">
-              <SectionTitle icon={Users}>On fee plans</SectionTitle>
-              <Card className="overflow-hidden py-0">
-                {feePlans.length === 0 ? (
-                  <CardContent className="p-6 text-center text-sm text-muted-foreground">Not on any athlete&apos;s fee plan.</CardContent>
-                ) : (
-                  <ul className="divide-y">
-                    {feePlans.map((f) => (
-                      <li key={f.id}>
-                        <Link href={`/players/user-profile/${f.athleteId}`} className="grid px-4 py-2.5 leading-tight hover:bg-muted/40">
-                          <span className="font-medium">{f.name}</span>
+          <div className="space-y-3">
+            <SectionTitle icon={Users}>Given to</SectionTitle>
+            <Card className="overflow-hidden py-0">
+              {athletes.length === 0 ? (
+                <CardContent className="p-6 text-center text-sm text-muted-foreground">Not given to an athlete yet.</CardContent>
+              ) : (
+                <ul className="divide-y">
+                  {athletes.map((a) => (
+                    <li key={a.id}>
+                      <Link href={`/players/user-profile/${a.athleteId}`} className="flex items-center gap-3 px-4 py-2.5 leading-tight hover:bg-muted/40">
+                        <span className="grid min-w-0 flex-1">
+                          <span className="font-medium">{a.name}</span>
                           <span className="text-sm text-muted-foreground">
-                            <span className="font-mono text-xs">{f.athleteId}</span> · {f.plan}
+                            <span className="font-mono text-xs">{a.athleteId}</span> · given {day(a.createdAt)}
                           </span>
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </Card>
-            </div>
-          )}
+                        </span>
+                        <span className="text-right text-xs text-muted-foreground">
+                          {a.status === "ACTIVE"
+                            ? a.invoicesLeft == null
+                              ? "Every fees invoice"
+                              : `${a.invoicesLeft} invoice${a.invoicesLeft === 1 ? "" : "s"} left`
+                            : a.status === "ENDED"
+                              ? "Used"
+                              : "Removed"}
+                        </span>
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
+          </div>
 
           <div className="space-y-3">
             <SectionTitle icon={HistoryIcon}>History</SectionTitle>

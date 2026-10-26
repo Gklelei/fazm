@@ -11,13 +11,13 @@ export const COUPON_STATE_LABEL: Record<CouponState, string> = {
 };
 
 export function couponState(
-  c: { voided: number; status: number; startDate: Date | string; expiryDate: Date | string | null; usageLimit: number | null; timesUsed: number },
+  c: { voided: number; status: number; startDate: Date | string; expiryDate: Date | string | null; usageLimit: number | null; uses: number },
   now = new Date(),
 ): CouponState {
   if (c.voided) return "ARCHIVED";
   if (c.status !== 1) return "OFF";
   if (c.expiryDate && new Date(c.expiryDate) < now) return "EXPIRED";
-  if (c.usageLimit != null && c.timesUsed >= c.usageLimit) return "USED_UP";
+  if (c.usageLimit != null && c.uses >= c.usageLimit) return "USED_UP";
   if (new Date(c.startDate) > now) return "NOT_STARTED";
   return "ON";
 }
@@ -25,3 +25,7 @@ export function couponState(
 /** "10%" or "Ksh 500". */
 export const discountLabel = (c: { discountType: string; value: unknown }, money: (n: number) => string) =>
   c.discountType === "PERCENTAGE" ? `${Number(c.value)}%` : money(Number(c.value));
+
+/** "One invoice", "3 fees invoices", "Every fees invoice" */
+export const durationLabel = (c: { duration: string; durationCount: number | null }) =>
+  c.duration === "ONCE" ? "One invoice" : c.duration === "INVOICES" ? `${c.durationCount} fees invoice${c.durationCount === 1 ? "" : "s"}` : "Every fees invoice";

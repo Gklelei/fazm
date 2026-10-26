@@ -13,7 +13,6 @@ import {
   Printer,
   RotateCcw,
   Tag,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -26,7 +25,6 @@ import {
 import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import type { PickedAthlete } from "@/features/athletes/components/AthletePicker";
 import { setInvoiceCancelled } from "../actions/cancel-invoice";
-import { removeCouponFromInvoice } from "@/features/coupons/actions/redeem";
 import ApplyCoupon from "./ApplyCoupon";
 
 /** The invoice page's actions, on the balance card: pay, then PDF, print, edit and a menu. */
@@ -36,15 +34,12 @@ export function InvoiceActions({
   status,
   balance,
   athlete,
-  coupon,
 }: {
   id: string;
   invoiceNumber: string;
   status: string;
   balance: number;
   athlete: PickedAthlete;
-  /** The coupon on this invoice, if any */
-  coupon: string | null;
 }) {
   const router = useRouter();
   const [payOpen, setPayOpen] = useState(false);
@@ -92,7 +87,7 @@ export function InvoiceActions({
             </Link>
           </Button>
         )}
-        {(open || coupon || status !== "PAID") && (
+        {(open || status !== "PAID") && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button
@@ -106,26 +101,12 @@ export function InvoiceActions({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-48">
-              {open && !coupon && (
+              {open && (
                 <DropdownMenuItem onSelect={() => setCouponOpen(true)}>
                   <Tag /> Apply coupon
                 </DropdownMenuItem>
               )}
-              {coupon && !cancelled && (
-                <DropdownMenuItem
-                  onSelect={() =>
-                    start(async () => {
-                      const res = await removeCouponFromInvoice(invoiceNumber);
-                      if (!res.success) return void toast.error(res.message);
-                      toast.success(res.message);
-                      router.refresh();
-                    })
-                  }
-                >
-                  <X /> Remove {coupon}
-                </DropdownMenuItem>
-              )}
-              {(open || coupon) && status !== "PAID" && (
+              {open && status !== "PAID" && (
                 <DropdownMenuSeparator />
               )}
               {status !== "PAID" && (

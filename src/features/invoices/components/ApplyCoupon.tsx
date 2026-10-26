@@ -15,7 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { formatCurrency } from "@/lib/format";
-import { applyCouponToInvoice } from "@/features/coupons/actions/redeem";
+import { applyCouponToInvoice, checkCouponForInvoice } from "@/features/coupons/actions/redeem";
 
 /** Controlled dialog: open it from a row menu or a button. */
 export default function ApplyCoupon({
@@ -33,6 +33,8 @@ export default function ApplyCoupon({
 }) {
   const [code, setCode] = useState("");
   const [error, setError] = useState<string | null>(null);
+  // What Check said: whether it applies here, and how much it takes off
+  const [checked, setChecked] = useState<{ ok: boolean; message: string } | null>(null);
   const [pending, start] = useTransition();
   const normalized = code.trim().toUpperCase();
 
@@ -69,7 +71,10 @@ export default function ApplyCoupon({
               autoComplete="off"
               className="font-mono uppercase"
               value={code}
-              onChange={(e) => setCode(e.target.value)}
+              onChange={(e) => {
+                setCode(e.target.value);
+                setChecked(null);
+              }}
               aria-invalid={!!error}
               aria-describedby={error ? "coupon-error" : undefined}
             />
@@ -78,10 +83,29 @@ export default function ApplyCoupon({
                 {error}
               </p>
             )}
+            {checked && !error && (
+              <p role="status" className={checked.ok ? "text-sm text-success" : "text-sm text-destructive"}>
+                {checked.message}
+              </p>
+            )}
           </div>
           <DialogFooter>
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              disabled={pending || !normalized}
+              onClick={() =>
+                start(async () => {
+                  setError(null);
+                  const res = await checkCouponForInvoice(invoiceNumber, normalized);
+                  setChecked({ ok: res.success, message: res.message });
+                })
+              }
+            >
+              Check
             </Button>
             <Button type="submit" disabled={pending || !normalized}>
               {pending && <Loader2 className="animate-spin" />}

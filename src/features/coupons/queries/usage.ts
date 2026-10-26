@@ -14,28 +14,39 @@ export type CouponInvoicesPage = { items: CouponInvoice[]; nextCursor: string | 
 
 const PAGE = 25;
 
-/** Invoices the coupon discounted, newest first. */
+/** Invoices the coupon discounted, newest first (one row per discount line). */
 export async function couponInvoices(couponId: string, cursor?: string | null): Promise<CouponInvoicesPage> {
-  const where = { couponId };
+  const where = { kind: "COUPON" as const, redemption: { couponId } };
   const [rows, total] = await Promise.all([
-    db.invoice.findMany({
+    db.invoiceDiscount.findMany({
       where,
       select: {
         id: true,
-        invoiceNumber: true,
-        discount: true,
-        status: true,
+        amount: true,
         createdAt: true,
-        athlete: { select: { athleteId: true, firstName: true, middleName: true, lastName: true } },
+        invoice: {
+          select: {
+            invoiceNumber: true,
+            status: true,
+            athlete: { select: { athleteId: true, firstName: true, middleName: true, lastName: true } },
+          },
+        },
       },
       orderBy: [{ createdAt: "desc" }, { id: "desc" }],
       ...cursorArgs(cursor, PAGE),
     }),
-    cursor ? undefined : db.invoice.count({ where }),
+    cursor ? undefined : db.invoiceDiscount.count({ where }),
   ]);
   const { items, nextCursor } = pageOf(rows, PAGE);
   return {
-    items: items.map((r) => ({ ...r, discount: Number(r.discount ?? 0), createdAt: r.createdAt.toISOString() })),
+    items: items.map((r) => ({
+      id: r.id,
+      invoiceNumber: r.invoice.invoiceNumber,
+      athlete: r.invoice.athlete,
+      discount: Number(r.amount),
+      status: r.invoice.status,
+      createdAt: r.createdAt.toISOString(),
+    })),
     nextCursor,
     total,
   };

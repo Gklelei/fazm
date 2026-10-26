@@ -17,7 +17,6 @@ export const GetAthleteByIdQuery = (id: string) =>
           status: "ACTIVE",
         },
         include: {
-          coupon: true,
           subscriptionPlan: true,
         },
       },
@@ -25,7 +24,7 @@ export const GetAthleteByIdQuery = (id: string) =>
         orderBy: { createdAt: "desc" },
         include: {
           subscriptionPlan: true,
-          coupon: { select: { name: true } },
+          discounts: { select: { id: true, label: true, amount: true }, orderBy: { createdAt: "asc" as const } },
         },
       },
       assessments: {
@@ -41,6 +40,12 @@ export const GetAthleteByIdQuery = (id: string) =>
         },
       },
       batches: { select: { id: true, name: true } },
+      // Coupons given to the athlete, newest first
+      couponRedemptions: {
+        where: { invoiceId: null },
+        orderBy: { createdAt: "desc" as const },
+        include: { coupon: { select: { id: true, name: true, discountType: true, value: true, duration: true, durationCount: true } }, _count: { select: { discounts: true } } },
+      },
     },
   }) satisfies Prisma.AthleteFindUniqueArgs;
 

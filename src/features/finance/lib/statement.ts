@@ -14,8 +14,8 @@ export type StatementInvoice = {
   amountDue: unknown;
   discount: unknown;
   status: string;
-  coupon?: { name: string } | null;
-  siblingDiscount?: boolean;
+  /** Each discount on the invoice, as it reads */
+  discounts?: { id: string; label: string; amount: unknown }[];
 };
 export type StatementPayment = {
   id: string;
@@ -61,8 +61,17 @@ export function buildStatement({
     const day = academyDate(new Date(inv.createdAt));
     all.push({ key: `inv-${inv.id}`, day, description: inv.description || "Invoice", reference: inv.invoiceNumber, kind: "CHARGE", charge: Number(inv.amountDue), credit: 0 });
     const off = Number(inv.discount ?? 0);
-    if (off > 0) {
-      all.push({ key: `disc-${inv.id}`, day, description: inv.coupon ? `Discount (${inv.coupon.name})` : inv.siblingDiscount ? "Sibling discount" : "Discount", reference: inv.invoiceNumber, kind: "DISCOUNT", charge: 0, credit: off });
+    const rows = (inv.discounts ?? []).filter((d) => Number(d.amount) > 0);
+    if (rows.length) {
+      // One line per discount; together never more than the invoice's discount
+      let left = off;
+      for (const d of rows) {
+        const credit = Math.min(Number(d.amount), left);
+        left -= credit;
+        if (credit > 0) all.push({ key: `disc-${d.id}`, day, description: `Discount: ${d.label}`, reference: inv.invoiceNumber, kind: "DISCOUNT", charge: 0, credit });
+      }
+    } else if (off > 0) {
+      all.push({ key: `disc-${inv.id}`, day, description: "Discount", reference: inv.invoiceNumber, kind: "DISCOUNT", charge: 0, credit: off });
     }
   }
   for (const p of payments) {

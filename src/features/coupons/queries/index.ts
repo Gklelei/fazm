@@ -1,14 +1,11 @@
-// Active coupon as offered on the athlete profile (raw SQL row, normalized).
+/** A coupon that can be given now, as offered on the athlete profile. */
 export type AthleteCouponOption = {
   id: string;
   name: string;
   discountType: "PERCENTAGE" | "FIXED_AMOUNT";
-  value: number; // UI-friendly
-  interval: "ONCE" | "REPEATING";
-  startDate: Date;
-  expiryDate: Date | null;
-  usageLimit: number | null;
-  timesUsed: number;
-  status: number;
-  voided: number;
+  value: number;
+  duration: "ONCE" | "INVOICES" | "ALWAYS";
+  durationCount: number | null;
+  /** Only these fee plans' charges (names); empty: any charge */
+  plans: string[];
 };

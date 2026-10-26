@@ -96,7 +96,7 @@ export async function GET(req: NextRequest) {
 
       case "coupons": {
         const rows = await db.coupon.findMany({
-          where: buildCouponWhere(couponFiltersFromParams(req.nextUrl.searchParams)),
+          where: await buildCouponWhere(couponFiltersFromParams(req.nextUrl.searchParams)),
           select: COUPON_LIST_SELECT,
           orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           take: MAX_EXPORT_ROWS,

@@ -22,7 +22,7 @@ const SELECT = {
   lastName: true,
   batches: { select: { name: true } },
   guardians: { select: { fullNames: true }, take: 1 },
-  invoices: { include: { coupon: { select: { name: true } } } },
+  invoices: { include: { discounts: { select: { id: true, label: true, amount: true }, orderBy: { createdAt: "asc" as const } } } },
   finances: true,
 } as const;
 
