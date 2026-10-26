@@ -1,0 +1,24 @@
+{
+  "framework": "none",
+  "port": 3110,
+  "build": [
+    { "name": "Install", "run": "yarn install --immutable" },
+    {
+      "name": "Build",
+      "run": "set -a && . \"$HOME/.config/fazam/build.env\" && set +a && NODE_ENV=production npx next build",
+      "timeout_minutes": 20
+    },
+    {
+      "name": "Bundle",
+      "run": "B=$(mktemp -d) && cp -a .next/standalone/. \"$B/\" && rm -rf \"$B\"/.env* \"$B/docs\" \"$B/graphify-out\" \"$B/docker-compose.yml\" \"$B/public\" && mkdir -p \"$B/.next\" && cp -a .next/static \"$B/.next/static\" && cp -a public \"$B/public\" && rm -rf \"$B/public/uploads\" && cp serverdeck.json \"$B/\" && find . -mindepth 1 -maxdepth 1 -exec rm -rf {} + && cp -a \"$B/.\" . && rm -rf \"$B\""
+    }
+  ],
+  "processes": {
+    "web": "HOSTNAME=127.0.0.1 exec node --max-old-space-size=640 server.js"
+  },
+  "health": [
+    { "url": "http://127.0.0.1:3110/api/health", "within_seconds": 60 }
+  ],
+  "shared_dirs": ["uploads"],
+  "keep_releases": 3
+}
