@@ -13,7 +13,14 @@
     },
     {
       "name": "Bundle",
-      "run": "B=$(mktemp -d) && cp -a .next/standalone/. \"$B/\" && rm -rf \"$B\"/.env* \"$B/docs\" \"$B/graphify-out\" \"$B/docker-compose.yml\" \"$B/public\" && mkdir -p \"$B/.next\" && cp -a .next/static \"$B/.next/static\" && cp -a public \"$B/public\" && rm -rf \"$B/public/uploads\" && cp serverdeck.json \"$B/\" && find . -mindepth 1 -maxdepth 1 -exec rm -rf {} + && cp -a \"$B/.\" . && rm -rf \"$B\""
+      "run": "B=$(mktemp -d) && cp -a .next/standalone/. \"$B/\" && rm -rf \"$B\"/.env* \"$B/docs\" \"$B/graphify-out\" \"$B/docker-compose.yml\" \"$B/public\" && mkdir -p \"$B/.next\" && cp -a .next/static \"$B/.next/static\" && cp -a public \"$B/public\" && rm -rf \"$B/public/uploads\" && cp serverdeck.json \"$B/\" && mkdir -p \"$B/prisma\" \"$B/scripts\" && cp -a prisma/migrations \"$B/prisma/\" && cp scripts/migrate.mjs \"$B/scripts/\" && find . -mindepth 1 -maxdepth 1 -exec rm -rf {} + && cp -a \"$B/.\" . && rm -rf \"$B\""
+    }
+  ],
+  "release": [
+    {
+      "name": "Migrate",
+      "run": "node scripts/migrate.mjs",
+      "timeout_minutes": 10
     }
   ],
   "processes": {
