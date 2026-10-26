@@ -6,6 +6,7 @@ import { createAuditLog, diffFields } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { hasRole } from "@/lib/roles";
 import { ageOn, athleteEditSchema, type AthleteEditInput } from "@/features/athletes/schemas/registration";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 /**
  * Saves the edit page. Admins change everything; coaches everything except
@@ -30,7 +31,7 @@ export async function updateAthlete(athleteId: string, input: AthleteEditInput, 
     const medical = hasRole(user.role, "medical");
     const others = user.role !== "DOCTOR";
     const photoConsent = before.consents[0]?.photos ?? false;
-    if (others && v.profilePhoto && v.profilePhoto !== before.profilePIcture && !photoConsent) {
+    if (CONSENT_ENABLED && others && v.profilePhoto && v.profilePhoto !== before.profilePIcture && !photoConsent) {
       throw new ActionError("Remove the photo, or record photos and videos consent on the profile first.");
     }
     if (others && !(await db.batches.findFirst({ where: { id: v.batch }, select: { id: true } }))) {

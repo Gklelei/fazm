@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { normalizePhone } from "@/lib/phone";
 import { academyToday } from "@/lib/academy-time";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 /** Shared by the registration steps (browser) and the action (server). */
 
@@ -85,12 +86,12 @@ export const athleteFields = z.object({
   hand: z.enum(["right", "left", "both"]),
   positions: z.array(z.string()).max(4),
 
-  // 5. Consent
-  consentDataUse: z.boolean().refine((v) => v, "Tick this to continue"),
-  consentEmergency: z.boolean().refine((v) => v, "Tick this to continue"),
+  // 5. Consent (asked for only while CONSENT_ENABLED)
+  consentDataUse: z.boolean().refine((v) => !CONSENT_ENABLED || v, "Tick this to continue"),
+  consentEmergency: z.boolean().refine((v) => !CONSENT_ENABLED || v, "Tick this to continue"),
   consentPhotos: z.boolean(),
-  consentGivenBy: required("who gave consent"),
-  consentRelationship: required("their relationship", 40),
+  consentGivenBy: CONSENT_ENABLED ? required("who gave consent") : text(100),
+  consentRelationship: CONSENT_ENABLED ? required("their relationship", 40) : text(40),
   consentMethod: z.enum(["IN_PERSON", "SIGNED_FORM"]),
   consentFormUrl: file,
   consentDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Enter the date"),
@@ -129,12 +130,14 @@ export function registrationRules(v: Partial<Input>): { path: keyof Input; messa
       if (!v.guardianName?.trim()) issue("guardianName", "Enter the parent or guardian's name");
       if (!v.guardianRelationship?.trim()) issue("guardianRelationship", "Choose the relationship");
       if (!v.guardianPhone?.trim()) issue("guardianPhone", "Enter the parent or guardian's phone");
-      if (v.consentRelationship === "Self") issue("consentRelationship", "Choose the parent or guardian's relationship");
+      if (CONSENT_ENABLED && v.consentRelationship === "Self") issue("consentRelationship", "Choose the parent or guardian's relationship");
     }
   }
-  if (v.consentDate && v.consentDate > today) issue("consentDate", "The consent date is in the future");
-  if (v.consentMethod === "SIGNED_FORM" && !v.consentFormUrl) issue("consentFormUrl", "Upload the signed form");
-  if (v.profilePhoto && !v.consentPhotos) issue("profilePhoto", "Remove the photo, or tick photos and videos in the consent step");
+  if (CONSENT_ENABLED) {
+    if (v.consentDate && v.consentDate > today) issue("consentDate", "The consent date is in the future");
+    if (v.consentMethod === "SIGNED_FORM" && !v.consentFormUrl) issue("consentFormUrl", "Upload the signed form");
+    if (v.profilePhoto && !v.consentPhotos) issue("profilePhoto", "Remove the photo, or tick photos and videos in the consent step");
+  }
   return out;
 }
 
@@ -168,8 +171,8 @@ export const registrationSchema = athleteFields.superRefine((v, ctx) => {
 export type RegistrationInput = z.input<typeof registrationSchema>;
 export type Registration = z.output<typeof registrationSchema>;
 
-/** Which fields each step checks before moving on. */
-export const REGISTRATION_STEPS = [
+/** Which fields each step checks before moving on (every step, the consent one included). */
+const ALL_STEPS = [
   { key: "athlete", label: "Athlete", fields: ["firstName", "middleName", "lastName", "dateOfBirth", "phoneNumber", "email", "batch"] },
   { key: "guardian", label: "Parent or guardian", fields: ["guardianName", "guardianRelationship", "guardianPhone", "guardianEmail"] },
   {
@@ -187,6 +190,11 @@ export const REGISTRATION_STEPS = [
   { key: "plan", label: "Fee plan", fields: ["subscriptionPlanId"] },
   { key: "review", label: "Review", fields: [] },
 ] as const satisfies readonly { key: string; label: string; fields: readonly (keyof RegistrationInput)[] }[];
+
+export type StepKey = (typeof ALL_STEPS)[number]["key"];
+
+/** The steps registration goes through: without the consent step while consent is switched off. */
+export const REGISTRATION_STEPS: readonly (typeof ALL_STEPS)[number][] = CONSENT_ENABLED ? ALL_STEPS : ALL_STEPS.filter((s) => s.key !== "consent");
 
 /** Editing an athlete: the registration fields except consent and fee plan (consent changes from the profile). */
 export const athleteEditSchema = athleteFields

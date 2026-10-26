@@ -41,10 +41,13 @@ import {
   SIDES,
   ageOn,
   type RegistrationInput,
+  type StepKey,
 } from "../../schemas/registration";
+import { CONSENT_ENABLED } from "../../lib/consent-switch";
 
 export type StepProps = {
-  goTo: (step: number) => void;
+  /** Review: back to a step, by its key */
+  goTo: (step: StepKey) => void;
   /** Edit page: health details read-only (not admin or medical staff) */
   lockHealth?: boolean;
   /** Edit page: emergency contact read-only (medical staff) */
@@ -610,9 +613,11 @@ export function StepConsent() {
 
 export function StepDocuments() {
   const { control, clearErrors } = useRegForm();
-  const photos = useWatch<RegistrationInput, "consentPhotos">({
+  // The photo field follows photos and videos consent (always shown while consent is off)
+  const photosConsent = useWatch<RegistrationInput, "consentPhotos">({
     name: "consentPhotos",
   });
+  const photos = !CONSENT_ENABLED || photosConsent;
   const tile = (
     name:
       | "birthCertificate"
@@ -854,7 +859,7 @@ export function StepReview({ goTo }: StepProps) {
     <div className="grid gap-4 xl:grid-cols-2">
       <ReviewCard
         title="Athlete"
-        onEdit={() => goTo(0)}
+        onEdit={() => goTo("athlete")}
         rows={[
           [
             "Name",
@@ -871,7 +876,7 @@ export function StepReview({ goTo }: StepProps) {
       />
       <ReviewCard
         title="Parent or guardian"
-        onEdit={() => goTo(1)}
+        onEdit={() => goTo("guardian")}
         rows={[
           [
             "Name",
@@ -883,7 +888,7 @@ export function StepReview({ goTo }: StepProps) {
       />
       <ReviewCard
         title="Medical and emergency"
-        onEdit={() => goTo(2)}
+        onEdit={() => goTo("medical")}
         rows={[
           [
             "Blood group",
@@ -899,7 +904,7 @@ export function StepReview({ goTo }: StepProps) {
       />
       <ReviewCard
         title="Address and football"
-        onEdit={() => goTo(3)}
+        onEdit={() => goTo("about")}
         rows={[
           [
             "Address",
@@ -915,22 +920,24 @@ export function StepReview({ goTo }: StepProps) {
           ],
         ]}
       />
-      <ReviewCard
-        title="Consent"
-        onEdit={() => goTo(4)}
-        rows={[
-          ["Given by", `${v.consentGivenBy} (${v.consentRelationship})`],
-          [
-            "How",
-            v.consentMethod === "SIGNED_FORM" ? "Signed form" : "In person",
-          ],
-          ["Date", day(v.consentDate)],
-          ["Data use", v.consentDataUse ? "Yes" : "No"],
-          ["Emergency treatment", v.consentEmergency ? "Yes" : "No"],
-          ["Photos and videos", v.consentPhotos ? "Yes" : "No"],
-        ]}
-      />
-      <ReviewCard title="Photo and documents" onEdit={() => goTo(5)} rows={[]}>
+      {CONSENT_ENABLED && (
+        <ReviewCard
+          title="Consent"
+          onEdit={() => goTo("consent")}
+          rows={[
+            ["Given by", `${v.consentGivenBy} (${v.consentRelationship})`],
+            [
+              "How",
+              v.consentMethod === "SIGNED_FORM" ? "Signed form" : "In person",
+            ],
+            ["Date", day(v.consentDate)],
+            ["Data use", v.consentDataUse ? "Yes" : "No"],
+            ["Emergency treatment", v.consentEmergency ? "Yes" : "No"],
+            ["Photos and videos", v.consentPhotos ? "Yes" : "No"],
+          ]}
+        />
+      )}
+      <ReviewCard title="Photo and documents" onEdit={() => goTo("documents")} rows={[]}>
         <div className="flex flex-wrap gap-3 p-4">
           {v.profilePhoto && (
             // eslint-disable-next-line @next/next/no-img-element -- private /uploads file
@@ -968,7 +975,7 @@ export function StepReview({ goTo }: StepProps) {
       </ReviewCard>
       <ReviewCard
         title="Fee plan"
-        onEdit={() => goTo(6)}
+        onEdit={() => goTo("plan")}
         rows={[
           ["Plan", plan?.name],
           ["First invoice", plan && money(Number(plan.amount))],

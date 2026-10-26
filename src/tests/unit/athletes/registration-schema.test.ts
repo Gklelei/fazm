@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { ageOn, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
 import { academyToday } from "@/lib/academy-time";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 const yearsAgo = (n: number) => {
   const [y, m, d] = academyToday().split("-");
@@ -73,21 +74,30 @@ describe("registration rules", () => {
     expect(problems(child({ dateOfBirth: yearsAgo(19), guardianName: "", guardianRelationship: "", guardianPhone: "", consentGivenBy: "Amani Otieno", consentRelationship: "Self" }))).toEqual({});
   });
 
-  it("refuses self-consent under 18", () => {
+  // Consent rules: only while consent is switched on
+  it.runIf(CONSENT_ENABLED)("refuses self-consent under 18", () => {
     expect(problems(child({ consentRelationship: "Self" }))).toHaveProperty("consentRelationship");
   });
 
-  it("needs both required consents", () => {
+  // Consent rules: only while consent is switched on
+  it.runIf(CONSENT_ENABLED)("needs both required consents", () => {
     expect(Object.keys(problems(child({ consentDataUse: false, consentEmergency: false })))).toEqual(["consentDataUse", "consentEmergency"]);
   });
 
-  it("allows a photo only with photo consent", () => {
+  // Consent rules: only while consent is switched on
+  it.runIf(CONSENT_ENABLED)("allows a photo only with photo consent", () => {
     expect(problems(child({ profilePhoto: "/uploads/athletes/a.jpg" }))).toHaveProperty("profilePhoto");
     expect(problems(child({ profilePhoto: "/uploads/athletes/a.jpg", consentPhotos: true }))).toEqual({});
   });
 
-  it("asks for the signed form when that's how consent was given", () => {
+  // Consent rules: only while consent is switched on
+  it.runIf(CONSENT_ENABLED)("asks for the signed form when that's how consent was given", () => {
     expect(problems(child({ consentMethod: "SIGNED_FORM" }))).toHaveProperty("consentFormUrl");
+  });
+
+  it.runIf(!CONSENT_ENABLED)("asks nothing about consent while it's switched off, and keeps the photo", () => {
+    const v = child({ consentDataUse: false, consentEmergency: false, consentGivenBy: "", consentRelationship: "", consentMethod: "SIGNED_FORM", profilePhoto: "/uploads/athletes/a.jpg" });
+    expect(problems(v)).toEqual({});
   });
 
   it("refuses impossible dates of birth", () => {

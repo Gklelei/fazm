@@ -5,6 +5,7 @@ import { registerAthlete } from "@/features/athletes/actions/register-athlete";
 import { updateAthlete } from "@/features/athletes/actions/update-athlete";
 import type { AthleteEditInput, RegistrationInput } from "@/features/athletes/schemas/registration";
 import { academyToday } from "@/lib/academy-time";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 const yearsAgo = (n: number) => {
   const [y, m, d] = academyToday().split("-");
@@ -80,7 +81,12 @@ describe("editing an athlete", () => {
     expect((await updateAthlete(a.athleteId, { ...edit, estate: "Eastleigh" }, guardianId)).success).toBe(false);
   });
 
-  it("allows a photo only with photo consent", async () => {
+  it.runIf(!CONSENT_ENABLED)("allows a photo without consent while consent is switched off", async () => {
+    const without = await athlete(false);
+    expect((await updateAthlete(without.a.athleteId, { ...without.edit, profilePhoto: "/uploads/PROFILE/a.jpg" }, without.guardianId)).success).toBe(true);
+  });
+
+  it.runIf(CONSENT_ENABLED)("allows a photo only with photo consent", async () => {
     const without = await athlete(false);
     expect(await updateAthlete(without.a.athleteId, { ...without.edit, profilePhoto: "/uploads/PROFILE/a.jpg" }, without.guardianId)).toMatchObject({
       success: false,

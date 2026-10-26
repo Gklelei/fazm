@@ -1,5 +1,6 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 export type AthleteFilters = {
   search?: string;
@@ -19,7 +20,7 @@ export function athleteFiltersFromParams(sp: URLSearchParams): AthleteFilters {
     to: sp.get("to") || undefined,
     batchId: sp.get("batchId") || undefined,
     status: parseStatus(sp.get("status")),
-    consent: sp.get("consent") === "missing" ? "missing" : undefined,
+    consent: CONSENT_ENABLED && sp.get("consent") === "missing" ? "missing" : undefined,
   };
 }
 

@@ -1,3 +1,5 @@
+import { CONSENT_ENABLED } from "./consent-switch";
+
 /**
  * An athlete's photo is shown only with photos and videos consent (their
  * latest consent). Queries that need the photo select PHOTO_SELECT; screens
@@ -9,4 +11,4 @@ export const PHOTO_SELECT = {
 } as const;
 
 export const photoOf = (a: { profilePIcture?: string | null; consents?: { photos: boolean }[] }) =>
-  a.consents?.[0]?.photos ? (a.profilePIcture ?? "") : "";
+  !CONSENT_ENABLED || a.consents?.[0]?.photos ? (a.profilePIcture ?? "") : "";

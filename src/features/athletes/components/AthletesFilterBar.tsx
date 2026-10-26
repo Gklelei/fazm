@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { ATHLETE_STATUS_LABEL } from "./AthleteRowActions";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 const ALL = "all";
 
@@ -75,18 +76,20 @@ export default function AthletesFilterBar({
           </Select>
         </div>
 
-        <div className="grid gap-1.5">
-          <Label className="text-xs text-muted-foreground">Consent</Label>
-          <Select value={value.consent || ALL} onValueChange={(v) => onChange({ consent: v === ALL ? "" : v })}>
-            <SelectTrigger className="w-full sm:w-32">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={ALL}>Any</SelectItem>
-              <SelectItem value="missing">Missing</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
+        {CONSENT_ENABLED && (
+          <div className="grid gap-1.5">
+            <Label className="text-xs text-muted-foreground">Consent</Label>
+            <Select value={value.consent || ALL} onValueChange={(v) => onChange({ consent: v === ALL ? "" : v })}>
+              <SelectTrigger className="w-full sm:w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Any</SelectItem>
+                <SelectItem value="missing">Missing</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         <div className="grid gap-1.5">
           <Label className="text-xs text-muted-foreground">Batch</Label>

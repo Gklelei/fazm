@@ -9,6 +9,7 @@ import { academyInstant } from "@/lib/academy-time";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 import { ageOn, missingDocuments, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
 import { getSettings } from "@/lib/settings";
 import { inBackground } from "@/lib/background";
@@ -90,8 +91,8 @@ export async function registerAthlete(input: RegistrationInput) {
           dateOfBirth: v.dateOfBirth,
           age: ageOn(v.dateOfBirth),
           batchesId: v.batch,
-          // A photo only with photo consent (the schema checks it too)
-          profilePIcture: v.consentPhotos ? v.profilePhoto : "",
+          // A photo only with photo consent (the schema checks it too), while consent is on
+          profilePIcture: !CONSENT_ENABLED || v.consentPhotos ? v.profilePhoto : "",
           height: v.height,
           weight: v.weight,
           foot: v.foot,
@@ -121,21 +122,26 @@ export async function registerAthlete(input: RegistrationInput) {
           medical: {
             create: { bloogGroup: v.bloodGroup, allergies: v.allergies, medicalConditions: v.medicalConditions },
           },
-          consents: {
-            create: {
-              version: CONSENT_VERSION,
-              language: v.consentLanguage,
-              dataUse: v.consentDataUse,
-              emergencyTreatment: v.consentEmergency,
-              photos: v.consentPhotos,
-              givenByName: v.consentGivenBy,
-              givenByRelationship: v.consentRelationship,
-              method: v.consentMethod,
-              formUrl: v.consentFormUrl || null,
-              givenAt: academyInstant(v.consentDate, "12:00"),
-              recordedById: user.id,
-            },
-          },
+          // No consent is recorded while consent is switched off
+          ...(CONSENT_ENABLED
+            ? {
+                consents: {
+                  create: {
+                    version: CONSENT_VERSION,
+                    language: v.consentLanguage,
+                    dataUse: v.consentDataUse,
+                    emergencyTreatment: v.consentEmergency,
+                    photos: v.consentPhotos,
+                    givenByName: v.consentGivenBy,
+                    givenByRelationship: v.consentRelationship,
+                    method: v.consentMethod,
+                    formUrl: v.consentFormUrl || null,
+                    givenAt: academyInstant(v.consentDate, "12:00"),
+                    recordedById: user.id,
+                  },
+                },
+              }
+            : {}),
         },
       });
 
@@ -191,7 +197,9 @@ export async function registerAthlete(input: RegistrationInput) {
     await createAuditLog({
       action: "CREATE_ATHLETE",
       resource: "Athlete",
-      details: `Registered ${v.firstName} ${v.lastName} (${created.athleteId}); consent from ${v.consentGivenBy} (${v.consentRelationship}), photos ${v.consentPhotos ? "yes" : "no"}; first invoice ${created.invoiceNumber}`,
+      details: CONSENT_ENABLED
+        ? `Registered ${v.firstName} ${v.lastName} (${created.athleteId}); consent from ${v.consentGivenBy} (${v.consentRelationship}), photos ${v.consentPhotos ? "yes" : "no"}; first invoice ${created.invoiceNumber}`
+        : `Registered ${v.firstName} ${v.lastName} (${created.athleteId}); first invoice ${created.invoiceNumber}`,
       userId: user.id,
       athleteId: created.id,
     });

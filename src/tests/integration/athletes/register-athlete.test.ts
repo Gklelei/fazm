@@ -4,6 +4,7 @@ import { makeBatch, makePlan, resetDb, signedIn } from "@/tests/support/db";
 import { registerAthlete } from "@/features/athletes/actions/register-athlete";
 import type { RegistrationInput } from "@/features/athletes/schemas/registration";
 import { academyToday } from "@/lib/academy-time";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 const yearsAgo = (n: number) => {
   const [y, m, d] = academyToday().split("-");
@@ -76,9 +77,12 @@ describe("registering an athlete", () => {
     expect(a.emergencyContacts[0].phoneNumber).toBe("0712000111");
     expect(a.medical?.allergies).toEqual(["Peanuts"]);
     expect(a.profilePIcture).toBe("/uploads/athletes/photo.jpg");
-    expect(a.consents).toMatchObject([
-      { version: "1", language: "sw", dataUse: true, emergencyTreatment: true, photos: true, givenByName: "Jane Kamau", method: "IN_PERSON", recordedById: user.id },
-    ]);
+    // Consent is recorded only while it's switched on
+    expect(a.consents).toMatchObject(
+      CONSENT_ENABLED
+        ? [{ version: "1", language: "sw", dataUse: true, emergencyTreatment: true, photos: true, givenByName: "Jane Kamau", method: "IN_PERSON", recordedById: user.id }]
+        : [],
+    );
     expect(a.athleteSubscriptions).toHaveLength(1);
     expect(a.invoices.map((i) => [i.type, Number(i.amountDue), i.status])).toEqual([["SUBSCRIPTION", 4000, "PENDING"]]);
     const [line] = await db.invoiceLine.findMany({ include: { invoice: { select: { subscriptionPlanId: true } } } });
@@ -95,7 +99,7 @@ describe("registering an athlete", () => {
     expect(res.success).toBe(true);
     const a = await db.athlete.findFirstOrThrow({ include: { guardians: true, consents: true } });
     expect(a.guardians).toHaveLength(0);
-    expect(a.consents[0].givenByRelationship).toBe("Self");
+    if (CONSENT_ENABLED) expect(a.consents[0].givenByRelationship).toBe("Self");
   });
 
   it("saves nothing when a step fails", async () => {
@@ -109,12 +113,21 @@ describe("registering an athlete", () => {
 
   it("refuses registration without consent, or a child without a guardian", async () => {
     await signedIn("ADMIN");
-    expect(await registerAthlete(await form({ consentDataUse: false }))).toMatchObject({ success: false });
+    if (CONSENT_ENABLED) expect(await registerAthlete(await form({ consentDataUse: false }))).toMatchObject({ success: false });
     expect(await registerAthlete(await form({ guardianName: "" }))).toMatchObject({ success: false, message: "Enter the parent or guardian's name" });
     expect(await db.athlete.count()).toBe(0);
   });
 
-  it("refuses a photo without photo consent", async () => {
+  it.runIf(!CONSENT_ENABLED)("keeps the photo and records no consent while consent is switched off", async () => {
+    await signedIn("ADMIN");
+    const res = await registerAthlete(await form({ consentPhotos: false, consentDataUse: false, consentEmergency: false, consentGivenBy: "" }));
+    expect(res.success).toBe(true);
+    const a = await db.athlete.findFirstOrThrow();
+    expect(a.profilePIcture).toBe("/uploads/athletes/photo.jpg");
+    expect(await db.athleteConsent.count()).toBe(0);
+  });
+
+  it.runIf(CONSENT_ENABLED)("refuses a photo without photo consent", async () => {
     await signedIn("ADMIN");
     expect(await registerAthlete(await form({ consentPhotos: false }))).toMatchObject({
       success: false,

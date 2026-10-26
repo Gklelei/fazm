@@ -31,6 +31,7 @@ import AthleteDocuments from "./AthleteDocuments";
 import AthleteExportButton from "./AthleteExportButton";
 import { ConsentDialog, ConsentPanel, type ConsentRecord } from "./ConsentPanel";
 import { photoOf } from "@/features/athletes/lib/photo";
+import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 
 const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
 
@@ -86,7 +87,7 @@ export default function AthleteProfile({
   const name = athleteName(data);
   const guardian = data.guardians[0];
   const consents = data.consents as unknown as ConsentRecord[];
-  // No photo without photos and videos consent (existing athletes too)
+  // No photo without photos and videos consent (existing athletes too), while consent is on
   const photo = photoOf(data);
   const consentAthlete = {
     athleteId: data.athleteId,
@@ -111,7 +112,7 @@ export default function AthleteProfile({
     { key: "emergency", label: "Emergency", description: "Who to call in an emergency.", content: <EmergencyContacts data={data} /> },
     { key: "address", label: "Address", description: "Where they live.", content: <AddressInfo data={data} /> },
     { key: "documents", label: "Documents", description: "Birth certificate, ID and passport.", content: <AthleteDocuments data={data} /> },
-    { key: "consent", label: "Consent", content: <ConsentPanel athlete={consentAthlete} consents={consents} canManage={canManageConsent} /> },
+    ...(CONSENT_ENABLED ? [{ key: "consent", label: "Consent", content: <ConsentPanel athlete={consentAthlete} consents={consents} canManage={canManageConsent} /> }] : []),
   ];
   const shown = moneyOnly ? sections.filter((s) => MONEY_SECTIONS.has(s.key)) : sections;
 
@@ -135,7 +136,7 @@ export default function AthleteProfile({
               {data.batches && <span className="font-medium text-foreground">{data.batches.name}</span>}
               {data.age != null && <span>{data.age} years</span>}
               <StatusBadge status={data.status}>{ATHLETE_STATUS_LABEL[data.status]}</StatusBadge>
-              {!consents.length && !moneyOnly && <StatusBadge tone="warning">Consent missing</StatusBadge>}
+              {CONSENT_ENABLED && !consents.length && !moneyOnly && <StatusBadge tone="warning">Consent missing</StatusBadge>}
             </p>
             {guardian && (
               <p className="text-sm">
@@ -151,7 +152,7 @@ export default function AthleteProfile({
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
-          {!consents.length && canManageConsent && (
+          {CONSENT_ENABLED && !consents.length && canManageConsent && (
             <ConsentDialog athlete={consentAthlete} trigger={<Button variant="outline">Record consent</Button>} />
           )}
           {!moneyOnly && (

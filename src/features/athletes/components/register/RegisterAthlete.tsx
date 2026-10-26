@@ -18,6 +18,7 @@ import { academyToday } from "@/lib/academy-time";
 import { registerAthlete } from "../../actions/register-athlete";
 import {
   REGISTRATION_STEPS,
+  type StepKey,
   missingDocuments,
   registrationRules,
   registrationSchema,
@@ -70,7 +71,17 @@ const EMPTY: RegistrationInput = {
   subscriptionPlanId: "",
 };
 
-const STEP_BODY: React.ComponentType<StepProps>[] = [StepAthlete, StepGuardian, StepMedical, StepAbout, StepConsent, StepDocuments, StepPlan, StepReview];
+// Each step's screen, by its key (the consent step is left out while consent is switched off)
+const STEP_BODY: Record<StepKey, React.ComponentType<StepProps>> = {
+  athlete: StepAthlete,
+  guardian: StepGuardian,
+  medical: StepMedical,
+  about: StepAbout,
+  consent: StepConsent,
+  documents: StepDocuments,
+  plan: StepPlan,
+  review: StepReview,
+};
 
 /** Registration as one guided flow: each step is checked before the next, then reviewed and saved in one go. */
 export function RegisterAthlete() {
@@ -92,7 +103,7 @@ export function RegisterAthlete() {
   useLeaveWarning(form.formState.isDirty && !saved);
 
   const current = REGISTRATION_STEPS[step];
-  const Body = STEP_BODY[step];
+  const Body = STEP_BODY[current.key];
   const last = step === REGISTRATION_STEPS.length - 1;
 
   /** Checks this step's fields, including rules across fields (guardian under 18...). */
@@ -163,7 +174,7 @@ export function RegisterAthlete() {
         <div className="min-w-0 space-y-6">
           <div className="space-y-4">
             <FormAlert message={error} />
-            <Body goTo={go} />
+            <Body goTo={(key) => go(REGISTRATION_STEPS.findIndex((s) => s.key === key))} />
           </div>
 
           <StickyActions>
