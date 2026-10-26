@@ -15,7 +15,7 @@ function authorized(req: NextRequest) {
 
 /**
  * POST /api/cron-jobs/<job>[?dryRun=1]
- * Called by the server crontab (scripts/cron/run-job.sh) on localhost.
+ * Called by Serverdeck's scheduled jobs (serverdeck.json) on localhost.
  * Every run is written to the activity log as CRON_<JOB>.
  */
 export async function POST(req: NextRequest, { params }: { params: Promise<{ job: string }> }) {

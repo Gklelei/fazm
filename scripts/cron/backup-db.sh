@@ -15,7 +15,7 @@ echo "$(date '+%F %T') backup $(du -h "$F" | cut -f1) $F" >> "$HOME/logs/cron.lo
 # Off-site copy to Google Drive (only if rclone is set up). rclone only has
 # Drive's per-app "drive.file" access, so it sees just the fazam folder.
 RCLONE="$HOME/bin/rclone"
-UPLOADS="${UPLOAD_ROOT:-/srv/uploads}"
+UPLOADS="${UPLOAD_ROOT:-/var/lib/serverdeck/projects/fazam/shared/uploads}"
 if [ -x "$RCLONE" ] && "$RCLONE" listremotes 2>/dev/null | grep -q '^gdrive:'; then
   status=ok
   "$RCLONE" copy "$F" gdrive:fazam/database --log-level ERROR || status=failed
