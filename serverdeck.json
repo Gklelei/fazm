@@ -2,7 +2,10 @@
   "framework": "none",
   "port": 3110,
   "build": [
-    { "name": "Install", "run": "yarn install --immutable" },
+    {
+      "name": "Install",
+      "run": "yarn install --immutable"
+    },
     {
       "name": "Build",
       "run": "set -a && . \"$HOME/.config/fazam/build.env\" && set +a && NODE_ENV=production npx next build",
@@ -17,8 +20,71 @@
     "web": "HOSTNAME=127.0.0.1 exec node --max-old-space-size=640 server.js"
   },
   "health": [
-    { "url": "http://127.0.0.1:3110/api/health", "within_seconds": 60 }
+    {
+      "url": "http://127.0.0.1:3110/api/health",
+      "within_seconds": 60
+    }
   ],
-  "shared_dirs": ["uploads"],
-  "keep_releases": 3
+  "shared_dirs": [
+    "uploads"
+  ],
+  "keep_releases": 3,
+  "jobs": [
+    {
+      "name": "session-status",
+      "schedule": "*/15 * * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/session-status",
+      "retries": 2
+    },
+    {
+      "name": "sync-session-athletes",
+      "schedule": "5 * * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/sync-session-athletes",
+      "retries": 2
+    },
+    {
+      "name": "overdue-invoices",
+      "schedule": "10 0 * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/overdue-invoices"
+    },
+    {
+      "name": "late-fees",
+      "schedule": "15 0 * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/late-fees"
+    },
+    {
+      "name": "payroll",
+      "schedule": "0 20 28-31 * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/payroll"
+    },
+    {
+      "name": "update-ages",
+      "schedule": "20 0 * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/update-ages"
+    },
+    {
+      "name": "cleanup-auth",
+      "schedule": "0 3 * * 0",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/cleanup-auth"
+    },
+    {
+      "name": "finance-report",
+      "schedule": "0 7 * * 1",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/finance-report"
+    },
+    {
+      "name": "overdue-reminders",
+      "schedule": "0 9 * * *",
+      "timezone": "Africa/Nairobi",
+      "run": "curl -fsS --max-time 300 -X POST -H \"Authorization: Bearer $CRON_SECRET\" http://127.0.0.1:$PORT/api/cron-jobs/overdue-reminders"
+    }
+  ]
 }
