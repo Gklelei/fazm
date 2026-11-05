@@ -1,6 +1,7 @@
 "use client";
 import { PageHeader } from "@/components/shared/PageHeader";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useState, useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import ServerPagination from "@/components/shared/ServerPagination";
 import { GuardiansResponseType } from "@/features/guardians/queries";
 import { Card, CardContent } from "@/components/ui/card";
@@ -15,18 +16,12 @@ import {
 import ProfileAvatar from "@/components/shared/ProfileAvatar";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { FilterIcon, RotateCcw } from "lucide-react";
-import { UseUtilsContext } from "@/providers/UtilsContext";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Loader2, RotateCcw, Search } from "lucide-react";
 import ExportDropdown from "@/components/shared/ExportDropdown";
 import { photoOf } from "@/features/athletes/lib/photo";
+import { useDebounce } from "@/hooks/use-debounce";
+import { useProgramme } from "@/providers/ProgrammeContext";
 
 interface Props {
   data: GuardiansResponseType[];
@@ -35,109 +30,109 @@ interface Props {
   limit: number;
 }
 
+const ALL = "all";
+const athleteNameOf = (a: GuardiansResponseType["athlete"]) =>
+  [a.firstName, a.middleName, a.lastName].filter(Boolean).join(" ");
+
 const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const { data: Utils } = UseUtilsContext();
+  const router = useRouter();
+  const pathname = usePathname();
+  const params = useSearchParams();
+  const { batches } = useProgramme();
+  const [pending, start] = useTransition();
+  const [search, setSearch] = useState(params.get("search") ?? "");
+  const debounced = useDebounce(search, 400);
+  const batchId = params.get("batchId") ?? "";
 
-  const filteredData = useMemo(() => {
-    if (!data) return [];
-    const query = searchQuery.toLowerCase();
+  // Filters live in the URL; the server filters, counts and pages
+  const push = (patch: Record<string, string>) => {
+    const next = new URLSearchParams(params);
+    for (const [k, v] of Object.entries(patch)) {
+      if (v) next.set(k, v);
+      else next.delete(k);
+    }
+    next.delete("page");
+    start(() => router.replace(`${pathname}?${next}`));
+  };
 
-    return data.filter((item) => {
-      const firstName = item.athlete?.firstName || "";
-      const middleName = item.athlete?.middleName || "";
-      const lastName = item.athlete?.lastName || "";
-      const athleteFullName =
-        `${firstName}${middleName}${lastName}`.toLowerCase();
+  useEffect(() => {
+    if (debounced.trim() !== (params.get("search") ?? "")) push({ search: debounced.trim() });
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- only react to typing
+  }, [debounced]);
 
-      return (
-        (item.fullNames || "").toLowerCase().includes(query) ||
-        athleteFullName.includes(query) ||
-        (item.relationship || "").toLowerCase().includes(query) ||
-        (item.athlete?.batches?.name || "").toLowerCase().includes(query)
-      );
-    });
-  }, [data, searchQuery]);
+  const filtered = !!(params.get("search") || batchId);
+  const exportQuery = new URLSearchParams({ resource: "guardians" });
+  if (params.get("search")) exportQuery.set("search", params.get("search")!);
+  if (batchId) exportQuery.set("batchId", batchId);
 
   return (
     <div className="space-y-6">
       <PageHeader
         title="Guardians"
-        description={`${noOfGuarddians} parents and guardians across the roster, with the athletes they're responsible for.`}
+        description={`${noOfGuarddians} parents and guardians${filtered ? " match" : " across the roster"}, with the athletes they're responsible for.`}
         actions={
-          <ExportDropdown
+          <ExportDropdown<GuardiansResponseType>
             filename="Guardians"
-            headers={[
-              "#",
-              "Guardian Name",
-              "Email",
-              "Phone",
-              "Athlete",
-              "Relationship",
-            ]}
-            rows={filteredData.map((item, i) => [
+            headers={["#", "Guardian Name", "Email", "Phone", "Athlete", "Relationship"]}
+            rows={[]}
+            fetchAllUrl={`/api/export?${exportQuery}`}
+            mapRow={(item, i) => [
               String(i + 1),
               item.fullNames,
-              item.email,
+              item.email ?? "",
               item.phoneNumber,
-              [
-                item.athlete.firstName,
-                item.athlete.middleName,
-                item.athlete.lastName,
-              ]
-                .filter(Boolean)
-                .join(" "),
+              athleteNameOf(item.athlete),
               item.relationship,
-            ])}
+            ]}
           />
         }
       />
       <Card className="gap-0 overflow-hidden py-0">
         <CardContent className="p-0">
           {/* Toolbar Area */}
-          <div className="flex flex-wrap items-center gap-3 p-4 border-t">
-            <div className="relative flex-1 min-w-75">
+          <div className="flex flex-wrap items-center gap-3 border-t p-4">
+            <div className="relative min-w-60 flex-1">
+              <Search className="absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search guardian, athlete, or relationship..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full"
+                type="search"
+                aria-label="Search guardians"
+                placeholder="Search guardian, phone, athlete or relationship"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full pr-9 pl-9"
               />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="flex items-center gap-2">
-                    <FilterIcon className="w-4 h-4" />
-                    Filter By Batch
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuLabel>Select Batch</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {Utils?.batches.map((i, idx) => (
-                    <DropdownMenuItem
-                      key={idx}
-                      onClick={() => setSearchQuery(i.name)}
-                    >
-                      {i.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {searchQuery && (
-                <Button
-                  variant="ghost"
-                  onClick={() => setSearchQuery("")}
-                  className="flex items-center gap-2 text-muted-foreground"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  Reset
-                </Button>
+              {pending && (
+                <Loader2 className="absolute top-1/2 right-3 size-4 -translate-y-1/2 animate-spin text-muted-foreground" />
               )}
             </div>
+
+            <Select value={batchId || ALL} onValueChange={(v) => push({ batchId: v === ALL ? "" : v })}>
+              <SelectTrigger aria-label="Batch" className="w-44">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent position="popper">
+                <SelectItem value={ALL}>All batches</SelectItem>
+                {batches.map((b) => (
+                  <SelectItem key={b.id} value={b.id}>
+                    {b.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {filtered && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setSearch("");
+                  push({ search: "", batchId: "" });
+                }}
+                className="flex items-center gap-2 text-muted-foreground"
+              >
+                <RotateCcw className="size-4" />
+                Reset
+              </Button>
+            )}
           </div>
 
           {/* Table Area */}
@@ -154,15 +149,9 @@ const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
               </TableHeader>
 
               <TableBody>
-                {filteredData.length > 0 ? (
-                  filteredData.map((item, i) => {
-                    const athleteName = [
-                      item.athlete.firstName,
-                      item.athlete.middleName,
-                      item.athlete.lastName,
-                    ]
-                      .filter(Boolean)
-                      .join(" ");
+                {data.length > 0 ? (
+                  data.map((item, i) => {
+                    const athleteName = athleteNameOf(item.athlete);
 
                     return (
                       <TableRow
@@ -170,7 +159,7 @@ const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
                         className="hover:bg-muted/30 transition-colors"
                       >
                         <TableCell className="text-center text-muted-foreground">
-                          {i + 1}
+                          {(page - 1) * limit + i + 1}
                         </TableCell>
 
                         <TableCell>
@@ -223,7 +212,7 @@ const ViewAllGuardins = ({ data, noOfGuarddians, page, limit }: Props) => {
                       colSpan={5}
                       className="h-24 text-center text-muted-foreground"
                     >
-                      No guardians found matching your search.
+                      {filtered ? "No guardians match. Try another search or batch." : "No guardians yet."}
                     </TableCell>
                   </TableRow>
                 )}

@@ -1,9 +1,11 @@
 import { db } from "@/lib/prisma";
 import {
+  buildGuardianWhere,
+  guardianFiltersFromParams,
   GuardiansQuery,
-  GuardiansResponseType,
 } from "@/features/guardians/queries";
 import ViewAllGuardins from "@/features/guardians/components/GuardiansTable";
+import { selectedProgrammeId } from "@/lib/programme";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = { title: "Guardians" };
@@ -11,32 +13,27 @@ export const metadata: Metadata = { title: "Guardians" };
 export default async function Page({
   searchParams,
 }: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+  searchParams: Promise<Record<string, string | undefined>>;
 }) {
-  const unresolvedSearchParams = await searchParams;
-  const page = parseInt((unresolvedSearchParams.page as string) || "1", 10);
-  const limit = parseInt((unresolvedSearchParams.limit as string) || "10", 10);
-  const skip = (page - 1) * limit;
+  const sp = await searchParams;
+  const page = Math.max(1, Number(sp.page) || 1);
+  const limit = Math.min(50, Math.max(5, Number(sp.limit) || 10));
 
-  const [guardiansResponse, guardinsCount] = await db.$transaction([
+  // Filtered on the server so the count and pages match what's shown
+  const where = buildGuardianWhere({
+    ...guardianFiltersFromParams((k) => sp[k]),
+    programmeId: await selectedProgrammeId(),
+  });
+  const [guardians, total] = await db.$transaction([
     db.athleteGuardian.findMany({
       ...GuardiansQuery,
-      skip,
+      where,
+      orderBy: [{ fullNames: "asc" }, { id: "asc" }],
+      skip: (page - 1) * limit,
       take: limit,
     }),
-    db.athleteGuardian.count(),
+    db.athleteGuardian.count({ where }),
   ]);
 
-  const guardians = guardiansResponse as GuardiansResponseType[];
-
-  return (
-    <div>
-      <ViewAllGuardins
-        data={guardians}
-        noOfGuarddians={guardinsCount}
-        page={page}
-        limit={limit}
-      />
-    </div>
-  );
+  return <ViewAllGuardins data={guardians} noOfGuarddians={total} page={page} limit={limit} />;
 }
