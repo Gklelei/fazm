@@ -4,6 +4,8 @@ import { invoiceBalance } from "@/features/invoices/lib/status";
 import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { athleteName } from "@/features/athletes/lib/names";
 import { bucketKeys, bucketOf, type ReportRange } from "../lib/range";
+import { batchLabeller } from "../lib/batch-label";
+import { inProgramme } from "@/lib/programme-scope";
 
 const OPEN = ["PENDING", "PARTIAL", "OVERDUE"] as const;
 const NO_BATCH = "No batch";
@@ -25,44 +27,54 @@ const sorted = <K,>(m: Map<K, { count: number; amount: number }>) =>
  * empty buckets simple.
  * Row fetch is ~3k payments a year; move grouping into SQL if a
  * multi-year range ever gets slow.
+ *
+ * For one programme everything narrows to its athletes, sessions and own
+ * expenses; shop sales paid on the spot belong to no programme and are left out.
  */
-export async function getReport(r: ReportRange, now = new Date()) {
+export async function getReport(r: ReportRange, now = new Date(), programmeId: string | null = null) {
   const inRange = { gte: r.from, lte: r.to };
+  const payments_ = inProgramme.payment(programmeId);
+  const invoices_ = inProgramme.invoice(programmeId);
+  const athletes_ = inProgramme.athlete(programmeId);
+  // Cash shop sales: none under one programme
+  const sales_ = programmeId ? { id: { in: [] as string[] } } : {};
+  const label = await batchLabeller();
+  const batchSelect = { select: { name: true, programme: { select: { name: true } } } } as const;
   const lastYear = { gte: subYears(r.from, 1), lte: subYears(r.to, 1) };
   const previousRange = { gte: r.prevFrom, lte: r.prevTo };
 
   const [payments, sales, lastYearPayments, lastYearSales, prevIncome, expenses, billed, open, sessions, attendance, joined, squad] =
     await Promise.all([
       db.finance.findMany({
-        where: { isArchived: false, paymentDate: inRange },
+        where: { isArchived: false, paymentDate: inRange, ...payments_ },
         select: {
           amountPaid: true,
           paymentDate: true,
           paymentType: true,
           invoice: { select: { type: true } },
-          athlete: { select: { batches: { select: { name: true } } } },
+          athlete: { select: { batches: batchSelect } },
         },
       }),
       // Shop sales paid on the spot; those charged to an account count when the invoice is paid
-      db.sale.findMany({ where: { status: "PAID", createdAt: inRange }, select: { total: true, createdAt: true } }),
-      db.finance.findMany({ where: { isArchived: false, paymentDate: lastYear }, select: { amountPaid: true, paymentDate: true } }),
-      db.sale.findMany({ where: { status: "PAID", createdAt: lastYear }, select: { total: true, createdAt: true } }),
+      db.sale.findMany({ where: { status: "PAID", createdAt: inRange, ...sales_ }, select: { total: true, createdAt: true } }),
+      db.finance.findMany({ where: { isArchived: false, paymentDate: lastYear, ...payments_ }, select: { amountPaid: true, paymentDate: true } }),
+      db.sale.findMany({ where: { status: "PAID", createdAt: lastYear, ...sales_ }, select: { total: true, createdAt: true } }),
       Promise.all([
-        db.finance.aggregate({ where: { isArchived: false, paymentDate: previousRange }, _sum: { amountPaid: true } }),
-        db.sale.aggregate({ where: { status: "PAID", createdAt: previousRange }, _sum: { total: true } }),
+        db.finance.aggregate({ where: { isArchived: false, paymentDate: previousRange, ...payments_ }, _sum: { amountPaid: true } }),
+        db.sale.aggregate({ where: { status: "PAID", createdAt: previousRange, ...sales_ }, _sum: { total: true } }),
       ]),
       db.expenses.findMany({
-        where: { isArchived: false, date: inRange },
-        select: { amount: true, date: true, category: { select: { name: true } } },
+        where: { isArchived: false, date: inRange, ...inProgramme.expense(programmeId) },
+        select: { amount: true, date: true, category: { select: { name: true } }, programme: { select: { name: true } } },
       }),
       db.invoice.aggregate({
-        where: { status: { not: "CANCELED" }, createdAt: inRange },
+        where: { status: { not: "CANCELED" }, createdAt: inRange, ...invoices_ },
         _sum: { amountDue: true, discount: true },
         _count: { _all: true },
       }),
       // Unpaid fees are as of today, whatever the range
       db.invoice.findMany({
-        where: { status: { in: [...OPEN] } },
+        where: { status: { in: [...OPEN] }, ...invoices_ },
         select: {
           amountDue: true,
           discount: true,
@@ -74,26 +86,42 @@ export async function getReport(r: ReportRange, now = new Date()) {
               firstName: true,
               middleName: true,
               lastName: true,
-              batches: { select: { name: true } },
+              batches: batchSelect,
             },
           },
         },
       }),
       db.training.findMany({
-        where: { isArchived: false, date: { gte: r.from, lte: r.to < now ? r.to : now } },
-        select: { id: true, batch: { select: { name: true } }, _count: { select: { athletes: true } } },
+        where: { isArchived: false, date: { gte: r.from, lte: r.to < now ? r.to : now }, ...inProgramme.session(programmeId) },
+        select: { id: true, batch: batchSelect, _count: { select: { athletes: true } } },
       }),
       db.attendance.groupBy({
         by: ["trainingId", "status"],
-        where: { training: { isArchived: false, date: { gte: r.from, lte: r.to < now ? r.to : now } } },
+        where: { training: { isArchived: false, date: { gte: r.from, lte: r.to < now ? r.to : now }, ...inProgramme.session(programmeId) } },
         _count: { _all: true },
       }),
       db.athlete.findMany({
-        where: { isArchived: false, createdAt: inRange },
-        select: { batches: { select: { name: true } } },
+        where: { isArchived: false, createdAt: inRange, ...athletes_ },
+        select: { batches: batchSelect },
       }),
-      db.athlete.groupBy({ by: ["status"], where: { isArchived: false }, _count: { _all: true } }),
+      db.athlete.groupBy({ by: ["status"], where: { isArchived: false, ...athletes_ }, _count: { _all: true } }),
     ]);
+
+  // ---- Programmes side by side (all programmes), or the costs shared with the others (one)
+  const [programmes, activeByBatch, shared] = await Promise.all([
+    programmeId ? [] : db.programme.findMany({ where: { isArchived: false }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { name: true } }),
+    programmeId
+      ? []
+      : db.athlete.groupBy({ by: ["batchesId"], where: { isArchived: false, status: "ACTIVE" }, _count: { _all: true } }),
+    programmeId
+      ? db.expenses.aggregate({ where: { isArchived: false, date: inRange, programmeId: null }, _sum: { amount: true }, _count: { _all: true } })
+      : null,
+  ]);
+  const programmeOfBatch = programmeId
+    ? new Map<string, string>()
+    : new Map(
+        (await db.batches.findMany({ select: { id: true, programme: { select: { name: true } } } })).map((b) => [b.id, b.programme.name]),
+      );
 
   // ---- Money in and out
   const keys = bucketKeys(r);
@@ -116,7 +144,7 @@ export async function getReport(r: ReportRange, now = new Date()) {
     }
     fees += p.amountPaid;
     if (t) t.fees += p.amountPaid;
-    tally(byBatch, p.athlete.batches?.name ?? NO_BATCH, p.amountPaid);
+    tally(byBatch, label(p.athlete.batches, NO_BATCH), p.amountPaid);
     tally(byMethod, METHOD_LABEL[p.paymentType], p.amountPaid);
     tally(bySource, "Fees", p.amountPaid);
   }
@@ -171,7 +199,7 @@ export async function getReport(r: ReportRange, now = new Date()) {
     const d = debtors.get(a.athleteId) ?? {
       id: a.athleteId,
       name: athleteName(a),
-      batch: a.batches?.name ?? NO_BATCH,
+      batch: label(a.batches, NO_BATCH),
       owed: 0,
       invoices: 0,
       oldest: inv.dueDate,
@@ -194,7 +222,7 @@ export async function getReport(r: ReportRange, now = new Date()) {
   }
   const training = new Map<string, { sessions: number; recorded: number; marked: number; present: number }>();
   for (const s of sessions) {
-    const name = s.batch?.name ?? NO_BATCH;
+    const name = label(s.batch, NO_BATCH);
     const t = training.get(name) ?? { sessions: 0, recorded: 0, marked: 0, present: 0 };
     const m = marks.get(s.id);
     t.sessions += 1;
@@ -213,10 +241,49 @@ export async function getReport(r: ReportRange, now = new Date()) {
 
   // ---- Squad
   const joinedByBatch = new Map<string, { count: number; amount: number }>();
-  for (const a of joined) tally(joinedByBatch, a.batches?.name ?? NO_BATCH, 0);
+  for (const a of joined) tally(joinedByBatch, label(a.batches, NO_BATCH), 0);
   const status = Object.fromEntries(squad.map((s) => [s.status, s._count._all]));
 
+  type ProgrammeRow = { name: string; fees: number; spent: number; owed: number; athletes: number; marked: number; present: number };
+  const byProgramme = new Map<string, ProgrammeRow>(
+    programmes.map((p) => [p.name, { name: p.name, fees: 0, spent: 0, owed: 0, athletes: 0, marked: 0, present: 0 }]),
+  );
+  const row = (name: string | undefined) => (name ? byProgramme.get(name) : undefined);
+  if (!programmeId) {
+    for (const p of payments) {
+      const r = row(p.athlete.batches?.programme.name);
+      if (r && p.invoice?.type !== "ITEM_PURCHASE") r.fees += p.amountPaid;
+    }
+    for (const e of expenses) {
+      const r = row(e.programme?.name);
+      if (r) r.spent += e.amount;
+    }
+    for (const inv of open) {
+      const r = row(inv.athlete.batches?.programme.name);
+      if (r) r.owed += invoiceBalance(inv);
+    }
+    for (const a of activeByBatch) {
+      const r = row(programmeOfBatch.get(a.batchesId));
+      if (r) r.athletes += a._count._all;
+    }
+    for (const x of sessions) {
+      const r = row(x.batch?.programme.name);
+      const m = marks.get(x.id);
+      if (r && m) {
+        r.marked += m.marked;
+        r.present += m.present;
+      }
+    }
+  }
+  const sharedSpent = expenses.filter((e) => !e.programme).reduce((n, e) => n + e.amount, 0);
+
   return {
+    /** Under all programmes, one row each (shown when there are two or more) */
+    programmes: {
+      rows: [...byProgramme.values()],
+      /** Expenses not charged to a programme */
+      shared: sharedSpent,
+    },
     money: {
       collected,
       fees,
@@ -229,6 +296,9 @@ export async function getReport(r: ReportRange, now = new Date()) {
       changeYear: lastYearIncome ? (collected - lastYearIncome) / lastYearIncome : null,
       spent,
       net: collected - spent,
+      /** Under one programme: expenses shared by all, not in spent or net */
+      sharedSpent: shared ? (shared._sum.amount ?? 0) : 0,
+      sharedCount: shared ? shared._count._all : 0,
       billed: Number(billed._sum.amountDue ?? 0) - Number(billed._sum.discount ?? 0),
       invoicesIssued: billed._count._all,
       trend: [...trend.values()],

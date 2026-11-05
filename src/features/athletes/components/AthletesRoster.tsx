@@ -9,6 +9,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { PageHeader } from "@/components/shared/PageHeader";
 import { LoadMore } from "@/components/shared/LoadMore";
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { useAuthSession } from "@/providers/SessionProvider";
 import { hasRole } from "@/lib/roles";
@@ -52,7 +53,7 @@ export default function AthletesRoster({
   // Registering is for admins
   const canRegister = hasRole(useAuthSession().user.role, "admin");
   // The batch's name titles its printed list
-  const batchName = UseUtilsContext().data?.batches?.find((b) => b.id === form.batchId)?.name;
+  const batchName = useProgramme().batchLabel(form.batchId) || undefined;
   const search = useDebounce(form.search, 400);
 
   const filters = useMemo(

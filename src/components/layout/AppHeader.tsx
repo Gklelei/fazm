@@ -13,6 +13,7 @@ import {
   DropdownMenuRadioItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { ProgrammeSwitcher } from "@/features/programmes/components/ProgrammeSwitcher";
 import { findNavItem } from "./nav-config";
 
 function ThemeMenu() {
@@ -60,6 +61,7 @@ export function AppHeader() {
         </p>
       )}
       <div className="ml-auto flex items-center gap-1">
+        <ProgrammeSwitcher />
         <ThemeMenu />
       </div>
     </header>

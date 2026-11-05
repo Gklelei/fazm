@@ -11,6 +11,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { ATHLETE_STATUS_LABEL } from "./AthleteRowActions";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
@@ -35,7 +36,7 @@ export default function AthletesFilterBar({
   onChange: (next: Partial<RosterFilterState>) => void;
   busy: boolean;
 }) {
-  const batches = UseUtilsContext().data?.batches ?? [];
+  const { batches } = useProgramme();
   const active = Object.values(value).some(Boolean);
 
   return (

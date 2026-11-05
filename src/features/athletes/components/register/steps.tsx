@@ -31,6 +31,7 @@ import { academyToday, formatAcademy } from "@/lib/academy-time";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 import { formatPhone, normalizePhone } from "@/lib/phone";
 import { cn } from "@/lib/utils";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { CONSENT_TEXT, CONSENT_VERSION } from "../../lib/consent-text";
 import {
@@ -79,11 +80,11 @@ function suggestBatch(age: number, batches: { id: string; name: string }[]) {
 
 export function StepAthlete() {
   const { control, setValue, getValues } = useRegForm();
-  const batches = (UseUtilsContext().data?.batches ?? []).filter(
-    (b) => !/unassigned/i.test(b.name),
-  );
+  const { programmeId, batches: scoped } = useProgramme();
+  const batches = scoped.filter((b) => !/unassigned/i.test(b.name));
   const age = useAge();
-  const suggested = age !== null ? suggestBatch(age, batches) : undefined;
+  // Suggest from the age only within one programme: under all, U13 could be Boys or Girls
+  const suggested = age !== null && programmeId ? suggestBatch(age, batches) : undefined;
 
   // Fill the batch from the age, unless one was already chosen
   useEffect(() => {
@@ -706,7 +707,10 @@ const money = (n: number) => `KES ${n.toLocaleString("en-KE")}`;
 
 export function StepPlan() {
   const { control, clearErrors } = useRegForm();
-  const plans = UseUtilsContext().data?.plans ?? [];
+  const { plansFor, programmeOfBatch } = useProgramme();
+  const batchId = useWatch<RegistrationInput, "batch">({ name: "batch" });
+  // Plans for the athlete's programme (their batch's) and plans for any
+  const plans = plansFor(programmeOfBatch(batchId));
   const planId = useWatch<RegistrationInput, "subscriptionPlanId">({
     name: "subscriptionPlanId",
   });
@@ -829,10 +833,11 @@ const cap = (w: string) => w.charAt(0).toUpperCase() + w.slice(1);
 
 export function StepReview({ goTo }: StepProps) {
   const { getValues } = useRegForm();
+  const { batchLabel } = useProgramme();
   const utils = UseUtilsContext().data;
   const v = getValues();
   const plan = utils?.plans.find((p) => p.id === v.subscriptionPlanId);
-  const batch = utils?.batches.find((b) => b.id === v.batch)?.name;
+  const batch = batchLabel(v.batch);
   const day = (ymd: string) =>
     ymd
       ? formatAcademy(`${ymd}T09:00:00Z`, {

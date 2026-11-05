@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/select";
 import { useDebounce } from "@/hooks/use-debounce";
 import { cn } from "@/lib/utils";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import type { SessionView } from "../queries/list-sessions";
 
@@ -24,7 +25,7 @@ export function SessionsToolbar({ view }: { view: SessionView }) {
   const router = useRouter();
   const pathname = usePathname();
   const params = useSearchParams();
-  const batches = UseUtilsContext().data?.batches ?? [];
+  const { batches } = useProgramme();
   const [pending, start] = useTransition();
   const [search, setSearch] = useState(params.get("search") ?? "");
   const debounced = useDebounce(search, 400);

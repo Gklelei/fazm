@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { PAYMENT_TYPE } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
+import { inProgramme } from "@/lib/programme-scope";
 
 export type PaymentParams = {
   search: string;
@@ -9,6 +10,8 @@ export type PaymentParams = {
   to: string;
   page: number;
   pageSize: number;
+  /** The header's programme (from the cookie); null: all */
+  programmeId?: string | null;
 };
 
 export function parsePaymentParams(sp: Record<string, string | undefined>): PaymentParams {
@@ -45,6 +48,7 @@ export async function listPayments(p: PaymentParams) {
 
   const where: Prisma.FinanceWhereInput = {
     isArchived: false,
+    ...inProgramme.payment(p.programmeId ?? null),
     ...(p.method ? { paymentType: p.method } : {}),
     ...(p.from || p.to ? { paymentDate } : {}),
     ...(p.search

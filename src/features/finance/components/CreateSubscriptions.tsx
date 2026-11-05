@@ -6,6 +6,8 @@ import {
   SubscriptionsSchemaType,
 } from "@/features/finance/schemas/plans";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ProgrammeField } from "@/features/programmes/components/ProgrammeField";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import {
   Form,
   FormControl,
@@ -37,6 +39,7 @@ import { Sweetalert } from "@/lib/alerts";
 
 const CreateSubscriptions = () => {
   const [isPending, startTransistion] = useTransition();
+  const { programmeId } = useProgramme();
   const form = useForm<SubscriptionsSchemaType>({
     resolver: zodResolver(SubscriptionsSchema),
     defaultValues: {
@@ -45,6 +48,7 @@ const CreateSubscriptions = () => {
       interval: "MONTHLY",
       name: "",
       status: "INACTIVE",
+      programmeId: programmeId ?? "",
     },
   });
 
@@ -139,6 +143,8 @@ const CreateSubscriptions = () => {
                 />
 
                 {/* Fee Description */}
+                <ProgrammeField control={form.control} name="programmeId" anyLabel="Any programme" />
+
                 <FormField
                   name="description"
                   control={form.control}

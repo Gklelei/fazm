@@ -19,6 +19,7 @@ export const GetExpensesQuery = {
   },
   include: {
     category: true,
+    programme: { select: { name: true } },
   },
 } satisfies Prisma.ExpensesFindManyArgs;
 

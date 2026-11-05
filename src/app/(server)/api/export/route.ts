@@ -20,6 +20,8 @@ import {
 } from "@/features/athletes/queries/filters";
 import { buildStaffWhere, STAFF_LIST_SELECT, staffFiltersFromParams } from "@/features/staff/queries/list";
 import { ACTIVITY_SELECT, activityFiltersFromParams, buildActivityWhere } from "@/features/audit-logs/queries/list";
+import { inProgramme, selectedProgrammeId } from "@/lib/programme";
+import { buildGuardianWhere, guardianFiltersFromParams, GuardiansQuery } from "@/features/guardians/queries";
 
 export const dynamic = "force-dynamic";
 
@@ -32,6 +34,7 @@ const EXPORT_ACCESS: Record<string, RoleGroup> = {
   finance: "finance",
   sessions: "coaching",
   athletes: "coaching",
+  guardians: "admin",
   activity: "developer",
 };
 
@@ -57,11 +60,13 @@ export async function GET(req: NextRequest) {
   if (!group) return apiError(400, "Unknown resource");
   if (!hasRole(session.user.role, group)) return apiError(403, "Forbidden");
   const query = req.nextUrl.searchParams.get("query")?.trim() || "";
+  // Exports follow the header's programme, like the list they sit on
+  const programmeId = await selectedProgrammeId();
 
   try {
     switch (resource) {
       case "expenses": {
-        const whereClause: Prisma.ExpensesWhereInput = {};
+        const whereClause: Prisma.ExpensesWhereInput = { ...inProgramme.expense(programmeId) };
         if (query) {
           whereClause.OR = [
             { name: { contains: query, mode: "insensitive" } },
@@ -107,6 +112,7 @@ export async function GET(req: NextRequest) {
       case "sessions": {
         const whereClause: Prisma.trainingWhereInput = {
           isArchived: false,
+          ...inProgramme.session(programmeId),
           // Coaches export only the sessions they run, as on the list
           ...(session.user.role === "COACH"
             ? { coach: { userId: session.user.id } }
@@ -142,9 +148,10 @@ export async function GET(req: NextRequest) {
 
       case "athletes": {
         const data = await db.athlete.findMany({
-          where: buildAthleteWhere(
-            athleteFiltersFromParams(req.nextUrl.searchParams),
-          ),
+          where: buildAthleteWhere({
+            ...athleteFiltersFromParams(req.nextUrl.searchParams),
+            programmeId,
+          }),
           select: {
             athleteId: true,
             firstName: true,
@@ -171,6 +178,19 @@ export async function GET(req: NextRequest) {
         return NextResponse.json(data);
       }
 
+      case "guardians": {
+        const data = await db.athleteGuardian.findMany({
+          ...GuardiansQuery,
+          where: buildGuardianWhere({
+            ...guardianFiltersFromParams((k) => req.nextUrl.searchParams.get(k)),
+            programmeId,
+          }),
+          orderBy: [{ fullNames: "asc" }, { id: "asc" }],
+          take: MAX_EXPORT_ROWS,
+        });
+        return NextResponse.json(data);
+      }
+
       case "activity": {
         const items = await db.auditLog.findMany({
           where: buildActivityWhere(activityFiltersFromParams((k) => req.nextUrl.searchParams.get(k))),
@@ -183,7 +203,7 @@ export async function GET(req: NextRequest) {
 
       case "invoices": {
         const data = await db.invoice.findMany({
-          where: buildInvoiceWhere(invoiceFiltersFromParams(req.nextUrl.searchParams)),
+          where: buildInvoiceWhere({ ...invoiceFiltersFromParams(req.nextUrl.searchParams), programmeId }),
           select: INVOICE_LIST_SELECT,
           orderBy: [{ createdAt: "desc" }, { id: "desc" }],
           take: MAX_EXPORT_ROWS,
@@ -192,7 +212,7 @@ export async function GET(req: NextRequest) {
       }
 
       case "finance": {
-        const whereClause: Prisma.FinanceWhereInput = { isArchived: false };
+        const whereClause: Prisma.FinanceWhereInput = { isArchived: false, ...inProgramme.payment(programmeId) };
 
         // ── Date range filter (on paymentDate) ─────────────────────────
         const fromDate = req.nextUrl.searchParams.get("from");

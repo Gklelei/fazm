@@ -3,6 +3,7 @@ import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
 import { apiError } from "@/lib/api-response";
 import { athleteFiltersFromParams } from "@/features/athletes/queries/filters";
 import { listAthletes } from "@/features/athletes/queries/list";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export async function GET(req: NextRequest) {
   const authz = await checkRole();
@@ -10,7 +11,7 @@ export async function GET(req: NextRequest) {
 
   const sp = req.nextUrl.searchParams;
   try {
-    const page = await listAthletes(athleteFiltersFromParams(sp), {
+    const page = await listAthletes({ ...athleteFiltersFromParams(sp), programmeId: await selectedProgrammeId() }, {
       cursor: sp.get("cursor"),
       pageSize: Number(sp.get("pageSize")) || undefined,
     });

@@ -11,6 +11,7 @@ import type { SettingsData } from "../queries";
 import { saveBatch, setBatchArchived } from "../actions/batches";
 import { DAYS, type Day } from "../lib/plan-sessions";
 import { ItemDialog } from "./ItemDialog";
+import { useProgrammeChoice } from "./SettingsLists";
 import { PlanSessionsDialog } from "./PlanSessionsDialog";
 import { RowMenu } from "./RowMenu";
 import { TimetableSheet, type SlotDraft } from "./TimetableSheet";
@@ -146,6 +147,7 @@ export function BatchCard({
   coaches: Option[];
 }) {
   const [editing, setEditing] = useState(false);
+  const programmeChoice = useProgrammeChoice();
   const [timetable, setTimetable] = useState(false);
   const [planning, setPlanning] = useState(false);
   const slots = groupSlots(batch.slots);
@@ -192,7 +194,7 @@ export function BatchCard({
         <RowMenu
           name={batch.name}
           archived={batch.archived}
-          editLabel="Rename"
+          editLabel="Edit"
           onEdit={() => setEditing(true)}
           setArchived={(to) => setBatchArchived(batch.id, to)}
         />
@@ -286,10 +288,11 @@ export function BatchCard({
         title={`Edit ${batch.name}`}
         nameLabel="Batch name"
         withDescription="Description"
-        initial={{ name: batch.name, description: batch.description ?? "" }}
+        choice={programmeChoice}
+        initial={{ name: batch.name, description: batch.description ?? "", choice: batch.programmeId }}
         submitLabel="Save"
         submit={(v) =>
-          saveBatch({ name: v.name, description: v.description }, batch.id)
+          saveBatch({ name: v.name, description: v.description, programmeId: v.choice }, batch.id)
         }
       />
       <TimetableSheet

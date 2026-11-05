@@ -58,6 +58,10 @@ model SubscriptionPlan {
   /// Coupons that only work on this plan
   coupons             Coupon[]            @relation("CouponPlans")
 
+  /// Only offered to this programme's athletes; empty: any programme
+  programmeId String?    @map("programme_id")
+  programme   Programme? @relation(fields: [programmeId], references: [id], onDelete: SetNull)
+
   @@map("subscription_plans")
 }
 
@@ -329,6 +333,9 @@ model Expenses {
   categoryId    String            @map("category_id")
   isArchived    Boolean           @default(false)
   category      ExpenseCategories @relation(fields: [categoryId], references: [id])
+  /// Empty: shared by all programmes (pitch hire, transport)
+  programmeId   String?           @map("programme_id")
+  programme     Programme?        @relation(fields: [programmeId], references: [id], onDelete: SetNull)
   createdAt     DateTime          @default(now()) @map("created_at")
   updatedAt     DateTime          @updatedAt @map("updated_at")
 

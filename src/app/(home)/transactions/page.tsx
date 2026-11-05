@@ -20,6 +20,7 @@ import { PaymentsToolbar } from "@/features/finance/components/PaymentsToolbar";
 import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import { listPayments, parsePaymentParams } from "@/features/finance/queries/list-payments";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export const metadata: Metadata = { title: "Payments" };
 
@@ -29,7 +30,7 @@ export default async function Page({
   searchParams: Promise<Record<string, string | undefined>>;
 }) {
   const sp = await searchParams;
-  const params = parsePaymentParams(sp);
+  const params = { ...parsePaymentParams(sp), programmeId: await selectedProgrammeId() };
   const { rows, total, sum, pages } = await listPayments(params);
   const filtered = !!(params.search || params.method || params.from || params.to);
 

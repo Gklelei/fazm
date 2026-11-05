@@ -44,6 +44,7 @@ import {
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { EditExpense } from "@/features/expenses/actions/expenses";
 import { Sweetalert } from "@/lib/alerts";
+import { ProgrammeField } from "@/features/programmes/components/ProgrammeField";
 import { GetExpensesQueryType } from "@/features/expenses/queries";
 
 interface Props {
@@ -82,6 +83,7 @@ const EditExpenseForm = ({ expenses, id }: Props) => {
           ? String(selectedExpense.amount)
           : "",
       category: selectedExpense?.category?.id ?? "",
+      programmeId: selectedExpense?.programmeId ?? "",
       date: toDateInputValue(selectedExpense?.date ?? null),
     },
     mode: "onSubmit",
@@ -97,6 +99,7 @@ const EditExpenseForm = ({ expenses, id }: Props) => {
           ? String(selectedExpense.amount)
           : "",
       category: selectedExpense?.category?.id ?? "",
+      programmeId: selectedExpense?.programmeId ?? "",
       date: toDateInputValue(selectedExpense?.date ?? null),
     });
   };
@@ -236,6 +239,8 @@ const EditExpenseForm = ({ expenses, id }: Props) => {
                     </FormItem>
                   )}
                 />
+
+                <ProgrammeField control={form.control} name="programmeId" anyLabel="Shared by all programmes" />
 
                 <FormField
                   control={form.control}

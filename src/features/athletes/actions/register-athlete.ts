@@ -69,11 +69,13 @@ export async function registerAthlete(input: RegistrationInput) {
       // ---------- Fee plan ----------
       const plan = await ctx.subscriptionPlan.findFirst({
         where: { id: v.subscriptionPlanId, isActive: true, isArchived: false },
-        select: { id: true, interval: true, amount: true, name: true },
+        select: { id: true, interval: true, amount: true, name: true, programmeId: true },
       });
       if (!plan) throw new ActionError("That fee plan is no longer available. Choose another.");
-      if (!(await ctx.batches.findFirst({ where: { id: v.batch, isArchived: false }, select: { id: true } }))) {
-        throw new ActionError("That batch is no longer available. Choose another.");
+      const batch = await ctx.batches.findFirst({ where: { id: v.batch, isArchived: false }, select: { programmeId: true } });
+      if (!batch) throw new ActionError("That batch is no longer available. Choose another.");
+      if (plan.programmeId && plan.programmeId !== batch.programmeId) {
+        throw new ActionError(`${plan.name} is for another programme. Choose a plan for this batch.`);
       }
 
       const planAmount = new Prisma.Decimal(plan.amount);

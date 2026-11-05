@@ -44,10 +44,13 @@ import {
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { CreateExpense } from "@/features/expenses/actions/expenses";
 import { Sweetalert } from "@/lib/alerts";
+import { ProgrammeField } from "@/features/programmes/components/ProgrammeField";
+import { useProgramme } from "@/providers/ProgrammeContext";
 
 const CreateExpenses = () => {
   const [open, setOpen] = useState(false);
   const { data } = UseUtilsContext();
+  const { programmeId } = useProgramme();
   const [isPending, startTransistion] = useTransition();
 
   const form = useForm<ClientCreateExpenseType>({
@@ -58,6 +61,8 @@ const CreateExpenses = () => {
       date: "",
       description: "",
       name: "",
+      // Starts in the header's programme
+      programmeId: programmeId ?? "",
     },
     mode: "onSubmit",
   });
@@ -190,6 +195,8 @@ const CreateExpenses = () => {
                       </FormItem>
                     )}
                   />
+
+                  <ProgrammeField control={form.control} name="programmeId" anyLabel="Shared by all programmes" />
 
                   <FormField
                     control={form.control}

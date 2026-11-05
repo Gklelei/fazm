@@ -6,11 +6,13 @@ import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 import { canRunPayroll } from "@/lib/roles";
 import { getSettingsData } from "@/features/settings/queries";
+import { selectedProgrammeId } from "@/lib/programme";
 import { BatchCard } from "@/features/settings/components/BatchCard";
 import {
   AddItemButton,
   DrillList,
   PitchList,
+  ProgrammeList,
   ReasonList,
 } from "@/features/settings/components/SettingsLists";
 import { PreferencesForm } from "@/features/settings/components/PreferencesForm";
@@ -43,15 +45,19 @@ export default async function Page({
   const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab && (payroll || t.key !== "payroll"))?.key ??
     "batches") as SettingsTab;
   const showArchived = sp.archived === "1";
-  const [data, s, academy, deductions] = await Promise.all([
+  const [data, s, academy, deductions, programmeId] = await Promise.all([
     getSettingsData(),
     getSettings(),
     getCachedAcademy().catch(() => null),
     tab === "payroll" ? deductionSettings() : null,
+    selectedProgrammeId(),
   ]);
 
+  // Batches follow the header's programme
+  const scopedBatches = programmeId ? data.batches.filter((b) => b.programmeId === programmeId) : data.batches;
   const lists = {
-    batches: data.batches,
+    programmes: data.programmes,
+    batches: scopedBatches,
     pitches: data.pitches,
     drills: data.drills,
     reasons: data.reasons,
@@ -72,7 +78,11 @@ export default async function Page({
     id: c.staffId,
     name: c.fullNames,
   }));
-  const batches = visible(data.batches);
+  const batches = visible(scopedBatches);
+  // Under "All programmes": one heading per programme that has batches
+  const batchGroups = data.programmes
+    .map((p) => ({ programme: p, rows: batches.filter((b) => b.programmeId === p.id) }))
+    .filter((g) => g.rows.length);
 
   return (
     <div className="space-y-6">
@@ -93,21 +103,31 @@ export default async function Page({
 
           {tab === "batches" &&
             (batches.length ? (
-              <div className="grid gap-4 2xl:grid-cols-2">
-                {batches.map((b) => (
-                  <BatchCard
-                    key={b.id}
-                    batch={b}
-                    pitches={pitches}
-                    coaches={coaches}
-                  />
-                ))}
-              </div>
+              batchGroups.map((g) => (
+                <section key={g.programme.id} className="space-y-3">
+                  {(!programmeId || batchGroups.length > 1) && (
+                    <h2 className="font-display text-lg font-bold tracking-wide uppercase text-muted-foreground">
+                      {g.programme.name}
+                    </h2>
+                  )}
+                  <div className="grid gap-4 2xl:grid-cols-2">
+                    {g.rows.map((b) => (
+                      <BatchCard
+                        key={b.id}
+                        batch={b}
+                        pitches={pitches}
+                        coaches={coaches}
+                      />
+                    ))}
+                  </div>
+                </section>
+              ))
             ) : (
               <p className="rounded-lg border border-dashed px-4 py-12 text-center text-sm text-muted-foreground">
                 No batches yet.
               </p>
             ))}
+          {tab === "programmes" && <ProgrammeList rows={visible(data.programmes)} />}
           {tab === "pitches" && <PitchList rows={visible(data.pitches)} />}
           {tab === "drills" && <DrillList rows={visible(data.drills)} />}
           {tab === "reasons" && <ReasonList rows={visible(data.reasons)} />}

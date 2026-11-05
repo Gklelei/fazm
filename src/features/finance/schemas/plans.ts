@@ -20,6 +20,9 @@ export const SubscriptionsSchema = z.object({
 
   description: requiredString,
 
+  /** "": any programme */
+  programmeId: z.string().trim().optional(),
+
   status: z.enum(STATUSES).refine((val) => STATUSES.includes(val), {
     error: "Select a valid status",
   }),

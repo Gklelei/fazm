@@ -11,6 +11,7 @@ import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 import { headers } from "next/headers";
 import { actionErrorMessage } from "@/lib/action";
+import { optionalProgramme } from "@/lib/programme-check";
 
 export async function CreateExpense(
   data: ServerCreateExpenseType,
@@ -38,6 +39,7 @@ export async function CreateExpense(
   }
 
   try {
+    const programme = await optionalProgramme(parsedData.programmeId);
     await db.expenses.create({
       data: {
         name: parsedData.name,
@@ -45,6 +47,7 @@ export async function CreateExpense(
         date: parsedData.date,
         description: parsedData.description,
         categoryId: parsedData.category,
+        programmeId: programme?.id ?? null,
       },
     });
 
@@ -53,7 +56,7 @@ export async function CreateExpense(
     await createAuditLog({
       action: "CREATE_EXPENSE",
       resource: "Expense",
-      details: `Logged expense of ${parsedData.amount} for ${parsedData.name}`,
+      details: `Logged expense of ${parsedData.amount} for ${parsedData.name} (${programme?.name ?? "shared"})`,
       userId: session.user.id,
     });
 
@@ -172,11 +175,13 @@ export async function EditExpense(
         success: false,
       };
     }
+    const programme = await optionalProgramme(parsedData.programmeId);
     await db.expenses.update({
       where: {
         id,
       },
       data: {
+        programmeId: programme?.id ?? null,
         name: parsedData.name,
         amount: parsedData.amount,
         date: parsedData.date,
@@ -190,7 +195,7 @@ export async function EditExpense(
     await createAuditLog({
       action: "UPDATE_EXPENSE",
       resource: "Expense",
-      details: `Updated details for expense ${id} - amount ${parsedData.amount}`,
+      details: `Updated details for expense ${id} - amount ${parsedData.amount} (${programme?.name ?? "shared"})`,
       userId: session.user.id,
     });
 

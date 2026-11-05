@@ -10,6 +10,7 @@ const READ_ONLY: Record<string, string> = {
   "src/features/coupons/actions/redeem.ts#checkCouponForAthlete": "says whether a coupon fits an athlete, changing nothing",
   "src/features/coupons/actions/redeem.ts#checkCouponForInvoice": "says how much a coupon takes off an invoice, changing nothing",
   "src/features/settings/actions/batches.ts#previewBatchSessions": "shows what Plan sessions would create; changes nothing",
+  "src/features/programmes/actions/select.ts#selectProgramme": "sets which programme this browser views (a cookie); changes no data",
   "src/app/(server)/api/auth/[...all]/route.ts#POST": "better-auth; sign-in, sign-out and password changes are logged by its hooks in src/lib/auth.ts",
 };
 

@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import type { ROLES } from "@/generated/prisma/enums";
 import { Dashboard } from "@/features/dashboard/components/Dashboard";
 import { getDashboard } from "@/features/dashboard/queries/get-dashboard";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export const metadata: Metadata = { title: "Dashboard" };
 
@@ -13,7 +14,7 @@ export default async function HomePage() {
   if (!session) redirect("/sign-in");
 
   const role = (session.user.role as ROLES | null) ?? null;
-  const data = await getDashboard(session.user.id, role);
+  const data = await getDashboard(session.user.id, role, await selectedProgrammeId());
 
   return <Dashboard data={data} name={session.user.name} />;
 }

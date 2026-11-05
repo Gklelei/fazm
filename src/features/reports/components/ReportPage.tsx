@@ -43,6 +43,54 @@ function Figure({ label, value, className }: { label: string; value: React.React
   );
 }
 
+/** Under all programmes: each programme's money and turnout side by side. */
+function ByProgramme({ rows, shared }: { rows: Report["programmes"]["rows"]; shared: number }) {
+  return (
+    <Panel title="By programme">
+      <div className="overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/50 text-left text-xs text-muted-foreground">
+            <tr>
+              <th className="px-4 py-2 font-medium">Programme</th>
+              <th className="px-3 py-2 text-right font-medium">Fees in</th>
+              <th className="px-3 py-2 text-right font-medium">Spent</th>
+              <th className="px-3 py-2 text-right font-medium">Net</th>
+              <th className="px-3 py-2 text-right font-medium">Unpaid today</th>
+              <th className="px-3 py-2 text-right font-medium">Active athletes</th>
+              <th className="px-4 py-2 text-right font-medium">Turnout</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y">
+            {rows.map((r) => (
+              <tr key={r.name}>
+                <td className="px-4 py-2 font-medium">{r.name}</td>
+                <td className="tabular px-3 py-2 text-right">{formatCurrency(r.fees)}</td>
+                <td className="tabular px-3 py-2 text-right">{formatCurrency(r.spent)}</td>
+                <td className={cn("tabular px-3 py-2 text-right font-medium", r.fees - r.spent < 0 && "text-destructive")}>
+                  {formatCurrency(r.fees - r.spent)}
+                </td>
+                <td className="tabular px-3 py-2 text-right">{formatCurrency(r.owed)}</td>
+                <td className="tabular px-3 py-2 text-right">{r.athletes.toLocaleString()}</td>
+                <td className="tabular px-4 py-2 text-right">{r.marked ? pct(r.present / r.marked) : "—"}</td>
+              </tr>
+            ))}
+            {shared > 0 && (
+              <tr className="text-muted-foreground">
+                <td className="px-4 py-2">Shared costs</td>
+                <td className="px-3 py-2 text-right">—</td>
+                <td className="tabular px-3 py-2 text-right">{formatCurrency(shared)}</td>
+                <td className="tabular px-3 py-2 text-right">{formatCurrency(-shared)}</td>
+                <td className="px-3 py-2 text-right" colSpan={3} />
+              </tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+      <Source>Fees from Payments on fee invoices, by the athlete&apos;s batch today. Spent: each programme&apos;s own Expenses; shared ones on their own line. Shop sales aren&apos;t split.</Source>
+    </Panel>
+  );
+}
+
 export function ReportPage({ range, report }: { range: ReportRange; report: Report }) {
   const { money, unpaid, training, squad } = report;
   const recordedShare = training.sessions ? training.recorded / training.sessions : 0;
@@ -89,7 +137,14 @@ export function ReportPage({ range, report }: { range: ReportRange; report: Repo
           <StatCard
             label="Spent"
             value={formatCurrency(money.spent)}
-            note={money.byCategory.length ? `${plural(money.byCategory.length, "category", "categories")}` : "No expenses recorded"}
+            note={
+              <>
+                {money.byCategory.length ? `${plural(money.byCategory.length, "category", "categories")}` : "No expenses recorded"}
+                {money.sharedSpent > 0 && (
+                  <span className="block">Plus {formatCurrency(money.sharedSpent)} shared by all programmes</span>
+                )}
+              </>
+            }
             href="/expenses"
           />
           <StatCard
@@ -99,6 +154,8 @@ export function ReportPage({ range, report }: { range: ReportRange; report: Repo
             note="Money in less spent"
           />
         </div>
+
+        {report.programmes.rows.length > 1 && <ByProgramme rows={report.programmes.rows} shared={report.programmes.shared} />}
 
         <div className="grid gap-6 xl:grid-cols-5">
           <div className="space-y-6 xl:col-span-3">

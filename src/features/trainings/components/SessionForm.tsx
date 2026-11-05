@@ -19,6 +19,7 @@ import { TextField } from "@/components/form/TextField";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { academyToday, minutesBetween } from "@/lib/academy-time";
 import { useAuthSession } from "@/providers/SessionProvider";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { createSession, updateSession } from "../actions/save-session";
 import { sessionSchema, type SessionInput } from "../schemas";
@@ -36,13 +37,16 @@ const length = (start: string, end: string) => {
 };
 
 /** Plan or edit one session. One short page: when, who and where, then the plan. */
+const NO_COACHES: NonNullable<UtilsResponse>["coaches"] = [];
+
 export function SessionForm({ id, values }: { id?: string; values?: SessionInput }) {
   const router = useRouter();
   const { user } = useAuthSession();
   const utils = UseUtilsContext().data;
-  const batches = useMemo(() => (utils?.batches ?? []).filter((b) => !/unassigned/i.test(b.name)), [utils?.batches]);
   const pitches = utils?.locations ?? [];
-  const coaches = useMemo(() => utils?.coaches ?? [], [utils?.coaches]);
+  const coaches = utils?.coaches ?? NO_COACHES;
+  const programme = useProgramme();
+  const batches = useMemo(() => programme.batches.filter((b) => !/unassigned/i.test(b.name)), [programme]);
   const isCoach = user.role === "COACH";
   const me = coaches.find((c) => c.userId === user.id);
 

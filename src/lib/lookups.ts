@@ -19,6 +19,7 @@ export const LOOKUP = {
   locations: "lookup:locations",
   drills: "lookup:drills",
   batches: "lookup:batches",
+  programmes: "lookup:programmes",
   coaches: "lookup:coaches",
   attendanceReasons: "lookup:attendance-reasons",
   expenseCategories: "lookup:expense-categories",
@@ -26,8 +27,13 @@ export const LOOKUP = {
   academy: "academy", // shared with getCachedAcademy
 } as const;
 
+/**
+ * Bump when a cached list changes shape (a new field), so a cache written by
+ * older code is never read back without it. v2: batches carry programmeId.
+ */
+const SHAPE = "v2";
 const cached = <T>(tag: string, fn: () => Promise<T>) =>
-  unstable_cache(fn, [tag], { tags: [tag], revalidate: false });
+  unstable_cache(fn, [tag, SHAPE], { tags: [tag], revalidate: false });
 
 // Pickers only offer what's in use; archived items stay on past records.
 const getLocations = cached(LOOKUP.locations, () =>
@@ -35,6 +41,14 @@ const getLocations = cached(LOOKUP.locations, () =>
 );
 const getDrills = cached(LOOKUP.drills, () =>
   db.drills.findMany({ where: { voided: 0 }, orderBy: { name: "asc" } }),
+);
+/** Boys, Girls, Elite… in switcher order. Exported for the programme scope (src/lib/programme.ts). */
+export const getProgrammes = cached(LOOKUP.programmes, () =>
+  db.programme.findMany({
+    where: { isArchived: false },
+    select: { id: true, name: true },
+    orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+  }),
 );
 const getBatches = cached(LOOKUP.batches, async () =>
   (
@@ -65,7 +79,7 @@ const getExpenseCategories = cached(LOOKUP.expenseCategories, () =>
 const getPlans = cached(LOOKUP.plans, () =>
   db.subscriptionPlan.findMany({
     where: { isArchived: false },
-    select: { id: true, name: true, amount: true, interval: true },
+    select: { id: true, name: true, amount: true, interval: true, programmeId: true },
   }),
 );
 
@@ -79,6 +93,7 @@ export async function getUtils(): Promise<UtilsResponse> {
     locations,
     drills,
     batches,
+    programmes,
     coaches,
     attendance,
     expense,
@@ -88,6 +103,7 @@ export async function getUtils(): Promise<UtilsResponse> {
     getLocations(),
     getDrills(),
     getBatches(),
+    getProgrammes(),
     getCoaches(),
     getAttendanceReasons(),
     getExpenseCategories(),
@@ -99,6 +115,7 @@ export async function getUtils(): Promise<UtilsResponse> {
       locations,
       drills,
       batches,
+      programmes,
       coaches,
       attendance,
       expense,

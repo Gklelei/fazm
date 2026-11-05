@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeAthlete, makeBatch, makeLocation, resetDb, signedIn } from "@/tests/support/db";
+import { makeAthlete, makeBatch, makeLocation, makeProgramme, resetDb, signedIn } from "@/tests/support/db";
 import {
   planBatchSessions,
   previewBatchSessions,
@@ -34,14 +34,35 @@ async function batchWithTimetable() {
 describe("batches", () => {
   beforeEach(resetDb);
 
-  it("adds and renames a batch, refusing duplicate names", async () => {
+  it("adds and renames a batch, refusing duplicate names within a programme", async () => {
     const { user } = await signedIn("ADMIN");
-    expect(await saveBatch({ name: "U19" })).toMatchObject({ success: true });
+    const boys = await makeProgramme("Boys");
+    const girls = await makeProgramme("Girls");
+    expect(await saveBatch({ name: "U19", programmeId: boys.id })).toMatchObject({ success: true });
     const batch = await db.batches.findFirstOrThrow({ where: { name: "U19" } });
-    expect(await saveBatch({ name: "u19" })).toMatchObject({ success: false, message: 'There\'s already a batch called "u19".' });
-    expect(await saveBatch({ name: "U19 Elite", description: "Top group" }, batch.id)).toMatchObject({ success: true });
+    expect(await saveBatch({ name: "u19", programmeId: boys.id })).toMatchObject({ success: false, message: 'Boys already has a batch called "u19".' });
+    // Same name in another programme is fine
+    expect(await saveBatch({ name: "U19", programmeId: girls.id })).toMatchObject({ success: true });
+    expect(await saveBatch({ name: "U19 Elite", description: "Top group", programmeId: boys.id }, batch.id)).toMatchObject({ success: true });
     expect(await db.batches.findUniqueOrThrow({ where: { id: batch.id } })).toMatchObject({ name: "U19 Elite", description: "Top group" });
     expect(await db.auditLog.count({ where: { userId: user.id, batchId: batch.id } })).toBe(2);
+  });
+
+  it("moves a batch to another programme, and refuses an archived one", async () => {
+    await signedIn("ADMIN");
+    const batch = await makeBatch("U13");
+    const girls = await makeProgramme("Girls");
+    expect(await saveBatch({ name: "U13", programmeId: girls.id }, batch.id)).toMatchObject({ success: true });
+    expect((await db.batches.findUniqueOrThrow({ where: { id: batch.id } })).programmeId).toBe(girls.id);
+    expect(await db.auditLog.findFirst({ where: { batchId: batch.id }, select: { details: true } })).toMatchObject({
+      details: 'Updated batch "U13", moved to Girls',
+    });
+
+    const old = await db.programme.create({ data: { name: "Old", isArchived: true } });
+    expect(await saveBatch({ name: "U13", programmeId: old.id }, batch.id)).toMatchObject({
+      success: false,
+      message: "Pick a programme that's in use.",
+    });
   });
 
   it("won't archive a batch that still has athletes, and restores", async () => {
@@ -61,7 +82,7 @@ describe("batches", () => {
     const batch = await makeBatch();
     for (const role of ["COACH", "FINANCE"] as const) {
       await signedIn(role);
-      expect((await saveBatch({ name: "X" })).success).toBe(false);
+      expect((await saveBatch({ name: "X", programmeId: batch.programmeId })).success).toBe(false);
       expect((await setBatchArchived(batch.id, true)).success).toBe(false);
       expect((await saveTimetable(batch.id, { slots: [] })).success).toBe(false);
       expect((await planBatchSessions(batch.id, { from: futureMonday(), to: futureMonday() })).success).toBe(false);

@@ -1,5 +1,6 @@
 // Plain module: the server page and the client nav both read it
 export const SETTINGS_TABS = [
+  { key: "programmes", label: "Programmes", group: "Club lists", list: true },
   { key: "batches", label: "Batches", group: "Club lists", list: true },
   { key: "pitches", label: "Pitches", group: "Club lists", list: true },
   { key: "drills", label: "Drills", group: "Club lists", list: true },

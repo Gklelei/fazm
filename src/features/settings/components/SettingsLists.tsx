@@ -7,6 +7,8 @@ import { StatusBadge } from "@/components/shared/StatusBadge";
 import { cn } from "@/lib/utils";
 import type { SettingsData } from "../queries";
 import { saveBatch } from "../actions/batches";
+import { saveProgramme, setProgrammeArchived } from "../actions/programmes";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import {
   saveDrill,
   savePitch,
@@ -15,7 +17,7 @@ import {
   setPitchArchived,
   setReasonArchived,
 } from "../actions/lists";
-import { ItemDialog, REASON_STATUSES, type ItemValues } from "./ItemDialog";
+import { ItemDialog, REASON_STATUSES, type ItemChoice, type ItemValues } from "./ItemDialog";
 import { RowMenu } from "./RowMenu";
 import type { ListTab } from "../lib/tabs";
 
@@ -30,7 +32,14 @@ const KINDS = {
     namePlaceholder: "e.g. U19",
     withDescription: "Description",
     save: (v: ItemValues, id?: string) =>
-      saveBatch({ name: v.name, description: v.description }, id),
+      saveBatch({ name: v.name, description: v.description, programmeId: v.choice }, id),
+  },
+  programmes: {
+    add: "Add programme",
+    title: (editing: boolean) => (editing ? "Rename programme" : "Add a programme"),
+    nameLabel: "Programme name",
+    namePlaceholder: "e.g. Girls",
+    save: (v: ItemValues, id?: string) => saveProgramme({ name: v.name }, id),
   },
   pitches: {
     add: "Add pitch",
@@ -60,9 +69,17 @@ const KINDS = {
   },
 } satisfies Record<Kind, unknown>;
 
+/** The batch dialog's programme buttons; a new batch starts in the header's programme. */
+export function useProgrammeChoice(): ItemChoice {
+  const { programmes } = useProgramme();
+  return { label: "Programme", options: programmes.map((p) => ({ value: p.id, label: p.name })) };
+}
+
 export function AddItemButton({ kind }: { kind: Kind }) {
   const [open, setOpen] = useState(false);
   const k = KINDS[kind];
+  const choice = useProgrammeChoice();
+  const { programmeId } = useProgramme();
   return (
     <>
       <Button onClick={() => setOpen(true)}>
@@ -76,6 +93,8 @@ export function AddItemButton({ kind }: { kind: Kind }) {
         namePlaceholder={k.namePlaceholder}
         withDescription={"withDescription" in k ? k.withDescription : undefined}
         withStatus={"withStatus" in k}
+        choice={kind === "batches" ? choice : undefined}
+        initial={kind === "batches" && programmeId ? { choice: programmeId } : undefined}
         submitLabel={k.add}
         submit={(v) => k.save(v)}
       />
@@ -104,6 +123,7 @@ function ItemRow({
   const [editing, setEditing] = useState(false);
   const k = KINDS[kind];
   const setArchived = {
+    programmes: setProgrammeArchived,
     pitches: setPitchArchived,
     drills: setDrillArchived,
     reasons: setReasonArchived,
@@ -140,7 +160,7 @@ function ItemRow({
       <RowMenu
         name={row.name}
         archived={row.archived}
-        editLabel={kind === "pitches" ? "Rename" : "Edit"}
+        editLabel={kind === "pitches" || kind === "programmes" ? "Rename" : "Edit"}
         onEdit={() => setEditing(true)}
         setArchived={(to) => setArchived(row.id, to)}
       />
@@ -174,6 +194,31 @@ function Empty({ children }: { children: React.ReactNode }) {
     <p className="px-4 py-12 text-center text-sm text-muted-foreground">
       {children}
     </p>
+  );
+}
+
+export function ProgrammeList({ rows }: { rows: SettingsData["programmes"] }) {
+  return (
+    <section className="overflow-hidden rounded-lg border bg-card">
+      {rows.length ? (
+        <ul className="divide-y">
+          {rows.map((r) => (
+            <ItemRow
+              key={r.id}
+              kind="programmes"
+              row={r}
+              usedLabel={
+                r.batches
+                  ? `${r.batches} batch${r.batches === 1 ? "" : "es"}, ${r.athletes} athlete${r.athletes === 1 ? "" : "s"}`
+                  : "No batches yet"
+              }
+            />
+          ))}
+        </ul>
+      ) : (
+        <Empty>No programmes yet.</Empty>
+      )}
+    </section>
   );
 }
 

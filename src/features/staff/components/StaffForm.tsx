@@ -21,6 +21,7 @@ import { TextField } from "@/components/form/TextField";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { useUpload } from "@/components/form/use-upload";
 import { useAuthSession } from "@/providers/SessionProvider";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { createStaff, updateStaff } from "../actions/save-staff";
 import { PAY_BASES, PAY_METHODS, STAFF_DOCUMENT_KINDS, STAFF_ROLES, staffSchema, type StaffInput, type StaffValues } from "../schemas";
@@ -98,7 +99,8 @@ export function StaffForm({
 }) {
   const router = useRouter();
   const { user } = useAuthSession();
-  const batches = UseUtilsContext().data?.batches ?? [];
+  // Coaches can work in any programme
+  const { allBatches: batches } = useProgramme();
   const [error, setError] = useState<string | null>(null);
   const [saving, start] = useTransition();
   const [saved, setSaved] = useState(false);

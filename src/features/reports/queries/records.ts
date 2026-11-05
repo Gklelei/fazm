@@ -4,6 +4,8 @@ import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
 import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { athleteName } from "@/features/athletes/lib/names";
+import { inProgramme } from "@/lib/programme-scope";
+import { batchIdsFor } from "../lib/batch-label";
 
 export const SERIES = ["fees", "shop", "income", "spent"] as const;
 export type Series = (typeof SERIES)[number];
@@ -30,9 +32,12 @@ export function drillFromParams(sp: URLSearchParams): DrillQuery | null {
  * The records behind one bar or row of the Reports page, matching how
  * getReport counts them: payments by payment date (shop invoices count as
  * shop), paid shop sales by sale date, expenses by date.
+ * The header's programme narrows them the same way too.
  */
-export async function drillRecords(q: DrillQuery) {
+export async function drillRecords(q: DrillQuery, programmeId: string | null = null) {
   const range = { gte: startOfDay(day(q.from)!), lte: endOfDay(day(q.to)!) };
+  // "U13" or "Girls U13", as the report labelled the row
+  const batchIds = q.batch && q.batch !== NO_BATCH ? await batchIdsFor(q.batch) : null;
   const rows: DrillRecord[] = [];
 
   if (q.series !== "spent") {
@@ -45,7 +50,10 @@ export async function drillRecords(q: DrillQuery) {
         paymentDate: range,
         ...kind,
         ...(method && { paymentType: method }),
-        ...(q.batch && { athlete: q.batch === NO_BATCH ? { batches: { is: null } } : { batches: { is: { name: q.batch } } } }),
+        AND: [
+          inProgramme.payment(programmeId),
+          q.batch ? { athlete: batchIds ? { batchesId: { in: batchIds } } : { batches: { is: null } } } : {},
+        ],
       },
       select: {
         id: true,
@@ -70,7 +78,8 @@ export async function drillRecords(q: DrillQuery) {
         source: p.invoice?.type === "ITEM_PURCHASE" ? "Shop invoice payment" : "Payment",
       });
 
-    if (q.series !== "fees" && !q.batch && !q.method) {
+    // Cash shop sales belong to no programme
+    if (q.series !== "fees" && !q.batch && !q.method && !programmeId) {
       const sales = await db.sale.findMany({
         where: { status: "PAID", createdAt: range },
         select: { id: true, saleNumber: true, createdAt: true, total: true, paymentType: true, customerName: true, athlete: { select: { firstName: true, middleName: true, lastName: true } } },
@@ -90,7 +99,7 @@ export async function drillRecords(q: DrillQuery) {
     }
   } else {
     const expenses = await db.expenses.findMany({
-      where: { isArchived: false, date: range, ...(q.category && { category: { name: q.category } }) },
+      where: { isArchived: false, date: range, ...inProgramme.expense(programmeId), ...(q.category && { category: { name: q.category } }) },
       select: { id: true, name: true, description: true, amount: true, date: true, category: { select: { name: true } } },
       orderBy: { date: "desc" },
       take: LIMIT + 1,

@@ -43,6 +43,8 @@ declare global {
       name: string;
       amount: string;
       interval: string;
+      /** Only for this programme's athletes; null: any programme */
+      programmeId: string | null;
     }[];
     expense: {
       name: string;
@@ -65,9 +67,12 @@ declare global {
       id: string;
       name: string;
       description: string;
+      programmeId: string;
       /** Staff who coach this batch */
       coaches?: { staffId: string }[];
     }[];
+    /** Boys, Girls, Elite… in switcher order */
+    programmes: { id: string; name: string }[];
     coaches: {
       staffId: string;
       fullNames: string;

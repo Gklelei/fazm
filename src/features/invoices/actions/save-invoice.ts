@@ -44,6 +44,26 @@ function fromLines(lines: Lines) {
   };
 }
 
+/**
+ * A fee plan for one programme only goes on invoices for that programme's
+ * athletes; plans for any programme go anywhere.
+ */
+async function assertPlansFit(lines: Lines, athleteIds: string[]) {
+  const planIds = [...new Set(lines.map((l) => l.subscriptionPlanId).filter((x): x is string => !!x))];
+  if (!planIds.length) return;
+  const plans = await db.subscriptionPlan.findMany({
+    where: { id: { in: planIds }, programmeId: { not: null } },
+    select: { name: true, programmeId: true },
+  });
+  for (const plan of plans) {
+    const outside = await db.athlete.findFirst({
+      where: { athleteId: { in: athleteIds }, NOT: { batches: { programmeId: plan.programmeId! } } },
+      select: { athleteId: true },
+    });
+    if (outside) throw new ActionError(`${plan.name} is for another programme than ${outside.athleteId}. Use a plan that fits them.`);
+  }
+}
+
 /** Due at the end of that day in Nairobi. */
 const dueAt = (ymd: string) => academyInstant(ymd, "23:59");
 
@@ -57,6 +77,7 @@ export async function createInvoices(input: CreateInvoiceInput) {
       orderBy: { athleteId: "asc" },
     });
     if (athletes.length !== ids.length) throw new ActionError("Some of those athletes are no longer active. Choose again.");
+    await assertPlansFit(v.lines, ids);
     const { rows, total, description, subscriptionPlanId } = fromLines(v.lines);
     const dueDate = dueAt(v.dueDate);
 
@@ -122,6 +143,7 @@ export async function updateInvoice(invoiceNumber: string, input: EditInvoiceInp
       const inv = await tx.invoice.findUnique({ where: { invoiceNumber }, include: { lines: { orderBy: { position: "asc" } } } });
       if (!inv) throw new ActionError("That invoice no longer exists.");
       if (inv.status === "CANCELED") throw new ActionError("Restore the invoice before editing it.");
+      await assertPlansFit(v.lines, [inv.athleteId]);
       // Each discount is worked out again on the new lines, from its own terms
       const re = await rediscount(tx, inv.id, rows, Number(total), Number(inv.amountPaid));
       if ("problem" in re) throw new ActionError(re.problem!);

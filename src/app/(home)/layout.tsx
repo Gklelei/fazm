@@ -8,15 +8,18 @@ import { AppHeader } from "@/components/layout/AppHeader";
 import SessionContextProvider from "@/providers/SessionProvider";
 import MainLayoutWrapper from "@/providers/AppProviders";
 import { getUtils } from "@/lib/lookups";
+import { selectedProgrammeId } from "@/lib/programme";
+import { ProgrammeProvider } from "@/providers/ProgrammeContext";
 
 export default async function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [session, utils] = await Promise.all([
+  const [session, utils, programmeId] = await Promise.all([
     auth.api.getSession({ headers: await headers() }),
     getUtils(),
+    selectedProgrammeId(),
   ]);
   if (!session) redirect("/sign-in");
 
@@ -32,15 +35,17 @@ export default async function DashboardLayout({
   return (
     <MainLayoutWrapper utils={utils}>
       <SessionContextProvider value={session}>
-        <SidebarProvider defaultOpen={sidebarOpen}>
-          <AppSidebar initialOpenGroups={openNavGroups} />
-          <SidebarInset>
-            <AppHeader />
-            <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-6 lg:p-8">
-              {children}
-            </main>
-          </SidebarInset>
-        </SidebarProvider>
+        <ProgrammeProvider programmeId={programmeId}>
+          <SidebarProvider defaultOpen={sidebarOpen}>
+            <AppSidebar initialOpenGroups={openNavGroups} />
+            <SidebarInset>
+              <AppHeader />
+              <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-6 lg:p-8">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </ProgrammeProvider>
       </SessionContextProvider>
     </MainLayoutWrapper>
   );

@@ -12,6 +12,7 @@ import {
   SubscriptionsSchemaType,
 } from "@/features/finance/schemas/plans";
 import { actionErrorMessage } from "@/lib/action";
+import { optionalProgramme } from "@/lib/programme-check";
 
 export const UpdateSubscriptionPlan = async ({
   data,
@@ -68,6 +69,7 @@ export const UpdateSubscriptionPlan = async ({
     }
 
     // 4. Proceed with update
+    const programme = await optionalProgramme(parsedData.programmeId);
     const before = await db.subscriptionPlan.findUnique({ where: { id } });
     const after = await db.subscriptionPlan.update({
       where: { id },
@@ -78,6 +80,7 @@ export const UpdateSubscriptionPlan = async ({
         interval: parsedData.interval,
         description: parsedData.description || null,
         isActive: parsedData.status === "ACTIVE",
+        programmeId: programme?.id ?? null,
       },
     });
 
@@ -93,7 +96,7 @@ export const UpdateSubscriptionPlan = async ({
       changes: before
         ? diffFields(
             { ...before, amount: Number(before.amount) },
-            { name: after.name, amount: Number(after.amount), interval: after.interval, description: after.description, isActive: after.isActive },
+            { name: after.name, amount: Number(after.amount), interval: after.interval, description: after.description, isActive: after.isActive, programmeId: after.programmeId },
           )
         : null,
     });

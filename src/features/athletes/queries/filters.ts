@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { ATHLETE_ACCOUNT_STATUS } from "@/generated/prisma/enums";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
+import { inProgramme } from "@/lib/programme-scope";
 
 export type AthleteFilters = {
   search?: string;
@@ -11,6 +12,8 @@ export type AthleteFilters = {
   batchId?: string;
   /** "missing": athletes with no consent recorded */
   consent?: string;
+  /** The header's programme (from the cookie, never the URL); null: all */
+  programmeId?: string | null;
 };
 
 export function athleteFiltersFromParams(sp: URLSearchParams): AthleteFilters {
@@ -56,6 +59,7 @@ export function buildAthleteWhere({
   batchId,
   status,
   consent,
+  programmeId,
 }: AthleteFilters): Prisma.AthleteWhereInput {
   const terms = (search ?? "").split(/\s+/).filter(Boolean);
 
@@ -65,6 +69,7 @@ export function buildAthleteWhere({
 
   return {
     isArchived: false,
+    ...inProgramme.athlete(programmeId ?? null),
     ...(batchId ? { batchesId: batchId } : {}),
     ...(status ? { status } : {}),
     ...(consent === "missing" ? { consents: { none: {} } } : {}),

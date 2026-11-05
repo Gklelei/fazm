@@ -24,31 +24,46 @@ function changed() {
 }
 
 async function findBatch(id: string) {
-  const batch = await db.batches.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true } });
+  const batch = await db.batches.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true, programmeId: true } });
   if (!batch) throw new ActionError("That batch no longer exists.");
   return batch;
 }
 
-async function assertNameFree(name: string, exceptId?: string) {
+/** Names repeat across programmes (Boys U13, Girls U13), not within one. */
+async function assertNameFree(name: string, programmeId: string, exceptId?: string) {
   const clash = await db.batches.findFirst({
-    where: { name: { equals: name, mode: "insensitive" }, isArchived: false, NOT: exceptId ? { id: exceptId } : undefined },
-    select: { id: true },
+    where: {
+      name: { equals: name, mode: "insensitive" },
+      programmeId,
+      isArchived: false,
+      NOT: exceptId ? { id: exceptId } : undefined,
+    },
+    select: { programme: { select: { name: true } } },
   });
-  if (clash) throw new ActionError(`There's already a batch called "${name}".`);
+  if (clash) throw new ActionError(`${clash.programme.name} already has a batch called "${name}".`);
+}
+
+async function findProgramme(id: string) {
+  const programme = await db.programme.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true } });
+  if (!programme || programme.isArchived) throw new ActionError("Pick a programme that's in use.");
+  return programme;
 }
 
 export async function saveBatch(input: BatchInput, id?: string) {
   return asRole("admin", async (user) => {
     const data = batchSchema.parse(input);
-    await assertNameFree(data.name, id);
-    const description = data.description || null;
+    const programme = await findProgramme(data.programmeId);
+    await assertNameFree(data.name, programme.id, id);
+    const before = id ? await findBatch(id) : null;
+    const fields = { name: data.name, description: data.description || null, programmeId: programme.id };
     const batch = id
-      ? (await findBatch(id), await db.batches.update({ where: { id }, data: { name: data.name, description } }))
-      : await db.batches.create({ data: { name: data.name, description } });
+      ? await db.batches.update({ where: { id }, data: fields })
+      : await db.batches.create({ data: fields });
+    const moved = before && before.programmeId !== programme.id ? `, moved to ${programme.name}` : "";
     await createAuditLog({
       action: id ? "UPDATE_BATCH" : "CREATE_BATCH",
       resource: "Batch",
-      details: `${id ? "Updated" : "Created"} batch "${batch.name}"`,
+      details: id ? `Updated batch "${batch.name}"${moved}` : `Created ${programme.name} batch "${batch.name}"`,
       userId: user.id,
       batchId: batch.id,
     });
@@ -68,7 +83,7 @@ export async function setBatchArchived(id: string, archived: boolean) {
         );
       }
     } else {
-      await assertNameFree(batch.name, id);
+      await assertNameFree(batch.name, batch.programmeId, id);
     }
     await db.batches.update({ where: { id }, data: { isArchived: archived } });
     await createAuditLog({

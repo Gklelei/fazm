@@ -252,6 +252,9 @@ const ViewSubscriptions = ({
                       <TableCell>
                         <div>
                           <div className="font-medium">{item.name}</div>
+                          {item.programme && (
+                            <div className="text-xs text-muted-foreground">{item.programme.name} only</div>
+                          )}
                           <div className="text-xs text-muted-foreground md:hidden">
                             {item.code}
                           </div>

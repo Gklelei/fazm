@@ -43,6 +43,7 @@ const AthleteSubscriptionPlans = ({
         <div className="w-full sm:w-auto">
           <SubscriptionPlans
             athleteId={data.athleteId}
+            batchId={data.batches?.id ?? null}
             activePlanId={activePlanId}
           />
         </div>

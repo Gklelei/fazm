@@ -53,7 +53,17 @@ export async function seedAttendanceReasons() {
   console.log(`   ${count} new, ${ATTENDANCE_REASONS.length - count} existing`);
 }
 
+/** Same ids as the programmes migration, so a seeded database matches a migrated one. */
+const PROGRAMMES = [
+  { id: "prog_boys", name: "Boys", sortOrder: 1 },
+  { id: "prog_girls", name: "Girls", sortOrder: 2 },
+  { id: "prog_elite", name: "Elite", sortOrder: 3 },
+];
+
 export async function seedBatches() {
+  for (const p of PROGRAMMES) {
+    await db.programme.upsert({ where: { id: p.id }, create: p, update: {} });
+  }
   for (const b of [...BATCHES, UNASSIGNED_BATCH]) {
     const description =
       b.id === UNASSIGNED_BATCH.id
@@ -61,7 +71,7 @@ export async function seedBatches() {
         : `${b.name} age group`;
     await db.batches.upsert({
       where: { id: b.id },
-      create: { id: b.id, name: b.name, description },
+      create: { id: b.id, name: b.name, description, programmeId: "prog_boys" },
       update: {}, // never overwrite edits made in the app
     });
   }

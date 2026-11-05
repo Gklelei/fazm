@@ -6,6 +6,7 @@ import {
   SubscriptionsSchemaType,
 } from "@/features/finance/schemas/plans";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { ProgrammeField } from "@/features/programmes/components/ProgrammeField";
 import {
   Form,
   FormControl,
@@ -53,6 +54,7 @@ const EditSubscriptionForm = ({
       interval: values?.interval,
       name: values?.name,
       status: values?.isActive ? "ACTIVE" : "INACTIVE",
+      programmeId: values?.programmeId ?? "",
     },
   });
 
@@ -144,6 +146,8 @@ const EditSubscriptionForm = ({
                 />
 
                 {/* Fee Description */}
+                <ProgrammeField control={form.control} name="programmeId" anyLabel="Any programme" />
+
                 <FormField
                   name="description"
                   control={form.control}

@@ -27,10 +27,33 @@ model training {
   auditLogs   AuditLog[]
 }
 
+/// Boys, Girls, Elite: each runs its own batches, money and training, looked at apart or together
+model Programme {
+  id         String   @id @default(cuid())
+  name       String
+  /// Order in the switcher and reports
+  sortOrder  Int      @default(0) @map("sort_order")
+  isArchived Boolean  @default(false) @map("is_archived")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+
+  batches  Batches[]
+  /// Expenses charged to this programme; the rest are shared
+  expenses Expenses[]
+  /// Fee plans only for this programme; the rest fit any
+  plans    SubscriptionPlan[]
+
+  @@map("programmes")
+}
+
 model Batches {
   id          String  @id @default(cuid())
   name        String
   description String?
+
+  /// Athletes, sessions and money of the batch count towards this programme
+  programmeId String    @map("programme_id")
+  programme   Programme @relation(fields: [programmeId], references: [id], onDelete: Restrict)
 
   // ✅ NEW: batch date range (optional so old rows don’t break)
   startDate DateTime?
@@ -52,6 +75,7 @@ model Batches {
 
   auditLogs AuditLog[]
 
+  @@index([programmeId])
   @@map("batches")
 }
 

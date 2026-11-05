@@ -11,6 +11,8 @@ export const GetAllSubsQuery = {
     description: true,
     isActive: true,
     createdAt: true,
+    programmeId: true,
+    programme: { select: { name: true } },
     _count: { select: { activeSubscriptions: true } },
   },
 } satisfies Prisma.SubscriptionPlanFindManyArgs;

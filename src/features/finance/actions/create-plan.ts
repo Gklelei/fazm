@@ -12,6 +12,7 @@ import { db } from "@/lib/prisma";
 import { revalidatePath } from "next/cache";
 import { createAuditLog } from "@/lib/audit";
 import { actionErrorMessage } from "@/lib/action";
+import { optionalProgramme } from "@/lib/programme-check";
 
 export const CreateSubscriptionFees = async (
   data: SubscriptionsSchemaType,
@@ -59,6 +60,7 @@ export const CreateSubscriptionFees = async (
       };
     }
 
+    const programme = await optionalProgramme(parsedData.programmeId);
     await db.$transaction(async (ctx) => {
       await ctx.subscriptionPlan.create({
         data: {
@@ -68,6 +70,7 @@ export const CreateSubscriptionFees = async (
           interval: parsedData.interval,
           description: parsedData.description || null,
           isActive: parsedData.status === "ACTIVE",
+          programmeId: programme?.id ?? null,
         },
       });
     });
@@ -78,7 +81,7 @@ export const CreateSubscriptionFees = async (
     await createAuditLog({
       action: "CREATE_SUBSCRIPTION_FEE",
       resource: "SubscriptionPlan",
-      details: `Created new fee plan: ${parsedData.name} - ${parsedData.amount} (${parsedData.interval})`,
+      details: `Created new fee plan: ${parsedData.name} - ${parsedData.amount} (${parsedData.interval}, ${programme ? `${programme.name} only` : "any programme"})`,
       userId: session.user.id,
     });
 

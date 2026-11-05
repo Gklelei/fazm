@@ -3,6 +3,7 @@ import { checkRole, AUTHZ_HTTP_STATUS } from "@/lib/authz";
 import { apiError } from "@/lib/api-response";
 import { ROLE_GROUPS } from "@/lib/roles";
 import { invoiceFiltersFromParams, listInvoices } from "@/features/invoices/queries/list";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export async function GET(req: NextRequest) {
   const authz = await checkRole([...ROLE_GROUPS.finance]);
@@ -11,7 +12,7 @@ export async function GET(req: NextRequest) {
   const sp = req.nextUrl.searchParams;
   try {
     return NextResponse.json(
-      await listInvoices(invoiceFiltersFromParams(sp), {
+      await listInvoices({ ...invoiceFiltersFromParams(sp), programmeId: await selectedProgrammeId() }, {
         cursor: sp.get("cursor"),
         pageSize: Number(sp.get("pageSize")) || undefined,
       }),

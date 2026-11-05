@@ -5,6 +5,7 @@ import { ROLE_GROUPS } from "@/lib/roles";
 import { ReportPage } from "@/features/reports/components/ReportPage";
 import { parseRange } from "@/features/reports/lib/range";
 import { getReport } from "@/features/reports/queries/get-report";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export const metadata: Metadata = { title: "Reports" };
 
@@ -17,5 +18,5 @@ export default async function Page({
   if (!authz.ok) redirect("/");
 
   const range = parseRange(await searchParams);
-  return <ReportPage range={range} report={await getReport(range)} />;
+  return <ReportPage range={range} report={await getReport(range, new Date(), await selectedProgrammeId())} />;
 }

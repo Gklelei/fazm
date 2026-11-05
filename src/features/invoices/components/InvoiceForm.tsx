@@ -27,6 +27,7 @@ import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { formatCurrency } from "@/lib/format";
 import { academyInstant, formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { Recipients } from "./Recipients";
 import { createInvoices, updateInvoice } from "../actions/save-invoice";
@@ -54,8 +55,8 @@ export function InvoiceForm({
 }) {
   const router = useRouter();
   const utils = UseUtilsContext().data;
-  const batches = utils?.batches ?? [];
-  const plans = utils?.plans ?? [];
+  const { batches, plansFor, programmeId } = useProgramme();
+  const plans = plansFor(programmeId);
   const editing = !!invoiceNumber;
   const [error, setError] = useState<string | null>(null);
   const [saving, start] = useTransition();

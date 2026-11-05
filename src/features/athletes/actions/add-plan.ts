@@ -92,12 +92,15 @@ export const AddAthleteToSubscriptionPlan = async ({
 
     const [plan, athlete] = await Promise.all([
       db.subscriptionPlan.findUnique({ where: { id } }),
-      db.athlete.findUnique({ where: { athleteId } }),
+      db.athlete.findUnique({ where: { athleteId }, include: { batches: { select: { programmeId: true } } } }),
     ]);
 
     if (!plan)
       return { success: false, message: "Subscription plan does not exist" };
     if (!athlete) return { success: false, message: "Athlete does not exist" };
+    if (plan.programmeId && plan.programmeId !== athlete.batches?.programmeId) {
+      return { success: false, message: `${plan.name} is for another programme. Choose a plan for their batch.` };
+    }
 
     const now = new Date();
     const nextBilling = nextBillingByInterval(now, plan.interval); // Date | null

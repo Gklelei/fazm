@@ -8,6 +8,7 @@ const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date");
 export const batchSchema = z.object({
   name: z.string().trim().min(1, "Give the batch a name").max(60, "Keep it under 60 characters"),
   description: z.string().trim().max(200, "Keep it under 200 characters").optional(),
+  programmeId: z.string().min(1, "Pick a programme"),
 });
 export type BatchInput = z.infer<typeof batchSchema>;
 
@@ -48,6 +49,9 @@ export type PlanInput = z.infer<typeof planSchema>;
 const name = z.string().trim().min(1, "Enter a name").max(80, "Keep it under 80 characters");
 
 export const pitchSchema = z.object({ name });
+export const programmeSchema = z.object({
+  name: z.string().trim().min(1, "Enter a name").max(40, "Keep it under 40 characters"),
+});
 export const drillSchema = z.object({
   name,
   description: z.string().trim().max(500, "Keep it under 500 characters").optional(),

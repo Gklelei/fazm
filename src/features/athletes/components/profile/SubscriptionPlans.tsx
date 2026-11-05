@@ -25,20 +25,22 @@ import { CheckCircle2 } from "lucide-react";
 
 import { Sweetalert } from "@/lib/alerts";
 import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
-import { UseUtilsContext } from "@/providers/UtilsContext";
+import { useProgramme } from "@/providers/ProgrammeContext";
 import { AddAthleteToSubscriptionPlan } from "@/features/athletes/actions/add-plan";
 
 type Props = {
   athleteId: string;
+  /** Their batch: only plans for its programme (or any) are offered */
+  batchId?: string | null;
   activePlanId?: string | null;
 };
 
-const SubscriptionPlans = ({ athleteId, activePlanId }: Props) => {
+const SubscriptionPlans = ({ athleteId, batchId, activePlanId }: Props) => {
   const router = useRouter();
-  const { data } = UseUtilsContext();
+  const { plansFor, programmeOfBatch } = useProgramme();
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  const plans = data?.plans ?? [];
+  const plans = plansFor(programmeOfBatch(batchId));
 
   const activePlan = useMemo(
     () => plans.find((p) => p.id === activePlanId),

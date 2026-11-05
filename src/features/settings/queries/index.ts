@@ -13,7 +13,19 @@ const WEEK = 7 * 24 * 3_600_000;
  */
 export async function getSettingsData() {
   const now = new Date();
-  const [batches, upcoming, pitches, drills, reasons, coaches, plans] = await Promise.all([
+  const [programmes, batches, upcoming, pitches, drills, reasons, coaches, plans] = await Promise.all([
+    db.programme.findMany({
+      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
+      select: {
+        id: true,
+        name: true,
+        isArchived: true,
+        batches: {
+          where: { isArchived: false },
+          select: { _count: { select: { athletes: { where: { isArchived: false } } } } },
+        },
+      },
+    }),
     db.batches.findMany({
       orderBy: { name: "asc" },
       select: {
@@ -21,6 +33,7 @@ export async function getSettingsData() {
         name: true,
         description: true,
         isArchived: true,
+        programmeId: true,
         _count: { select: { athletes: { where: { isArchived: false } } } },
         schedules: {
           select: {
@@ -63,6 +76,14 @@ export async function getSettingsData() {
   const next = new Map(upcoming.map((u) => [u.batchesId, u]));
   batches.sort(byBatchOrder);
   return {
+    programmes: programmes.map((p) => ({
+      id: p.id,
+      name: p.name,
+      archived: p.isArchived,
+      batches: p.batches.length,
+      athletes: p.batches.reduce((n, b) => n + b._count.athletes, 0),
+      used: p.batches.length,
+    })),
     batches: batches.map((s) => {
       const u = next.get(s.id);
       return {
@@ -70,6 +91,7 @@ export async function getSettingsData() {
         name: s.name,
         description: s.description,
         archived: s.isArchived,
+        programmeId: s.programmeId,
         athletes: s._count.athletes,
         slots: s.schedules,
         nextSession: u?._min.date ?? null,

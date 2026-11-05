@@ -25,7 +25,10 @@ export const REASON_STATUSES = [
   { value: "PRESENT", label: "Present" },
 ] as const;
 
-export type ItemValues = { name: string; description: string; status: string };
+export type ItemValues = { name: string; description: string; status: string; choice: string };
+
+/** One pick from a few options, shown as buttons (a batch's programme). */
+export type ItemChoice = { label: string; options: { value: string; label: string }[] };
 
 /**
  * Add or edit one settings item (batch, pitch, drill, reason). Only the
@@ -40,6 +43,7 @@ export function ItemDialog({
   namePlaceholder,
   withDescription,
   withStatus,
+  choice,
   initial,
   submitLabel,
   submit,
@@ -52,17 +56,20 @@ export function ItemDialog({
   namePlaceholder?: string;
   withDescription?: string; // its label
   withStatus?: boolean;
+  choice?: ItemChoice;
   initial?: Partial<ItemValues>;
   submitLabel: string;
   submit: (values: ItemValues) => Promise<ActionResult>;
 }) {
   const router = useRouter();
-  const [values, setValues] = useState<ItemValues>({
+  const blank = (): ItemValues => ({
     name: "",
     description: "",
     status: "ABSENT",
+    choice: choice?.options.length === 1 ? choice.options[0].value : "",
     ...initial,
   });
+  const [values, setValues] = useState<ItemValues>(blank);
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
   const set = (patch: Partial<ItemValues>) =>
@@ -70,6 +77,8 @@ export function ItemDialog({
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (choice && !values.choice)
+      return setError(`Pick a ${choice.label.toLowerCase()}.`);
     if (!values.name.trim())
       return setError(`Enter a ${nameLabel.toLowerCase()}.`);
     start(async () => {
@@ -90,12 +99,7 @@ export function ItemDialog({
       open={open}
       onOpenChange={(o) => {
         if (o) {
-          setValues({
-            name: "",
-            description: "",
-            status: "ABSENT",
-            ...initial,
-          });
+          setValues(blank());
           setError(null);
         }
         onOpenChange(o);
@@ -127,6 +131,29 @@ export function ItemDialog({
                     )}
                   >
                     {s.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+          )}
+          {choice && choice.options.length > 1 && (
+            <fieldset className="grid gap-2">
+              <legend className="mb-2 text-sm font-medium">{choice.label}</legend>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {choice.options.map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    aria-pressed={values.choice === o.value}
+                    onClick={() => set({ choice: o.value })}
+                    className={cn(
+                      "h-10 truncate rounded-md border px-2 text-sm font-medium transition-colors",
+                      values.choice === o.value
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "hover:bg-muted",
+                    )}
+                  >
+                    {o.label}
                   </button>
                 ))}
               </div>

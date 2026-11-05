@@ -1,6 +1,7 @@
 import type { Prisma } from "@/generated/prisma/client";
 import { INVOICE_STATUS } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
+import { inProgramme } from "@/lib/programme-scope";
 
 export type InvoiceFilters = {
   search?: string;
@@ -11,6 +12,8 @@ export type InvoiceFilters = {
   /** Issue date range, inclusive, YYYY-MM-DD */
   from?: string;
   to?: string;
+  /** The header's programme (from the cookie); ignored for one athlete's invoices */
+  programmeId?: string | null;
 };
 
 export function invoiceFiltersFromParams(sp: URLSearchParams): InvoiceFilters {
@@ -25,7 +28,7 @@ export function invoiceFiltersFromParams(sp: URLSearchParams): InvoiceFilters {
   };
 }
 
-export function buildInvoiceWhere({ search, athleteId, open, status, from, to }: InvoiceFilters): Prisma.InvoiceWhereInput {
+export function buildInvoiceWhere({ search, athleteId, open, status, from, to, programmeId }: InvoiceFilters): Prisma.InvoiceWhereInput {
   const ci = (v: string) => ({ contains: v, mode: "insensitive" as const });
   const terms = (search ?? "").split(/\s+/).filter(Boolean);
   const createdAt: Prisma.DateTimeFilter = {};
@@ -33,7 +36,8 @@ export function buildInvoiceWhere({ search, athleteId, open, status, from, to }:
   if (to) createdAt.lte = new Date(`${to}T23:59:59.999`);
 
   return {
-    ...(athleteId ? { athleteId } : {}),
+    // One athlete's invoices (payment dialog, a sibling's) whatever the programme
+    ...(athleteId ? { athleteId } : inProgramme.invoice(programmeId ?? null)),
     ...(status
       ? { status }
       : open

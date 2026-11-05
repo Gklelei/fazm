@@ -24,6 +24,7 @@ import CreateExpenses from "@/features/expenses/components/CreateExpenses";
 import EditExpenseForm from "@/features/expenses/components/EditExpensesForm";
 import { formatCurrency } from "@/lib/format";
 import ExportDropdown from "@/components/shared/ExportDropdown";
+import { useProgramme } from "@/providers/ProgrammeContext";
 
 interface Props {
   expenses: GetExpensesQueryType[];
@@ -34,6 +35,8 @@ interface Props {
 
 const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
   const [query, setQuery] = useState("");
+  // The column only matters when the academy runs more than one programme
+  const withProgramme = useProgramme().programmes.length > 1;
   const [delId, setDelId] = useState("");
 
   const filteredExpenses = useMemo(() => {
@@ -118,6 +121,7 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
               <TableRow className="bg-muted/40">
                 <TableHead className="w-12">#</TableHead>
                 <TableHead>Title</TableHead>
+                {withProgramme && <TableHead>Programme</TableHead>}
                 <TableHead>amount</TableHead>
                 <TableHead>Description</TableHead>
                 <TableHead className="w-40">Date</TableHead>
@@ -129,7 +133,7 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
               {filteredExpenses.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={5}
+                    colSpan={withProgramme ? 7 : 6}
                     className="text-center text-muted-foreground py-10"
                   >
                     No expenses found
@@ -143,6 +147,9 @@ const ExpensesPage = ({ expenses, page, limit, total }: Props) => {
                     </TableCell>
 
                     <TableCell className="font-medium">{e.name}</TableCell>
+                    {withProgramme && (
+                      <TableCell className="text-muted-foreground">{e.programme?.name ?? "Shared"}</TableCell>
+                    )}
                     <TableCell className="font-medium">
                       {formatCurrency(e.amount)}
                     </TableCell>

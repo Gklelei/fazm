@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeAthlete, makeInvoice, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import { makeAthlete, makeBatch, makeInvoice, makePlan, resetDb, signedIn } from "@/tests/support/db";
 import { createInvoices, updateInvoice } from "@/features/invoices/actions/save-invoice";
 import { setInvoiceCancelled } from "@/features/invoices/actions/cancel-invoice";
 import { recipientsInBatches } from "@/features/invoices/lib/recipients";
@@ -150,7 +150,7 @@ describe("billing whole batches", () => {
   beforeEach(resetDb);
 
   it("offers each billable athlete in the batch", async () => {
-    const batch = await db.batches.create({ data: { name: "U13" } });
+    const batch = await makeBatch("U13");
     await Promise.all([
       makeAthlete({ batchesId: batch.id }),
       makeAthlete({ batchesId: batch.id, status: "PENDING" }),

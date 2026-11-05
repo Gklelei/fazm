@@ -23,7 +23,7 @@ export const AREAS = [
   {
     key: "training",
     label: "Training",
-    resources: ["Batch", "TrainingSession", "Training", "Assessment", "AssessmentSection", "Drill", "TrainingLocation", "AttendanceReason"],
+    resources: ["Programme", "Batch", "TrainingSession", "Training", "Assessment", "AssessmentSection", "Drill", "TrainingLocation", "AttendanceReason"],
   },
   { key: "people", label: "People & access", resources: ["Staff", "User", "Session"] },
   { key: "system", label: "Academy & files", resources: ["Academy", "File", "Export", "Cron"] },

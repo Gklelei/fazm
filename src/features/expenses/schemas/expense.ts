@@ -7,6 +7,8 @@ export const CreateExpenseSchema = z.object({
   name: requiredString,
   description: optionalString,
   category: requiredString,
+  /** "" : shared by all programmes */
+  programmeId: z.string().trim().optional(),
   amount: z.coerce
     .number({ error: "Amount should be a valid number" })
     .min(0, "Amount cannot be less than zero"),

@@ -14,6 +14,7 @@ import type { ROLES } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { hasRole } from "@/lib/roles";
 import { invoiceBalance } from "@/features/invoices/lib/status";
+import { inProgramme } from "@/lib/programme-scope";
 
 const canSeeMoney = (role: ROLES | null) => hasRole(role, "finance");
 const canSeeTraining = (role: ROLES | null) => hasRole(role, "coaching");
@@ -23,15 +24,16 @@ const batchOrder = (name: string) =>
   /unassigned/i.test(name) ? 1e4 : Number(name.match(/U(\d+)/i)?.[1] ?? 1e3);
 
 /** Squad numbers every signed-in role may see. */
-async function getSquad() {
+async function getSquad(programmeId: string | null) {
+  const athletes = { isArchived: false, ...inProgramme.athlete(programmeId) };
   const [active, total, pending, joined, byBatch] = await Promise.all([
-    db.athlete.count({ where: { isArchived: false, status: "ACTIVE" } }),
-    db.athlete.count({ where: { isArchived: false } }),
-    db.athlete.count({ where: { isArchived: false, status: "PENDING" } }),
-    db.athlete.count({ where: { isArchived: false, createdAt: { gte: startOfMonth(new Date()) } } }),
+    db.athlete.count({ where: { ...athletes, status: "ACTIVE" } }),
+    db.athlete.count({ where: athletes }),
+    db.athlete.count({ where: { ...athletes, status: "PENDING" } }),
+    db.athlete.count({ where: { ...athletes, createdAt: { gte: startOfMonth(new Date()) } } }),
     db.athlete.groupBy({
       by: ["batchesId"],
-      where: { isArchived: false },
+      where: athletes,
       _count: { _all: true },
     }),
   ]);
@@ -57,7 +59,7 @@ async function getSquad() {
 /**
  * The week's sessions. Coaches only see sessions they run; admins see all.
  */
-async function getWeek(userId: string, role: ROLES | null) {
+async function getWeek(userId: string, role: ROLES | null, programmeId: string | null) {
   const now = new Date();
   const from = startOfWeek(now, { weekStartsOn: 1 });
   const to = endOfWeek(now, { weekStartsOn: 1 });
@@ -65,6 +67,7 @@ async function getWeek(userId: string, role: ROLES | null) {
   const where: Prisma.trainingWhereInput = {
     isArchived: false,
     date: { gte: from, lte: to },
+    ...inProgramme.session(programmeId),
     ...(role === "COACH" ? { coach: { userId } } : {}),
   };
 
@@ -92,6 +95,7 @@ async function getWeek(userId: string, role: ROLES | null) {
         status: { not: "CANCELLED" },
         attendances: { none: {} },
         athletes: { some: {} },
+        ...inProgramme.session(programmeId),
         ...(role === "COACH" ? { coach: { userId } } : {}),
       },
     }),
@@ -110,7 +114,13 @@ async function getWeek(userId: string, role: ROLES | null) {
 
 type MonthRow = { month: Date; total: Prisma.Decimal | number | null };
 
-async function getMoney() {
+async function getMoney(programmeId: string | null) {
+  const payments = inProgramme.payment(programmeId);
+  const invoices = inProgramme.invoice(programmeId);
+  // The month totals are summed in SQL: the same programme filter, by hand
+  const inScope = programmeId
+    ? Prisma.sql`AND "athleteId" IN (SELECT a.athlete_id FROM athlete a JOIN batches b ON b.id = a.batches_id WHERE b.programme_id = ${programmeId})`
+    : Prisma.empty;
   const now = new Date();
   const yearStart = startOfMonth(subMonths(now, 11));
 
@@ -120,6 +130,7 @@ async function getMoney() {
       _sum: { amountPaid: true },
       where: {
         isArchived: false,
+        ...payments,
         paymentDate: { gte: startOfMonth(now), lte: endOfMonth(now) },
       },
     }),
@@ -128,16 +139,17 @@ async function getMoney() {
       _sum: { amountPaid: true },
       where: {
         isArchived: false,
+        ...payments,
         paymentDate: { gte: lastMonthStart, lte: min([subMonths(now, 1), endOfMonth(lastMonthStart)]) },
       },
     }),
     db.invoice.aggregate({
-      where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
+      where: { status: { in: ["PENDING", "PARTIAL", "OVERDUE"] }, ...invoices },
       _sum: { amountDue: true, amountPaid: true, discount: true },
     }),
-    db.invoice.aggregate({ where: { status: "OVERDUE" }, _sum: { amountDue: true, amountPaid: true, discount: true }, _count: { _all: true } }),
+    db.invoice.aggregate({ where: { status: "OVERDUE", ...invoices }, _sum: { amountDue: true, amountPaid: true, discount: true }, _count: { _all: true } }),
     db.finance.findMany({
-      where: { isArchived: false },
+      where: { isArchived: false, ...payments },
       orderBy: { paymentDate: "desc" },
       take: 6,
       select: {
@@ -154,7 +166,7 @@ async function getMoney() {
       SELECT date_trunc('month', payment_date) AS month,
              SUM(amount_paid) AS total
       FROM finance
-      WHERE "isArchived" = false AND payment_date >= ${yearStart}
+      WHERE "isArchived" = false AND payment_date >= ${yearStart} ${inScope}
       GROUP BY 1`,
   ]);
 
@@ -188,11 +200,12 @@ async function getMoney() {
   };
 }
 
-export async function getDashboard(userId: string, role: ROLES | null) {
+/** Every figure is for the header's programme; null: all programmes. */
+export async function getDashboard(userId: string, role: ROLES | null, programmeId: string | null = null) {
   const [squad, week, money] = await Promise.all([
-    getSquad(),
-    canSeeTraining(role) ? getWeek(userId, role) : null,
-    canSeeMoney(role) ? getMoney() : null,
+    getSquad(programmeId),
+    canSeeTraining(role) ? getWeek(userId, role, programmeId) : null,
+    canSeeMoney(role) ? getMoney(programmeId) : null,
   ]);
   return { squad, week, money };
 }

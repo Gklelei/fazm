@@ -62,7 +62,16 @@ export async function signedIn(role: ROLES = "SUPER_ADMIN", { payrollAccess = fa
   return { user, staff };
 }
 
-export const makeBatch = (name = `U12 Weekend ${next()}`) => db.batches.create({ data: { name } });
+/** A programme; "Boys" by default, shared by every batch made without one. */
+export async function makeProgramme(name = "Boys") {
+  const id = `prog_test_${name.toLowerCase()}`;
+  // Safe when tests make batches in parallel (an upsert races)
+  await db.programme.createMany({ data: [{ id, name }], skipDuplicates: true });
+  return db.programme.findUniqueOrThrow({ where: { id } });
+}
+
+export const makeBatch = async (name = `U12 Weekend ${next()}`, programmeId?: string) =>
+  db.batches.create({ data: { name, programmeId: programmeId ?? (await makeProgramme()).id } });
 
 export const makeLocation = () => {
   const i = next();

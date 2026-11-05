@@ -10,6 +10,7 @@ import { SessionsExport } from "@/features/trainings/components/SessionsExport";
 import { SessionsFeed } from "@/features/trainings/components/SessionsFeed";
 import { SessionsToolbar } from "@/features/trainings/components/SessionsToolbar";
 import { listSessions, parseSessionParams, sessionParams } from "@/features/trainings/queries/list-sessions";
+import { selectedProgrammeId } from "@/lib/programme";
 
 export const metadata: Metadata = { title: "Training sessions" };
 
@@ -22,7 +23,7 @@ export default async function Page({
   if (!session) redirect("/sign-in");
 
   const sp = await searchParams;
-  const params = parseSessionParams(sp);
+  const params = { ...parseSessionParams(sp), programmeId: await selectedProgrammeId() };
   const first = await listSessions(params, {
     userId: session.user.id,
     role: session.user.role ?? null,

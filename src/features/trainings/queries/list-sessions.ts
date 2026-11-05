@@ -2,6 +2,7 @@ import { academyInstant, academyToday } from "@/lib/academy-time";
 import type { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
 import { cursorArgs, pageOf } from "@/lib/cursor";
+import { inProgramme } from "@/lib/programme-scope";
 
 export type SessionView = "upcoming" | "past";
 
@@ -9,6 +10,8 @@ export type SessionListParams = {
   view: SessionView;
   search: string;
   batchId: string;
+  /** The header's programme (from the cookie, never the URL); null: all */
+  programmeId?: string | null;
 };
 
 export const SESSION_PAGE_SIZE = 25;
@@ -62,6 +65,7 @@ export async function listSessions(
   const where: Prisma.trainingWhereInput = {
     isArchived: false,
     date: p.view === "upcoming" ? { gte: today } : { lt: today },
+    ...inProgramme.session(p.programmeId ?? null),
     ...(p.batchId ? { batchesId: p.batchId } : {}),
     ...(viewer.role === "COACH" ? { coach: { userId: viewer.userId } } : {}),
     ...(p.search
