@@ -125,3 +125,37 @@ describe("programmes", () => {
     expect(await names({ search: "kamau" })).toEqual(["Wanjiku Kamau"]);
   });
 });
+
+describe("who sees programmes", () => {
+  beforeEach(resetDb);
+
+  it("is the super admin's choice, logged", async () => {
+    const { setProgrammesMode } = await import("@/features/settings/actions/programmes-mode");
+    await db.academy.create({ data: { academyName: "Test Academy", paymentMathod: "MPESA", paymentMethodType: "PAYBILL" } });
+    expect((await db.academy.findFirstOrThrow()).programmesMode).toBe("preview");
+
+    await signedIn("ADMIN");
+    expect((await setProgrammesMode("on")).success).toBe(false);
+
+    const { user } = await signedIn("SUPER_ADMIN");
+    expect(await setProgrammesMode("on")).toMatchObject({ success: true, message: "Programmes: everyone." });
+    expect((await db.academy.findFirstOrThrow()).programmesMode).toBe("on");
+    expect(await setProgrammesMode("sometimes")).toMatchObject({ success: false, message: "Pick who sees programmes." });
+    expect(await db.auditLog.count({ where: { userId: user.id, resource: "Academy" } })).toBe(1);
+  });
+
+  it("adds a batch to the first programme when none is picked, and keeps an edited one where it is", async () => {
+    const { saveBatch } = await import("@/features/settings/actions/batches");
+    await signedIn("ADMIN");
+    const boys = await makeProgramme("Boys");
+    const girls = await makeProgramme("Girls");
+    await db.programme.update({ where: { id: boys.id }, data: { sortOrder: 1 } });
+    await db.programme.update({ where: { id: girls.id }, data: { sortOrder: 2 } });
+    expect(await saveBatch({ name: "U19" })).toMatchObject({ success: true });
+    expect((await db.batches.findFirstOrThrow({ where: { name: "U19" } })).programmeId).toBe(boys.id);
+
+    const g = await makeBatch("U15", girls.id);
+    expect(await saveBatch({ name: "U15 Girls" }, g.id)).toMatchObject({ success: true });
+    expect((await db.batches.findUniqueOrThrow({ where: { id: g.id } })).programmeId).toBe(girls.id);
+  });
+});

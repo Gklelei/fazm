@@ -77,7 +77,7 @@ export function ItemDialog({
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (choice && !values.choice)
+    if (choice?.options.length && !values.choice)
       return setError(`Pick a ${choice.label.toLowerCase()}.`);
     if (!values.name.trim())
       return setError(`Enter a ${nameLabel.toLowerCase()}.`);

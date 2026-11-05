@@ -43,6 +43,12 @@ async function assertNameFree(name: string, programmeId: string, exceptId?: stri
   if (clash) throw new ActionError(`${clash.programme.name} already has a batch called "${name}".`);
 }
 
+async function firstProgrammeId() {
+  const first = await db.programme.findFirst({ where: { isArchived: false }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { id: true } });
+  if (!first) throw new ActionError("Add a programme in Settings first.");
+  return first.id;
+}
+
 async function findProgramme(id: string) {
   const programme = await db.programme.findUnique({ where: { id }, select: { id: true, name: true, isArchived: true } });
   if (!programme || programme.isArchived) throw new ActionError("Pick a programme that's in use.");
@@ -52,9 +58,9 @@ async function findProgramme(id: string) {
 export async function saveBatch(input: BatchInput, id?: string) {
   return asRole("admin", async (user) => {
     const data = batchSchema.parse(input);
-    const programme = await findProgramme(data.programmeId);
-    await assertNameFree(data.name, programme.id, id);
     const before = id ? await findBatch(id) : null;
+    const programme = await findProgramme(data.programmeId || before?.programmeId || (await firstProgrammeId()));
+    await assertNameFree(data.name, programme.id, id);
     const fields = { name: data.name, description: data.description || null, programmeId: programme.id };
     const batch = id
       ? await db.batches.update({ where: { id }, data: fields })

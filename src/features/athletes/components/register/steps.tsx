@@ -80,11 +80,12 @@ function suggestBatch(age: number, batches: { id: string; name: string }[]) {
 
 export function StepAthlete() {
   const { control, setValue, getValues } = useRegForm();
-  const { programmeId, batches: scoped } = useProgramme();
+  const { programmeId, programmes, batches: scoped } = useProgramme();
   const batches = scoped.filter((b) => !/unassigned/i.test(b.name));
   const age = useAge();
-  // Suggest from the age only within one programme: under all, U13 could be Boys or Girls
-  const suggested = age !== null && programmeId ? suggestBatch(age, batches) : undefined;
+  // Suggest from the age within one programme: under all, U13 could be Boys or Girls
+  const oneProgramme = !!programmeId || programmes.length < 2;
+  const suggested = age !== null && oneProgramme ? suggestBatch(age, batches) : undefined;
 
   // Fill the batch from the age, unless one was already chosen
   useEffect(() => {

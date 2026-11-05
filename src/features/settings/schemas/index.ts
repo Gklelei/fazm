@@ -8,7 +8,8 @@ const ymd = z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Pick a date");
 export const batchSchema = z.object({
   name: z.string().trim().min(1, "Give the batch a name").max(60, "Keep it under 60 characters"),
   description: z.string().trim().max(200, "Keep it under 200 characters").optional(),
-  programmeId: z.string().min(1, "Pick a programme"),
+  /** Empty while programmes are hidden: a new batch goes in the first programme, an edited one stays put */
+  programmeId: z.string().optional(),
 });
 export type BatchInput = z.infer<typeof batchSchema>;
 

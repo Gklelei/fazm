@@ -4,9 +4,10 @@ import { getCachedAcademy } from "@/lib/academy-cache";
 import { getSettings } from "@/lib/settings";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
-import { canRunPayroll } from "@/lib/roles";
+import { canRunPayroll, hasRole } from "@/lib/roles";
 import { getSettingsData } from "@/features/settings/queries";
-import { selectedProgrammeId } from "@/lib/programme";
+import { programmesMode, programmesShown, selectedProgrammeId } from "@/lib/programme";
+import { ProgrammesModeCard } from "@/features/settings/components/ProgrammesModeCard";
 import { BatchCard } from "@/features/settings/components/BatchCard";
 import {
   AddItemButton,
@@ -41,9 +42,13 @@ export default async function Page({
 }) {
   const sp = await searchParams;
   // Payroll deductions: the payroll person only
-  const payroll = canRunPayroll((await auth.api.getSession({ headers: await headers() }))?.user);
-  const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab && (payroll || t.key !== "payroll"))?.key ??
-    "batches") as SettingsTab;
+  const user = (await auth.api.getSession({ headers: await headers() }))?.user;
+  const payroll = canRunPayroll(user);
+  // Programmes: whoever sees them, and always the super admin, who switches them on
+  const developer = hasRole(user?.role, "developer");
+  const [shown, mode] = await Promise.all([programmesShown(), programmesMode()]);
+  const hidden: SettingsTab[] = [...(payroll ? [] : ["payroll" as const]), ...(shown || developer ? [] : ["programmes" as const])];
+  const tab = (SETTINGS_TABS.find((t) => t.key === sp.tab && !hidden.includes(t.key))?.key ?? "batches") as SettingsTab;
   const showArchived = sp.archived === "1";
   const [data, s, academy, deductions, programmeId] = await Promise.all([
     getSettingsData(),
@@ -91,7 +96,7 @@ export default async function Page({
         actions={isListTab(tab) && <AddItemButton kind={tab} />}
       />
       <div className="grid gap-4 lg:grid-cols-[14rem_minmax(0,1fr)] lg:gap-8">
-        <SettingsNav tab={tab} counts={counts} hide={payroll ? [] : ["payroll"]} />
+        <SettingsNav tab={tab} counts={counts} hide={hidden} />
 
         <div className="min-w-0 space-y-4">
           {isListTab(tab) && (
@@ -105,7 +110,7 @@ export default async function Page({
             (batches.length ? (
               batchGroups.map((g) => (
                 <section key={g.programme.id} className="space-y-3">
-                  {(!programmeId || batchGroups.length > 1) && (
+                  {shown && (!programmeId || batchGroups.length > 1) && (
                     <h2 className="font-display text-lg font-bold tracking-wide uppercase text-muted-foreground">
                       {g.programme.name}
                     </h2>
@@ -127,6 +132,7 @@ export default async function Page({
                 No batches yet.
               </p>
             ))}
+          {tab === "programmes" && developer && <ProgrammesModeCard mode={mode} />}
           {tab === "programmes" && <ProgrammeList rows={visible(data.programmes)} />}
           {tab === "pitches" && <PitchList rows={visible(data.pitches)} />}
           {tab === "drills" && <DrillList rows={visible(data.drills)} />}

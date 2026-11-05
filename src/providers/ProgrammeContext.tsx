@@ -21,17 +21,28 @@ type ProgrammeValue = {
   plansFor: (programmeId: string | null) => NonNullable<UtilsResponse>["plans"];
 };
 
-const Ctx = createContext<string | null>(null);
+const Ctx = createContext<{ programmeId: string | null; shown: boolean }>({ programmeId: null, shown: false });
 
-export function ProgrammeProvider({ programmeId, children }: { programmeId: string | null; children: React.ReactNode }) {
-  return <Ctx.Provider value={programmeId}>{children}</Ctx.Provider>;
+/** `shown`: whether this user sees programmes (Settings → Programmes, "Who sees programmes"). */
+export function ProgrammeProvider({
+  programmeId,
+  shown,
+  children,
+}: {
+  programmeId: string | null;
+  shown: boolean;
+  children: React.ReactNode;
+}) {
+  const value = useMemo(() => ({ programmeId, shown }), [programmeId, shown]);
+  return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
 }
 
 export function useProgramme(): ProgrammeValue {
-  const programmeId = useContext(Ctx);
+  const { programmeId, shown } = useContext(Ctx);
   const { data } = UseUtilsContext();
   return useMemo(() => {
-    const programmes = data?.programmes ?? [];
+    // Hidden: no programmes at all, so no switcher, fields or "Girls U13" labels
+    const programmes = shown ? (data?.programmes ?? []) : [];
     const all = data?.batches ?? [];
     const byId = new Map(programmes.map((p) => [p.id, p.name]));
     // Names repeat across programmes (Boys U13, Girls U13): say which, unless one programme is shown
@@ -45,7 +56,8 @@ export function useProgramme(): ProgrammeValue {
     const allBatches = all.map((b) => ({ ...b, name: nameOf(b, true) }));
     const plans = data?.plans ?? [];
     const plansFor = (id: string | null) => (id ? plans.filter((p) => !p.programmeId || p.programmeId === id) : plans);
-    const programmeOfBatch = (batchId: string | null | undefined) => all.find((b) => b.id === batchId)?.programmeId ?? null;
+    const programmeOfBatch = (batchId: string | null | undefined) =>
+      shown ? (all.find((b) => b.id === batchId)?.programmeId ?? null) : null;
     return {
       programmeId,
       programme: programmes.find((p) => p.id === programmeId) ?? null,
@@ -56,5 +68,5 @@ export function useProgramme(): ProgrammeValue {
       programmeOfBatch,
       plansFor,
     };
-  }, [programmeId, data]);
+  }, [programmeId, shown, data]);
 }

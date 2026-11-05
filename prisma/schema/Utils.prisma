@@ -24,6 +24,8 @@ model academy {
   primaryColor       String?  @map("primary_color")
   /// The app's look: sidebar and its highlight (fazam, pitch, charcoal, light)
   theme              String   @default("fazam")
+  /// Who sees programmes (Boys, Girls, Elite): off, preview (the super admin only), on (everyone)
+  programmesMode     String   @default("preview") @map("programmes_mode")
 
   // Documents (invoices, receipts)
   invoicePrefix  String  @default("INV") @map("invoice_prefix")
