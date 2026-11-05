@@ -40,7 +40,7 @@ export default async function DashboardLayout({
             <AppSidebar initialOpenGroups={openNavGroups} />
             <SidebarInset>
               <AppHeader />
-              <main className="mx-auto w-full max-w-[1400px] flex-1 p-4 md:p-6 lg:p-8">
+              <main className="mx-auto w-full max-w-[96rem] flex-1 p-4 md:p-6 lg:p-8">
                 {children}
               </main>
             </SidebarInset>

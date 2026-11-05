@@ -259,6 +259,16 @@
 }
 
 @layer base {
+  /*
+   * The whole interface scales with wide screens: spacing, text, controls and
+   * the sidebar are all in rem, so growing the root size grows everything
+   * together. 16px (the browser default) up to 1536px wide, then smoothly
+   * larger: 17.5px at 1920, 20px at 2560, 24px from about 3600 (4K, TVs).
+   * Phones and laptops stay as they are.
+   */
+  html {
+    font-size: clamp(1rem, calc(0.390625vw + 10px), 1.5rem);
+  }
   * {
     @apply border-border outline-ring/50;
   }
