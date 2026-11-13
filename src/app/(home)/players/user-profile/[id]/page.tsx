@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { db } from "@/lib/prisma";
 import { familyOf } from "@/features/families/queries";
 import { auth } from "@/lib/auth";
@@ -11,11 +11,17 @@ import { getAthleteSummary } from "@/features/athletes/queries/summary";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
 import { athleteProgress } from "@/features/assessments/queries/progress";
 import { logView } from "@/lib/audit-view";
+import { resolveAthleteId } from "@/features/athletes/lib/athlete-ref";
+import { athletePath, athleteSlug } from "@/features/athletes/lib/athlete-links";
 
 export const metadata: Metadata = { title: "Athlete" };
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const ref = (await params).id;
+  const id = await resolveAthleteId(ref);
+  if (!id) notFound();
+  // Old IDs and record ids land on the one address the page is refreshed under
+  if (ref !== athleteSlug(id)) redirect(athletePath(id));
 
   const [athlete, summary, progress, coupons] = await Promise.all([
     db.athlete.findUnique(GetAthleteByIdQuery(id)),

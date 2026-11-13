@@ -26,6 +26,7 @@ import {
   type RegistrationInput,
 } from "../../schemas/registration";
 import { StepAbout, StepAthlete, StepConsent, StepDocuments, StepGuardian, StepMedical, StepPlan, StepReview, type StepProps } from "./steps";
+import { athletePath } from "../../lib/athlete-links";
 
 const EMPTY: RegistrationInput = {
   firstName: "",
@@ -146,7 +147,7 @@ export function RegisterAthlete() {
         setSaved(true);
         toast.success(res.message);
         await queryClient.invalidateQueries({ queryKey: ["all-athletes"] });
-        router.push("athleteId" in res ? `/players/user-profile/${res.athleteId}` : "/players");
+        router.push("athleteId" in res ? athletePath(res.athleteId) : "/players");
       }),
     // Something on an earlier step is wrong: go back to the first such step
     (errors) => {

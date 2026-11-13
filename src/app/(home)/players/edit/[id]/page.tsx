@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { db } from "@/lib/prisma";
 import { hasRole } from "@/lib/roles";
 import { academyToday } from "@/lib/academy-time";
 import { logView } from "@/lib/audit-view";
 import { PageHeader } from "@/components/shared/PageHeader";
+import { resolveAthleteId } from "@/features/athletes/lib/athlete-ref";
+import { athleteEditPath, athleteSlug } from "@/features/athletes/lib/athlete-links";
 import { EditAthlete } from "@/features/athletes/components/register/EditAthlete";
 import { BLOOD_GROUPS, type RegistrationInput } from "@/features/athletes/schemas/registration";
 
@@ -15,7 +17,10 @@ export const metadata: Metadata = { title: "Edit athlete" };
 const side = (v: string | null | undefined) => (v === "left" || v === "both" ? v : "right");
 
 export default async function Page({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = await params;
+  const ref = (await params).id;
+  const id = await resolveAthleteId(ref);
+  if (!id) notFound();
+  if (ref !== athleteSlug(id)) redirect(athleteEditPath(id));
   const session = await auth.api.getSession({ headers: await headers() });
   const a = await db.athlete.findUnique({
     where: { athleteId: id },

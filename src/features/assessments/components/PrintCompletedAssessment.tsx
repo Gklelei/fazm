@@ -36,6 +36,8 @@ const GRADE_MAP: Record<string, string> = {
 
 const gradeLabel = (g: string) => GRADE_MAP[g] ?? g;
 
+import { athleteSlug } from "@/features/athletes/lib/athlete-links";
+
 function safeText(v: unknown) {
   return String(v ?? "").trim();
 }
@@ -262,7 +264,7 @@ export default function PrintCompletedAssessment({
       });
 
       // ── Save ────────────────────────────────────────────────────
-      const fileName = `assessment_${safeText(athleteId)}_${safeText(trainingDate).replace(/\//g, "-")}.pdf`;
+      const fileName = `assessment_${athleteSlug(safeText(athleteId))}_${safeText(trainingDate).replace(/\//g, "-")}.pdf`;
       doc.save(fileName);
       void logExport({ what: `assessment for ${safeText(athleteId)}`, format: "PDF" }).catch(() => {});
     } finally {

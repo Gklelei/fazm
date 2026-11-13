@@ -7,6 +7,7 @@ import { ActionError, asRole } from "@/lib/action";
 import { academyInstant, academyToday } from "@/lib/academy-time";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
 import { ADULT_AGE, ageOn, consentSchema, type ConsentInput } from "@/features/athletes/schemas/registration";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 async function findAthlete(athleteId: string) {
   const a = await db.athlete.findUnique({
@@ -61,7 +62,7 @@ export async function recordConsent(athleteId: string, input: ConsentInput) {
           }
         : null,
     });
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     revalidatePath("/players");
     return { success: true, message: "Consent saved." };
   });
@@ -100,7 +101,7 @@ export async function withdrawPhotoConsent(athleteId: string) {
       userId: user.id,
       athleteId: a.id,
     });
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     revalidatePath("/players");
     return { success: true, message: "Photo consent withdrawn and the photo removed." };
   });

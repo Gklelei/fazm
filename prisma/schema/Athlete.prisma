@@ -3,6 +3,8 @@ model Athlete {
   sales Sale[]
   id                   String                      @id @default(uuid())
   athleteId            String                      @unique @map("athlete_id")
+  /// The ID before the one-off move to per-programme IDs (ATH-FFA-501); old links, papers and searches still find them
+  formerAthleteId      String?                     @unique @map("former_athlete_id")
   firstName            String                      @map("first_name")
   lastName             String                      @map("last_name")
   email                String?                     @unique

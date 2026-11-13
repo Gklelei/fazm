@@ -4,6 +4,7 @@ import { db } from "@/lib/prisma";
 import { cursorArgs, pageOf } from "@/lib/cursor";
 import { getSettings } from "@/lib/settings";
 import { athleteName } from "@/features/athletes/lib/names";
+import { athleteIdMatch } from "@/features/athletes/queries/filters";
 import { variantLabel } from "../lib/stock";
 
 const n = (d: unknown) => Number(d ?? 0);
@@ -71,7 +72,7 @@ export async function listSales({ search, status }: SaleFilters, cursor?: string
       OR: [
         { saleNumber: { contains: search, mode: "insensitive" } },
         { customerName: { contains: search, mode: "insensitive" } },
-        { athlete: { OR: [{ firstName: { contains: search, mode: "insensitive" } }, { lastName: { contains: search, mode: "insensitive" } }, { athleteId: { contains: search, mode: "insensitive" } }] } },
+        { athlete: { OR: [{ firstName: { contains: search, mode: "insensitive" } }, { lastName: { contains: search, mode: "insensitive" } }, ...athleteIdMatch(search)] } },
       ],
     }),
   };

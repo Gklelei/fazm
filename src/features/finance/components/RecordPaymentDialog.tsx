@@ -79,7 +79,7 @@ export function RecordPaymentDialog({
     queryKey: ["open-invoices", athleteId],
     enabled: open && !!athleteId,
     queryFn: async (): Promise<InvoicesPage> => {
-      const res = await fetch(`/api/invoices?athleteId=${athleteId}&open=1&pageSize=50`);
+      const res = await fetch(`/api/invoices?athleteId=${encodeURIComponent(athleteId ?? "")}&open=1&pageSize=50`);
       if (!res.ok) throw new Error("Couldn't load invoices");
       return res.json();
     },

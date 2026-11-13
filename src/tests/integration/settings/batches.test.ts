@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
 import { makeAthlete, makeBatch, makeLocation, makeProgramme, resetDb, signedIn } from "@/tests/support/db";
+import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
 import {
   planBatchSessions,
   previewBatchSessions,
@@ -63,6 +64,19 @@ describe("batches", () => {
       success: false,
       message: "Pick a programme that's in use.",
     });
+  });
+
+  it.runIf(TRANSFERS_ENABLED)("won't move a batch that has athletes to another programme", async () => {
+    await signedIn("ADMIN");
+    const batch = await makeBatch("U15");
+    await makeAthlete({ batchesId: batch.id });
+    const girls = await makeProgramme("Girls");
+    expect(await saveBatch({ name: "U15", programmeId: girls.id }, batch.id)).toMatchObject({
+      success: false,
+      message: "U15 has 1 athlete. Transfer them to another batch first, then change its programme.",
+    });
+    expect((await db.batches.findUniqueOrThrow({ where: { id: batch.id } })).programmeId).toBe(batch.programmeId);
+    expect(await saveBatch({ name: "U15 Squad", programmeId: batch.programmeId }, batch.id)).toMatchObject({ success: true });
   });
 
   it("won't archive a batch that still has athletes, and restores", async () => {

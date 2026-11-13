@@ -52,7 +52,9 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
           paymentDate: true,
           paymentType: true,
           invoice: { select: { type: true } },
-          athlete: { select: { batches: batchSelect } },
+          // Where the money was billed, not where the athlete is now
+          batch: batchSelect,
+          programme: { select: { name: true } },
         },
       }),
       // Shop sales paid on the spot; those charged to an account count when the invoice is paid
@@ -80,6 +82,7 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
           discount: true,
           amountPaid: true,
           dueDate: true,
+          programme: { select: { name: true } },
           athlete: {
             select: {
               athleteId: true,
@@ -144,7 +147,7 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
     }
     fees += p.amountPaid;
     if (t) t.fees += p.amountPaid;
-    tally(byBatch, label(p.athlete.batches, NO_BATCH), p.amountPaid);
+    tally(byBatch, label(p.batch, NO_BATCH), p.amountPaid);
     tally(byMethod, METHOD_LABEL[p.paymentType], p.amountPaid);
     tally(bySource, "Fees", p.amountPaid);
   }
@@ -251,7 +254,7 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
   const row = (name: string | undefined) => (name ? byProgramme.get(name) : undefined);
   if (!programmeId) {
     for (const p of payments) {
-      const r = row(p.athlete.batches?.programme.name);
+      const r = row(p.programme?.name);
       if (r && p.invoice?.type !== "ITEM_PURCHASE") r.fees += p.amountPaid;
     }
     for (const e of expenses) {
@@ -259,7 +262,7 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
       if (r) r.spent += e.amount;
     }
     for (const inv of open) {
-      const r = row(inv.athlete.batches?.programme.name);
+      const r = row(inv.programme?.name);
       if (r) r.owed += invoiceBalance(inv);
     }
     for (const a of activeByBatch) {

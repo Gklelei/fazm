@@ -23,6 +23,7 @@ import type { CouponRow } from "../queries/list";
 import type { CouponInvoicesPage } from "../queries/usage";
 import { CouponActionsMenu, CouponStateBadge } from "./CouponRowActions";
 import { appliesTo } from "./CouponsList";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 /** An athlete the coupon was given to */
 type Given = { id: string; athleteId: string; name: string; status: "ACTIVE" | "ENDED" | "REMOVED"; invoicesLeft: number | null; createdAt: string };
@@ -215,7 +216,7 @@ export function CouponDetails({
                             </Link>
                           </TableCell>
                           <TableCell>
-                            <Link href={`/players/user-profile/${i.athlete.athleteId}`} className="font-medium hover:underline">
+                            <Link href={athletePath(i.athlete.athleteId)} className="font-medium hover:underline">
                               {athleteName(i.athlete)}
                             </Link>
                           </TableCell>
@@ -252,7 +253,7 @@ export function CouponDetails({
                 <ul className="divide-y">
                   {athletes.map((a) => (
                     <li key={a.id}>
-                      <Link href={`/players/user-profile/${a.athleteId}`} className="flex items-center gap-3 px-4 py-2.5 leading-tight hover:bg-muted/40">
+                      <Link href={athletePath(a.athleteId)} className="flex items-center gap-3 px-4 py-2.5 leading-tight hover:bg-muted/40">
                         <span className="grid min-w-0 flex-1">
                           <span className="font-medium">{a.name}</span>
                           <span className="text-sm text-muted-foreground">

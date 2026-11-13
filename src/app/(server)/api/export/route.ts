@@ -16,6 +16,7 @@ import {
 } from "@/features/invoices/queries/list";
 import {
   athleteFiltersFromParams,
+  athleteIdMatch,
   buildAthleteWhere,
 } from "@/features/athletes/queries/filters";
 import { buildStaffWhere, STAFF_LIST_SELECT, staffFiltersFromParams } from "@/features/staff/queries/list";
@@ -245,7 +246,7 @@ export async function GET(req: NextRequest) {
         if (query) {
           whereClause.OR = [
             { receiptNumber: { contains: query, mode: "insensitive" } },
-            { athleteId: { contains: query, mode: "insensitive" } },
+            { athlete: { OR: athleteIdMatch(query) } },
             {
               athlete: { firstName: { contains: query, mode: "insensitive" } },
             },

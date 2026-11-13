@@ -30,6 +30,7 @@ import type { Catalogue, MovementRow, MovementsPage, ProductRow, SaleRow, SalesP
 import { PRODUCT_CATEGORIES, SALE_PAYMENTS } from "../schemas";
 import { ProductDialog } from "./ProductDialog";
 import { StockDialog } from "./StockDialogs";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const ALL = "all";
 const when = (d: string) => formatAcademy(d, { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit", hourCycle: "h23" });
@@ -317,7 +318,7 @@ function SalesTab({ initial, summary }: { initial: SalesPage; summary: { total: 
                       </TableCell>
                       <TableCell className="text-sm">
                         {s.athleteId ? (
-                          <Link href={`/players/user-profile/${s.athleteId}`} className="hover:underline">
+                          <Link href={athletePath(s.athleteId)} className="hover:underline">
                             {s.customer}
                           </Link>
                         ) : (

@@ -16,6 +16,7 @@ import { formatCurrency } from "@/lib/format";
 import { cancelSale } from "../actions/shop";
 import type { SaleDetail } from "../queries";
 import { paidBy, SaleStatusBadge } from "./ShopPage";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 function CancelDialog({ sale }: { sale: SaleDetail }) {
   const router = useRouter();
@@ -70,7 +71,7 @@ export function SaleView({ sale }: { sale: SaleDetail }) {
     [
       "Customer",
       sale.athleteId ? (
-        <Link href={`/players/user-profile/${sale.athleteId}`} className="text-primary hover:underline">
+        <Link href={athletePath(sale.athleteId)} className="text-primary hover:underline">
           {sale.customer}
         </Link>
       ) : (

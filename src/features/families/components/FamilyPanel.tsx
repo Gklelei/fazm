@@ -14,6 +14,7 @@ import { cn } from "@/lib/utils";
 import { linkSiblings, unlinkSibling } from "../actions/link";
 import { FamilyPaymentDialog } from "./FamilyPaymentDialog";
 import type { Family, FamilyMember } from "../queries";
+import { athletePath, athletePdfPath } from "@/features/athletes/lib/athlete-links";
 
 /** Brothers and sisters billed together, and athletes whose guardian has the same phone. */
 export default function FamilyPanel({ athleteId, family, canManage }: { athleteId: string; family: Family; canManage: boolean }) {
@@ -33,7 +34,7 @@ export default function FamilyPanel({ athleteId, family, canManage }: { athleteI
   const Row = ({ m, children }: { m: FamilyMember; children?: React.ReactNode }) => (
     <li className={cn("flex items-center justify-between gap-3 px-3 py-2.5", m.athleteId === athleteId && "bg-muted/40")}>
       <div className="min-w-0">
-        <Link href={`/players/user-profile/${m.athleteId}`} className="block truncate text-sm font-semibold hover:underline">
+        <Link href={athletePath(m.athleteId)} className="block truncate text-sm font-semibold hover:underline">
           {m.name}
         </Link>
         <p className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
@@ -62,7 +63,7 @@ export default function FamilyPanel({ athleteId, family, canManage }: { athleteI
           {canManage && members.length > 1 && (
             <div className="flex flex-wrap gap-2">
               <Button variant="outline" size="sm" asChild>
-                <a href={`/api/athlete/${athleteId}/family-statement`} target="_blank" rel="noopener">
+                <a href={athletePdfPath(athleteId, "family-statement")} target="_blank" rel="noopener">
                   <FileDown /> Family statement
                 </a>
               </Button>

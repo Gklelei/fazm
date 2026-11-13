@@ -7,6 +7,7 @@ import { createAuditLog } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { mayManageSession, NOT_YOUR_SESSION } from "@/features/trainings/lib/ownership";
 import { assessmentSchema, type AssessmentInput } from "@/features/assessments/schemas";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 /**
  * Saves (or updates) one athlete's assessment for a session: grades,
@@ -61,7 +62,7 @@ export async function saveAssessment(input: AssessmentInput) {
 
     revalidatePath(`/assesments/${v.trainingId}/mark`);
     revalidatePath(`/sessions/view/${v.trainingId}`);
-    revalidatePath(`/players/user-profile/${v.athleteId}`);
+    revalidatePath(athletePath(v.athleteId));
     await createAuditLog({
       action: "CREATE_ASSESSMENT",
       resource: "Assessment",

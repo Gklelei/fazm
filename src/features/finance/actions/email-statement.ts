@@ -7,6 +7,7 @@ import { formatCurrency } from "@/lib/format";
 import { getCachedAcademy } from "@/lib/academy-cache";
 import { guardianEmails } from "@/features/invoices/lib/emails";
 import { period, statementPdf } from "@/features/finance/lib/statement-pdf";
+import { athleteFileName } from "@/features/athletes/lib/athlete-links";
 
 /** Emails an athlete's statement for a period to their guardians, PDF attached. */
 export async function emailStatement(athleteId: string, from?: string, to?: string) {
@@ -24,7 +25,7 @@ export async function emailStatement(athleteId: string, from?: string, to?: stri
       subject: `Statement for ${made.athlete.name}`,
       text: `Here is the statement for ${made.athlete.name} (${made.athlete.athleteId}). ${line} The PDF is attached.\n\n${academy}`,
       html: `<div style="font-family:sans-serif;color:#111"><p>Here is the statement for <b>${made.athlete.name}</b> (${made.athlete.athleteId}).</p><p>${line} The PDF is attached.</p><p style="color:#888;font-size:12px">${academy}</p></div>`,
-      attachments: [{ filename: `statement-${made.athlete.athleteId}.pdf`, content: made.pdf, contentType: "application/pdf" }],
+      attachments: [{ filename: athleteFileName("statement", made.athlete.athleteId), content: made.pdf, contentType: "application/pdf" }],
     });
     if (!res.success) throw new ActionError("The email didn't go out. Check Settings → Emails, then try again.");
 

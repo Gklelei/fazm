@@ -1,11 +1,12 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeBatch, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import { makeBatch, makePlan, makeProgramme, resetDb, signedIn } from "@/tests/support/db";
 import { registerAthlete } from "@/features/athletes/actions/register-athlete";
 import { updateAthlete } from "@/features/athletes/actions/update-athlete";
 import type { AthleteEditInput, RegistrationInput } from "@/features/athletes/schemas/registration";
 import { academyToday } from "@/lib/academy-time";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
+import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
 
 const yearsAgo = (n: number) => {
   const [y, m, d] = academyToday().split("-");
@@ -73,6 +74,20 @@ describe("editing an athlete", () => {
     expect((await updateAthlete(a.athleteId, { ...edit, estate: "Eastleigh", bloodGroup: "A+" }, guardianId)).success).toBe(true);
     expect((await db.athleteAddress.findFirstOrThrow()).estate).toBe("Kasarani");
     expect((await db.athleteMedicalAndEmergency.findFirstOrThrow()).bloogGroup).toBe("A+");
+  });
+
+  it("moves an athlete to another batch in the same programme", async () => {
+    const { a, guardianId, edit } = await athlete();
+    const same = await makeBatch("U13 Weekday");
+    expect((await updateAthlete(a.athleteId, { ...edit, batch: same.id }, guardianId)).success).toBe(true);
+    expect((await db.athlete.findUniqueOrThrow({ where: { id: a.id } })).batchesId).toBe(same.id);
+  });
+
+  it.runIf(TRANSFERS_ENABLED)("refuses a batch in another programme (that is a transfer)", async () => {
+    const { a, guardianId, edit } = await athlete();
+    const girls = await makeBatch("U13 Girls", (await makeProgramme("Girls")).id);
+    expect(await updateAthlete(a.athleteId, { ...edit, batch: girls.id }, guardianId)).toMatchObject({ success: false });
+    expect((await db.athlete.findUniqueOrThrow({ where: { id: a.id } })).batchesId).toBe(a.batchesId);
   });
 
   it("refuses finance staff", async () => {

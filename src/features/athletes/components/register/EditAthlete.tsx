@@ -14,6 +14,7 @@ import { FormAlert } from "@/components/form/FormAlert";
 import { StickyActions } from "@/components/form/StickyActions";
 import { useLeaveWarning } from "@/components/form/use-leave-warning";
 import { updateAthlete } from "../../actions/update-athlete";
+import { athletePath } from "../../lib/athlete-links";
 import { athleteEditSchema, type RegistrationInput } from "../../schemas/registration";
 import { StepAbout, StepAthlete, StepDocuments, StepGuardian, StepMedical, type StepProps } from "./steps";
 
@@ -65,7 +66,7 @@ export function EditAthlete({
         setSaved(true);
         toast.success(res.message);
         await queryClient.invalidateQueries({ queryKey: ["all-athletes"] });
-        router.push(`/players/user-profile/${athleteId}`);
+        router.push(athletePath(athleteId));
         router.refresh();
       }),
     () => setError("Some details need fixing. They're marked below."),
@@ -94,7 +95,7 @@ export function EditAthlete({
                 <Body goTo={() => {}} lockHealth={!canEditMedical} lockContact={!canEditOther} />
               ) : (
                 <fieldset disabled={!canEditOther} className="disabled:opacity-70">
-                  <Body goTo={() => {}} />
+                  <Body goTo={() => {}} keepProgramme />
                 </fieldset>
               )}
             </section>
@@ -102,7 +103,7 @@ export function EditAthlete({
 
           <StickyActions>
             <Button variant="ghost" asChild>
-              <Link href={`/players/user-profile/${athleteId}`}>Cancel</Link>
+              <Link href={athletePath(athleteId)}>Cancel</Link>
             </Button>
             <Button type="submit" disabled={saving || !form.formState.isDirty} className="min-w-32">
               {saving && <Loader2 className="animate-spin" />}

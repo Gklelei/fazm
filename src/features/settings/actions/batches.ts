@@ -6,6 +6,7 @@ import { createAuditLog } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { LOOKUP, lookupsChanged } from "@/lib/lookups";
 import { academyInstant, formatAcademy } from "@/lib/academy-time";
+import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
 
 const DAY = { day: "numeric", month: "short" } as const;
 import { planSessions, type Slot } from "@/features/settings/lib/plan-sessions";
@@ -61,6 +62,15 @@ export async function saveBatch(input: BatchInput, id?: string) {
     const before = id ? await findBatch(id) : null;
     const programme = await findProgramme(data.programmeId || before?.programmeId || (await firstProgrammeId()));
     await assertNameFree(data.name, programme.id, id);
+    // Athletes change programme one by one through Transfer, which records it and keeps their money where it was billed
+    if (TRANSFERS_ENABLED && before && before.programmeId !== programme.id) {
+      const athletes = await db.athlete.count({ where: { batchesId: before.id } });
+      if (athletes) {
+        throw new ActionError(
+          `${before.name} has ${athletes} athlete${athletes === 1 ? "" : "s"}. Transfer them to another batch first, then change its programme.`,
+        );
+      }
+    }
     const fields = { name: data.name, description: data.description || null, programmeId: programme.id };
     const batch = id
       ? await db.batches.update({ where: { id }, data: fields })

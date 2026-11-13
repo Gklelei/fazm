@@ -32,6 +32,7 @@ import { DeleteAthlete } from "../actions/delete-athlete";
 import { UpdateAthleteStatus } from "../actions/update-status";
 import type { AthleteListRow } from "../queries/list";
 import { athleteName } from "../lib/names";
+import { athleteEditPath, athletePath } from "../lib/athlete-links";
 
 export const ATHLETE_STATUS_LABEL: Partial<Record<ATHLETE_ACCOUNT_STATUS, string>> = {
   ACTIVE: "Active",
@@ -115,12 +116,12 @@ export function AthleteActionsMenu({ athlete }: { athlete: AthleteListRow }) {
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem asChild>
-            <Link href={`/players/user-profile/${athlete.athleteId}`}>
+            <Link href={athletePath(athlete.athleteId)}>
               <Eye /> View profile
             </Link>
           </DropdownMenuItem>
           <DropdownMenuItem asChild>
-            <Link href={`/players/edit/${athlete.athleteId}`}>
+            <Link href={athleteEditPath(athlete.athleteId)}>
               <Pencil /> Edit details
             </Link>
           </DropdownMenuItem>

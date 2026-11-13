@@ -36,6 +36,7 @@ import { athleteName } from "@/features/athletes/lib/names";
 import type { InvoiceFilters, InvoiceListRow, InvoicesPage } from "../queries/list";
 import { InvoiceRowActions } from "./InvoiceRowActions";
 import { invoiceBalance } from "../lib/status";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const ALL = "all";
 const STATUSES = ["PENDING", "PARTIAL", "OVERDUE", "PAID", "CANCELED"] as const;
@@ -268,7 +269,7 @@ export default function InvoicesBoard({
                         </Link>
                       </TableCell>
                       <TableCell>
-                        <Link href={`/players/user-profile/${i.athlete.athleteId}`} className="grid leading-tight hover:underline">
+                        <Link href={athletePath(i.athlete.athleteId)} className="grid leading-tight hover:underline">
                           <span className="truncate">{athleteName(i.athlete)}</span>
                           <span className="font-mono text-xs text-muted-foreground">{i.athlete.athleteId}</span>
                         </Link>

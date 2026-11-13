@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { PAYMENT_TYPE } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { inProgramme } from "@/lib/programme-scope";
+import { athleteIdMatch } from "@/features/athletes/queries/filters";
 
 export type PaymentParams = {
   search: string;
@@ -57,7 +58,7 @@ export async function listPayments(p: PaymentParams) {
             OR: [
               { receiptNumber: ci(t) },
               { notes: ci(t) },
-              { athleteId: ci(t) },
+              { athlete: { OR: athleteIdMatch(t) } },
               { athlete: { firstName: ci(t) } },
               { athlete: { lastName: ci(t) } },
               { invoice: { invoiceNumber: ci(t) } },

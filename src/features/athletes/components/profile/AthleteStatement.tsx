@@ -23,6 +23,7 @@ import { buildStatement } from "@/features/finance/lib/statement";
 import { emailStatement } from "@/features/finance/actions/email-statement";
 import { formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
+import { athletePdfPath } from "@/features/athletes/lib/athlete-links";
 
 const kes = (n: number) =>
   `KES ${n.toLocaleString(undefined, { minimumFractionDigits: 2 })}`;
@@ -136,7 +137,7 @@ export default function AthleteStatement({
             <>
               <Button variant="outline" size="sm" asChild>
                 <a
-                  href={`/api/athlete/${data.athleteId}/statement${range ? `?${range}` : ""}`}
+                  href={`${athletePdfPath(data.athleteId, "statement")}${range ? `?${range}` : ""}`}
                   target="_blank"
                   rel="noopener"
                 >

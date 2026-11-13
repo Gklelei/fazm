@@ -21,6 +21,7 @@ import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { RecordPaymentDialog } from "@/features/finance/components/RecordPaymentDialog";
 import { listPayments, parsePaymentParams } from "@/features/finance/queries/list-payments";
 import { selectedProgrammeId } from "@/lib/programme";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 export const metadata: Metadata = { title: "Payments" };
 
@@ -105,7 +106,7 @@ export default async function Page({
                       </TableCell>
                       <TableCell className="tabular whitespace-nowrap">{format(p.paymentDate, "d MMM yyyy")}</TableCell>
                       <TableCell>
-                        <Link href={`/players/user-profile/${p.athlete.athleteId}`} className="grid leading-tight hover:underline">
+                        <Link href={athletePath(p.athlete.athleteId)} className="grid leading-tight hover:underline">
                           <span className="truncate">{athleteName(p.athlete)}</span>
                           <span className="font-mono text-xs text-muted-foreground">{p.athlete.athleteId}</span>
                         </Link>

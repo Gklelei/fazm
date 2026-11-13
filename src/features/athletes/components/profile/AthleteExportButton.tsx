@@ -11,6 +11,8 @@ import { formatCurrency } from "@/lib/format";
 import { logExport } from "@/features/audit-logs/actions/log-export";
 import { photoOf } from "@/features/athletes/lib/photo";
 
+import { athleteSlug } from "@/features/athletes/lib/athlete-links";
+
 function safeText(v: unknown) {
   return String(v ?? "").trim();
 }
@@ -416,7 +418,7 @@ export default function AthleteExportButton({
       }
 
       // ── Save ──────────────────────────────────────────────────────
-      doc.save(`${safeText(data.athleteId) || "athlete"}_profile.pdf`);
+      doc.save(`${athleteSlug(safeText(data.athleteId)) || "athlete"}_profile.pdf`);
       void logExport({ what: `athlete profile ${safeText(data.athleteId)}`, format: "PDF", recordId: data.athleteId }).catch(() => {});
     } finally {
       setLoading(false);

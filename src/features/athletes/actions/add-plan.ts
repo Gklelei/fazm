@@ -8,6 +8,7 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { createAuditLog } from "@/lib/audit";
 import { actionErrorMessage } from "@/lib/action";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const BILLING_DAY = 30;
 
@@ -159,7 +160,7 @@ export const AddAthleteToSubscriptionPlan = async ({
       });
     });
 
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     await createAuditLog({
       action: mode === "create" ? "ADD_SUBSCRIPTION" : "CHANGE_SUBSCRIPTION",
       resource: "Subscription",

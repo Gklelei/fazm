@@ -5,6 +5,7 @@ import { formatAcademy } from "@/lib/academy-time";
 import { cn } from "@/lib/utils";
 import { averageText, scoreText } from "@/features/assessments/lib/grades";
 import type { AthleteProgress, MetricProgress } from "@/features/assessments/queries/progress";
+import { athletePdfPath } from "@/features/athletes/lib/athlete-links";
 
 /** A small line of the skill's scores, oldest to newest; up is always better. */
 function Trend({ m }: { m: MetricProgress }) {
@@ -55,7 +56,7 @@ export default function AthleteAssessments({ athleteId, progress }: { athleteId:
           {progress.batch && ` · compared with ${progress.batch} over the last 6 months`}
         </p>
         <Button variant="outline" asChild>
-          <a href={`/api/athlete/${athleteId}/assessment-report`} target="_blank" rel="noopener noreferrer">
+          <a href={athletePdfPath(athleteId, "assessment-report")} target="_blank" rel="noopener noreferrer">
             <FileDown /> Report
           </a>
         </Button>

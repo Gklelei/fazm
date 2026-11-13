@@ -7,6 +7,8 @@ import { ActionError, asRole } from "@/lib/action";
 import { hasRole } from "@/lib/roles";
 import { ageOn, athleteEditSchema, type AthleteEditInput } from "@/features/athletes/schemas/registration";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
+import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
 
 /**
  * Saves the edit page. Admins change everything; coaches everything except
@@ -34,8 +36,16 @@ export async function updateAthlete(athleteId: string, input: AthleteEditInput, 
     if (CONSENT_ENABLED && others && v.profilePhoto && v.profilePhoto !== before.profilePIcture && !photoConsent) {
       throw new ActionError("Remove the photo, or record photos and videos consent on the profile first.");
     }
-    if (others && !(await db.batches.findFirst({ where: { id: v.batch }, select: { id: true } }))) {
-      throw new ActionError("That batch is no longer available. Choose another.");
+    if (others && v.batch !== before.batchesId) {
+      const [from, to] = await Promise.all([
+        db.batches.findUnique({ where: { id: before.batchesId }, select: { programmeId: true } }),
+        db.batches.findFirst({ where: { id: v.batch }, select: { programmeId: true } }),
+      ]);
+      if (!to) throw new ActionError("That batch is no longer available. Choose another.");
+      // Moving to another programme is a transfer: it moves billing and is recorded on its own
+      if (TRANSFERS_ENABLED && from && to.programmeId !== from.programmeId) {
+        throw new ActionError("Choose a batch in the athlete's own programme.");
+      }
     }
 
     const guardian = before.guardians[0];
@@ -132,7 +142,7 @@ export async function updateAthlete(athleteId: string, input: AthleteEditInput, 
     );
 
     revalidatePath("/players");
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     await createAuditLog({
       action: "UPDATE_ATHLETE",
       resource: "Athlete",

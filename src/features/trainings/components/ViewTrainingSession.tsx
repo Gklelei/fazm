@@ -12,6 +12,7 @@ import { academyHHmm, formatAcademy } from "@/lib/academy-time";
 import { formatPhone } from "@/lib/phone";
 import { SessionPdfButton } from "./SessionPdfButton";
 import { AttendanceRoster } from "./AttendanceRoster";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const sentence = (s: string) => s.charAt(0) + s.slice(1).toLowerCase().replaceAll("_", " ");
 const lengthOf = (m: number) => (m % 60 ? `${Math.floor(m / 60) ? `${Math.floor(m / 60)} h ` : ""}${m % 60} min` : `${m / 60} h`);
@@ -238,7 +239,7 @@ export default function ViewTrainingSession({ data }: { data: GetAllTrainingSess
                     {data.assessments.map((as) => (
                       <TableRow key={as.id}>
                         <TableCell className="pl-4 text-sm font-medium">
-                          <Link href={`/players/user-profile/${as.athleteId}`} className="hover:underline">
+                          <Link href={athletePath(as.athleteId)} className="hover:underline">
                             {names.get(as.athleteId) ?? as.athleteId}
                           </Link>
                         </TableCell>

@@ -4,8 +4,9 @@ import { revalidatePath } from "next/cache";
 import { db } from "@/lib/prisma";
 import { ActionError, asRole } from "@/lib/action";
 import { createAuditLog } from "@/lib/audit";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
-const profile = (athleteId: string) => revalidatePath(`/players/user-profile/${athleteId}`);
+const profile = (athleteId: string) => revalidatePath(athletePath(athleteId));
 
 /** Links two athletes as siblings. Joining someone already in a family brings the whole family along. */
 export async function linkSiblings(athleteId: string, siblingId: string) {

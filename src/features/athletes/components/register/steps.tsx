@@ -45,6 +45,7 @@ import {
   type StepKey,
 } from "../../schemas/registration";
 import { CONSENT_ENABLED } from "../../lib/consent-switch";
+import { TRANSFERS_ENABLED } from "../../lib/transfer-switch";
 
 export type StepProps = {
   /** Review: back to a step, by its key */
@@ -53,6 +54,8 @@ export type StepProps = {
   lockHealth?: boolean;
   /** Edit page: emergency contact read-only (medical staff) */
   lockContact?: boolean;
+  /** Edit page: batches only from the athlete's own programme, whatever the header shows */
+  keepProgramme?: boolean;
 };
 const useRegForm = () => useFormContext<RegistrationInput>();
 
@@ -78,10 +81,14 @@ function suggestBatch(age: number, batches: { id: string; name: string }[]) {
   );
 }
 
-export function StepAthlete() {
-  const { control, setValue, getValues } = useRegForm();
-  const { programmeId, programmes, batches: scoped } = useProgramme();
-  const batches = scoped.filter((b) => !/unassigned/i.test(b.name));
+export function StepAthlete({ keepProgramme }: Partial<StepProps> = {}) {
+  const { control, setValue, getValues, formState } = useRegForm();
+  const { programmeId, programmes, batches: scoped, allBatches, programmeOfBatch } = useProgramme();
+  // Edit page: the athlete's own programme once transfers exist; until then every programme
+  // (named "Girls U13"), so their batch shows whatever programme the header is on
+  const own = TRANSFERS_ENABLED && keepProgramme ? programmeOfBatch(formState.defaultValues?.batch) : null;
+  const list = keepProgramme ? (own ? allBatches.filter((b) => b.programmeId === own) : allBatches) : scoped;
+  const batches = list.filter((b) => !/unassigned/i.test(b.name));
   const age = useAge();
   // Suggest from the age within one programme: under all, U13 could be Boys or Girls
   const oneProgramme = !!programmeId || programmes.length < 2;

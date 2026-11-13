@@ -9,6 +9,8 @@ import { embeddableLogo } from "@/lib/pdf-logo";
 import { athleteName } from "@/features/athletes/lib/names";
 import { athleteProgress } from "@/features/assessments/queries/progress";
 import AssessmentReport from "@/features/assessments/components/AssessmentReport";
+import { athleteRefWhere } from "@/features/athletes/lib/athlete-ref";
+import { athleteFileName } from "@/features/athletes/lib/athlete-links";
 
 /** GET /api/athlete/:athleteId/assessment-report: the athlete's progress report as a PDF. */
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -16,8 +18,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   if (!session?.user) return new Response("Unauthorized", { status: 401 });
   if (!hasRole(session.user.role, "athletes")) return new Response("Forbidden", { status: 403 });
 
-  const { id } = await params;
-  const athlete = await db.athlete.findUnique({ where: { athleteId: id }, select: { id: true, athleteId: true, firstName: true, middleName: true, lastName: true, isArchived: true } });
+  const athlete = await db.athlete.findFirst({ where: athleteRefWhere((await params).id), select: { id: true, athleteId: true, firstName: true, middleName: true, lastName: true, isArchived: true } });
   if (!athlete || athlete.isArchived) return new Response("Not found", { status: 404 });
 
   const [progress, cached] = await Promise.all([athleteProgress(athlete.athleteId), getCachedAcademy()]);
@@ -38,7 +39,7 @@ export async function GET(req: Request, { params }: { params: Promise<{ id: stri
   return new Response(stream as unknown as BodyInit, {
     headers: {
       "Content-Type": "application/pdf",
-      "Content-Disposition": `inline; filename="progress-${athlete.athleteId}.pdf"`,
+      "Content-Disposition": `inline; filename="${athleteFileName("progress", athlete.athleteId)}"`,
       "Cache-Control": "no-store",
     },
   });

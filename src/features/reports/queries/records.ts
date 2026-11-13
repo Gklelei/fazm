@@ -6,6 +6,7 @@ import { METHOD_LABEL } from "@/features/finance/lib/methods";
 import { athleteName } from "@/features/athletes/lib/names";
 import { inProgramme } from "@/lib/programme-scope";
 import { batchIdsFor } from "../lib/batch-label";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 export const SERIES = ["fees", "shop", "income", "spent"] as const;
 export type Series = (typeof SERIES)[number];
@@ -52,7 +53,8 @@ export async function drillRecords(q: DrillQuery, programmeId: string | null = n
         ...(method && { paymentType: method }),
         AND: [
           inProgramme.payment(programmeId),
-          q.batch ? { athlete: batchIds ? { batchesId: { in: batchIds } } : { batches: { is: null } } } : {},
+          // The batch the money was billed in, as the report grouped it
+          q.batch ? (batchIds ? { batchId: { in: batchIds } } : { batchId: null }) : {},
         ],
       },
       select: {
@@ -74,7 +76,7 @@ export async function drillRecords(q: DrillQuery, programmeId: string | null = n
         title: athleteName(p.athlete),
         detail: [p.receiptNumber, METHOD_LABEL[p.paymentType], p.invoice?.invoiceNumber].filter(Boolean).join(" · "),
         amount: p.amountPaid,
-        href: p.invoice ? `/invoices/${p.invoice.invoiceNumber}` : `/players/user-profile/${p.athlete.athleteId}`,
+        href: p.invoice ? `/invoices/${p.invoice.invoiceNumber}` : athletePath(p.athlete.athleteId),
         source: p.invoice?.type === "ITEM_PURCHASE" ? "Shop invoice payment" : "Payment",
       });
 

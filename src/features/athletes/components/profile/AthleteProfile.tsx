@@ -32,6 +32,7 @@ import AthleteExportButton from "./AthleteExportButton";
 import { ConsentDialog, ConsentPanel, type ConsentRecord } from "./ConsentPanel";
 import { photoOf } from "@/features/athletes/lib/photo";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
+import { athleteEditPath, athleteSlug } from "@/features/athletes/lib/athlete-links";
 
 const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
 
@@ -159,7 +160,7 @@ export default function AthleteProfile({
             <>
               <AthleteExportButton data={data} />
               <Button variant="outline" asChild>
-                <Link href={`/players/edit/${data.athleteId}`}>
+                <Link href={athleteEditPath(data.athleteId)}>
                   <Pencil /> Edit
                 </Link>
               </Button>
@@ -167,7 +168,7 @@ export default function AthleteProfile({
           )}
           {canSendStatement && (
             <Button variant="outline" asChild>
-              <Link href={`/shop/new?athlete=${data.athleteId}`}>
+              <Link href={`/shop/new?athlete=${athleteSlug(data.athleteId)}`}>
                 <ShoppingBag /> Sell kit
               </Link>
             </Button>

@@ -7,6 +7,7 @@ import type { AthleteListRow } from "../queries/list";
 import { athleteName } from "../lib/names";
 import { AthleteActionsMenu, AthleteStatusMenu } from "./AthleteRowActions";
 import { photoOf } from "@/features/athletes/lib/photo";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 /** Roster row for small screens. */
 export default function AthleteCard({ athlete: a }: { athlete: AthleteListRow }) {
@@ -17,7 +18,7 @@ export default function AthleteCard({ athlete: a }: { athlete: AthleteListRow })
       <div className="min-w-0 flex-1 space-y-1.5">
         <div className="flex items-start justify-between gap-2">
           <Link
-            href={`/players/user-profile/${a.athleteId}`}
+            href={athletePath(a.athleteId)}
             className="grid min-w-0 leading-tight"
           >
             <span className="truncate font-medium">{athleteName(a)}</span>

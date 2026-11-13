@@ -6,6 +6,7 @@ import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { cn } from "@/lib/utils";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 export type RosterRow = { athleteId: string; name: string; status: "PRESENT" | "LATE" | "ABSENT" | "EXCUSED" | null; reason: string | null };
 
@@ -78,7 +79,7 @@ export function AttendanceRoster({ rows }: { rows: RosterRow[] }) {
                   <TableRow key={r.athleteId}>
                     <TableCell className="tabular pl-4 font-medium text-muted-foreground">{i + 1}</TableCell>
                     <TableCell className="min-w-48">
-                      <Link href={`/players/user-profile/${r.athleteId}`} className="grid leading-tight hover:underline">
+                      <Link href={athletePath(r.athleteId)} className="grid leading-tight hover:underline">
                         <span className="text-sm font-medium">{r.name}</span>
                         <span className="font-mono text-[10px] text-muted-foreground">{r.athleteId}</span>
                       </Link>

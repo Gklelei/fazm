@@ -1,6 +1,7 @@
 import { Prisma } from "@/generated/prisma/client";
 import { PHOTO_SELECT } from "@/features/athletes/lib/photo";
 import { inProgramme } from "@/lib/programme-scope";
+import { athleteIdMatch } from "@/features/athletes/queries/filters";
 
 export const GuardiansQuery = {
   include: {
@@ -63,7 +64,7 @@ export function buildGuardianWhere({ search, batchId, programmeId }: GuardianFil
               { athlete: { firstName: ci(t) } },
               { athlete: { middleName: ci(t) } },
               { athlete: { lastName: ci(t) } },
-              { athlete: { athleteId: ci(t) } },
+              { athlete: { OR: athleteIdMatch(t) } },
             ],
           })),
         }

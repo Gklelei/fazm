@@ -36,17 +36,40 @@ const ci = (term: string) => ({
 });
 
 /**
+ * Ways a typed ID can match: IDs hold slashes (ATH/FFA/M/501) but people and
+ * links type dashes, and athletes are still found by the ID they had before
+ * (ATH-FFA-501). For any search box that looks in athlete IDs.
+ */
+export function athleteIdMatch(term: string): Prisma.AthleteWhereInput[] {
+  const slashed = term.replaceAll("-", "/");
+  const dashed = term.replaceAll("/", "-");
+  return [{ athleteId: ci(slashed) }, { athleteId: ci(dashed) }, { formerAthleteId: ci(dashed) }];
+}
+
+/**
  * A search word that is an athlete ID matches IDs only, not phone numbers:
- * "ATH-FFA-501", "ffa-50" or "ath-ffa-5" within the ID, and a short number like "501" or "7"
- * as the athlete number (ATH-FFA-501, ATH-FFA-007). Longer numbers are phones.
+ * "ATH/FFA/M/501", "ath-ffa-m-5" or "ffa/g" within the ID; a programme code
+ * and number like "G/1" or "m-501"; and a short number like "501" or "7" as
+ * the athlete number in any programme (ATH/FFA/M/501, ATH/FFA/G/007). Longer
+ * numbers are phones.
  */
 export function athleteIdTerm(term: string): Prisma.AthleteWhereInput | null {
-  if (/^(ath-|ffa-)/i.test(term))
-    return { athleteId: { contains: term, mode: "insensitive" } };
-  if (/^\d{1,5}$/.test(term))
-    return { athleteId: { endsWith: `-${term.padStart(3, "0")}` } };
+  if (/^(ath|ffa)[-/]/i.test(term)) return { OR: athleteIdMatch(term) };
+  const coded = term.match(/^([a-z]{1,3})[-/](\d{1,5})$/i);
+  if (coded) return { athleteId: { endsWith: `/${coded[1]}/${pad(coded[2])}`, mode: "insensitive" } };
+  if (/^\d{1,5}$/.test(term)) {
+    const n = pad(term);
+    // Today's IDs (ATH-FFA-501), per-programme ones (ATH/FFA/M/501), and the number someone
+    // had before being renumbered (954 still finds ATH/FFA/G/001, once ATH-FFA-954)
+    return {
+      OR: [{ athleteId: { endsWith: `-${n}` } }, { athleteId: { endsWith: `/${n}` } }, { formerAthleteId: { endsWith: `-${n}` } }],
+    };
+  }
   return null;
 }
+
+/** The number as written in IDs: at least three digits (7 → 007, 0501 → 501, 1203 → 1203) */
+const pad = (digits: string) => String(Number(digits)).padStart(3, "0");
 
 /**
  * Shared by the roster list and the export so both return the same athletes.
@@ -84,7 +107,7 @@ export function buildAthleteWhere({
                 { firstName: ci(term) },
                 { lastName: ci(term) },
                 { middleName: ci(term) },
-                { athleteId: ci(term) },
+                ...athleteIdMatch(term),
                 { phoneNumber: ci(term) },
                 { email: ci(term) },
                 {

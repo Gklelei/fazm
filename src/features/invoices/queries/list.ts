@@ -2,6 +2,7 @@ import type { Prisma } from "@/generated/prisma/client";
 import { INVOICE_STATUS } from "@/generated/prisma/enums";
 import { db } from "@/lib/prisma";
 import { inProgramme } from "@/lib/programme-scope";
+import { athleteIdMatch } from "@/features/athletes/queries/filters";
 
 export type InvoiceFilters = {
   search?: string;
@@ -51,7 +52,7 @@ export function buildInvoiceWhere({ search, athleteId, open, status, from, to, p
               { invoiceNumber: ci(t) },
               { athlete: { firstName: ci(t) } },
               { athlete: { lastName: ci(t) } },
-              { athlete: { athleteId: ci(t) } },
+              { athlete: { OR: athleteIdMatch(t) } },
             ],
           })),
         }

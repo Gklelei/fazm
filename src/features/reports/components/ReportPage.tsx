@@ -11,6 +11,7 @@ import type { Report } from "../queries/get-report";
 import { RangePicker } from "./RangePicker";
 import { SourceChart, TrendChart } from "./TrendChart";
 import { DrillList, DrillProvider } from "./Drill";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 const plural = (n: number, one: string, many = `${one}s`) => `${n.toLocaleString()} ${n === 1 ? one : many}`;
@@ -289,7 +290,7 @@ export function ReportPage({ range, report }: { range: ReportRange; report: Repo
                       {unpaid.top.map((d) => (
                         <tr key={d.id}>
                           <td className="px-3 py-2">
-                            <Link href={`/players/user-profile/${d.id}`} className="font-medium hover:underline">
+                            <Link href={athletePath(d.id)} className="font-medium hover:underline">
                               {d.name}
                             </Link>
                             <p className="text-xs text-muted-foreground">

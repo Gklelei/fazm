@@ -23,6 +23,7 @@ import { ROLE_LABEL } from "@/lib/roles";
 import { cn } from "@/lib/utils";
 import { areaOf, toneOf, type Tone } from "../lib/catalog";
 import type { ActivityPage, ActivityRow } from "../queries/list";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 const TONE: Record<Tone, { icon: LucideIcon; className: string; label: string }> = {
   added: { icon: Plus, className: "bg-success/12 text-success", label: "Added" },
@@ -93,7 +94,7 @@ function describe(r: Wire, fallback: string) {
 
 /** Where the entry's record lives in the app, when it has a page. */
 function recordLink(r: Wire) {
-  if (r.athlete) return { href: `/players/user-profile/${r.athlete.athleteId}`, label: "Open athlete" };
+  if (r.athlete) return { href: athletePath(r.athlete.athleteId), label: "Open athlete" };
   if (r.invoice) return { href: `/invoices/${r.invoice.id}`, label: "Open invoice" };
   if (r.training) return { href: `/sessions/view/${r.training.id}`, label: "Open session" };
   if (r.resource === "Staff" && r.recordId) return { href: `/staff/${r.recordId}`, label: "Open staff profile" };

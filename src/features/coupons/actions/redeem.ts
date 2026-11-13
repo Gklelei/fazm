@@ -5,6 +5,7 @@ import { db } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { formatCurrency } from "@/lib/format";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 import {
   applyToInvoice,
   checkForAthlete,
@@ -44,7 +45,7 @@ export async function giveCouponToAthlete(athleteId: string, code: string) {
       await giveToAthlete(tx, check.coupon, athleteId, user.id);
       return check.coupon;
     });
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     revalidatePath(`/coupons/${c.id}`);
     await createAuditLog({
       action: "APPLY_COUPON",
@@ -63,7 +64,7 @@ export async function removeCouponFromAthlete(athleteId: string, redemptionId: s
   return asRole("finance", async (user) => {
     const r = await db.$transaction((tx) => removeFromAthlete(tx, redemptionId, athleteId, user.id));
     if (!r) throw new ActionError("That coupon isn't on this athlete any more.");
-    revalidatePath(`/players/user-profile/${athleteId}`);
+    revalidatePath(athletePath(athleteId));
     revalidatePath(`/coupons/${r.couponId}`);
     await createAuditLog({
       action: "REMOVE_COUPON",

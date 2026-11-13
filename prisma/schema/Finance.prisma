@@ -120,6 +120,13 @@ model Invoice {
   athleteId String
   athlete   Athlete @relation(fields: [athleteId], references: [athleteId])
 
+  /// Programme and batch the athlete was in when billed, so reports keep it there after a transfer.
+  /// Set by the database on insert (trigger stamp_invoice): the athlete's batch, or for a late fee the overdue invoice's.
+  programmeId String?    @map("programme_id")
+  programme   Programme? @relation(fields: [programmeId], references: [id], onDelete: Restrict)
+  batchId     String?    @map("batch_id")
+  batch       Batches?   @relation(fields: [batchId], references: [id], onDelete: Restrict)
+
   // Subscription plan (for subscription invoices)
   subscriptionPlanId String?
   subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
@@ -170,6 +177,8 @@ model Invoice {
   @@index([athleteSubscriptionId])
   @@index([status])
   @@index([dueDate])
+  @@index([programmeId])
+  @@index([batchId])
   @@map("invoices")
 
   /// For a late fee: the overdue invoice it was charged on
@@ -191,6 +200,13 @@ model Finance {
   invoiceId String?
   invoice   Invoice? @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 
+  /// Programme and batch the money counts towards: the invoice's, or the athlete's batch when paid without one.
+  /// Set by the database on insert and when the invoice changes (trigger stamp_finance).
+  programmeId String?    @map("programme_id")
+  programme   Programme? @relation(fields: [programmeId], references: [id], onDelete: Restrict)
+  batchId     String?    @map("batch_id")
+  batch       Batches?   @relation(fields: [batchId], references: [id], onDelete: Restrict)
+
   // Payment details
   amountPaid    Float        @map("amount_paid")
   collectedBy   String       @map("collected_by")
@@ -210,6 +226,8 @@ model Finance {
   @@index([invoiceId])
   @@index([athleteSubscriptionId])
   @@index([paymentDate])
+  @@index([programmeId])
+  @@index([batchId])
   @@map("finance")
 }
 

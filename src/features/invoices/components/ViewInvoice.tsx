@@ -12,6 +12,7 @@ import { payableOf } from "../lib/status";
 import { INVOICE_TYPES } from "../schemas";
 import { InvoiceActions } from "./InvoiceActions";
 import { RemoveDiscount } from "./RemoveDiscount";
+import { athletePath } from "@/features/athletes/lib/athlete-links";
 
 export const INVOICE_PAGE_INCLUDE = {
   athlete: {
@@ -110,7 +111,7 @@ export default function ViewInvoice({ data, issuer, letterhead: lh }: { data: In
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                   <p className="font-mono text-sm text-white/70">{data.invoiceNumber}</p>
-                  <Link href={`/players/user-profile/${data.athlete.athleteId}`} className="block truncate font-semibold hover:underline">
+                  <Link href={athletePath(data.athlete.athleteId)} className="block truncate font-semibold hover:underline">
                     {name}
                   </Link>
                 </div>
