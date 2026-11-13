@@ -36,8 +36,10 @@ BEGIN
   END IF;
 END $$;
 
--- The new ID of every athlete, from the programme of their batch
-CREATE TEMP TABLE "new_ids" ON COMMIT DROP AS
+-- The new ID of every athlete, from the programme of their batch. An ordinary table, dropped at
+-- the end of this same transaction: prod's database user may not create TEMP tables.
+DROP TABLE IF EXISTS "new_ids";
+CREATE TABLE "new_ids" AS
 SELECT
   a."id",
   a."athlete_id" AS "old_id",
@@ -86,3 +88,5 @@ BEGIN
     RAISE EXCEPTION 'Some athletes still have an old ID';
   END IF;
 END $$;
+
+DROP TABLE "new_ids";
