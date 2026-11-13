@@ -17,8 +17,8 @@ import { cn } from "@/lib/utils";
 import { athleteName } from "../lib/names";
 import type { AthletesPage } from "../queries/list";
 
-/** noPlan: their billing was stopped (the invoice form flags them) */
-export type PickedAthlete = { athleteId: string; name: string; noPlan?: boolean };
+/** noPlan: their billing was stopped (the invoice form flags them); plan: the one they're on now */
+export type PickedAthlete = { athleteId: string; name: string; noPlan?: boolean; plan?: { id: string; name: string } | null };
 
 /**
  * Search-as-you-type athlete chooser (name, ID, phone or guardian), so
@@ -96,7 +96,7 @@ export function AthletePicker({
                   key={a.athleteId}
                   value={a.athleteId}
                   onSelect={() => {
-                    onChange({ athleteId: a.athleteId, name, noPlan: !!a.billingStoppedAt });
+                    onChange({ athleteId: a.athleteId, name, noPlan: !!a.billingStoppedAt, plan: a.athleteSubscriptions[0]?.subscriptionPlan ?? null });
                     setOpen(false);
                   }}
                 >

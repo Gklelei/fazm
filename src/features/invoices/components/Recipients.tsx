@@ -10,8 +10,8 @@ import { cn } from "@/lib/utils";
 import { AthletePicker } from "@/features/athletes/components/AthletePicker";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 
-/** noPlan: their billing was stopped; still billable, flagged */
-type Person = { athleteId: string; name: string; batchId?: string | null; fromBatch?: string; noPlan?: boolean };
+/** noPlan: their billing was stopped; still billable, flagged. plan: the one they're on now */
+type Person = { athleteId: string; name: string; batchId?: string | null; fromBatch?: string; noPlan?: boolean; plan?: { id: string; name: string } | null };
 
 /**
  * Who gets an invoice. Tapping a batch lists its athletes, all ticked; untick
@@ -19,10 +19,13 @@ type Person = { athleteId: string; name: string; batchId?: string | null; fromBa
  */
 export function Recipients({
   batches,
+  linePlanIds = [],
   onChange,
   invalid,
 }: {
   batches: { id: string; name: string }[];
+  /** Fee plans on the invoice's lines: someone on another plan is flagged */
+  linePlanIds?: string[];
   onChange: (athleteIds: string[]) => void;
   invalid?: boolean;
 }) {
@@ -97,7 +100,7 @@ export function Recipients({
               nextOff.delete(a.athleteId);
               return update(people, nextOff);
             }
-            update([...people, { athleteId: a.athleteId, name: a.name, noPlan: a.noPlan }], off);
+            update([...people, { athleteId: a.athleteId, name: a.name, noPlan: a.noPlan, plan: a.plan }], off);
           }}
         />
       </div>
@@ -153,6 +156,12 @@ export function Recipients({
                         {p.noPlan && (
                           <StatusBadge tone="warning" className="shrink-0">
                             No plan
+                          </StatusBadge>
+                        )}
+                        {p.plan && (
+                          // Warning when the invoice bills plans and theirs isn't one of them
+                          <StatusBadge tone={linePlanIds.length && !linePlanIds.includes(p.plan.id) ? "warning" : "neutral"} className="shrink-0">
+                            {p.plan.name}
                           </StatusBadge>
                         )}
                       </span>

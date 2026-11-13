@@ -159,6 +159,19 @@ describe("billing whole batches", () => {
     expect(await recipientsInBatches([batch.id])).toHaveLength(2);
   });
 
+  it("says each athlete's plan, and whose billing was stopped", async () => {
+    const batch = await makeBatch("U13");
+    const plan = await makePlan(3000);
+    const [onPlan, stopped] = await Promise.all([makeAthlete({ batchesId: batch.id, firstName: "A" }), makeAthlete({ batchesId: batch.id, firstName: "B" })]);
+    await db.athleteSubscription.create({
+      data: { athleteId: onPlan.athleteId, subscriptionPlanId: plan.id, currentPeriodStart: new Date(), currentPeriodEnd: new Date() },
+    });
+    await db.athlete.update({ where: { id: stopped.id }, data: { billingStoppedAt: new Date() } });
+    const [a, b] = await recipientsInBatches([batch.id]);
+    expect([a.athleteSubscriptions[0]?.subscriptionPlan, a.billingStoppedAt]).toEqual([{ id: plan.id, name: plan.name }, null]);
+    expect([b.athleteSubscriptions, b.billingStoppedAt]).toEqual([[], expect.any(Date)]);
+  });
+
   it("bills each athlete once", async () => {
     await signedIn("FINANCE");
     const a = await makeAthlete();

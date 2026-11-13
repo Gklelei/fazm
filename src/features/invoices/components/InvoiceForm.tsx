@@ -141,6 +141,7 @@ export function InvoiceForm({
                   <FormItem>
                     <Recipients
                       batches={batches}
+                      linePlanIds={(watchedLines ?? []).map((l) => l?.subscriptionPlanId).filter((id): id is string => !!id)}
                       invalid={!!fieldState.error}
                       onChange={(ids) => {
                         form.setValue("athletes", ids, { shouldDirty: true });

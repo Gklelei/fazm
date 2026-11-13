@@ -18,6 +18,8 @@ export const ATHLETE_LIST_SELECT = {
   createdAt: true,
   /** Billing stopped (no plan): flagged when picked for an invoice */
   billingStoppedAt: true,
+  /** Their plan now, shown when picked for an invoice */
+  athleteSubscriptions: { where: { status: "ACTIVE" }, orderBy: { createdAt: "desc" }, take: 1, select: { subscriptionPlan: { select: { id: true, name: true } } } },
   batches: { select: { id: true, name: true } },
   guardians: {
     select: { fullNames: true, phoneNumber: true, relationship: true },
