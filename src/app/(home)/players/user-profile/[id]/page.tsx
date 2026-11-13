@@ -87,6 +87,7 @@ export default async function Page({ params }: { params: Promise<{ id: string }>
       coupons={options}
       summary={summary}
       canManageConsent={hasRole(session?.user.role, "admin")}
+      canTransfer={hasRole(session?.user.role, "admin")}
       canSendStatement={hasRole(session?.user.role, "finance")}
       family={family}
       moneyOnly={moneyOnly}

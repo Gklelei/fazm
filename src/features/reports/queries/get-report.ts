@@ -111,7 +111,7 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
     ]);
 
   // ---- Programmes side by side (all programmes), or the costs shared with the others (one)
-  const [programmes, activeByBatch, shared] = await Promise.all([
+  const [programmes, activeByBatch, shared, joinedWhere, transfers] = await Promise.all([
     programmeId ? [] : db.programme.findMany({ where: { isArchived: false }, orderBy: [{ sortOrder: "asc" }, { name: "asc" }], select: { name: true } }),
     programmeId
       ? []
@@ -119,6 +119,22 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
     programmeId
       ? db.expenses.aggregate({ where: { isArchived: false, date: inRange, programmeId: null }, _sum: { amount: true }, _count: { _all: true } })
       : null,
+    // Registered in the range, under the programme they joined (before any transfer)
+    programmeId
+      ? []
+      : db.athlete.findMany({
+          where: { isArchived: false, createdAt: inRange },
+          select: {
+            batches: { select: { programme: { select: { name: true } } } },
+            transfers: { orderBy: { date: "asc" }, take: 1, select: { fromProgramme: { select: { name: true } } } },
+          },
+        }),
+    programmeId
+      ? []
+      : db.athleteTransfer.findMany({
+          where: { date: inRange },
+          select: { fromProgramme: { select: { name: true } }, toProgramme: { select: { name: true } } },
+        }),
   ]);
   const programmeOfBatch = programmeId
     ? new Map<string, string>()
@@ -247,9 +263,25 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
   for (const a of joined) tally(joinedByBatch, label(a.batches, NO_BATCH), 0);
   const status = Object.fromEntries(squad.map((s) => [s.status, s._count._all]));
 
-  type ProgrammeRow = { name: string; fees: number; spent: number; owed: number; athletes: number; marked: number; present: number };
+  type ProgrammeRow = {
+    name: string;
+    fees: number;
+    spent: number;
+    owed: number;
+    athletes: number;
+    marked: number;
+    present: number;
+    /** Registered in the range */
+    joined: number;
+    /** Transferred in and out in the range */
+    movedIn: number;
+    movedOut: number;
+  };
   const byProgramme = new Map<string, ProgrammeRow>(
-    programmes.map((p) => [p.name, { name: p.name, fees: 0, spent: 0, owed: 0, athletes: 0, marked: 0, present: 0 }]),
+    programmes.map((p) => [
+      p.name,
+      { name: p.name, fees: 0, spent: 0, owed: 0, athletes: 0, marked: 0, present: 0, joined: 0, movedIn: 0, movedOut: 0 },
+    ]),
   );
   const row = (name: string | undefined) => (name ? byProgramme.get(name) : undefined);
   if (!programmeId) {
@@ -276,6 +308,16 @@ export async function getReport(r: ReportRange, now = new Date(), programmeId: s
         r.marked += m.marked;
         r.present += m.present;
       }
+    }
+    for (const a of joinedWhere) {
+      const r = row(a.transfers[0]?.fromProgramme.name ?? a.batches?.programme.name);
+      if (r) r.joined += 1;
+    }
+    for (const t of transfers) {
+      const out = row(t.fromProgramme.name);
+      const into = row(t.toProgramme.name);
+      if (out) out.movedOut += 1;
+      if (into) into.movedIn += 1;
     }
   }
   const sharedSpent = expenses.filter((e) => !e.programme).reduce((n, e) => n + e.amount, 0);

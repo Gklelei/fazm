@@ -1,8 +1,8 @@
 /**
- * Moving athletes between programmes goes through Transfer. Until Transfer ships, staff still
- * sort athletes the old ways, so this stays false: the athlete edit page may pick a batch in any
- * programme, and a batch with athletes may change programme in Settings. Set it to true together
- * with Transfer: the edit page then lists only the athlete's own programme's batches, and both
- * cross-programme moves are refused.
+ * Moving athletes between programmes goes through Transfer (the profile's Transfer button), which
+ * records the move and keeps past money with the old programme. With this on, the athlete edit
+ * page lists only the athlete's own programme's batches, and both other ways to move programmes
+ * are refused: picking another programme's batch on the edit page, and changing the programme of
+ * a batch that has athletes in Settings. Set it to false to hide Transfer and allow those again.
  */
-export const TRANSFERS_ENABLED = false;
+export const TRANSFERS_ENABLED = true;

@@ -25,7 +25,10 @@ export const REASON_STATUSES = [
   { value: "PRESENT", label: "Present" },
 ] as const;
 
-export type ItemValues = { name: string; description: string; status: string; choice: string };
+export type ItemValues = { name: string; description: string; status: string; choice: string; code: string };
+
+/** A programme's ID letters: the field's label and hint, and whether they can still change */
+export type ItemCode = { label: string; hint: (typed: string) => string; locked: boolean };
 
 /** One pick from a few options, shown as buttons (a batch's programme). */
 export type ItemChoice = { label: string; options: { value: string; label: string }[] };
@@ -43,6 +46,7 @@ export function ItemDialog({
   namePlaceholder,
   withDescription,
   withStatus,
+  withCode,
   choice,
   initial,
   submitLabel,
@@ -56,6 +60,7 @@ export function ItemDialog({
   namePlaceholder?: string;
   withDescription?: string; // its label
   withStatus?: boolean;
+  withCode?: ItemCode;
   choice?: ItemChoice;
   initial?: Partial<ItemValues>;
   submitLabel: string;
@@ -67,6 +72,7 @@ export function ItemDialog({
     description: "",
     status: "ABSENT",
     choice: choice?.options.length === 1 ? choice.options[0].value : "",
+    code: "",
     ...initial,
   });
   const [values, setValues] = useState<ItemValues>(blank);
@@ -171,6 +177,24 @@ export function ItemDialog({
               aria-invalid={!!error || undefined}
             />
           </div>
+          {withCode && (
+            <div className="grid gap-2">
+              <Label htmlFor="item-code">{withCode.label}</Label>
+              <Input
+                id="item-code"
+                value={values.code}
+                onChange={(e) => set({ code: e.target.value.toUpperCase().replace(/[^A-Z]/g, "") })}
+                maxLength={3}
+                disabled={withCode.locked}
+                autoComplete="off"
+                className="w-24 font-mono uppercase"
+                aria-describedby="item-code-hint"
+              />
+              <p id="item-code-hint" className="text-xs text-muted-foreground">
+                {withCode.hint(values.code)}
+              </p>
+            </div>
+          )}
           {withDescription && (
             <div className="grid gap-2">
               <Label htmlFor="item-description">

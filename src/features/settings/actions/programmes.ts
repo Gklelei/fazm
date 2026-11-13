@@ -24,27 +24,44 @@ async function assertNameFree(name: string, exceptId?: string) {
   if (clash) throw new ActionError(`There's already a programme called "${name}".`);
 }
 
+async function assertCodeFree(code: string, exceptId?: string) {
+  const clash = await db.programme.findFirst({ where: { code, NOT: exceptId ? { id: exceptId } : undefined }, select: { name: true } });
+  if (clash) throw new ActionError(`${clash.name} already uses ${code}. Pick other letters.`);
+}
+
 export async function saveProgramme(input: z.input<typeof programmeSchema>, id?: string) {
   return asRole("admin", async (user) => {
-    const { name } = programmeSchema.parse(input);
+    const { name, code: typed } = programmeSchema.parse(input);
     await assertNameFree(name, id);
-    if (id) {
-      const before = await db.programme.findUnique({ where: { id }, select: { name: true } });
-      if (!before) throw new ActionError("That programme no longer exists.");
-      await db.programme.update({ where: { id }, data: { name } });
+    const before = id ? await db.programme.findUnique({ where: { id }, select: { name: true, code: true, athleteCounter: true } }) : null;
+    if (id && !before) throw new ActionError("That programme no longer exists.");
+    // Left out: keep the letters it has
+    const code = typed === undefined ? (before?.code ?? null) : typed || null;
+    if (code) await assertCodeFree(code, id);
+    if (id && before) {
+      // Once an athlete has an ID with the letters, they stay
+      if (before.code && before.athleteCounter > 0 && code !== before.code) {
+        throw new ActionError(`Keep ${before.code}: athletes' IDs already use it.`);
+      }
+      await db.programme.update({ where: { id }, data: { name, code } });
+      const what = [
+        before.name !== name && `renamed "${before.name}" to "${name}"`,
+        before.code !== code && (code ? `set its ID letters to ${code}` : "removed its ID letters"),
+      ].filter(Boolean);
       await createAuditLog({
         action: "UPDATE_PROGRAMME",
         resource: "Programme",
-        details: `Renamed programme "${before.name}" to "${name}"`,
+        details: `Programme "${name}": ${what.join(", ") || "saved with no changes"}`,
         userId: user.id,
       });
     } else {
+      if (!code) throw new ActionError("Enter the letters for its athletes' IDs, like G.");
       const last = await db.programme.aggregate({ _max: { sortOrder: true } });
-      await db.programme.create({ data: { name, sortOrder: (last._max.sortOrder ?? 0) + 1 } });
-      await createAuditLog({ action: "CREATE_PROGRAMME", resource: "Programme", details: `Added programme "${name}"`, userId: user.id });
+      await db.programme.create({ data: { name, code, sortOrder: (last._max.sortOrder ?? 0) + 1 } });
+      await createAuditLog({ action: "CREATE_PROGRAMME", resource: "Programme", details: `Added programme "${name}" (IDs ATH/FFA/${code}/…)`, userId: user.id });
     }
     changed();
-    return { success: true, message: id ? "Programme renamed." : `"${name}" added.` };
+    return { success: true, message: id ? "Programme saved." : `"${name}" added.` };
   });
 }
 

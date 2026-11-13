@@ -58,6 +58,9 @@ function ByProgramme({ rows, shared }: { rows: Report["programmes"]["rows"]; sha
               <th className="px-3 py-2 text-right font-medium">Net</th>
               <th className="px-3 py-2 text-right font-medium">Unpaid today</th>
               <th className="px-3 py-2 text-right font-medium">Active athletes</th>
+              <th className="px-3 py-2 text-right font-medium">Joined</th>
+              <th className="px-3 py-2 text-right font-medium">Transferred in</th>
+              <th className="px-3 py-2 text-right font-medium">Transferred out</th>
               <th className="px-4 py-2 text-right font-medium">Turnout</th>
             </tr>
           </thead>
@@ -72,6 +75,9 @@ function ByProgramme({ rows, shared }: { rows: Report["programmes"]["rows"]; sha
                 </td>
                 <td className="tabular px-3 py-2 text-right">{formatCurrency(r.owed)}</td>
                 <td className="tabular px-3 py-2 text-right">{r.athletes.toLocaleString()}</td>
+                <td className="tabular px-3 py-2 text-right">{r.joined.toLocaleString()}</td>
+                <td className="tabular px-3 py-2 text-right">{r.movedIn ? r.movedIn.toLocaleString() : "—"}</td>
+                <td className="tabular px-3 py-2 text-right">{r.movedOut ? r.movedOut.toLocaleString() : "—"}</td>
                 <td className="tabular px-4 py-2 text-right">{r.marked ? pct(r.present / r.marked) : "—"}</td>
               </tr>
             ))}
@@ -81,13 +87,13 @@ function ByProgramme({ rows, shared }: { rows: Report["programmes"]["rows"]; sha
                 <td className="px-3 py-2 text-right">—</td>
                 <td className="tabular px-3 py-2 text-right">{formatCurrency(shared)}</td>
                 <td className="tabular px-3 py-2 text-right">{formatCurrency(-shared)}</td>
-                <td className="px-3 py-2 text-right" colSpan={3} />
+                <td className="px-3 py-2 text-right" colSpan={6} />
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      <Source>Fees from Payments on fee invoices, by the athlete&apos;s batch today. Spent: each programme&apos;s own Expenses; shared ones on their own line. Shop sales aren&apos;t split.</Source>
+      <Source>Fees from Payments on fee invoices, in the programme they were billed in. Spent: each programme&apos;s own Expenses; shared ones on their own line. Joined: registered in these dates, in the programme they joined. Transferred: moves between programmes in these dates. Shop sales aren&apos;t split.</Source>
     </Panel>
   );
 }

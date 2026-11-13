@@ -48,8 +48,37 @@ model Athlete {
   familyId             String?                     @map("family_id")
   family               Family?                     @relation(fields: [familyId], references: [id], onDelete: SetNull)
 
+  transfers            AthleteTransfer[]
+
   @@index([familyId])
   @@map("athlete")
+}
+
+/// An athlete moved to a batch in another programme. Their ID and records stay; money billed
+/// before stays with the old programme (stamped), and new bills follow the new batch.
+model AthleteTransfer {
+  id              String    @id @default(cuid())
+  athleteId       String    @map("athlete_id")
+  athlete         Athlete   @relation(fields: [athleteId], references: [id], onDelete: Cascade)
+  fromBatchId     String    @map("from_batch_id")
+  fromBatch       Batches   @relation("TransferFromBatch", fields: [fromBatchId], references: [id], onDelete: Restrict)
+  toBatchId       String    @map("to_batch_id")
+  toBatch         Batches   @relation("TransferToBatch", fields: [toBatchId], references: [id], onDelete: Restrict)
+  fromProgrammeId String    @map("from_programme_id")
+  fromProgramme   Programme @relation("TransferFromProgramme", fields: [fromProgrammeId], references: [id], onDelete: Restrict)
+  toProgrammeId   String    @map("to_programme_id")
+  toProgramme     Programme @relation("TransferToProgramme", fields: [toProgrammeId], references: [id], onDelete: Restrict)
+  /// When the move took effect
+  date            DateTime  @default(now())
+  reason          String?
+  /// Who made it (the activity log has the rest)
+  byUserId        String?   @map("by_user_id")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  @@index([athleteId, date])
+  @@index([fromProgrammeId, date])
+  @@index([toProgrammeId, date])
+  @@map("athlete_transfers")
 }
 
 /// Brothers and sisters billed together. Staff link them; the guardian's phone only suggests.

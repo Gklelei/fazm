@@ -66,4 +66,16 @@ describe("money keeps the programme it was billed in", () => {
     expect(all.programmes.rows.find((r) => r.name === "Main")).toMatchObject({ fees: 2000, owed: 3000 });
     expect(all.programmes.rows.find((r) => r.name === "Girls")).toMatchObject({ fees: 0, owed: 0 });
   });
+
+  it("counts joiners where they joined, and transfers in and out", async () => {
+    await signedIn("FINANCE");
+    const { main, girls, u13, girlsU13, a } = await movedAthlete();
+    await db.athleteTransfer.create({
+      data: { athleteId: a.id, fromBatchId: u13.id, toBatchId: girlsU13.id, fromProgrammeId: main.id, toProgrammeId: girls.id },
+    });
+    await makeAthlete({ batchesId: girlsU13.id });
+    const all = await getReport(parseRange({ range: "month" }));
+    expect(all.programmes.rows.find((r) => r.name === "Main")).toMatchObject({ joined: 1, movedIn: 0, movedOut: 1 });
+    expect(all.programmes.rows.find((r) => r.name === "Girls")).toMatchObject({ joined: 1, movedIn: 1, movedOut: 0 });
+  });
 });

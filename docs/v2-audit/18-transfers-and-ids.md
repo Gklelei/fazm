@@ -29,7 +29,15 @@ Main Prgramme 953 athletes (`ATH-FFA-001`…`955`, 935 from before programmes), 
 
 ## Steps
 
-**Progress (2026-11-13):** Release A = steps 2, 3, 4, plus step 0 behind `TRANSFERS_ENABLED = false` (`src/features/athletes/lib/transfer-switch.ts`). It is built and tested, including a local check with a real `ATH/FFA/M/501`. Release B = steps 1, 5, 6, 7 and switching `TRANSFERS_ENABLED` on. Deploy B soon after A is verified, then check that no `ATH-FFA-%` IDs remain.
+**Progress (2026-11-13):** Release A = steps 2, 3, 4, plus step 0 behind `TRANSFERS_ENABLED = false` (`src/features/athletes/lib/transfer-switch.ts`). It is built and tested, including a local check with a real `ATH/FFA/M/501`. Release B = steps 1, 5, 6, 7 and switching `TRANSFERS_ENABLED` on. Built and tested 2026-11-13, not committed.
+- Migration `programme_codes_transfers`: `programmes.code` (capitals only, unique) and `athlete_counter`, plus the `athlete_transfers` table.
+- Migration `per_programme_athlete_ids`: the rename. It is keyed on `prog_boys`→M, `prog_girls`→G and `prog_elite`→E, and aborts in one transaction on anything unexpected. It was rehearsed with `migrate.mjs` on copies of local data, including girls renumbered by join date and a four-digit number.
+- `src/lib/athlete-numbers.ts`: `nextAthleteId()`, used by registration.
+- Settings → Programmes: an "ID letters" field, locked once used.
+- `transferAthlete` and the profile's Transfer button.
+- The report's programme table: Joined, Transferred in and Transferred out.
+
+Prod programme ids were confirmed on 2026-11-13: `prog_boys` "Main Prgramme" (956 athletes, 935 from before 5 Nov), `prog_girls` "Girls Programme" (1, joined after 5 Nov), `prog_elite` "Elite Programme" (0). All 957 athletes are in a batch and none has an odd ID, so every guard passes. Elite gets `E`, which can be changed in Settings until it is used. Before deploying B: deploy A and check it. After B: `select count(*) from athlete where athlete_id like 'ATH-FFA-%'` must be 0.
 
 How A was built, where it differs from the steps below:
 - Links: a dash slug instead of the record id. `athletePath()` and friends live in `athlete-links.ts`; `resolveAthleteId()` in `athlete-ref.ts` matches the record id, the stored ID, the slug or the former ID; old links redirect to the slug.

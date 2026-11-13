@@ -31,6 +31,11 @@ model training {
 model Programme {
   id         String   @id @default(cuid())
   name       String
+  /// Letters in its athletes' IDs (M in ATH/FFA/M/501). Capitals only (checked by the database); fixed once an ID is issued.
+  /// Without one, registration issues the old ATH-FFA-### from athlete_sequence.
+  code           String? @unique
+  /// The last athlete number issued in this programme
+  athleteCounter Int     @default(0) @map("athlete_counter")
   /// Order in the switcher and reports
   sortOrder  Int      @default(0) @map("sort_order")
   isArchived Boolean  @default(false) @map("is_archived")
@@ -45,6 +50,8 @@ model Programme {
   /// Money billed and paid in this programme (stamped, so it stays after a transfer)
   invoices Invoice[]
   payments Finance[]
+  transfersOut AthleteTransfer[] @relation("TransferFromProgramme")
+  transfersIn  AthleteTransfer[] @relation("TransferToProgramme")
 
   @@map("programmes")
 }
@@ -80,6 +87,8 @@ model Batches {
   /// Money billed and paid while athletes were in this batch
   invoices  Invoice[]
   payments  Finance[]
+  transfersOut AthleteTransfer[] @relation("TransferFromBatch")
+  transfersIn  AthleteTransfer[] @relation("TransferToBatch")
 
   @@index([programmeId])
   @@map("batches")

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from "vitest";
 import { db } from "@/lib/prisma";
-import { makeBatch, makePlan, resetDb, signedIn } from "@/tests/support/db";
+import { makeBatch, makePlan, makeProgramme, resetDb, signedIn } from "@/tests/support/db";
 import { registerAthlete } from "@/features/athletes/actions/register-athlete";
 import type { RegistrationInput } from "@/features/athletes/schemas/registration";
 import { academyToday } from "@/lib/academy-time";
@@ -142,6 +142,31 @@ describe("registering an athlete", () => {
     await signedIn("FINANCE");
     expect((await registerAthlete(data)).success).toBe(false);
     expect(await db.athlete.count()).toBe(0);
+  });
+
+  it("numbers athletes per programme once the programme has a code", async () => {
+    await signedIn("ADMIN");
+    const main = await makeProgramme("Main");
+    const girls = await makeProgramme("Girls");
+    await db.programme.update({ where: { id: main.id }, data: { code: "M", athleteCounter: 955 } });
+    await db.programme.update({ where: { id: girls.id }, data: { code: "G", athleteCounter: 1 } });
+    const [u13, girlsU13] = await Promise.all([makeBatch("U13", main.id), makeBatch("U13", girls.id)]);
+
+    expect(await registerAthlete(await form({ batch: u13.id }))).toMatchObject({ success: true, athleteId: "ATH/FFA/M/956" });
+    expect(await registerAthlete(await form({ batch: girlsU13.id }))).toMatchObject({ success: true, athleteId: "ATH/FFA/G/002" });
+    expect(await registerAthlete(await form({ batch: girlsU13.id }))).toMatchObject({ success: true, athleteId: "ATH/FFA/G/003" });
+    // The old academy-wide counter is left alone
+    expect((await db.athleteSequence.findUniqueOrThrow({ where: { id: 1 } })).current).toBe(41);
+  });
+
+  it("hands the number back when registration fails", async () => {
+    await signedIn("ADMIN");
+    const girls = await makeProgramme("Girls");
+    await db.programme.update({ where: { id: girls.id }, data: { code: "G" } });
+    const batch = await makeBatch("U13", girls.id);
+    expect((await registerAthlete(await form({ batch: batch.id, subscriptionPlanId: "missing-plan" }))).success).toBe(false);
+    expect((await db.programme.findUniqueOrThrow({ where: { id: girls.id } })).athleteCounter).toBe(0);
+    expect(await registerAthlete(await form({ batch: batch.id }))).toMatchObject({ athleteId: "ATH/FFA/G/001" });
   });
 
   it("saves the passport cover and bio-data page in the right fields", async () => {

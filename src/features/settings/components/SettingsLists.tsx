@@ -17,7 +17,7 @@ import {
   setPitchArchived,
   setReasonArchived,
 } from "../actions/lists";
-import { ItemDialog, REASON_STATUSES, type ItemChoice, type ItemValues } from "./ItemDialog";
+import { ItemDialog, REASON_STATUSES, type ItemChoice, type ItemCode, type ItemValues } from "./ItemDialog";
 import { RowMenu } from "./RowMenu";
 import type { ListTab } from "../lib/tabs";
 
@@ -36,10 +36,10 @@ const KINDS = {
   },
   programmes: {
     add: "Add programme",
-    title: (editing: boolean) => (editing ? "Rename programme" : "Add a programme"),
+    title: (editing: boolean) => (editing ? "Edit programme" : "Add a programme"),
     nameLabel: "Programme name",
     namePlaceholder: "e.g. Girls",
-    save: (v: ItemValues, id?: string) => saveProgramme({ name: v.name }, id),
+    save: (v: ItemValues, id?: string) => saveProgramme({ name: v.name, code: v.code }, id),
   },
   pitches: {
     add: "Add pitch",
@@ -93,6 +93,7 @@ export function AddItemButton({ kind }: { kind: Kind }) {
         namePlaceholder={k.namePlaceholder}
         withDescription={"withDescription" in k ? k.withDescription : undefined}
         withStatus={"withStatus" in k}
+        withCode={kind === "programmes" ? codeField(false) : undefined}
         choice={kind === "batches" ? choice : undefined}
         initial={kind === "batches" && programmeId ? { choice: programmeId } : undefined}
         submitLabel={k.add}
@@ -107,9 +108,19 @@ type Row = {
   name: string;
   description?: string | null;
   status?: string;
+  /** Programmes: the letters in their athletes' IDs */
+  code?: string | null;
+  codeUsed?: boolean;
   archived: boolean;
   used: number;
 };
+
+/** The programme dialog's ID letters field */
+const codeField = (locked: boolean): ItemCode => ({
+  label: "Letters in athlete IDs",
+  hint: (code) => (locked ? `In use: ATH/FFA/${code}/…` : `IDs will look like ATH/FFA/${code || "G"}/001`),
+  locked,
+});
 
 function ItemRow({
   kind,
@@ -143,6 +154,7 @@ function ItemRow({
           )}
         >
           <span className="truncate">{row.name}</span>
+          {row.code && <span className="shrink-0 font-mono text-xs font-normal text-muted-foreground">ATH/FFA/{row.code}/…</span>}
           {row.archived && <StatusBadge tone="neutral">Archived</StatusBadge>}
         </p>
         {row.description && (
@@ -160,7 +172,7 @@ function ItemRow({
       <RowMenu
         name={row.name}
         archived={row.archived}
-        editLabel={kind === "pitches" || kind === "programmes" ? "Rename" : "Edit"}
+        editLabel={kind === "pitches" ? "Rename" : "Edit"}
         onEdit={() => setEditing(true)}
         setArchived={(to) => setArchived(row.id, to)}
       />
@@ -171,10 +183,12 @@ function ItemRow({
         nameLabel={k.nameLabel}
         withDescription={"withDescription" in k ? k.withDescription : undefined}
         withStatus={"withStatus" in k}
+        withCode={kind === "programmes" ? codeField(!!row.codeUsed) : undefined}
         initial={{
           name: row.name,
           description: row.description ?? "",
           status: row.status,
+          code: row.code ?? "",
         }}
         submitLabel="Save"
         submit={(v) => k.save(v, row.id)}

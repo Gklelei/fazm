@@ -52,6 +52,13 @@ const name = z.string().trim().min(1, "Enter a name").max(80, "Keep it under 80 
 export const pitchSchema = z.object({ name });
 export const programmeSchema = z.object({
   name: z.string().trim().min(1, "Enter a name").max(40, "Keep it under 40 characters"),
+  /** The letters in its athletes' IDs (G in ATH/FFA/G/001) */
+  code: z
+    .string()
+    .trim()
+    .toUpperCase()
+    .regex(/^[A-Z]{0,3}$/, "Use one to three letters, like G")
+    .optional(),
 });
 export const drillSchema = z.object({
   name,

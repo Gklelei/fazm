@@ -8,6 +8,7 @@ import { ActionError, asRole } from "@/lib/action";
 import { academyInstant } from "@/lib/academy-time";
 import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
 import { nextDocumentNumbers } from "@/lib/document-numbers";
+import { nextAthleteId } from "@/lib/athlete-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
 import { discountNewFeesInvoice } from "@/features/coupons/lib/engine";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
@@ -58,14 +59,6 @@ export async function registerAthlete(input: RegistrationInput) {
       // ---------- Invoice number ----------
       const [invoiceNumber] = await nextDocumentNumbers(ctx, "INV", 1, now);
 
-      // ---------- Athlete number ----------
-      const sequence = await ctx.athleteSequence.update({
-        where: { id: 1 },
-        data: { current: { increment: 1 } },
-        select: { current: true },
-      });
-      const athleteId = `ATH-FFA-${String(sequence.current).padStart(3, "0")}`;
-
       // ---------- Fee plan ----------
       const plan = await ctx.subscriptionPlan.findFirst({
         where: { id: v.subscriptionPlanId, isActive: true, isArchived: false },
@@ -77,6 +70,9 @@ export async function registerAthlete(input: RegistrationInput) {
       if (plan.programmeId && plan.programmeId !== batch.programmeId) {
         throw new ActionError(`${plan.name} is for another programme. Choose a plan for this batch.`);
       }
+
+      // ---------- Athlete number: counted in the batch's programme ----------
+      const athleteId = await nextAthleteId(ctx, batch.programmeId);
 
       const planAmount = new Prisma.Decimal(plan.amount);
       const currentPeriodStart = now;

@@ -14,12 +14,28 @@ describe("programmes", () => {
 
   it("adds and renames a programme, refusing duplicate names", async () => {
     const { user } = await signedIn("ADMIN");
-    expect(await saveProgramme({ name: "Girls" })).toMatchObject({ success: true });
-    expect(await saveProgramme({ name: "girls" })).toMatchObject({ success: false, message: 'There\'s already a programme called "girls".' });
+    expect(await saveProgramme({ name: "Girls", code: "g" })).toMatchObject({ success: true });
+    expect(await saveProgramme({ name: "girls", code: "H" })).toMatchObject({ success: false, message: 'There\'s already a programme called "girls".' });
     const girls = await db.programme.findFirstOrThrow({ where: { name: "Girls" } });
+    expect(girls.code).toBe("G");
     expect(await saveProgramme({ name: "Girls Academy" }, girls.id)).toMatchObject({ success: true });
-    expect((await db.programme.findUniqueOrThrow({ where: { id: girls.id } })).name).toBe("Girls Academy");
+    expect(await db.programme.findUniqueOrThrow({ where: { id: girls.id } })).toMatchObject({ name: "Girls Academy", code: "G" });
     expect(await db.auditLog.count({ where: { userId: user.id, resource: "Programme" } })).toBe(2);
+  });
+
+  it("asks a new programme for its ID letters, unique, and keeps them once used", async () => {
+    await signedIn("ADMIN");
+    expect(await saveProgramme({ name: "Elite" })).toMatchObject({ success: false, message: "Enter the letters for its athletes' IDs, like G." });
+    expect(await saveProgramme({ name: "Elite", code: "E1" })).toMatchObject({ success: false, message: "Use one to three letters, like G" });
+    expect(await saveProgramme({ name: "Girls", code: "G" })).toMatchObject({ success: true });
+    expect(await saveProgramme({ name: "Elite", code: "G" })).toMatchObject({ success: false, message: "Girls already uses G. Pick other letters." });
+    expect(await saveProgramme({ name: "Elite", code: "E" })).toMatchObject({ success: true });
+
+    const elite = await db.programme.findFirstOrThrow({ where: { name: "Elite" } });
+    expect(await saveProgramme({ name: "Elite", code: "EL" }, elite.id)).toMatchObject({ success: true });
+    await db.programme.update({ where: { id: elite.id }, data: { athleteCounter: 1 } });
+    expect(await saveProgramme({ name: "Elite", code: "E" }, elite.id)).toMatchObject({ success: false, message: "Keep EL: athletes' IDs already use it." });
+    expect(await saveProgramme({ name: "Elite squad", code: "EL" }, elite.id)).toMatchObject({ success: true });
   });
 
   it("won't archive a programme that still has batches", async () => {

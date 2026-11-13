@@ -33,6 +33,9 @@ import { ConsentDialog, ConsentPanel, type ConsentRecord } from "./ConsentPanel"
 import { photoOf } from "@/features/athletes/lib/photo";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 import { athleteEditPath, athleteSlug } from "@/features/athletes/lib/athlete-links";
+import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
+import { TransferDialog } from "./TransferDialog";
+import { useProgramme } from "@/providers/ProgrammeContext";
 
 const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
 
@@ -71,6 +74,7 @@ export default function AthleteProfile({
   summary,
   canManageConsent,
   canSendStatement,
+  canTransfer = false,
   family,
   moneyOnly = false,
   progress,
@@ -80,12 +84,16 @@ export default function AthleteProfile({
   summary: AthleteSummary;
   canManageConsent: boolean;
   canSendStatement: boolean;
+  /** Admins: move them to another programme */
+  canTransfer?: boolean;
   family: Family | null;
   /** Finance officers: only the money sections, no medical or personal details */
   moneyOnly?: boolean;
   progress: AthleteProgress;
 }) {
   const name = athleteName(data);
+  // "Girls U13" when there are several programmes
+  const { batchLabel } = useProgramme();
   const guardian = data.guardians[0];
   const consents = data.consents as unknown as ConsentRecord[];
   // No photo without photos and videos consent (existing athletes too), while consent is on
@@ -134,7 +142,7 @@ export default function AthleteProfile({
             </h1>
             <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-muted-foreground">
               <span className="font-mono">{data.athleteId}</span>
-              {data.batches && <span className="font-medium text-foreground">{data.batches.name}</span>}
+              {data.batches && <span className="font-medium text-foreground">{batchLabel(data.batchesId) || data.batches.name}</span>}
               {data.age != null && <span>{data.age} years</span>}
               <StatusBadge status={data.status}>{ATHLETE_STATUS_LABEL[data.status]}</StatusBadge>
               {CONSENT_ENABLED && !consents.length && !moneyOnly && <StatusBadge tone="warning">Consent missing</StatusBadge>}
@@ -164,6 +172,9 @@ export default function AthleteProfile({
                   <Pencil /> Edit
                 </Link>
               </Button>
+              {TRANSFERS_ENABLED && canTransfer && (
+                <TransferDialog athlete={{ athleteId: data.athleteId, name, batchId: data.batchesId }} />
+              )}
             </>
           )}
           {canSendStatement && (

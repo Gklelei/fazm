@@ -19,6 +19,8 @@ export async function getSettingsData() {
       select: {
         id: true,
         name: true,
+        code: true,
+        athleteCounter: true,
         isArchived: true,
         batches: {
           where: { isArchived: false },
@@ -79,6 +81,9 @@ export async function getSettingsData() {
     programmes: programmes.map((p) => ({
       id: p.id,
       name: p.name,
+      code: p.code,
+      /** Its letters are fixed once an athlete has an ID with them */
+      codeUsed: p.athleteCounter > 0,
       archived: p.isArchived,
       batches: p.batches.length,
       athletes: p.batches.reduce((n, b) => n + b._count.athletes, 0),
