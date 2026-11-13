@@ -16,6 +16,8 @@ export const ATHLETE_LIST_SELECT = {
   ...PHOTO_SELECT,
   phoneNumber: true,
   createdAt: true,
+  /** Billing stopped (no plan): flagged when picked for an invoice */
+  billingStoppedAt: true,
   batches: { select: { id: true, name: true } },
   guardians: {
     select: { fullNames: true, phoneNumber: true, relationship: true },

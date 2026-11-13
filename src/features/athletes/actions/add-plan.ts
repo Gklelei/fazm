@@ -60,13 +60,12 @@ function nextBillingByInterval(now: Date, interval: string) {
   }
 }
 
+/** Gives a plan to an athlete without one. Changing a plan they have is changeAthletePlan. */
 export const AddAthleteToSubscriptionPlan = async ({
   id,
-  mode,
   athleteId,
 }: {
   id: string;
-  mode: "edit" | "create";
   athleteId: string;
 }): Promise<ActionResult> => {
   const acceptedRoles = [...ROLE_GROUPS.finance] as string[];
@@ -112,29 +111,11 @@ export const AddAthleteToSubscriptionPlan = async ({
       select: { id: true },
     });
 
-    if (mode === "create" && existingActive) {
-      return {
-        success: false,
-        message:
-          "Athlete already has an active subscription. Use edit to change the plan.",
-      };
+    if (existingActive) {
+      return { success: false, message: "They already have a plan. Use Change plan." };
     }
 
     await db.$transaction(async (tx) => {
-      if (mode === "edit") {
-        // End any current active subscriptions (enforce only one active at a time)
-        await tx.athleteSubscription.updateMany({
-          where: { athleteId: athlete.athleteId, status: "ACTIVE" },
-          data: {
-            status: "INACTIVE",
-            endDate: now,
-            autoRenew: false,
-            cancelAtPeriodEnd: true,
-            updatedBy: session.user.id,
-          },
-        });
-      }
-
       // Create new subscription instance
       await tx.athleteSubscription.create({
         data: {
@@ -156,27 +137,23 @@ export const AddAthleteToSubscriptionPlan = async ({
         where: { athleteId: athlete.athleteId },
         data: {
           nextBillingDate: nextBilling,
+          // Billing again
+          billingStoppedAt: null,
         },
       });
     });
 
     revalidatePath(athletePath(athleteId));
     await createAuditLog({
-      action: mode === "create" ? "ADD_SUBSCRIPTION" : "CHANGE_SUBSCRIPTION",
+      action: "ADD_SUBSCRIPTION",
       resource: "Subscription",
-      details: `${mode === "create" ? "Put" : "Moved"} ${athlete.athleteId} on the "${plan.name}" plan`,
+      details: `Put ${athlete.athleteId} on the "${plan.name}" plan`,
       userId: session.user.id,
       athleteId: athlete.id,
       recordId: plan.id,
     });
 
-    return {
-      success: true,
-      message:
-        mode === "create"
-          ? "Athlete added to a subscription plan"
-          : "Athlete subscription plan updated",
-    };
+    return { success: true, message: `${plan.name} given.` };
   } catch (error) {
     console.log({ error });
     return {

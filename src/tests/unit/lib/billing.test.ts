@@ -1,5 +1,22 @@
 import { describe, expect, it } from "vitest";
-import { BILLING_DAY, clampToDay, daysInMonth, nextMonthlyBillingDate } from "@/lib/billing";
+import { BILLING_DAY, billingMonth, clampToDay, daysInMonth, nextMonthlyBillingDate } from "@/lib/billing";
+
+describe("billingMonth", () => {
+  const day = (s: string) => new Date(`${s}T00:00:00`);
+  it("runs from the last 30th to the next", () => {
+    const m = billingMonth(day("2026-11-13"));
+    expect([m.start, m.end]).toEqual([day("2026-10-30"), day("2026-11-30")]);
+    expect(m.unused).toBeCloseTo(17 / 31);
+  });
+  it("starts a new month on the billing day", () => {
+    const m = billingMonth(day("2026-11-30"));
+    expect([m.start, m.end, m.unused]).toEqual([day("2026-11-30"), day("2026-12-30"), 1]);
+  });
+  it("clamps to short months", () => {
+    const m = billingMonth(day("2027-03-10"));
+    expect([m.start, m.end]).toEqual([day("2027-02-28"), day("2027-03-30")]);
+  });
+});
 
 describe("daysInMonth", () => {
   it("returns 31 for January", () => {

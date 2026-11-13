@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
   const batches = (req.nextUrl.searchParams.get("batches") ?? "").split(",").filter(Boolean).slice(0, 50);
   const athletes = await recipientsInBatches(batches);
   return NextResponse.json({
-    athletes: athletes.map((a) => ({ athleteId: a.athleteId, name: athleteName(a), batchId: a.batchesId })),
+    // noPlan: their billing was stopped (flagged, still billable)
+    athletes: athletes.map((a) => ({ athleteId: a.athleteId, name: athleteName(a), batchId: a.batchesId, noPlan: !!a.billingStoppedAt })),
   });
 }

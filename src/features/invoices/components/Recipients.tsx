@@ -8,8 +8,10 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { ChoiceChips } from "@/components/form/ChoiceChips";
 import { cn } from "@/lib/utils";
 import { AthletePicker } from "@/features/athletes/components/AthletePicker";
+import { StatusBadge } from "@/components/shared/StatusBadge";
 
-type Person = { athleteId: string; name: string; batchId?: string | null; fromBatch?: string };
+/** noPlan: their billing was stopped; still billable, flagged */
+type Person = { athleteId: string; name: string; batchId?: string | null; fromBatch?: string; noPlan?: boolean };
 
 /**
  * Who gets an invoice. Tapping a batch lists its athletes, all ticked; untick
@@ -95,7 +97,7 @@ export function Recipients({
               nextOff.delete(a.athleteId);
               return update(people, nextOff);
             }
-            update([...people, { athleteId: a.athleteId, name: a.name }], off);
+            update([...people, { athleteId: a.athleteId, name: a.name, noPlan: a.noPlan }], off);
           }}
         />
       </div>
@@ -146,7 +148,14 @@ export function Recipients({
                       }}
                     />
                     <span className="grid min-w-0 flex-1 leading-tight">
-                      <span className={cn("truncate font-medium", !on && "line-through")}>{p.name}</span>
+                      <span className="flex min-w-0 items-center gap-2">
+                        <span className={cn("truncate font-medium", !on && "line-through")}>{p.name}</span>
+                        {p.noPlan && (
+                          <StatusBadge tone="warning" className="shrink-0">
+                            No plan
+                          </StatusBadge>
+                        )}
+                      </span>
                       <span className="truncate text-xs text-muted-foreground">
                         <span className="font-mono">{p.athleteId}</span>
                         {p.batchId && batchName.get(p.batchId) && ` · ${batchName.get(p.batchId)}`}

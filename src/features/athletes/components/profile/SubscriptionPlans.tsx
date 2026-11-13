@@ -27,15 +27,36 @@ import { Sweetalert } from "@/lib/alerts";
 import { Loader2Spinner } from "@/components/shared/Loader2Spinner";
 import { useProgramme } from "@/providers/ProgrammeContext";
 import { AddAthleteToSubscriptionPlan } from "@/features/athletes/actions/add-plan";
+import { ChangePlanDialog } from "./ChangePlanDialog";
+import type { FeeBill } from "./PlanChangeFields";
 
 type Props = {
   athleteId: string;
   /** Their batch: only plans for its programme (or any) are offered */
   batchId?: string | null;
   activePlanId?: string | null;
+  /** Their fees bills, for Change plan's choices about the old bill */
+  bills?: FeeBill[];
 };
 
-const SubscriptionPlans = ({ athleteId, batchId, activePlanId }: Props) => {
+/** Assign plan (no plan yet), or Change plan with its choices (ChangePlanDialog). */
+const SubscriptionPlans = (props: Props) => {
+  const { plansFor } = useProgramme();
+  const current = props.activePlanId ? plansFor(null).find((p) => p.id === props.activePlanId) : undefined;
+  if (props.activePlanId) {
+    return (
+      <ChangePlanDialog
+        athleteId={props.athleteId}
+        batchId={props.batchId}
+        currentPlan={{ id: props.activePlanId, name: current?.name ?? "their plan" }}
+        bills={props.bills ?? []}
+      />
+    );
+  }
+  return <AssignPlan {...props} />;
+};
+
+const AssignPlan = ({ athleteId, batchId, activePlanId }: Props) => {
   const router = useRouter();
   const { plansFor, programmeOfBatch } = useProgramme();
 
@@ -68,11 +89,7 @@ const SubscriptionPlans = ({ athleteId, batchId, activePlanId }: Props) => {
     }
 
     startTransition(async () => {
-      const result = await AddAthleteToSubscriptionPlan({
-        id: selectedPlanId,
-        mode: isEditing ? "edit" : "create",
-        athleteId,
-      });
+      const result = await AddAthleteToSubscriptionPlan({ id: selectedPlanId, athleteId });
 
       if (result.success) {
         Sweetalert({

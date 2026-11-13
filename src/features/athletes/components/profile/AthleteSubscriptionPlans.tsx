@@ -10,6 +10,7 @@ import { GetAthleteByIdQueryType } from "@/features/athletes/queries";
 import { UseUtilsContext } from "@/providers/UtilsContext";
 import { AthleteCoupons, type GivenCoupon } from "@/features/coupons/components/AthleteCoupons";
 import { formatDate } from "@/lib/format";
+import { feeBillsOf } from "./PlanChangeFields";
 import type { AthleteCouponOption } from "@/features/coupons/queries";
 
 const AthleteSubscriptionPlans = ({
@@ -45,6 +46,7 @@ const AthleteSubscriptionPlans = ({
             athleteId={data.athleteId}
             batchId={data.batches?.id ?? null}
             activePlanId={activePlanId}
+            bills={feeBillsOf(data.invoices)}
           />
         </div>
       </CardHeader>

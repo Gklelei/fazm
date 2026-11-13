@@ -9,17 +9,21 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { formatCurrency } from "@/lib/format";
 import { useProgramme } from "@/providers/ProgrammeContext";
 import { transferAthlete } from "../../actions/transfer-athlete";
+import { blankPlanChange, planChangeProblem, PlanChangeFields, type FeeBill, type PlanChangeValue } from "./PlanChangeFields";
 
-/** Moves an athlete to a batch in another programme, on a fee plan for it. */
-export function TransferDialog({ athlete }: { athlete: { athleteId: string; name: string; batchId: string } }) {
+/** Moves an athlete to a batch in another programme, saying what happens to their fee plan. */
+export function TransferDialog({
+  athlete,
+}: {
+  athlete: { athleteId: string; name: string; batchId: string; currentPlan?: { name: string; programmeId: string | null }; bills: FeeBill[] };
+}) {
   const router = useRouter();
   const { allBatches, programmes, programmeOfBatch, plansFor } = useProgramme();
   const [open, setOpen] = useState(false);
   const [batch, setBatch] = useState("");
-  const [plan, setPlan] = useState("");
+  const [plan, setPlan] = useState<PlanChangeValue>(blankPlanChange());
   const [reason, setReason] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, start] = useTransition();
@@ -28,7 +32,8 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
   const programmeName = programmes.find((p) => p.id === current)?.name ?? "their programme";
   const batches = allBatches.filter((b) => b.programmeId !== current && !/unassigned/i.test(b.name));
   const target = programmeOfBatch(batch);
-  const plans = target ? plansFor(target) : [];
+  // Keep is offered when their plan also fits the new programme
+  const canKeep = !!athlete.currentPlan && (!athlete.currentPlan.programmeId || athlete.currentPlan.programmeId === target);
 
   // Nothing to move to with one programme
   if (programmes.length < 2) return null;
@@ -36,9 +41,15 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!batch) return setError("Choose the batch they're joining.");
-    if (!plan) return setError("Choose their fee plan.");
+    const problem = planChangeProblem(plan);
+    if (problem) return setError(problem);
     start(async () => {
-      const res = await transferAthlete({ athleteId: athlete.athleteId, toBatch: batch, subscriptionPlanId: plan, reason });
+      const res = await transferAthlete({
+        athleteId: athlete.athleteId,
+        toBatch: batch,
+        plan: { ...plan, planId: plan.planId || undefined, oldInvoice: plan.oldInvoice || undefined },
+        reason,
+      });
       if (!res.success) return setError(res.message);
       toast.success(res.message);
       setOpen(false);
@@ -53,7 +64,7 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
         onClick={() => {
           // A fresh form each time it opens
           setBatch("");
-          setPlan("");
+          setPlan(blankPlanChange());
           setReason("");
           setError(null);
           setOpen(true);
@@ -62,7 +73,7 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
         <ArrowRightLeft /> Transfer
       </Button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-lg">
           <DialogHeader>
             <DialogTitle>Transfer {athlete.name}</DialogTitle>
             <DialogDescription>
@@ -76,7 +87,8 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
                 value={batch}
                 onValueChange={(v) => {
                   setBatch(v);
-                  setPlan("");
+                  // Plans depend on the programme; Keep may no longer fit
+                  setPlan(blankPlanChange());
                   setError(null);
                 }}
               >
@@ -92,21 +104,20 @@ export function TransferDialog({ athlete }: { athlete: { athleteId: string; name
                 </SelectContent>
               </Select>
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="transfer-plan">Fee plan</Label>
-              <Select value={plan} onValueChange={setPlan} disabled={!batch}>
-                <SelectTrigger id="transfer-plan" className="w-full">
-                  <SelectValue placeholder={batch ? "Choose a plan" : "Choose the batch first"} />
-                </SelectTrigger>
-                <SelectContent>
-                  {plans.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.name} · {formatCurrency(Number(p.amount))}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {batch && (
+              <PlanChangeFields
+                idPrefix="transfer"
+                value={plan}
+                onChange={(v) => {
+                  setPlan(v);
+                  setError(null);
+                }}
+                plans={target ? plansFor(target) : []}
+                choices={canKeep ? ["NEXT_BILL", "RESTART", "KEEP", "STOP"] : ["NEXT_BILL", "RESTART", "STOP"]}
+                currentPlan={athlete.currentPlan?.name}
+                bills={athlete.bills}
+              />
+            )}
             <div className="grid gap-2">
               <Label htmlFor="transfer-reason">
                 Reason <span className="font-normal text-muted-foreground">(optional)</span>

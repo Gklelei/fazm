@@ -1,45 +1,18 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { Prisma } from "@/generated/prisma/client";
 import { db } from "@/lib/prisma";
 import { createAuditLog } from "@/lib/audit";
 import { ActionError, asRole } from "@/lib/action";
 import { academyInstant } from "@/lib/academy-time";
-import { BILLING_DAY, nextMonthlyBillingDate } from "@/lib/billing";
-import { nextDocumentNumbers } from "@/lib/document-numbers";
 import { nextAthleteId } from "@/lib/athlete-numbers";
 import { CONSENT_VERSION } from "@/features/athletes/lib/consent-text";
-import { discountNewFeesInvoice } from "@/features/coupons/lib/engine";
+import { nextBillingByInterval, raisePlanInvoice, startPlan } from "@/features/athletes/lib/plan-change";
 import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 import { ageOn, missingDocuments, registrationSchema, type RegistrationInput } from "@/features/athletes/schemas/registration";
 import { getSettings } from "@/lib/settings";
 import { inBackground } from "@/lib/background";
 import { emailInvoice } from "@/features/invoices/lib/emails";
-
-/**
- * Monthly is unified to the 30th of next month (see src/lib/billing.ts).
- * Others stay interval-based.
- */
-function nextBillingByInterval(now: Date, interval: string) {
-  const next = new Date(now);
-  switch (interval) {
-    case "DAILY":
-      next.setDate(next.getDate() + 1);
-      return next;
-    case "WEEKLY":
-      next.setDate(next.getDate() + 7);
-      return next;
-    case "MONTHLY":
-      return nextMonthlyBillingDate(now, BILLING_DAY);
-    case "YEARLY":
-      next.setFullYear(next.getFullYear() + 1);
-      return next;
-    default:
-      // safe default: treat as monthly with unified billing
-      return nextMonthlyBillingDate(now, BILLING_DAY);
-  }
-}
 
 /**
  * Registers an athlete in one transaction: the athlete with guardian,
@@ -56,9 +29,6 @@ export async function registerAthlete(input: RegistrationInput) {
     const created = await db.$transaction(async (ctx) => {
       const now = new Date();
 
-      // ---------- Invoice number ----------
-      const [invoiceNumber] = await nextDocumentNumbers(ctx, "INV", 1, now);
-
       // ---------- Fee plan ----------
       const plan = await ctx.subscriptionPlan.findFirst({
         where: { id: v.subscriptionPlanId, isActive: true, isArchived: false },
@@ -74,7 +44,6 @@ export async function registerAthlete(input: RegistrationInput) {
       // ---------- Athlete number: counted in the batch's programme ----------
       const athleteId = await nextAthleteId(ctx, batch.programmeId);
 
-      const planAmount = new Prisma.Decimal(plan.amount);
       const currentPeriodStart = now;
       const currentPeriodEnd = nextBillingByInterval(now, plan.interval);
 
@@ -144,52 +113,20 @@ export async function registerAthlete(input: RegistrationInput) {
         },
       });
 
-      // ---------- Subscription ----------
-      const subscription = await ctx.athleteSubscription.create({
-        data: {
-          athleteId: athlete.athleteId,
-          subscriptionPlanId: plan.id,
-          status: "ACTIVE",
-          startDate: currentPeriodStart,
-          currentPeriodStart,
-          currentPeriodEnd,
-          autoRenew: true,
-          cancelAtPeriodEnd: false,
-          trialStart: null,
-          trialEnd: null,
-          updatedBy: user.email || "system",
-        },
+      // ---------- Fee plan, and its first bill: the full plan amount ----------
+      const by = user.email || "system";
+      const subscription = await startPlan(ctx, { athleteId: athlete.athleteId, plan, start: currentPeriodStart, end: currentPeriodEnd, by });
+      const firstInvoice = await raisePlanInvoice(ctx, {
+        athleteId: athlete.athleteId,
+        subscriptionId: subscription.id,
+        plan,
+        start: currentPeriodStart,
+        end: currentPeriodEnd,
+        description: `Initial ${plan.name} subscription (full amount)`,
+        by,
       });
 
-      // ---------- First invoice: the full plan amount ----------
-      const firstInvoice = await ctx.invoice.create({
-        data: {
-          athleteId: athlete.athleteId,
-          athleteSubscriptionId: subscription.id,
-          subscriptionPlanId: plan.id,
-          invoiceNumber,
-          type: "SUBSCRIPTION",
-          description: `Initial ${plan.name} subscription (full amount)`,
-          lines: {
-            create: { position: 0, description: plan.name, quantity: 1, unitAmount: planAmount, amount: planAmount, subscriptionPlanId: plan.id },
-          },
-          unitAmount: planAmount,
-          quantity: 1,
-          amountDue: planAmount,
-          amountPaid: new Prisma.Decimal(0),
-          status: "PENDING",
-          dueDate: currentPeriodEnd,
-          periodStart: currentPeriodStart,
-          periodEnd: currentPeriodEnd,
-          isRecurring: true,
-          nextBillingDate: currentPeriodEnd,
-          issuedBy: user.email || "system",
-        },
-      });
-      // Discounted like every fees invoice (the sibling discount, when it applies)
-      await discountNewFeesInvoice(ctx, firstInvoice.id);
-
-      return { id: athlete.id, athleteId, invoiceNumber };
+      return { id: athlete.id, athleteId, invoiceNumber: firstInvoice.invoiceNumber };
     });
 
     revalidatePath("/players");

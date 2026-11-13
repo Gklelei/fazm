@@ -33,6 +33,23 @@ export function clampToDay(
 }
 
 /**
+ * The billing month `now` falls in: from the last billing day (the 30th, clamped) to the next
+ * one. Monthly fees are billed on the billing day, so this is what a monthly bill covers today.
+ * On a billing day itself, a new month starts. `unused` is the share still to come (0–1).
+ *
+ * Example: 13 Nov → 30 Oct to 30 Nov, unused 17/31
+ */
+export function billingMonth(now: Date, billingDay: number = BILLING_DAY) {
+  const y = now.getFullYear();
+  const m = now.getMonth();
+  const thisMonths = clampToDay(y, m, billingDay);
+  const start = now >= thisMonths ? thisMonths : clampToDay(y, m - 1, billingDay);
+  const end = clampToDay(start.getFullYear(), start.getMonth() + 1, billingDay);
+  const unused = Math.min(Math.max((end.getTime() - now.getTime()) / (end.getTime() - start.getTime()), 0), 1);
+  return { start, end, unused };
+}
+
+/**
  * Returns the billing day (default the 30th) of the month AFTER `now`,
  * clamped to the last day of that month if it's shorter (e.g. February).
  *

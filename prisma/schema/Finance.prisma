@@ -257,7 +257,8 @@ enum RedemptionStatus {
 enum InvoiceDiscountKind {
   COUPON
   SIBLING
-  /// A discount from before discounts had their own lines
+  /// A fixed amount off: a discount from before discounts had their own lines, or a credit for
+  /// the unused days of a plan stopped early (see athletes/lib/plan-change.ts)
   OTHER
 }
 

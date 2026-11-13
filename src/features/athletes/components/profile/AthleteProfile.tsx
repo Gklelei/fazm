@@ -35,6 +35,7 @@ import { CONSENT_ENABLED } from "@/features/athletes/lib/consent-switch";
 import { athleteEditPath, athleteSlug } from "@/features/athletes/lib/athlete-links";
 import { TRANSFERS_ENABLED } from "@/features/athletes/lib/transfer-switch";
 import { TransferDialog } from "./TransferDialog";
+import { feeBillsOf } from "./PlanChangeFields";
 import { useProgramme } from "@/providers/ProgrammeContext";
 
 const dash = (v?: string | number | null) => (v === null || v === undefined || v === "" ? "—" : v);
@@ -94,6 +95,7 @@ export default function AthleteProfile({
   const name = athleteName(data);
   // "Girls U13" when there are several programmes
   const { batchLabel } = useProgramme();
+  const activePlan = data.athleteSubscriptions?.find((s) => s.status === "ACTIVE")?.subscriptionPlan;
   const guardian = data.guardians[0];
   const consents = data.consents as unknown as ConsentRecord[];
   // No photo without photos and videos consent (existing athletes too), while consent is on
@@ -173,7 +175,15 @@ export default function AthleteProfile({
                 </Link>
               </Button>
               {TRANSFERS_ENABLED && canTransfer && (
-                <TransferDialog athlete={{ athleteId: data.athleteId, name, batchId: data.batchesId }} />
+                <TransferDialog
+                  athlete={{
+                    athleteId: data.athleteId,
+                    name,
+                    batchId: data.batchesId,
+                    currentPlan: activePlan ? { name: activePlan.name, programmeId: activePlan.programmeId } : undefined,
+                    bills: feeBillsOf(data.invoices),
+                  }}
+                />
               )}
             </>
           )}

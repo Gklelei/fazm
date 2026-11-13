@@ -16,6 +16,9 @@ model Athlete {
   updatedAt            DateTime                    @updatedAt @map("updated_at")
   middleName           String?                     @map("middle_name")
   nextBillingDate      DateTime?
+  /// Set when staff stop their billing (plan ended, none started); cleared when a plan is given.
+  /// The invoice form flags them "No plan".
+  billingStoppedAt     DateTime?                   @map("billing_stopped_at")
   status               ATHLETE_ACCOUNT_STATUS      @default(PENDING)
   batchesId            String                      @map("batches_id")
   height               String

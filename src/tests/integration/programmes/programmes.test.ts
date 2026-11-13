@@ -101,7 +101,7 @@ describe("programmes", () => {
     expect(await db.invoice.count()).toBe(0);
     expect(await invoice([girl.athleteId])).toMatchObject({ success: true });
 
-    expect(await AddAthleteToSubscriptionPlan({ id: girlsPlan.id, mode: "create", athleteId: boy.athleteId })).toMatchObject({
+    expect(await AddAthleteToSubscriptionPlan({ id: girlsPlan.id, athleteId: boy.athleteId })).toMatchObject({
       success: false,
       message: `${girlsPlan.name} is for another programme. Choose a plan for their batch.`,
     });

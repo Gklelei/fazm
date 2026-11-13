@@ -17,6 +17,22 @@ Status: design agreed 2026-11-13, not started. Programmes are already **on** in 
 Main Prgramme 953 athletes (`ATH-FFA-001`…`955`, 935 from before programmes), Girls Programme 1 (`ATH-FFA-954`). `athlete_sequence` = 955, so Main continues at 956 and Girls at 002. `payment_reference` is empty: the athlete ID is not the paybill account, so the rename doesn't affect payments. Of 10 batch moves made through the edit form since 2026-11-05, none crossed programmes, and no whole batch changed programme, so the money backfill can use the current batch. All 14 FKs to `athlete` are `ON UPDATE CASCADE`. The prod DB is reached from the Serverdeck panel terminal, using the `DATABASE_URL` in `/var/lib/serverdeck/projects/fazam/shared/.env`.
 | Money after a transfer | Invoices and payments keep the programme they were raised in. The new programme bills from the transfer date. |
 
+## Fee plan choices (Transfer and Change plan), added 2026-11-13
+
+Staff choose what happens to the plan (`schemas/plan-change.ts`, `lib/plan-change.ts`):
+- **New plan from the next bill:** from the next billing day (the 30th); nothing billed now.
+- **New plan from today:** the old plan ends and the new plan's first bill is raised now, the same way as at registration (full amount, sibling and coupon discounts, guardian email). For the bill already raised on the old plan, staff choose one of:
+  - keep it;
+  - cancel it, if nothing on it is paid;
+  - credit the unused days: an `OTHER` discount on the **new** bill, worth the old bill's payable amount × the share of its billing month still to come, in whole shillings and capped at the new bill.
+- **Keep current plan:** Transfer only, and only when the plan fits the new programme.
+- **Stop billing:** no plan; sets `athlete.billing_stopped_at`. The invoice form flags these athletes "No plan", and giving them a plan clears it.
+
+Things to know:
+- Plan periods (`currentPeriodEnd`) are never moved forward and staff raise fee bills by hand, so the choices use the billing month and not the stored period.
+- A credit lowers the new programme's billed figure in reports, because it is a discount on a bill stamped with the new programme.
+- The profile's "Owes" figure now takes discounts off. It used to ignore them, sibling and coupon discounts included.
+
 ## Facts from the code that shaped this
 
 - `athlete.athlete_id` is the FK for attendance, assessments, invoices, finance, subscriptions, guardians, medical and coupon redemptions. Every FK is `ON UPDATE CASCADE`, so a one-off rename carries through.

@@ -10,7 +10,7 @@ export async function getAthleteSummary(athleteId: string) {
     }),
     db.invoice.aggregate({
       where: { athleteId, status: { in: ["PENDING", "PARTIAL", "OVERDUE"] } },
-      _sum: { amountDue: true, amountPaid: true },
+      _sum: { amountDue: true, discount: true, amountPaid: true },
     }),
     db.finance.aggregate({
       where: { athleteId, isArchived: false },
@@ -27,7 +27,8 @@ export async function getAthleteSummary(athleteId: string) {
     attended,
     /** null until at least one session has been marked */
     attendanceRate: marked ? Math.round((attended / marked) * 100) : null,
-    owed: Math.max(Number(owed._sum.amountDue ?? 0) - Number(owed._sum.amountPaid ?? 0), 0),
+    // What the open invoices still ask for: due, less their discounts (siblings, coupons, credits), less paid
+    owed: Math.max(Number(owed._sum.amountDue ?? 0) - Number(owed._sum.discount ?? 0) - Number(owed._sum.amountPaid ?? 0), 0),
     paid: paid._sum.amountPaid ?? 0,
   };
 }
